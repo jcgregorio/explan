@@ -72,7 +72,7 @@ export type TopologicalOrder = VertexIndices;
 export type ValidateResult = Result<TopologicalOrder>;
 
 /** Validates a DirectedGraph is a valid Chart. */
-export function Validate(g: DirectedGraph): ValidateResult {
+export function validate(g: DirectedGraph): ValidateResult {
   if (g.Vertices.length < 2) {
     return error(
       "Chart must contain at least two node, the start and finish tasks."
@@ -138,7 +138,7 @@ export function Validate(g: DirectedGraph): ValidateResult {
 }
 
 export function ChartValidate(c: Chart): ValidateResult {
-  const ret = Validate(c);
+  const ret = validate(c);
   if (!ret.ok) {
     return ret;
   }
