@@ -34,11 +34,11 @@ Deno.test("Basic size calculations 24px font:", () => {
   assertEquals(s.feature(1, 0, Feature.percentHeight), 3);
   assertEquals(s.feature(1, 0, Feature.taskLineHeight), 7);
 
-  assertEquals(s["dayWidthPx"], 22);
+  assertEquals(s["dayWidthPx"], 11);
   assertEquals(s["blockSizePx"], 8);
   assertEquals(
     s.coord(1, 1, Coordiate.taskLineStart),
     // margin + dayWidthPx, margin + rowHeight + 5*blockSize
-    new Point(10 + 11, 10 + 6 * 4 + 5 * 4)
+    new Point(10 + 11, 10 + 6 * 8 + 5 * 8)
   );
 });
