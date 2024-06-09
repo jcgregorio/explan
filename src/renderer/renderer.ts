@@ -19,6 +19,8 @@ export interface RenderOptions {
   marginSizePx: number;
 }
 
+/*
+
 export function renderTasksToCanvas(
   parent: HTMLElement,
   canvas: HTMLCanvasElement,
@@ -41,3 +43,4 @@ export function renderTasksToCanvas(
 
   return ok(null);
 }
+*/

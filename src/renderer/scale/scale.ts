@@ -2,7 +2,7 @@
 // from y-domain (row #, feature) to y-range (pixels) where feature is
 // something like 'text', 'task line', 'completion line', etc.
 
-import { RenderOptions } from "../renderer";
+import { RenderOptions } from "../renderer.ts";
 
 export class Point {
   x: number;
