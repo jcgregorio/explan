@@ -1,9 +1,6 @@
-// Need a way to map from x-domain (days, feature) to x-range (pixels) and
-// from y-domain (row #, feature) to y-range (pixels) where feature is
-// something like 'text', 'task line', 'completion line', etc.
-
 import { RenderOptions } from "../renderer.ts";
 
+/** A coordinate point on the rendering surface. */
 export class Point {
   x: number;
   y: number;
@@ -24,8 +21,10 @@ export class Point {
   }
 }
 
-// The value returned is the top left coordinate of the feature.
-export enum Coordiate {
+/** Features of the chart we can ask for coordinates of, where the value returned is
+ * the top left coordinate of the feature.
+ */
+export enum Feature {
   taskLineStart,
   textStart,
   percentStart,
@@ -33,11 +32,13 @@ export enum Coordiate {
   horizontalArrowDest,
 }
 
-export enum Feature {
+/** Sizes of features of a rendered chart. */
+export enum Metric {
   taskLineHeight,
   percentHeight,
 }
 
+/** Makes a number odd, adds one if even. */
 const makeOdd = (n: number): number => {
   if (n % 2 === 0) {
     return n + 1;
@@ -45,6 +46,7 @@ const makeOdd = (n: number): number => {
   return n;
 };
 
+/** Scale consolidates all calculations around rendering a chart onto a surface. */
 export class Scale {
   private dayWidthPx: number;
   private rowHeightPx: number;
@@ -56,9 +58,7 @@ export class Scale {
   constructor(
     opts: RenderOptions,
     canvasWidthPx: number,
-    canvasHeightPx: number,
-    totalNumberOfDays: number,
-    numberSwimLanes: number
+    totalNumberOfDays: number
   ) {
     this.marginSizePx = opts.marginSizePx;
     // TODO Change calcs if opts.displaySubRange is non-Null.
@@ -72,6 +72,7 @@ export class Scale {
     this.rowHeightPx = 6 * this.blockSizePx; // This might also be `(canvasHeightPx - 2 * opts.marginSizePx) / numberSwimLanes` if height is supplied?
   }
 
+  /** The top left corner of the bounding box for a single task. */
   private envelopeStart(row: number, day: number): Point {
     return new Point(
       day * this.dayWidthPx + this.marginSizePx,
@@ -79,27 +80,28 @@ export class Scale {
     );
   }
 
-  coord(row: number, day: number, coord: Coordiate): Point {
+  /** Returns the coordinate of the item */
+  feature(row: number, day: number, coord: Feature): Point {
     switch (coord) {
-      case Coordiate.taskLineStart:
+      case Feature.taskLineStart:
         return this.envelopeStart(row, day).add(0, 5 * this.blockSizePx);
         break;
-      case Coordiate.textStart:
+      case Feature.textStart:
         return this.envelopeStart(row, day).add(
           this.blockSizePx,
           this.blockSizePx
         );
         break;
-      case Coordiate.percentStart:
+      case Feature.percentStart:
         return this.envelopeStart(row, day).add(
           0,
           6 * this.blockSizePx - this.lineWidthPx
         );
         break;
-      case Coordiate.verticalArrowDest:
+      case Feature.verticalArrowDest:
         return this.envelopeStart(row, day).add(0, 5 * this.blockSizePx);
         break;
-      case Coordiate.horizontalArrowDest:
+      case Feature.horizontalArrowDest:
         return this.envelopeStart(row, day).add(0, 4.5 * this.blockSizePx);
       default:
         // The line below will not compile if you missed an enum in the switch above.
@@ -108,13 +110,13 @@ export class Scale {
     }
   }
 
-  feature(row: number, day: number, feature: Feature): number {
+  metric(feature: Metric): number {
     switch (feature) {
-      case Feature.taskLineHeight:
+      case Metric.taskLineHeight:
         return this.taskHeightPx;
         break;
 
-      case Feature.percentHeight:
+      case Metric.percentHeight:
         return this.lineWidthPx;
         break;
 
