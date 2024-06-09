@@ -15,4 +15,5 @@ Deno.test("Basic size calculations:", () => {
   };
   const s = new Scale(opts, 256, 0, 20, 10);
   assert(s.feature(1, 0, Feature.percentHeight) === 1);
+  assert(s.feature(1, 0, Feature.taskLineHeight) === 3);
 });
