@@ -62,8 +62,9 @@ export class Scale {
   ) {
     this.marginSizePx = opts.marginSizePx;
     // TODO Change calcs if opts.displaySubRange is non-Null.
-    this.dayWidthPx =
-      (canvasWidthPx - 2 * opts.marginSizePx) / totalNumberOfDays;
+    this.dayWidthPx = Math.floor(
+      (canvasWidthPx - 2 * opts.marginSizePx) / totalNumberOfDays
+    );
 
     this.blockSizePx = Math.floor(opts.fontSizePx / 3);
     this.taskHeightPx = makeOdd(Math.floor((this.blockSizePx * 3) / 4));

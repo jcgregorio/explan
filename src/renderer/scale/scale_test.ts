@@ -1,6 +1,6 @@
-import { assert } from "https://deno.land/std@0.224.0/assert/assert.ts";
+import { assertEquals } from "https://deno.land/std/assert/mod.ts";
 import { RenderOptions } from "../renderer.ts";
-import { Feature, Scale } from "./scale.ts";
+import { Coordiate, Feature, Point, Scale } from "./scale.ts";
 
 Deno.test("Basic size calculations:", () => {
   const opts: RenderOptions = {
@@ -14,6 +14,14 @@ Deno.test("Basic size calculations:", () => {
     marginSizePx: 10,
   };
   const s = new Scale(opts, 256, 0, 20, 10);
-  assert(s.feature(1, 0, Feature.percentHeight) === 1);
-  assert(s.feature(1, 0, Feature.taskLineHeight) === 3);
+  assertEquals(s.feature(1, 0, Feature.percentHeight), 1);
+  assertEquals(s.feature(1, 0, Feature.taskLineHeight), 3);
+
+  assertEquals(s["dayWidthPx"], 11);
+  assertEquals(s["blockSizePx"], 4);
+  assertEquals(
+    s.coord(1, 1, Coordiate.taskLineStart),
+    // margin + dayWidthPx, margin + rowHeight + 5*blockSize
+    new Point(10 + 11, 10 + 6 * 4 + 5 * 4)
+  );
 });
