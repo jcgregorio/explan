@@ -1,6 +1,6 @@
-import { Result, ok, error } from "../result.ts";
-import { Task, Chart, ChartValidate } from "../chart/chart.ts";
-import { DirectedEdge, edgesByDstToMap, edgesBySrcToMap } from "../dag/dag.ts";
+import { Result, ok, error } from "../result";
+import { Task, Chart, ChartValidate } from "../chart/chart";
+import { DirectedEdge, edgesByDstToMap, edgesBySrcToMap } from "../dag/dag";
 
 /** The standard slack calculation values. */
 export class Slack {

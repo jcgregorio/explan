@@ -1,4 +1,4 @@
-import { RenderOptions } from "../renderer.ts";
+import { RenderOptions } from "../renderer";
 
 /** A coordinate point on the rendering surface. */
 export class Point {

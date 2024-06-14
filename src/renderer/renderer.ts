@@ -1,7 +1,3 @@
-import { Result, ok, error } from "../result.ts";
-import { validate, Chart } from "../chart/chart.ts";
-import { Slack } from "../slack/slack.ts";
-
 export interface ColorTheme {
   surface: string;
   onSurface: string;

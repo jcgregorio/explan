@@ -1,6 +1,6 @@
-import { Chart, Task, Validate } from "./chart/chart.ts";
-import { InsertNewEmptyTaskAfterOp } from "./ops/ops.ts";
-import { ComputeSlack } from "./slack/slack.ts";
+import { Chart, Task, validate } from "./chart/chart";
+import { InsertNewEmptyTaskAfterOp } from "./ops/ops";
+import { ComputeSlack } from "./slack/slack";
 
 const C: Chart = {
   Vertices: [
@@ -36,6 +36,6 @@ console.log("Applying op2.inverse: ", err);
 // Ops that fail to apply revert applied ops.
 err = InsertNewEmptyTaskAfterOp(99).apply(c2);
 console.log("Applying op: ", err);
-console.log(Validate(c2));
+console.log(validate(c2));
 
 console.log(JSON.stringify(c2, null, "  "));

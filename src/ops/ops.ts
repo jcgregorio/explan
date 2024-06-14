@@ -1,6 +1,6 @@
-import { Chart, Task } from "../chart/chart.ts";
-import { Result, ok, error } from "../result.ts";
-import { DirectedEdge } from "../dag/dag.ts";
+import { Chart, Task } from "../chart/chart";
+import { Result, ok, error } from "../result";
+import { DirectedEdge } from "../dag/dag";
 
 // Operations on Charts. Note they are reversible, so we can have an 'undo' list.
 

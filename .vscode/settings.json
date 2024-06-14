@@ -1,0 +1,19 @@
+{
+  "eslint.lintTask.enable": true,
+  "eslint.nodePath": "./node_modules",
+  "eslint.enable": true,
+  "eslint.quiet": false,
+  "eslint.run": "onType",
+  "eslint.execArgv": null,
+  "eslint.onIgnoredFiles": "off",
+  "eslint.trace.server": "verbose",
+  "eslint.probe": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "html",
+    "vue",
+    "markdown"
+  ]
+}

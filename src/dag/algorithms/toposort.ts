@@ -6,7 +6,7 @@ import {
   DirectedGraph,
   edgesBySrcToMap,
   edgesByDstToMap,
-} from "../dag.ts";
+} from "../dag";
 
 /**
 The return type for the ToplogicalSort function. 

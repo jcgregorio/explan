@@ -1,4 +1,4 @@
-import { Triangular } from "../stats/cdf/triangular/triangular.ts";
+import { Triangular } from "../stats/cdf/triangular/triangular";
 
 /**
  * Uncertainty is a measure of how uncertain you are of a tasks duration.

@@ -1,15 +1,15 @@
-import { Result, ok, error } from "../result.ts";
+import { Result, ok, error } from "../result";
 import {
   VertexIndices,
   Edges,
   DirectedGraph,
   edgesBySrcToMap,
   edgesByDstToMap,
-} from "../dag/dag.ts";
+} from "../dag/dag";
 
-import { topologicalSort } from "../dag/algorithms/toposort.ts";
-import { DurationModel } from "../duration/duration.ts";
-import { JacobianDuration, Uncertainty } from "../duration/jacobian.ts";
+import { topologicalSort } from "../dag/algorithms/toposort";
+import { DurationModel } from "../duration/duration";
+import { JacobianDuration, Uncertainty } from "../duration/jacobian";
 
 enum TaskState {
   unstarted = "unstarted",

@@ -1,4 +1,4 @@
-import { Triangular } from "./triangular.ts";
+import { Triangular } from "./triangular";
 
 export enum Uncertainty {
   low = 1.1,

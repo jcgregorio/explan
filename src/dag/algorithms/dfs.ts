@@ -1,4 +1,4 @@
-import { Result, ok, error } from "../../result.ts";
+import { Result, ok, error } from "../../result";
 import {
   Vertex,
   VertexIndices,
@@ -7,7 +7,7 @@ import {
   DirectedGraph,
   edgesBySrcToMap,
   edgesByDstToMap,
-} from "../dag.ts";
+} from "../dag";
 
 /** A function that can be applied to a Vertex, used in later functions like
 Depth First Search to do work on every Vertex in a DirectedGraph.
