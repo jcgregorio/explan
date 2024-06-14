@@ -1,5 +1,5 @@
 /** One vertex of a graph. */
-export type Vertex = {};
+export type Vertex = object;
 
 /** Every Vertex in a graph. */
 export type Vertices = Vertex[];

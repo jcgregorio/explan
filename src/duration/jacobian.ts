@@ -34,6 +34,7 @@ export class JacobianDuration {
     return this.triangular.sample(p);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   toJSON(_key: string): object {
     return {
       ctor: "JacobianDuration",

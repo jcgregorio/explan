@@ -1,12 +1,4 @@
-import {
-  Vertex,
-  VertexIndices,
-  DirectedEdge,
-  Edges,
-  DirectedGraph,
-  edgesBySrcToMap,
-  edgesByDstToMap,
-} from "../dag";
+import { Vertex, VertexIndices, DirectedGraph, edgesBySrcToMap } from "../dag";
 
 /**
 The return type for the ToplogicalSort function. 
