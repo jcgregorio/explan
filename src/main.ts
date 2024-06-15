@@ -1,4 +1,4 @@
-import { Chart, Task, validate } from "./chart/chart";
+import { Chart, Task, validate } from "./chart/chart.ts";
 import { InsertNewEmptyTaskAfterOp } from "./ops/ops";
 import { ComputeSlack } from "./slack/slack";
 

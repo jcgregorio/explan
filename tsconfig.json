@@ -13,7 +13,10 @@
     "skipLibCheck": true,
     "moduleResolution": "Bundler",
     "preserveConstEnums": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "isolatedModules": true
   },
   "include": ["src/**/*"],
   "exclude": ["**/*.spec.ts", "src/**/*_test.ts"]

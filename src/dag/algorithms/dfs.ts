@@ -31,8 +31,8 @@ export const setOfVerticesWithNoIncomingEdge = (
 each node.
  */
 export const depthFirstSearch = (g: DirectedGraph, f: vertexFunction) => {
-  setOfVerticesWithNoIncomingEdge(g).forEach((value: Vertex, index: number) => {
-    depthFirstSearchFromIndex(g, index, f);
+  setOfVerticesWithNoIncomingEdge(g).forEach((vertexIndex: number) => {
+    depthFirstSearchFromIndex(g, vertexIndex, f);
   });
 };
 
