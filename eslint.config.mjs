@@ -5,6 +5,6 @@ export default [
   { languageOptions: { globals: globals.browser } },
   ...tseslint.configs.recommended,
   {
-    ignores: ["dist/**/*", "eslint.config.mjs"],
+    ignores: ["dst/**/*", "eslint.config.mjs"],
   },
 ];

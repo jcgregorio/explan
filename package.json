@@ -1,4 +1,19 @@
 {
+  "name": "explan",
+  "version": "1.0.0",
+  "description": "Project planning software.",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint"
+  },
+  "keywords": [
+    "gantt",
+    "pert",
+    "project management"
+  ],
+  "author": "joe@bitworking.org",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@eslint/js": "9.5.0",
     "@tsconfig/recommended": "1.0.6",
