@@ -16,7 +16,11 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@eslint/js": "9.5.0",
+    "@esm-bundle/chai": "4.3.4-fix.0",
     "@tsconfig/recommended": "1.0.6",
+    "@web/dev-server-esbuild": "1.0.2",
+    "@web/test-runner": "0.18.2",
+    "@web/test-runner-puppeteer": "0.16.0",
     "esbuild": "0.21.5",
     "eslint": "8.57.0",
     "globals": "15.4.0",
