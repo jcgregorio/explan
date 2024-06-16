@@ -1,5 +1,4 @@
 import { assert } from "@esm-bundle/chai";
-
 import { Triangular } from "./triangular.ts";
 
 it("Test with simple case c=b.", () => {

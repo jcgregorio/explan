@@ -11,3 +11,5 @@ This was the incantation that I found that works to install esbuild and eslint w
 Tests are working, at least for:
 
     npx web-test-runner ./src/stats/cdf/triangular/triangular_test.ts --puppeteer --verbose
+
+Add `--watch` to have it run continuously.

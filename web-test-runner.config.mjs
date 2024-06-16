@@ -3,7 +3,6 @@ import { fileURLToPath } from "url";
 
 export default {
   nodeResolve: true,
-  watch: true,
   plugins: [
     esbuildPlugin({
       ts: true,

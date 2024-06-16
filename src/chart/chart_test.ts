@@ -1,10 +1,9 @@
-import { assert } from "https://deno.land/std@0.224.0/assert/assert.ts";
+import { assert } from "@esm-bundle/chai";
 import { validate } from "./chart.ts";
 import { Chart } from "./chart.ts";
 import { DirectedGraph } from "../dag/dag.ts";
-import { assertFalse } from "https://deno.land/std@0.224.0/assert/assert_false.ts";
 
-Deno.test("A directed graph validates:", () => {
+it("A directed graph validates:", () => {
   const G: DirectedGraph = {
     Vertices: [{}, {}, {}, {}],
     Edges: [
@@ -14,10 +13,10 @@ Deno.test("A directed graph validates:", () => {
       { i: 2, j: 3 },
     ],
   };
-  assert(validate(G).ok);
+  assert.isTrue(validate(G).ok);
 });
 
-Deno.test("A directed graph with a loop fails to validate:", () => {
+it("A directed graph with a loop fails to validate:", () => {
   const GWithLoop: DirectedGraph = {
     Vertices: [{}, {}, {}, {}],
     Edges: [
@@ -28,10 +27,10 @@ Deno.test("A directed graph with a loop fails to validate:", () => {
       { i: 2, j: 0 },
     ],
   };
-  assertFalse(validate(GWithLoop).ok);
+  assert.isFalse(validate(GWithLoop).ok);
 });
 
-Deno.test("A default chart validates.", () => {
+it("A default chart validates.", () => {
   const r = validate(new Chart());
-  assert(r.ok);
+  assert.isTrue(r.ok);
 });
