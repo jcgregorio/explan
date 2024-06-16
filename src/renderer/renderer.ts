@@ -1,6 +1,7 @@
 import { Chart, validate } from "../chart/chart";
 import { Result, ok } from "../result";
 import { Slack } from "../slack/slack";
+import { Feature, Metric, Scale } from "./scale/scale";
 
 export interface ColorTheme {
   surface: string;
@@ -24,7 +25,7 @@ export function renderTasksToCanvas(
   canvas: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D,
   chart: Chart,
-  slack: Slack[],
+  slacks: Slack[],
   opts: RenderOptions
 ): Result<null> {
   const vret = validate(chart);
@@ -32,12 +33,43 @@ export function renderTasksToCanvas(
     return vret;
   }
   const topologicalOrder = vret.value;
+  const scale = new Scale(
+    opts,
+    canvas.width,
+    slacks[slacks.length - 1].earlyFinish + 1
+  );
 
-  // Figure out how wide the canvas will be in terms of days using the total length of the project.
-
+  ctx.font = `${opts.fontSizePx}px serif`;
+  ctx.fillStyle = opts.colorTheme.surface;
+  ctx.strokeStyle = opts.colorTheme.onSurface;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.lineWidth = scale.metric(Metric.taskLineHeight);
   // Descend through the topological order drawing task lines in their swim
   // lanes, recording pixel locations for start and end, to be used later when
   // drawing the dependencies among the tasks.
+  topologicalOrder.forEach((index: number, row: number) => {
+    const task = chart.Vertices[index];
+    const slack = slacks[index];
+    const taskStart = scale.feature(
+      row,
+      slack.earlyStart,
+      Feature.taskLineStart
+    );
+    const taskEnd = scale.feature(
+      row,
+      slack.earlyFinish,
+      Feature.taskLineStart
+    );
+    ctx.moveTo(taskStart.x, taskStart.y);
+    ctx.lineTo(taskEnd.x, taskEnd.y);
+    ctx.stroke();
+
+    ctx.lineWidth = 1;
+    ctx.fillStyle = opts.colorTheme.onSurface;
+    ctx.textBaseline = "top";
+    const textStart = scale.feature(row, slack.earlyStart, Feature.textStart);
+    ctx.fillText(task.name, textStart.x, textStart.y);
+  });
 
   return ok(null);
 }

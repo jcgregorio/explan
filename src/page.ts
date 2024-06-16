@@ -1,4 +1,5 @@
 import { Chart, Task } from "./chart/chart.ts";
+import { InsertNewEmptyTaskAfterOp } from "./ops/ops.ts";
 import {
   ColorTheme,
   RenderOptions,
@@ -11,6 +12,7 @@ const C: Chart = {
     new Task("Start"),
     new Task("A", 10),
     new Task("B", 15),
+    new Task("C", 3),
     new Task("Finish"),
   ],
   Edges: [
@@ -18,6 +20,7 @@ const C: Chart = {
     { i: 0, j: 2 },
     { i: 1, j: 3 },
     { i: 2, j: 3 },
+    { i: 3, j: 4 },
   ],
 };
 
@@ -32,12 +35,13 @@ if (!slackResult.ok) {
 const canvas = document.querySelector<HTMLCanvasElement>("canvas")!;
 const parent = canvas!.parentElement!;
 const ctx = canvas.getContext("2d")!;
+ctx.imageSmoothingEnabled = false;
 const colorTheme: ColorTheme = {
   surface: "#fff",
   onSurface: "#000",
 };
 const opts: RenderOptions = {
-  fontSizePx: 12,
+  fontSizePx: 24,
   hasText: true,
   displaySubRange: null,
   colorTheme: colorTheme,
