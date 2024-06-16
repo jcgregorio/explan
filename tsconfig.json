@@ -16,7 +16,8 @@
     "outDir": "dist",
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "types": ["mocha"]
   },
   "include": ["src/**/*"],
   "exclude": ["**/*.spec.ts", "src/**/*_test.ts"]
