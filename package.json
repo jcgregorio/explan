@@ -7,7 +7,7 @@
     "test": "npx web-test-runner \"./src/**/*_test.ts\" --puppeteer",
     "test:cont": "npx web-test-runner \"./src/**/*_test.ts\" --puppeteer --watch",
     "lint": "npx eslint",
-    "build": "npx esbuild ./src/main.ts --bundle --outdir=dst --sourcemap=inline",
+    "build": "npx esbuild ./src/page.ts --bundle --outdir=dst --sourcemap=inline",
     "watch": "git ls-files | entr npm run build",
     "serve": "npx http-server"
   },

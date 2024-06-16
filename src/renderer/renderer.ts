@@ -1,3 +1,7 @@
+import { Chart, validate } from "../chart/chart";
+import { Result, ok } from "../result";
+import { Slack } from "../slack/slack";
+
 export interface ColorTheme {
   surface: string;
   onSurface: string;
@@ -15,14 +19,12 @@ export interface RenderOptions {
   marginSizePx: number;
 }
 
-/*
-
 export function renderTasksToCanvas(
   parent: HTMLElement,
   canvas: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D,
   chart: Chart,
-  slack: Slack,
+  slack: Slack[],
   opts: RenderOptions
 ): Result<null> {
   const vret = validate(chart);
@@ -39,4 +41,3 @@ export function renderTasksToCanvas(
 
   return ok(null);
 }
-*/
