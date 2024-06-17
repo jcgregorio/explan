@@ -52,6 +52,8 @@ export function renderTasksToCanvas(
   ctx.strokeStyle = opts.colorTheme.onSurface;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  const taskLineHeight = scale.metric(Metric.taskLineHeight);
+
   // Descend through the topological order drawing task lines in their swim
   // lanes, recording pixel locations for start and end, to be used later when
   // drawing the dependencies among the tasks.
@@ -73,16 +75,16 @@ export function renderTasksToCanvas(
       // Draw milestone marker.
       ctx.lineWidth = scale.metric(Metric.percentHeight);
       const rectSize = scale.metric(Metric.taskLineHeight);
-      ctx.beginPath();
-      ctx.rect(taskStart.x, taskStart.y, rectSize, rectSize);
-      ctx.stroke();
+      ctx.strokeRect(taskStart.x, taskStart.y, rectSize, rectSize);
     } else {
       // Draw task.
       ctx.lineWidth = scale.metric(Metric.taskLineHeight);
-      ctx.beginPath();
-      ctx.moveTo(taskStart.x, taskStart.y);
-      ctx.lineTo(taskEnd.x, taskEnd.y);
-      ctx.stroke();
+      ctx.fillRect(
+        taskStart.x,
+        taskStart.y,
+        taskEnd.x - taskStart.x,
+        taskLineHeight
+      );
     }
 
     ctx.lineWidth = 1;
@@ -132,7 +134,7 @@ export function renderTasksToCanvas(
       const vertLineStart = scale.feature(
         srcRow,
         srcDay,
-        Feature.horizontalArrowDest
+        Feature.taskLineStart
       );
       const vertLineEnd = scale.feature(
         dstRow,
