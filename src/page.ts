@@ -9,9 +9,9 @@ import { ComputeSlack, Slack } from "./slack/slack";
 const C: Chart = {
   Vertices: [
     new Task("Start"),
-    new Task("A", 10),
-    new Task("B", 15),
-    new Task("C", 3),
+    new Task("Task A", 10),
+    new Task("Task B", 15),
+    new Task("Task C", 3),
     new Task("Finish"),
   ],
   Edges: [

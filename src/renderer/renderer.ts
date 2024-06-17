@@ -68,10 +68,22 @@ export function renderTasksToCanvas(
       slack.earlyFinish,
       Feature.taskLineStart
     );
-    ctx.lineWidth = scale.metric(Metric.taskLineHeight);
-    ctx.moveTo(taskStart.x, taskStart.y);
-    ctx.lineTo(taskEnd.x, taskEnd.y);
-    ctx.stroke();
+
+    if (taskStart.x === taskEnd.x) {
+      // Draw milestone marker.
+      ctx.lineWidth = scale.metric(Metric.percentHeight);
+      const rectSize = scale.metric(Metric.taskLineHeight);
+      ctx.beginPath();
+      ctx.rect(taskStart.x, taskStart.y, rectSize, rectSize);
+      ctx.stroke();
+    } else {
+      // Draw task.
+      ctx.lineWidth = scale.metric(Metric.taskLineHeight);
+      ctx.beginPath();
+      ctx.moveTo(taskStart.x, taskStart.y);
+      ctx.lineTo(taskEnd.x, taskEnd.y);
+      ctx.stroke();
+    }
 
     ctx.lineWidth = 1;
     ctx.fillStyle = opts.colorTheme.onSurface;
@@ -85,11 +97,8 @@ export function renderTasksToCanvas(
 
   // Now draw all the arrows, i.e. edges.
   chart.Edges.forEach((e: DirectedEdge) => {
-    const srcTask: Task = chart.Vertices[e.i];
     const srcSlack: Slack = slacks[e.i];
-    const dstTask: Task = chart.Vertices[e.j];
     const dstSlack: Slack = slacks[e.j];
-
     const srcRow = taskIndexToRow.get(e.i)!;
     const dstRow = taskIndexToRow.get(e.j)!;
     const srcDay = srcSlack.earlyFinish;
@@ -100,12 +109,8 @@ export function renderTasksToCanvas(
 
     if (srcDay === dstDay) {
       // Draw a vertical arrow.
-      const arrowStart = scale.feature(
-        srcRow,
-        srcDay,
-        Feature.verticalArrowDest
-      );
-      const arrowEnd = scale.feature(dstRow, dstDay, Feature.verticalArrowDest);
+      const arrowStart = scale.feature(srcRow, srcDay, Feature.taskLineStart);
+      const arrowEnd = scale.feature(dstRow, dstDay, Feature.taskLineStart);
       ctx.moveTo(arrowStart.x + 0.5, arrowStart.y);
       ctx.lineTo(arrowEnd.x + 0.5, arrowEnd.y);
 
