@@ -100,16 +100,13 @@ export function renderTasksToCanvas(
       const arrowStart = scale.feature(
         srcRow,
         srcDay,
-        Feature.horizontalArrowDest
+        Feature.verticalArrowDest
       );
-      const arrowEnd = scale.feature(
-        dstRow,
-        dstDay,
-        Feature.horizontalArrowDest
-      );
+      const arrowEnd = scale.feature(dstRow, dstDay, Feature.verticalArrowDest);
       ctx.moveTo(arrowStart.x + 0.5, arrowStart.y);
       ctx.lineTo(arrowEnd.x + 0.5, arrowEnd.y);
 
+      // Draw the arrowhead.
       const arrowHeadSize = scale.metric(Metric.taskLineHeight);
       ctx.moveTo(arrowEnd.x + 0.5, arrowEnd.y);
       ctx.lineTo(arrowEnd.x - arrowHeadSize + 0.5, arrowEnd.y - arrowHeadSize);
@@ -118,6 +115,40 @@ export function renderTasksToCanvas(
 
       ctx.stroke();
     } else {
+      const vertLineStart = scale.feature(
+        srcRow,
+        srcDay,
+        Feature.horizontalArrowDest
+      );
+      const vertLineEnd = scale.feature(
+        dstRow,
+        srcDay,
+        Feature.horizontalArrowDest
+      );
+      ctx.moveTo(vertLineStart.x + 0.5, vertLineStart.y);
+      ctx.lineTo(vertLineEnd.x + 0.5, vertLineEnd.y);
+      const horzLineStart = vertLineEnd;
+      const horzLineEnd = scale.feature(
+        dstRow,
+        dstDay,
+        Feature.horizontalArrowDest
+      );
+      ctx.moveTo(horzLineStart.x + 0.5, horzLineStart.y);
+      ctx.lineTo(horzLineEnd.x + 0.5, horzLineEnd.y);
+
+      const arrowHeadSize = scale.metric(Metric.taskLineHeight);
+      ctx.moveTo(horzLineEnd.x + 0.5, horzLineEnd.y);
+      ctx.lineTo(
+        horzLineEnd.x - arrowHeadSize + 0.5,
+        horzLineEnd.y + arrowHeadSize
+      );
+      ctx.moveTo(horzLineEnd.x + 0.5, horzLineEnd.y);
+      ctx.lineTo(
+        horzLineEnd.x - arrowHeadSize + 0.5,
+        horzLineEnd.y - arrowHeadSize
+      );
+
+      ctx.stroke();
       // Draw L shaped arrow, first going between rows, then going between days.
     }
   });

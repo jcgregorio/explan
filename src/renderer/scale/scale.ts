@@ -99,10 +99,10 @@ export class Scale {
         );
         break;
       case Feature.verticalArrowDest:
-        return this.envelopeStart(row, day).add(0, 5 * this.blockSizePx);
+        return this.envelopeStart(row, day).add(0, 4.5 * this.blockSizePx);
         break;
       case Feature.horizontalArrowDest:
-        return this.envelopeStart(row, day).add(0, 4.5 * this.blockSizePx);
+        return this.envelopeStart(row, day).add(0, 5 * this.blockSizePx);
       default:
         // The line below will not compile if you missed an enum in the switch above.
         coord satisfies never;
