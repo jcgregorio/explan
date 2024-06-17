@@ -1,4 +1,4 @@
-import { Chart, Task, validate } from "../chart/chart";
+import { Chart, validate } from "../chart/chart";
 import { DirectedEdge } from "../dag/dag";
 import { Result, ok } from "../result";
 import { Slack } from "../slack/slack";

@@ -86,6 +86,7 @@ export class Scale {
   feature(row: number, day: number, coord: Feature): Point {
     switch (coord) {
       case Feature.taskLineStart:
+      case Feature.verticalArrowDest:
         return this.envelopeStart(row, day).add(0, 5 * this.blockSizePx);
         break;
       case Feature.textStart:
@@ -99,9 +100,6 @@ export class Scale {
           0,
           6 * this.blockSizePx - this.lineWidthPx
         );
-        break;
-      case Feature.verticalArrowDest:
-        return this.envelopeStart(row, day).add(0, 5 * this.blockSizePx);
         break;
       case Feature.horizontalArrowDest:
         return this.envelopeStart(row, day).add(
