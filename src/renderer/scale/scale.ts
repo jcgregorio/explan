@@ -36,6 +36,8 @@ export enum Feature {
 export enum Metric {
   taskLineHeight,
   percentHeight,
+  arrowHeadHeight,
+  arrowHeadWidth,
 }
 
 /** Makes a number odd, adds one if even. */
@@ -118,6 +120,14 @@ export class Scale {
 
       case Metric.percentHeight:
         return this.lineWidthPx;
+        break;
+
+      case Metric.arrowHeadHeight:
+        return this.taskHeightPx;
+        break;
+
+      case Metric.arrowHeadWidth:
+        return Math.ceil(this.taskHeightPx / 2);
         break;
 
       default:

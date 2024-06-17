@@ -95,6 +95,9 @@ export function renderTasksToCanvas(
     const srcDay = srcSlack.earlyFinish;
     const dstDay = dstSlack.earlyStart;
 
+    const arrowHeadHeight = scale.metric(Metric.arrowHeadHeight);
+    const arrowHeadWidth = scale.metric(Metric.arrowHeadWidth);
+
     if (srcDay === dstDay) {
       // Draw a vertical arrow.
       const arrowStart = scale.feature(
@@ -107,14 +110,20 @@ export function renderTasksToCanvas(
       ctx.lineTo(arrowEnd.x + 0.5, arrowEnd.y);
 
       // Draw the arrowhead.
-      const arrowHeadSize = scale.metric(Metric.taskLineHeight);
       ctx.moveTo(arrowEnd.x + 0.5, arrowEnd.y);
-      ctx.lineTo(arrowEnd.x - arrowHeadSize + 0.5, arrowEnd.y - arrowHeadSize);
+      ctx.lineTo(
+        arrowEnd.x - arrowHeadWidth + 0.5,
+        arrowEnd.y - arrowHeadHeight
+      );
       ctx.moveTo(arrowEnd.x + 0.5, arrowEnd.y);
-      ctx.lineTo(arrowEnd.x + arrowHeadSize + 0.5, arrowEnd.y - arrowHeadSize);
-
-      ctx.stroke();
+      ctx.lineTo(
+        arrowEnd.x + arrowHeadWidth + 0.5,
+        arrowEnd.y - arrowHeadHeight
+      );
     } else {
+      // Draw L shaped arrow, first going between rows, then going between days.
+
+      // Draw vertical part of the "L".
       const vertLineStart = scale.feature(
         srcRow,
         srcDay,
@@ -127,6 +136,8 @@ export function renderTasksToCanvas(
       );
       ctx.moveTo(vertLineStart.x + 0.5, vertLineStart.y);
       ctx.lineTo(vertLineEnd.x + 0.5, vertLineEnd.y);
+
+      // Draw horizontal part of the "L".
       const horzLineStart = vertLineEnd;
       const horzLineEnd = scale.feature(
         dstRow,
@@ -136,21 +147,19 @@ export function renderTasksToCanvas(
       ctx.moveTo(horzLineStart.x + 0.5, horzLineStart.y);
       ctx.lineTo(horzLineEnd.x + 0.5, horzLineEnd.y);
 
-      const arrowHeadSize = scale.metric(Metric.taskLineHeight);
+      // Draw the arrowhead.
       ctx.moveTo(horzLineEnd.x + 0.5, horzLineEnd.y);
       ctx.lineTo(
-        horzLineEnd.x - arrowHeadSize + 0.5,
-        horzLineEnd.y + arrowHeadSize
+        horzLineEnd.x - arrowHeadHeight + 0.5,
+        horzLineEnd.y + arrowHeadWidth
       );
       ctx.moveTo(horzLineEnd.x + 0.5, horzLineEnd.y);
       ctx.lineTo(
-        horzLineEnd.x - arrowHeadSize + 0.5,
-        horzLineEnd.y - arrowHeadSize
+        horzLineEnd.x - arrowHeadHeight + 0.5,
+        horzLineEnd.y - arrowHeadWidth
       );
-
-      ctx.stroke();
-      // Draw L shaped arrow, first going between rows, then going between days.
     }
+    ctx.stroke();
   });
   return ok(null);
 }
