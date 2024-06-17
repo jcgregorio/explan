@@ -1,4 +1,5 @@
-import { Chart, validate } from "../chart/chart";
+import { Chart, Task, validate } from "../chart/chart";
+import { DirectedEdge } from "../dag/dag";
 import { Result, ok } from "../result";
 import { Slack } from "../slack/slack";
 import { Feature, Metric, Scale } from "./scale/scale";
@@ -33,6 +34,13 @@ export function renderTasksToCanvas(
     return vret;
   }
   const topologicalOrder = vret.value;
+
+  // topologicalOrder maps from row to task index. We also need to construct a
+  // map that goes in the opposite direction.
+  const taskIndexToRow: Map<number, number> = new Map(
+    topologicalOrder.map((taskIndex: number, row: number) => [row, taskIndex])
+  );
+
   const scale = new Scale(
     opts,
     canvas.width,
@@ -43,7 +51,7 @@ export function renderTasksToCanvas(
   ctx.fillStyle = opts.colorTheme.surface;
   ctx.strokeStyle = opts.colorTheme.onSurface;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.lineWidth = scale.metric(Metric.taskLineHeight);
+
   // Descend through the topological order drawing task lines in their swim
   // lanes, recording pixel locations for start and end, to be used later when
   // drawing the dependencies among the tasks.
@@ -60,6 +68,7 @@ export function renderTasksToCanvas(
       slack.earlyFinish,
       Feature.taskLineStart
     );
+    ctx.lineWidth = scale.metric(Metric.taskLineHeight);
     ctx.moveTo(taskStart.x, taskStart.y);
     ctx.lineTo(taskEnd.x, taskEnd.y);
     ctx.stroke();
@@ -71,5 +80,46 @@ export function renderTasksToCanvas(
     ctx.fillText(task.name, textStart.x, textStart.y);
   });
 
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = opts.colorTheme.onSurface;
+
+  // Now draw all the arrows, i.e. edges.
+  chart.Edges.forEach((e: DirectedEdge) => {
+    const srcTask: Task = chart.Vertices[e.i];
+    const srcSlack: Slack = slacks[e.i];
+    const dstTask: Task = chart.Vertices[e.j];
+    const dstSlack: Slack = slacks[e.j];
+
+    const srcRow = taskIndexToRow.get(e.i)!;
+    const dstRow = taskIndexToRow.get(e.j)!;
+    const srcDay = srcSlack.earlyFinish;
+    const dstDay = dstSlack.earlyStart;
+
+    if (srcDay === dstDay) {
+      // Draw a vertical arrow.
+      const arrowStart = scale.feature(
+        srcRow,
+        srcDay,
+        Feature.horizontalArrowDest
+      );
+      const arrowEnd = scale.feature(
+        dstRow,
+        dstDay,
+        Feature.horizontalArrowDest
+      );
+      ctx.moveTo(arrowStart.x + 0.5, arrowStart.y);
+      ctx.lineTo(arrowEnd.x + 0.5, arrowEnd.y);
+
+      const arrowHeadSize = scale.metric(Metric.taskLineHeight);
+      ctx.moveTo(arrowEnd.x + 0.5, arrowEnd.y);
+      ctx.lineTo(arrowEnd.x - arrowHeadSize + 0.5, arrowEnd.y - arrowHeadSize);
+      ctx.moveTo(arrowEnd.x + 0.5, arrowEnd.y);
+      ctx.lineTo(arrowEnd.x + arrowHeadSize + 0.5, arrowEnd.y - arrowHeadSize);
+
+      ctx.stroke();
+    } else {
+      // Draw L shaped arrow, first going between rows, then going between days.
+    }
+  });
   return ok(null);
 }
