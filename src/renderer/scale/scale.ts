@@ -30,6 +30,12 @@ export enum Feature {
   percentStart,
   verticalArrowDest,
   horizontalArrowDest,
+  verticalArrowStart,
+  horizontalArrowStart,
+  verticalArrowDestToMilestone,
+  horizontalArrowDestToMilestone,
+  verticalArrowStartFromMilestone,
+  horizontalArrowStartFromMilestone,
 }
 
 /** Sizes of features of a rendered chart. */
@@ -38,6 +44,7 @@ export enum Metric {
   percentHeight,
   arrowHeadHeight,
   arrowHeadWidth,
+  milestoneDiameter,
 }
 
 /** Makes a number odd, adds one if even. */
@@ -87,25 +94,45 @@ export class Scale {
     switch (coord) {
       case Feature.taskLineStart:
       case Feature.verticalArrowDest:
+      case Feature.verticalArrowStart:
         return this.envelopeStart(row, day).add(0, 5 * this.blockSizePx);
-        break;
       case Feature.textStart:
         return this.envelopeStart(row, day).add(
           this.blockSizePx,
           this.blockSizePx
         );
-        break;
       case Feature.percentStart:
         return this.envelopeStart(row, day).add(
           0,
           6 * this.blockSizePx - this.lineWidthPx
         );
-        break;
       case Feature.horizontalArrowDest:
+      case Feature.horizontalArrowStart:
         return this.envelopeStart(row, day).add(
           0,
           Math.floor(5.5 * this.blockSizePx) - 1
         );
+      case Feature.verticalArrowDestToMilestone:
+        return this.feature(row, day, Feature.verticalArrowDest).add(
+          0,
+          -1 * this.metric(Metric.milestoneDiameter)
+        );
+      case Feature.horizontalArrowDestToMilestone:
+        return this.feature(row, day, Feature.horizontalArrowDest).add(
+          -1 * this.metric(Metric.milestoneDiameter),
+          0
+        );
+      case Feature.verticalArrowStartFromMilestone:
+        return this.feature(row, day, Feature.verticalArrowStart).add(
+          0,
+          this.metric(Metric.milestoneDiameter)
+        );
+      case Feature.horizontalArrowStartFromMilestone:
+        return this.feature(row, day, Feature.horizontalArrowStart).add(
+          this.metric(Metric.milestoneDiameter),
+          0
+        );
+
       default:
         // The line below will not compile if you missed an enum in the switch above.
         coord satisfies never;
@@ -128,6 +155,10 @@ export class Scale {
         break;
 
       case Metric.arrowHeadWidth:
+        return Math.ceil(this.taskHeightPx / 2);
+        break;
+
+      case Metric.milestoneDiameter:
         return Math.ceil(this.taskHeightPx / 2);
         break;
 

@@ -50,7 +50,7 @@ const paintChart = () => {
     onSurface: "#000",
   };
   const opts: RenderOptions = {
-    fontSizePx: 36,
+    fontSizePx: 48,
     hasText: true,
     displaySubRange: null,
     colorTheme: colorTheme,

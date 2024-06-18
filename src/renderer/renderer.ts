@@ -1,4 +1,4 @@
-import { Chart, validate } from "../chart/chart";
+import { Chart, Task, validate } from "../chart/chart";
 import { DirectedEdge } from "../dag/dag";
 import { Result, ok } from "../result";
 import { Slack } from "../slack/slack";
@@ -55,8 +55,7 @@ export function renderTasksToCanvas(
   const taskLineHeight = scale.metric(Metric.taskLineHeight);
 
   // Descend through the topological order drawing task lines in their swim
-  // lanes, recording pixel locations for start and end, to be used later when
-  // drawing the dependencies among the tasks.
+  // lanes.
   topologicalOrder.forEach((index: number, row: number) => {
     const task = chart.Vertices[index];
     const slack = slacks[index];
@@ -73,9 +72,15 @@ export function renderTasksToCanvas(
 
     if (taskStart.x === taskEnd.x) {
       // Draw milestone marker.
+      ctx.beginPath();
       ctx.lineWidth = scale.metric(Metric.percentHeight);
-      const rectSize = scale.metric(Metric.taskLineHeight);
-      ctx.strokeRect(taskStart.x, taskStart.y, rectSize, rectSize);
+      const diamondDiameter = scale.metric(Metric.milestoneDiameter);
+      ctx.moveTo(taskStart.x, taskStart.y - diamondDiameter);
+      ctx.lineTo(taskStart.x + diamondDiameter, taskStart.y);
+      ctx.lineTo(taskStart.x, taskStart.y + diamondDiameter);
+      ctx.lineTo(taskStart.x - diamondDiameter, taskStart.y);
+      ctx.closePath();
+      ctx.stroke();
     } else {
       // Draw task.
       ctx.lineWidth = scale.metric(Metric.taskLineHeight);
@@ -101,6 +106,8 @@ export function renderTasksToCanvas(
   chart.Edges.forEach((e: DirectedEdge) => {
     const srcSlack: Slack = slacks[e.i];
     const dstSlack: Slack = slacks[e.j];
+    const srcTask: Task = chart.Vertices[e.i];
+    const dstTask: Task = chart.Vertices[e.j];
     const srcRow = taskIndexToRow.get(e.i)!;
     const dstRow = taskIndexToRow.get(e.j)!;
     const srcDay = srcSlack.earlyFinish;
@@ -109,10 +116,54 @@ export function renderTasksToCanvas(
     const arrowHeadHeight = scale.metric(Metric.arrowHeadHeight);
     const arrowHeadWidth = scale.metric(Metric.arrowHeadWidth);
 
+    const verticalArrowStartFeatureFromTaskDuration = (task: Task): Feature => {
+      if (task.duration === 0) {
+        return Feature.verticalArrowStartFromMilestone;
+      } else {
+        return Feature.verticalArrowStart;
+      }
+    };
+
+    const verticalArrowDestFeatureFromTaskDuration = (task: Task): Feature => {
+      if (task.duration === 0) {
+        return Feature.verticalArrowDestToMilestone;
+      } else {
+        return Feature.verticalArrowDest;
+      }
+    };
+
+    const horizontalArrowStartFeatureFromTaskDuration = (
+      task: Task
+    ): Feature => {
+      if (task.duration === 0) {
+        return Feature.horizontalArrowStartFromMilestone;
+      } else {
+        return Feature.horizontalArrowStart;
+      }
+    };
+
+    const horizontalArrowDestFeatureFromTaskDuration = (
+      task: Task
+    ): Feature => {
+      if (task.duration === 0) {
+        return Feature.horizontalArrowDestToMilestone;
+      } else {
+        return Feature.horizontalArrowDest;
+      }
+    };
+
     if (srcDay === dstDay) {
       // Draw a vertical arrow.
-      const arrowStart = scale.feature(srcRow, srcDay, Feature.taskLineStart);
-      const arrowEnd = scale.feature(dstRow, dstDay, Feature.taskLineStart);
+      const arrowStart = scale.feature(
+        srcRow,
+        srcDay,
+        verticalArrowStartFeatureFromTaskDuration(srcTask)
+      );
+      const arrowEnd = scale.feature(
+        dstRow,
+        dstDay,
+        verticalArrowDestFeatureFromTaskDuration(dstTask)
+      );
       ctx.moveTo(arrowStart.x + 0.5, arrowStart.y);
       ctx.lineTo(arrowEnd.x + 0.5, arrowEnd.y);
 
@@ -134,12 +185,12 @@ export function renderTasksToCanvas(
       const vertLineStart = scale.feature(
         srcRow,
         srcDay,
-        Feature.taskLineStart
+        verticalArrowStartFeatureFromTaskDuration(srcTask)
       );
       const vertLineEnd = scale.feature(
         dstRow,
         srcDay,
-        Feature.horizontalArrowDest
+        verticalArrowStartFeatureFromTaskDuration(srcTask)
       );
       ctx.moveTo(vertLineStart.x + 0.5, vertLineStart.y);
       ctx.lineTo(vertLineEnd.x + 0.5, vertLineEnd.y);
@@ -149,7 +200,7 @@ export function renderTasksToCanvas(
       const horzLineEnd = scale.feature(
         dstRow,
         dstDay,
-        Feature.horizontalArrowDest
+        horizontalArrowDestFeatureFromTaskDuration(dstTask)
       );
       ctx.moveTo(horzLineStart.x + 0.5, horzLineStart.y);
       ctx.lineTo(horzLineEnd.x + 0.5, horzLineEnd.y);
