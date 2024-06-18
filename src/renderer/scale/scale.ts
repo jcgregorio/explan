@@ -120,7 +120,7 @@ export class Scale {
       case Feature.horizontalArrowDestToMilestone:
         return this.feature(row, day, Feature.horizontalArrowDest).add(
           -1 * this.metric(Metric.milestoneDiameter),
-          0
+          -1 * this.metric(Metric.milestoneDiameter)
         );
       case Feature.verticalArrowStartFromMilestone:
         return this.feature(row, day, Feature.verticalArrowStart).add(

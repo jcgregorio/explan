@@ -11,6 +11,7 @@ const C: Chart = {
     new Task("Start"),
     new Task("Task A", 10),
     new Task("Task B", 15),
+    new Task("Milestone 1", 0),
     new Task("Task C", 3),
     new Task("Finish"),
   ],
@@ -20,6 +21,7 @@ const C: Chart = {
     { i: 1, j: 3 },
     { i: 2, j: 3 },
     { i: 3, j: 4 },
+    { i: 4, j: 5 },
   ],
 };
 

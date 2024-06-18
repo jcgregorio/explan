@@ -21,6 +21,39 @@ export interface RenderOptions {
   marginSizePx: number;
 }
 
+const verticalArrowStartFeatureFromTaskDuration = (task: Task): Feature => {
+  if (task.duration === 0) {
+    return Feature.verticalArrowStartFromMilestone;
+  } else {
+    return Feature.verticalArrowStart;
+  }
+};
+
+const verticalArrowDestFeatureFromTaskDuration = (task: Task): Feature => {
+  if (task.duration === 0) {
+    return Feature.verticalArrowDestToMilestone;
+  } else {
+    return Feature.verticalArrowDest;
+  }
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const horizontalArrowStartFeatureFromTaskDuration = (task: Task): Feature => {
+  if (task.duration === 0) {
+    return Feature.horizontalArrowStartFromMilestone;
+  } else {
+    return Feature.horizontalArrowStart;
+  }
+};
+
+const horizontalArrowDestFeatureFromTaskDuration = (task: Task): Feature => {
+  if (task.duration === 0) {
+    return Feature.horizontalArrowDestToMilestone;
+  } else {
+    return Feature.horizontalArrowDest;
+  }
+};
+
 export function renderTasksToCanvas(
   parent: HTMLElement,
   canvas: HTMLCanvasElement,
@@ -48,11 +81,14 @@ export function renderTasksToCanvas(
   );
 
   ctx.font = `${opts.fontSizePx}px serif`;
+
+  // Clear the canvas.
   ctx.fillStyle = opts.colorTheme.surface;
   ctx.strokeStyle = opts.colorTheme.onSurface;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   const taskLineHeight = scale.metric(Metric.taskLineHeight);
+  const diamondDiameter = scale.metric(Metric.milestoneDiameter);
 
   // Descend through the topological order drawing task lines in their swim
   // lanes.
@@ -71,10 +107,11 @@ export function renderTasksToCanvas(
     );
 
     if (taskStart.x === taskEnd.x) {
-      // Draw milestone marker.
+      // Draw milestone marker as a diamond.
+
       ctx.beginPath();
       ctx.lineWidth = scale.metric(Metric.percentHeight);
-      const diamondDiameter = scale.metric(Metric.milestoneDiameter);
+      ctx.lineWidth = 1;
       ctx.moveTo(taskStart.x, taskStart.y - diamondDiameter);
       ctx.lineTo(taskStart.x + diamondDiameter, taskStart.y);
       ctx.lineTo(taskStart.x, taskStart.y + diamondDiameter);
@@ -115,42 +152,6 @@ export function renderTasksToCanvas(
 
     const arrowHeadHeight = scale.metric(Metric.arrowHeadHeight);
     const arrowHeadWidth = scale.metric(Metric.arrowHeadWidth);
-
-    const verticalArrowStartFeatureFromTaskDuration = (task: Task): Feature => {
-      if (task.duration === 0) {
-        return Feature.verticalArrowStartFromMilestone;
-      } else {
-        return Feature.verticalArrowStart;
-      }
-    };
-
-    const verticalArrowDestFeatureFromTaskDuration = (task: Task): Feature => {
-      if (task.duration === 0) {
-        return Feature.verticalArrowDestToMilestone;
-      } else {
-        return Feature.verticalArrowDest;
-      }
-    };
-
-    const horizontalArrowStartFeatureFromTaskDuration = (
-      task: Task
-    ): Feature => {
-      if (task.duration === 0) {
-        return Feature.horizontalArrowStartFromMilestone;
-      } else {
-        return Feature.horizontalArrowStart;
-      }
-    };
-
-    const horizontalArrowDestFeatureFromTaskDuration = (
-      task: Task
-    ): Feature => {
-      if (task.duration === 0) {
-        return Feature.horizontalArrowDestToMilestone;
-      } else {
-        return Feature.horizontalArrowDest;
-      }
-    };
 
     if (srcDay === dstDay) {
       // Draw a vertical arrow.
@@ -193,7 +194,7 @@ export function renderTasksToCanvas(
         horizontalArrowDestFeatureFromTaskDuration(dstTask)
       );
       ctx.moveTo(vertLineStart.x + 0.5, vertLineStart.y);
-      ctx.lineTo(vertLineEnd.x + 0.5, vertLineEnd.y);
+      ctx.lineTo(vertLineStart.x + 0.5, vertLineEnd.y);
 
       // Draw horizontal part of the "L".
       const horzLineStart = vertLineEnd;
@@ -202,7 +203,7 @@ export function renderTasksToCanvas(
         dstDay,
         horizontalArrowDestFeatureFromTaskDuration(dstTask)
       );
-      ctx.moveTo(horzLineStart.x + 0.5, horzLineStart.y);
+      ctx.moveTo(vertLineStart.x + 0.5, horzLineStart.y);
       ctx.lineTo(horzLineEnd.x + 0.5, horzLineEnd.y);
 
       // Draw the arrowhead.
