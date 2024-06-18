@@ -190,7 +190,7 @@ export function renderTasksToCanvas(
       const vertLineEnd = scale.feature(
         dstRow,
         srcDay,
-        verticalArrowStartFeatureFromTaskDuration(srcTask)
+        horizontalArrowDestFeatureFromTaskDuration(dstTask)
       );
       ctx.moveTo(vertLineStart.x + 0.5, vertLineStart.y);
       ctx.lineTo(vertLineEnd.x + 0.5, vertLineEnd.y);
