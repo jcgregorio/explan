@@ -108,7 +108,6 @@ export function renderTasksToCanvas(
 
     if (taskStart.x === taskEnd.x) {
       // Draw milestone marker as a diamond.
-
       ctx.beginPath();
       ctx.lineWidth = scale.metric(Metric.percentHeight);
       ctx.lineWidth = 1;
@@ -154,6 +153,11 @@ export function renderTasksToCanvas(
     const arrowHeadWidth = scale.metric(Metric.arrowHeadWidth);
 
     if (srcDay === dstDay) {
+      // TODO - Once we can present things in an order besides topological sort,
+      // e.g. allow grouping into swimlanes by resource, then these arrows might
+      // start pointing up, so both the arrow start and arrow head direction
+      // might change and need to depend on the direction from srcRow to dstRow.
+
       // Draw a vertical arrow.
       const arrowStart = scale.feature(
         srcRow,
@@ -180,6 +184,12 @@ export function renderTasksToCanvas(
         arrowEnd.y - arrowHeadHeight
       );
     } else {
+      // TODO - Once we can present things in an order besides topological sort,
+      // e.g. allow grouping into swimlanes by resource, then the vertical
+      // section of the "L" might start pointing up, so both the
+      // verticalArrowStart and verticalArrowDest locations might change and
+      // need to depend on the direction from srcRow to dstRow.
+
       // Draw L shaped arrow, first going between rows, then going between days.
 
       // Draw vertical part of the "L".
@@ -206,7 +216,8 @@ export function renderTasksToCanvas(
       ctx.moveTo(vertLineStart.x + 0.5, horzLineStart.y);
       ctx.lineTo(horzLineEnd.x + 0.5, horzLineEnd.y);
 
-      // Draw the arrowhead.
+      // Draw the arrowhead. This arrow head will always point to the right
+      // since that's how time flows.
       ctx.moveTo(horzLineEnd.x + 0.5, horzLineEnd.y);
       ctx.lineTo(
         horzLineEnd.x - arrowHeadHeight + 0.5,
