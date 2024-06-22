@@ -36,6 +36,10 @@ export enum Feature {
   horizontalArrowDestToMilestone,
   verticalArrowStartFromMilestone,
   horizontalArrowStartFromMilestone,
+
+  timeMarkStart,
+  timeMarkEnd,
+  timeTextStart,
 }
 
 /** Sizes of features of a rendered chart. */
@@ -63,6 +67,7 @@ export class Scale {
   private taskHeightPx: number;
   private lineWidthPx: number;
   private marginSizePx: number;
+  private topAxisHeightPx: number;
 
   constructor(
     opts: RenderOptions,
@@ -70,6 +75,9 @@ export class Scale {
     totalNumberOfDays: number
   ) {
     this.marginSizePx = opts.marginSizePx;
+    this.topAxisHeightPx = opts.displayTimes
+      ? Math.ceil((opts.fontSizePx * 4) / 3)
+      : 0;
     // TODO Change calcs if opts.displaySubRange is non-Null.
     this.dayWidthPx = Math.floor(
       (canvasWidthPx - 2 * opts.marginSizePx) / totalNumberOfDays
@@ -85,7 +93,14 @@ export class Scale {
   private envelopeStart(row: number, day: number): Point {
     return new Point(
       day * this.dayWidthPx + this.marginSizePx,
-      row * this.rowHeightPx + this.marginSizePx
+      row * this.rowHeightPx + this.marginSizePx + this.topAxisHeightPx
+    );
+  }
+
+  private timeEnvelopeStart(day: number): Point {
+    return new Point(
+      day * this.dayWidthPx + this.marginSizePx,
+      this.marginSizePx
     );
   }
 
@@ -133,6 +148,12 @@ export class Scale {
           0
         );
 
+      case Feature.timeMarkStart:
+        return this.timeEnvelopeStart(day);
+      case Feature.timeMarkEnd:
+        return this.timeEnvelopeStart(day).add(0, this.rowHeightPx * row);
+      case Feature.timeTextStart:
+        return this.timeEnvelopeStart(day).add(this.blockSizePx, 0);
       default:
         // The line below will not compile if you missed an enum in the switch above.
         coord satisfies never;

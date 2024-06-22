@@ -19,6 +19,7 @@ export interface RenderOptions {
   displaySubRange: DisplayRange | null;
   colorTheme: ColorTheme;
   marginSizePx: number;
+  displayTimes: boolean;
 }
 
 const verticalArrowStartFeatureFromTaskDuration = (task: Task): Feature => {

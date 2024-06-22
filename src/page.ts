@@ -57,6 +57,7 @@ const paintChart = () => {
     displaySubRange: null,
     colorTheme: colorTheme,
     marginSizePx: 10,
+    displayTimes: true,
   };
 
   renderTasksToCanvas(parent, canvas, ctx, C, slack, opts);
