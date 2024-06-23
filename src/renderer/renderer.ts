@@ -55,6 +55,39 @@ const horizontalArrowDestFeatureFromTaskDuration = (task: Task): Feature => {
   }
 };
 
+const drawTimeMarkerAtDayToTask = (
+  ctx: CanvasRenderingContext2D,
+  row: number,
+  day: number,
+  task: Task,
+  opts: RenderOptions,
+  scale: Scale,
+  daysWithTimeMarkers: Set<number>
+) => {
+  if (daysWithTimeMarkers.has(day)) {
+    return;
+  }
+  daysWithTimeMarkers.add(day);
+  const timeMarkStart = scale.feature(row, day, Feature.timeMarkStart);
+  const timeMarkEnd = scale.feature(
+    row,
+    day,
+    verticalArrowDestFeatureFromTaskDuration(task)
+  );
+  ctx.lineWidth = 1;
+  ctx.setLineDash([1, 2]);
+  ctx.moveTo(timeMarkStart.x + 0.5, timeMarkStart.y);
+  ctx.lineTo(timeMarkStart.x + 0.5, timeMarkEnd.y);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = opts.colorTheme.onSurface;
+  ctx.textBaseline = "top";
+  const textStart = scale.feature(row, day, Feature.timeTextStart);
+  ctx.fillText(`${day}`, textStart.x, textStart.y);
+};
+
 export function renderTasksToCanvas(
   parent: HTMLElement,
   canvas: HTMLCanvasElement,
@@ -91,6 +124,7 @@ export function renderTasksToCanvas(
   const taskLineHeight = scale.metric(Metric.taskLineHeight);
   const diamondDiameter = scale.metric(Metric.milestoneDiameter);
 
+  const daysWithTimeMarkers: Set<number> = new Set();
   // Descend through the topological order drawing task lines in their swim
   // lanes.
   topologicalOrder.forEach((index: number, row: number) => {
@@ -106,6 +140,28 @@ export function renderTasksToCanvas(
       slack.earlyFinish,
       Feature.taskLineStart
     );
+
+    // Draw in time markers if displayed.
+    if (opts.displayTimes) {
+      drawTimeMarkerAtDayToTask(
+        ctx,
+        row,
+        slack.earlyStart,
+        task,
+        opts,
+        scale,
+        daysWithTimeMarkers
+      );
+      drawTimeMarkerAtDayToTask(
+        ctx,
+        row,
+        slack.earlyFinish,
+        task,
+        opts,
+        scale,
+        daysWithTimeMarkers
+      );
+    }
 
     if (taskStart.x === taskEnd.x) {
       // Draw milestone marker as a diamond.

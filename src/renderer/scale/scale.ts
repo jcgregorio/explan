@@ -147,11 +147,10 @@ export class Scale {
           this.metric(Metric.milestoneDiameter),
           0
         );
-
       case Feature.timeMarkStart:
         return this.timeEnvelopeStart(day);
       case Feature.timeMarkEnd:
-        return this.timeEnvelopeStart(day).add(0, this.rowHeightPx * row);
+        return this.timeEnvelopeStart(day).add(0, this.rowHeightPx * (row + 1));
       case Feature.timeTextStart:
         return this.timeEnvelopeStart(day).add(this.blockSizePx, 0);
       default:
