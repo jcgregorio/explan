@@ -13,3 +13,17 @@ Tests are working, at least for:
     npx web-test-runner ./src/stats/cdf/triangular/triangular_test.ts --puppeteer --verbose
 
 Add `--watch` to have it run continuously.
+
+## Puppeteer notes
+
+If you are running under WSL you might get 
+
+```
+error while loading shared libraries: libgobject-2.0.so.0: cannot open shared object file: No such file or directory
+```
+
+In which case you can run the following to install the missing dependencies:    
+
+```
+sudo apt install libgtk-3-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2
+```
