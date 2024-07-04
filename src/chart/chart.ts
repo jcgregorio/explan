@@ -43,6 +43,8 @@ export class Task {
 
   name: string = "Task Name";
 
+  percentComplete: number = 0;
+
   // How long does this task take. Note this value is unitless, so it could be
   // seconds, days, or years.
   duration: number;
@@ -55,8 +57,6 @@ export class Task {
   actualStart: number = 0;
 
   actualFinish: number = 0;
-
-  percentComplete: number = 0;
 }
 
 export type Tasks = Task[];
