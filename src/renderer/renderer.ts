@@ -1,4 +1,4 @@
-import { Chart, Task, validate } from "../chart/chart";
+import { Chart, Task, validateChart } from "../chart/chart";
 import { DirectedEdge } from "../dag/dag";
 import { Result, ok } from "../result";
 import { Slack } from "../slack/slack";
@@ -96,7 +96,7 @@ export function renderTasksToCanvas(
   slacks: Slack[],
   opts: RenderOptions
 ): Result<null> {
-  const vret = validate(chart);
+  const vret = validateChart(chart);
   if (!vret.ok) {
     return vret;
   }
