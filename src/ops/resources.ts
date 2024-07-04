@@ -69,10 +69,10 @@ export class AddResourceOptionSubOp implements SubOp {
     if (definition === undefined) {
       return error(`${this.key} doesn't exist as a Resource`);
     }
-    const alreadyExists = definition.values.find(
+    const existingIndex = definition.values.findIndex(
       (value: string) => value === this.value
     );
-    if (alreadyExists) {
+    if (existingIndex !== -1) {
       return error(
         `${this.value} already exists as a value in the Resource ${this.key}.`
       );
@@ -111,6 +111,12 @@ export class DeleteResourceOptionSubOp implements SubOp {
         `${this.value} does not exist as a value in the Resource ${this.key}.`
       );
     }
+    if (definition.values.length === 1) {
+      return error(
+        `Resources must have at least one value. ${this.value} only has one value, so it can't be deleted. `
+      );
+    }
+
     definition.values.splice(valueIndex, 1);
 
     return ok(plan);
