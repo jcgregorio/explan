@@ -1,8 +1,9 @@
-import { Chart, Task } from "../chart/chart";
 import { Result, ok, error } from "../result";
 import { DirectedEdge } from "../dag/dag";
+import { Plan } from "../plan/plan";
+import { Task } from "../chart/chart";
 
-// Operations on Charts. Note they are reversible, so we can have an 'undo' list.
+// Operations on Plans. Note they are reversible, so we can have an 'undo' list.
 
 // Also, some operations might have 'partials', i.e. return a list of valid
 // options that can be passed to the operation. For example, adding a
@@ -29,13 +30,13 @@ import { DirectedEdge } from "../dag/dag";
 //
 // Each sub-op:
 //    1. Records all the info it needs to work.
-//    2. Can be "applied" to a Chart.
+//    2. Can be "applied" to a Plan.
 //    3. Can generate its inverse sub-op.
 
 export interface SubOp {
   // If the apply returns an error it is guaranteed not to have modified the
-  // Chart.
-  apply(c: Chart): Result<Chart>;
+  // Plan.
+  apply(c: Plan): Result<Plan>;
 
   inverse(): SubOp;
 }
@@ -47,7 +48,7 @@ export class Op {
     this.subOps = subOps;
   }
 
-  revertUpTo(c: Chart, index: number): Result<Chart> {
+  revertUpTo(c: Plan, index: number): Result<Plan> {
     const subOpsToRevert = this.subOps.slice(0, index).reverse();
 
     for (let i = 0; i < subOpsToRevert.length; i++) {
@@ -61,12 +62,12 @@ export class Op {
     return ok(c);
   }
 
-  apply(c: Chart): Result<Chart> {
+  apply(c: Plan): Result<Plan> {
     for (let i = 0; i < this.subOps.length; i++) {
       const s = this.subOps[i];
       const e = s.apply(c);
       if (!e.ok) {
-        // Revert all the SubOps applied to this point to get the Chart
+        // Revert all the SubOps applied to this point to get the Plan
         // back in a good place.
         const revertErr = this.revertUpTo(c, i);
         if (!revertErr.ok) {
@@ -88,22 +89,23 @@ export class Op {
 }
 
 /** A value of -1 for j means the Finish Milestone. */
-export function DirectedEdgeForChart(
+export function DirectedEdgeForPlan(
   i: number,
   j: number,
-  c: Chart
+  plan: Plan
 ): Result<DirectedEdge> {
+  const chart = plan.chart;
   if (j === -1) {
-    j = c.Vertices.length - 1;
+    j = chart.Vertices.length - 1;
   }
-  if (i < 0 || i >= c.Vertices.length) {
+  if (i < 0 || i >= chart.Vertices.length) {
     return error(
-      `i index out of range: ${i} not in [0, ${c.Vertices.length - 1}]`
+      `i index out of range: ${i} not in [0, ${chart.Vertices.length - 1}]`
     );
   }
-  if (j < 0 || j >= c.Vertices.length) {
+  if (j < 0 || j >= chart.Vertices.length) {
     return error(
-      `j index out of range: ${j} not in [0, ${c.Vertices.length - 1}]`
+      `j index out of range: ${j} not in [0, ${chart.Vertices.length - 1}]`
     );
   }
   if (i === j) {
@@ -121,13 +123,13 @@ export class AddEdgeSubOp implements SubOp {
     this.j = j;
   }
 
-  apply(c: Chart): Result<Chart> {
-    const e = DirectedEdgeForChart(this.i, this.j, c);
+  apply(plan: Plan): Result<Plan> {
+    const e = DirectedEdgeForPlan(this.i, this.j, plan);
     if (!e.ok) {
       return e;
     }
-    c.Edges.push(e.value);
-    return ok(c);
+    plan.chart.Edges.push(e.value);
+    return ok(plan);
   }
 
   inverse(): SubOp {
@@ -144,18 +146,19 @@ export class RemoveEdgeSupOp implements SubOp {
     this.j = j;
   }
 
-  apply(c: Chart): Result<Chart> {
-    const e = DirectedEdgeForChart(this.i, this.j, c);
+  apply(plan: Plan): Result<Plan> {
+    const chart = plan.chart;
+    const e = DirectedEdgeForPlan(this.i, this.j, plan);
     if (!e.ok) {
       return e;
     }
-    c.Edges = c.Edges.filter((v: DirectedEdge): boolean => {
+    chart.Edges = chart.Edges.filter((v: DirectedEdge): boolean => {
       if (v.i === e.value.i && v.j === e.value.j) {
         return false;
       }
       return true;
     });
-    return ok(c);
+    return ok(plan);
   }
 
   inverse(): SubOp {
@@ -170,17 +173,18 @@ export class AddTaskAfterSubOp implements SubOp {
     this.index = index;
   }
 
-  apply(c: Chart): Result<Chart> {
-    if (this.index < 0 || this.index > c.Vertices.length - 2) {
+  apply(plan: Plan): Result<Plan> {
+    const chart = plan.chart;
+    if (this.index < 0 || this.index > chart.Vertices.length - 2) {
       return error(
-        `${this.index} is not in range [0, ${c.Vertices.length - 2}]`
+        `${this.index} is not in range [0, ${chart.Vertices.length - 2}]`
       );
     }
-    c.Vertices.splice(this.index + 1, 0, new Task());
+    plan.chart.Vertices.splice(this.index + 1, 0, new Task());
 
     // Update Edges.
-    for (let i = 0; i < c.Edges.length; i++) {
-      const edge = c.Edges[i];
+    for (let i = 0; i < chart.Edges.length; i++) {
+      const edge = chart.Edges[i];
       if (edge.i >= this.index + 1) {
         edge.i++;
       }
@@ -188,7 +192,7 @@ export class AddTaskAfterSubOp implements SubOp {
         edge.j++;
       }
     }
-    return ok(c);
+    return ok(plan);
   }
 
   inverse(): SubOp {
@@ -203,17 +207,18 @@ export class DeleteTaskAfterSubOp implements SubOp {
     this.index = index;
   }
 
-  apply(c: Chart): Result<Chart> {
-    if (this.index < 0 || this.index > c.Vertices.length - 2) {
+  apply(plan: Plan): Result<Plan> {
+    const chart = plan.chart;
+    if (this.index < 0 || this.index > chart.Vertices.length - 2) {
       return error(
-        `${this.index} is not in range [0, ${c.Vertices.length - 2}]`
+        `${this.index} is not in range [0, ${chart.Vertices.length - 2}]`
       );
     }
-    c.Vertices.splice(this.index + 1, 1);
+    chart.Vertices.splice(this.index + 1, 1);
 
     // Update Edges.
-    for (let i = 0; i < c.Edges.length; i++) {
-      const edge = c.Edges[i];
+    for (let i = 0; i < chart.Edges.length; i++) {
+      const edge = chart.Edges[i];
       if (edge.i >= this.index + 1) {
         edge.i--;
       }
@@ -222,7 +227,7 @@ export class DeleteTaskAfterSubOp implements SubOp {
       }
     }
 
-    return ok(c);
+    return ok(plan);
   }
 
   inverse(): SubOp {
