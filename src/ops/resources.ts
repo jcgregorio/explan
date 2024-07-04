@@ -43,7 +43,7 @@ export class DeleteResourceSupOp implements SubOp {
         `The resource with name ${this.name} does not exist and can't be deleted.`
       );
     }
-    plan.resourceDefinitions = plan.resourceDefinitions.splice(index, 1);
+    plan.resourceDefinitions.splice(index, 1);
 
     return ok(plan);
   }
@@ -111,7 +111,7 @@ export class DeleteResourceOptionSubOp implements SubOp {
         `${this.value} does not exist as a value in the Resource ${this.key}.`
       );
     }
-    definition.values = definition.values.splice(valueIndex, 1);
+    definition.values.splice(valueIndex, 1);
 
     return ok(plan);
   }
