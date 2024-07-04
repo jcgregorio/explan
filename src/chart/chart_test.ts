@@ -1,5 +1,5 @@
 import { assert } from "@esm-bundle/chai";
-import { validate } from "./chart.ts";
+import { validateChart } from "./chart.ts";
 import { Chart } from "./chart.ts";
 import { DirectedGraph } from "../dag/dag.ts";
 
@@ -13,7 +13,7 @@ it("A directed graph validates:", () => {
       { i: 2, j: 3 },
     ],
   };
-  assert.isTrue(validate(G).ok);
+  assert.isTrue(validateChart(G).ok);
 });
 
 it("A directed graph with a loop fails to validate:", () => {
@@ -27,10 +27,10 @@ it("A directed graph with a loop fails to validate:", () => {
       { i: 2, j: 0 },
     ],
   };
-  assert.isFalse(validate(GWithLoop).ok);
+  assert.isFalse(validateChart(GWithLoop).ok);
 });
 
 it("A default chart validates.", () => {
-  const r = validate(new Chart());
+  const r = validateChart(new Chart());
   assert.isTrue(r.ok);
 });

@@ -1,7 +1,7 @@
 import { Chart, Task, validateChart } from "./chart/chart.ts";
-import { InsertNewEmptyTaskAfterOp } from "./ops/ops";
+import { InsertNewEmptyTaskAfterOp } from "./ops/chart.ts";
 import { Plan } from "./plan/plan.ts";
-import { ComputeSlack } from "./slack/slack";
+import { ComputeSlack } from "./slack/slack.ts";
 
 const C: Chart = {
   Vertices: [
