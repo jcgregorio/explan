@@ -31,15 +31,26 @@ import { Plan } from "../plan/plan";
 //    2. Can be "applied" to a Plan.
 //    3. Can generate its inverse sub-op.
 
+// The results from applying a SubOp. This is the only way to get the inverse of
+// a SubOp since the SubOp inverse might depend on the state of the Plan at the
+// time the SubOp was applied.
+export interface SubOpResult {
+  plan: Plan;
+  inverse: SubOp;
+};
+
 export interface SubOp {
   // If the apply returns an error it is guaranteed not to have modified the
   // Plan.
-  apply(c: Plan): Result<Plan>;
-
-  inverse(): SubOp;
+  apply(plan: Plan): Result<SubOpResult>;
 }
 
-// Op are operations are applied to make changes to Plans.
+export interface OpResult {
+  plan: Plan;
+  inverse: Op;
+};
+
+// Op are operations are applied to make changes to a Plan.
 export class Op {
   subOps: SubOp[] = [];
 
@@ -48,44 +59,41 @@ export class Op {
   }
 
   // Reverts all SubOps up to the given index.
-  revertUpTo(c: Plan, index: number): Result<Plan> {
-    const subOpsToRevert = this.subOps.slice(0, index).reverse();
-
-    for (let i = 0; i < subOpsToRevert.length; i++) {
-      const o = subOpsToRevert[i];
-      const e = o.inverse().apply(c);
+  applyAllInverseSubOpsToPlan(
+    plan: Plan,
+    inverseSubOps: SubOp[]
+  ): Result<Plan> {
+    for (let i = 0; i < inverseSubOps.length; i++) {
+      const e = inverseSubOps[i].apply(plan);
       if (!e.ok) {
         return e;
       }
-      c = e.value;
+      plan = e.value.plan;
     }
-    return ok(c);
+    return ok(plan);
   }
 
   // Applies the Op to a Plan.
-  apply(c: Plan): Result<Plan> {
+  apply(plan: Plan): Result<OpResult> {
+    const inverseSubOps: SubOp[] = [];
     for (let i = 0; i < this.subOps.length; i++) {
-      const s = this.subOps[i];
-      const e = s.apply(c);
+      const e = this.subOps[i].apply(plan);
       if (!e.ok) {
-        // Revert all the SubOps applied to this point to get the Plan
-        // back in a good place.
-        const revertErr = this.revertUpTo(c, i);
+        // Revert all the SubOps applied to this point to get the Plan back in a
+        // good place.
+        const revertErr = this.applyAllInverseSubOpsToPlan(plan, inverseSubOps);
         if (!revertErr.ok) {
           return revertErr;
         }
         return e;
       }
+      plan = e.value.plan;
+      inverseSubOps.push(e.value.inverse);
     }
-    return ok(c);
-  }
 
-  // Returns the inverse of this Op.
-  inverse(): Op {
-    const reversedInverted = this.subOps
-      .slice()
-      .reverse()
-      .map((s: SubOp) => s.inverse());
-    return new Op(reversedInverted);
+    return ok({
+      plan: plan,
+      inverse: new Op(inverseSubOps),
+    });
   }
 }

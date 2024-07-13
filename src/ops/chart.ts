@@ -2,7 +2,7 @@ import { Result, ok, error } from "../result";
 import { DirectedEdge } from "../dag/dag";
 import { Plan } from "../plan/plan";
 import { Task } from "../chart/chart";
-import { Op, SubOp } from "./ops";
+import { Op, SubOp, SubOpResult } from "./ops";
 
 /** A value of -1 for j means the Finish Milestone. */
 export function DirectedEdgeForPlan(
@@ -39,13 +39,16 @@ export class AddEdgeSubOp implements SubOp {
     this.j = j;
   }
 
-  apply(plan: Plan): Result<Plan> {
+  apply(plan: Plan): Result<SubOpResult> {
     const e = DirectedEdgeForPlan(this.i, this.j, plan);
     if (!e.ok) {
       return e;
     }
     plan.chart.Edges.push(e.value);
-    return ok(plan);
+    return ok({
+      plan: plan,
+      inverse: this.inverse(),
+    });
   }
 
   inverse(): SubOp {
@@ -62,7 +65,7 @@ export class RemoveEdgeSupOp implements SubOp {
     this.j = j;
   }
 
-  apply(plan: Plan): Result<Plan> {
+  apply(plan: Plan): Result<SubOpResult> {
     const chart = plan.chart;
     const e = DirectedEdgeForPlan(this.i, this.j, plan);
     if (!e.ok) {
@@ -74,7 +77,10 @@ export class RemoveEdgeSupOp implements SubOp {
       }
       return true;
     });
-    return ok(plan);
+    return ok({
+      plan: plan,
+      inverse: this.inverse(),
+    });
   }
 
   inverse(): SubOp {
@@ -89,7 +95,7 @@ export class AddTaskAfterSubOp implements SubOp {
     this.index = index;
   }
 
-  apply(plan: Plan): Result<Plan> {
+  apply(plan: Plan): Result<SubOpResult> {
     const chart = plan.chart;
     if (this.index < 0 || this.index > chart.Vertices.length - 2) {
       return error(
@@ -108,7 +114,7 @@ export class AddTaskAfterSubOp implements SubOp {
         edge.j++;
       }
     }
-    return ok(plan);
+    return ok({plan:plan, inverse: this.inverse()});
   }
 
   inverse(): SubOp {
@@ -123,7 +129,7 @@ export class DeleteTaskAfterSubOp implements SubOp {
     this.index = index;
   }
 
-  apply(plan: Plan): Result<Plan> {
+  apply(plan: Plan): Result<SubOpResult> {
     const chart = plan.chart;
     if (this.index < 0 || this.index > chart.Vertices.length - 2) {
       return error(
@@ -143,7 +149,7 @@ export class DeleteTaskAfterSubOp implements SubOp {
       }
     }
 
-    return ok(plan);
+    return ok({plan:plan, inverse:this.inverse});
   }
 
   inverse(): SubOp {

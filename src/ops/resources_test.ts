@@ -15,7 +15,7 @@ describe("AddResourceOp/DeleteResourceOp", () => {
     const op = AddResourceOp("Who");
     let res = op.apply(plan);
     assert.isTrue(res.ok);
-    assert.deepEqual(res.value.resourceDefinitions, [
+    assert.deepEqual(res.value.plan.resourceDefinitions, [
       {
         key: "Who",
         values: [""],
@@ -23,9 +23,9 @@ describe("AddResourceOp/DeleteResourceOp", () => {
     ]);
 
     // Now show the inverse also works.
-    res = op.inverse().apply(res.value);
+    res = res.value.inverse.apply(res.value.plan);
     assert.isTrue(res.ok);
-    assert.equal(res.value.resourceDefinitions.length, 0);
+    assert.equal(res.value.plan.resourceDefinitions.length, 0);
   });
 
   it("DeleteResourceOp fails if the Resource doesn't exist", () => {
@@ -48,7 +48,7 @@ describe("AddResourceOp/DeleteResourceOp", () => {
     assert.isTrue(res.ok);
 
     // Second addition should fail.
-    res = AddResourceOp("Who").apply(res.value);
+    res = AddResourceOp("Who").apply(res.value.plan);
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("Who already exists"));
   });
@@ -60,7 +60,7 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
 
     const res = AddResourceOp("Who").apply(plan);
     assert.isTrue(res.ok);
-    return res.value;
+    return res.value.plan;
   };
 
   it("AddResourceOptionOp adds a new resource value to a Plan", () => {
@@ -69,7 +69,7 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
     let res = op.apply(plan);
     assert.isTrue(res.ok);
 
-    assert.deepEqual(res.value.resourceDefinitions, [
+    assert.deepEqual(res.value.plan.resourceDefinitions, [
       {
         key: "Who",
         values: ["", "Fred"],
@@ -77,9 +77,9 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
     ]);
 
     // Now Show the inverse also works.
-    res = op.inverse().apply(res.value);
+    res = res.value.inverse.apply(res.value.plan);
     assert.isTrue(res.ok);
-    assert.deepEqual(res.value.resourceDefinitions, [
+    assert.deepEqual(res.value.plan.resourceDefinitions, [
       {
         key: "Who",
         values: [""],

@@ -1,6 +1,6 @@
 import { Result, ok, error } from "../result";
 import { Plan } from "../plan/plan";
-import { Op, SubOp } from "./ops";
+import { Op, SubOp, SubOpResult } from "./ops";
 import { ResourceDefinition } from "../resources/resources";
 
 export class AddResourceSubOp implements SubOp {
@@ -10,7 +10,7 @@ export class AddResourceSubOp implements SubOp {
     this.name = name;
   }
 
-  apply(plan: Plan): Result<Plan> {
+  apply(plan: Plan): Result<SubOpResult> {
     const foundMatch = plan.resourceDefinitions.find(
       (value: ResourceDefinition) => value.key === this.name
     );
@@ -19,7 +19,7 @@ export class AddResourceSubOp implements SubOp {
     }
 
     plan.resourceDefinitions.push(new ResourceDefinition(this.name));
-    return ok(plan);
+    return ok({plan:plan, inverse: this.inverse()});
   }
 
   inverse(): SubOp {
@@ -34,7 +34,7 @@ export class DeleteResourceSupOp implements SubOp {
     this.name = name;
   }
 
-  apply(plan: Plan): Result<Plan> {
+  apply(plan: Plan): Result<SubOpResult> {
     const index = plan.resourceDefinitions.findIndex(
       (value: ResourceDefinition) => value.key === this.name
     );
@@ -45,7 +45,7 @@ export class DeleteResourceSupOp implements SubOp {
     }
     plan.resourceDefinitions.splice(index, 1);
 
-    return ok(plan);
+    return ok({plan:plan, inverse: this.inverse()});
   }
 
   inverse(): SubOp {
@@ -62,7 +62,7 @@ export class AddResourceOptionSubOp implements SubOp {
     this.value = value;
   }
 
-  apply(plan: Plan): Result<Plan> {
+  apply(plan: Plan): Result<SubOpResult> {
     const definition = plan.resourceDefinitions.find(
       (value: ResourceDefinition) => value.key === this.key
     );
@@ -79,7 +79,7 @@ export class AddResourceOptionSubOp implements SubOp {
     }
     definition.values.push(this.value);
 
-    return ok(plan);
+    return ok({plan: plan, inverse: this.inverse()});
   }
 
   inverse(): SubOp {
@@ -96,7 +96,7 @@ export class DeleteResourceOptionSubOp implements SubOp {
     this.value = value;
   }
 
-  apply(plan: Plan): Result<Plan> {
+  apply(plan: Plan): Result<SubOpResult> {
     const definition = plan.resourceDefinitions.find(
       (value: ResourceDefinition) => value.key === this.key
     );
@@ -119,7 +119,7 @@ export class DeleteResourceOptionSubOp implements SubOp {
 
     definition.values.splice(valueIndex, 1);
 
-    return ok(plan);
+    return ok({plan:plan, inverse: this.inverse()});
   }
 
   inverse(): SubOp {
