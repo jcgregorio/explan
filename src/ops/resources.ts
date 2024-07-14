@@ -7,20 +7,10 @@ import {
 } from "../resources/resources";
 import { Task } from "../chart/chart";
 
-export class ResourceKeyValuePair {
-  key: string;
-  value: string;
-
-  constructor(key: string, value: string) {
-    this.key = key;
-    this.value = value;
-  }
-}
-
 export class AddResourceSubOp implements SubOp {
   key: string;
 
-  // Maps an index of a Task to a value for the given `key`.
+  // Maps an index of a Task to a value for the given resource key.
   taskResourceValues: Map<number, string>;
 
   constructor(
@@ -76,24 +66,24 @@ export class DeleteResourceSupOp implements SubOp {
     // Remove from resource definitions.
     plan.resourceDefinitions.splice(index, 1);
 
-    const resourceValuesForDeletedResourceKey: Map<number, string> = new Map();
+    const taskIndexToDeletedResourceValue: Map<number, string> = new Map();
 
     // Now look at all Tasks and remove `this.key` from the resources while also
     // building up the info needed for a revert.
     plan.chart.Vertices.forEach((task: Task, index: number) => {
       const value = task.resources[this.key];
-      resourceValuesForDeletedResourceKey.set(index, value);
+      taskIndexToDeletedResourceValue.set(index, value);
       delete task.resources[this.key];
     });
 
     return ok({
       plan: plan,
-      inverse: this.inverse(resourceValuesForDeletedResourceKey),
+      inverse: this.inverse(taskIndexToDeletedResourceValue),
     });
   }
 
-  inverse(
-    resourceValuesForDeletedResourceKey: Map<number, string> = new Map()
+  private inverse(
+    resourceValuesForDeletedResourceKey: Map<number, string>
   ): SubOp {
     return new AddResourceSubOp(this.key, resourceValuesForDeletedResourceKey);
   }
@@ -140,7 +130,7 @@ export class AddResourceOptionSubOp implements SubOp {
     return ok({ plan: plan, inverse: this.inverse() });
   }
 
-  inverse(): SubOp {
+  private inverse(): SubOp {
     return new DeleteResourceOptionSubOp(
       this.key,
       this.value,
@@ -212,7 +202,7 @@ export class DeleteResourceOptionSubOp implements SubOp {
     });
   }
 
-  inverse(indicesOfTasksToChange: number[]): SubOp {
+  private inverse(indicesOfTasksToChange: number[]): SubOp {
     return new AddResourceOptionSubOp(
       this.key,
       this.value,
