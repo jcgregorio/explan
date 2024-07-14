@@ -230,21 +230,20 @@ export class ReplaceResourceOptionSubOp implements SubOp {
       return error(`${this.key} does not exist as a Resource`);
     }
 
-    // Confirm the old value is in there.
-    const oldValueIndex = foundMatch.values.findIndex((value: string) => {
-      return value === this.oldValue;
-    });
+    // Confirm the oldValue is in there.
+    const oldValueIndex = foundMatch.values.indexOf(this.oldValue);
 
     if (oldValueIndex === -1) {
       return error(`${this.key} does not a value ${this.oldValue}`);
     }
 
-    const newValueIndex = foundMatch.values.findIndex((value: string) => {
-      return value === this.oldValue;
-    });
+    // Confirm the newValue is not in there.
+    const newValueIndex = foundMatch.values.indexOf(this.newValue);
     if (newValueIndex !== -1) {
       return error(`${this.key} already has a value ${this.newValue}`);
     }
+
+    // Swap the values.
     foundMatch.values.splice(oldValueIndex, 1, this.newValue);
 
     // Now loop over every task and change oldValue -> newValue for the given resource key.
@@ -281,4 +280,12 @@ export function AddResourceOptionOp(key: string, value: string): Op {
 
 export function DeleteResourceOptionOp(key: string, value: string): Op {
   return new Op([new DeleteResourceOptionSubOp(key, value)]);
+}
+
+export function ReplaceResourceOptionOp(
+  key: string,
+  oldValue: string,
+  newValue: string
+) {
+  return new Op([new ReplaceResourceOptionSubOp(key, oldValue, newValue)]);
 }

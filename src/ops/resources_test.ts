@@ -6,6 +6,7 @@ import {
   AddResourceOptionOp,
   DeleteResourceOp,
   DeleteResourceOptionOp,
+  ReplaceResourceOptionOp,
 } from "../ops/resources";
 
 describe("AddResourceOp/DeleteResourceOp", () => {
@@ -168,5 +169,55 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
     assert.isTrue(
       res.error.message.includes("Resources must have at least one value.")
     );
+  });
+});
+
+describe("ReplaceResourceOptionSubOp", () => {
+  const init = (): Plan => {
+    const plan = new Plan(new Chart());
+
+    let res = AddResourceOp("Who").apply(plan);
+    assert.isTrue(res.ok);
+    res = AddResourceOptionOp("Who", "Fred").apply(res.value.plan);
+    assert.isTrue(res.ok);
+    res = AddResourceOptionOp("Who", "Barney").apply(res.value.plan);
+    assert.isTrue(res.ok);
+    return res.value.plan;
+  };
+
+  it("Can change the value of a resource both in the definition and in tasks.", () => {
+    const plan = init();
+
+    assert.deepEqual(plan.resourceDefinitions, [
+      {
+        key: "Who",
+        values: ["", "Fred", "Barney"],
+      },
+    ]);
+
+    // Set a Task resource value to a non-default value:
+    plan.chart.Vertices[0].resources["Who"] = "Fred";
+
+    // Replace "Fred" with "Wilma" everywhere.
+    let res = ReplaceResourceOptionOp("Who", "Fred", "Wilma").apply(plan);
+    assert.isTrue(res.ok);
+    assert.deepEqual(res.value.plan.resourceDefinitions, [
+      {
+        key: "Who",
+        values: ["", "Wilma", "Barney"],
+      },
+    ]);
+    assert.equal(plan.chart.Vertices[0].resources["Who"], "Wilma");
+
+    // Now confirm the inverse Op restores the old value in both the definition and in the tasks.
+    res = res.value.inverse.apply(res.value.plan);
+    assert.isTrue(res.ok);
+    assert.deepEqual(res.value.plan.resourceDefinitions, [
+      {
+        key: "Who",
+        values: ["", "Fred", "Barney"],
+      },
+    ]);
+    assert.equal(plan.chart.Vertices[0].resources["Who"], "Fred");
   });
 });
