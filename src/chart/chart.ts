@@ -41,6 +41,8 @@ export class Task {
       durationModel || new JacobianDuration(Uncertainty.moderate);
   }
 
+  resources: { [key: string]: string } = {};
+
   name: string = "Task Name";
 
   percentComplete: number = 0;

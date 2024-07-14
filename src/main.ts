@@ -29,10 +29,13 @@ const op = InsertNewEmptyTaskAfterOp(0);
 let err = op.apply(plan);
 console.log("Applying op: ", err);
 const op2 = InsertNewEmptyTaskAfterOp(1);
-err = op2.apply(plan);
-console.log("Applying op2: ", err);
-err = op2.inverse().apply(plan);
-console.log("Applying op2.inverse: ", err);
+let res = op2.apply(plan);
+console.assert(res.ok);
+if (res.ok) {
+  console.log("Applying op2: ", res);
+  res = res.value.inverse.apply(plan);
+  console.log("Applying op2.inverse: ", err);
+}
 
 // Ops that fail to apply revert applied ops.
 err = InsertNewEmptyTaskAfterOp(99).apply(plan);
