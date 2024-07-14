@@ -220,4 +220,35 @@ describe("ReplaceResourceOptionSubOp", () => {
     ]);
     assert.equal(plan.chart.Vertices[0].resources["Who"], "Fred");
   });
+
+  it("Fails if the oldValue doesn't exist.", () => {
+    const plan = init();
+
+    assert.deepEqual(plan.resourceDefinitions, [
+      {
+        key: "Who",
+        values: ["", "Fred", "Barney"],
+      },
+    ]);
+
+    const res = ReplaceResourceOptionOp("Who", "Unknown Value", "Wilma").apply(
+      plan
+    );
+    assert.isFalse(res.ok);
+  });
+
+  it("Fails if the newValue does exist.", () => {
+    const plan = init();
+
+    assert.deepEqual(plan.resourceDefinitions, [
+      {
+        key: "Who",
+        values: ["", "Fred", "Barney"],
+      },
+    ]);
+
+    // This should fail because "Barney" is already a value, and we can't have duplicate values.
+    const res = ReplaceResourceOptionOp("Who", "Fred", "Barney").apply(plan);
+    assert.isFalse(res.ok);
+  });
 });
