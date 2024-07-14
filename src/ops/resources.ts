@@ -211,6 +211,62 @@ export class DeleteResourceOptionSubOp implements SubOp {
   }
 }
 
+export class ReplaceResourceOptionSubOp implements SubOp {
+  key: string;
+  oldValue: string;
+  newValue: string;
+
+  constructor(key: string, oldValue: string, newValue: string) {
+    this.key = key;
+    this.oldValue = oldValue;
+    this.newValue = newValue;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    const foundMatch = plan.resourceDefinitions.find(
+      (value: ResourceDefinition) => value.key === this.key
+    );
+    if (foundMatch === undefined) {
+      return error(`${this.key} does not exist as a Resource`);
+    }
+
+    // Confirm the old value is in there.
+    const oldValueIndex = foundMatch.values.findIndex((value: string) => {
+      return value === this.oldValue;
+    });
+
+    if (oldValueIndex === -1) {
+      return error(`${this.key} does not a value ${this.oldValue}`);
+    }
+
+    const newValueIndex = foundMatch.values.findIndex((value: string) => {
+      return value === this.oldValue;
+    });
+    if (newValueIndex !== -1) {
+      return error(`${this.key} already has a value ${this.newValue}`);
+    }
+    foundMatch.values.splice(oldValueIndex, 1, this.newValue);
+
+    // Now loop over every task and change oldValue -> newValue for the given resource key.
+    plan.chart.Vertices.forEach((task: Task) => {
+      const currentValue = task.resources[this.key];
+      if (currentValue === this.oldValue) {
+        task.resources[this.key] = this.newValue;
+      }
+    });
+
+    return ok({ plan: plan, inverse: this.inverse() });
+  }
+
+  inverse(): SubOp {
+    return new ReplaceResourceOptionSubOp(
+      this.key,
+      this.newValue,
+      this.oldValue
+    );
+  }
+}
+
 export function AddResourceOp(name: string): Op {
   return new Op([new AddResourceSubOp(name)]);
 }
