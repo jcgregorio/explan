@@ -211,7 +211,7 @@ export class DeleteResourceOptionSubOp implements SubOp {
   }
 }
 
-export class ReplaceResourceOptionSubOp implements SubOp {
+export class RenameResourceOptionSubOp implements SubOp {
   key: string;
   oldValue: string;
   newValue: string;
@@ -258,11 +258,57 @@ export class ReplaceResourceOptionSubOp implements SubOp {
   }
 
   inverse(): SubOp {
-    return new ReplaceResourceOptionSubOp(
+    return new RenameResourceOptionSubOp(
       this.key,
       this.newValue,
       this.oldValue
     );
+  }
+}
+
+export class MoveResourceOptionSubOp implements SubOp {
+  key: string;
+  oldIndex: number;
+  newIndex: number;
+
+  constructor(key: string, oldValue: number, newValue: number) {
+    this.key = key;
+    this.oldIndex = oldValue;
+    this.newIndex = newValue;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    const foundMatch = plan.resourceDefinitions.find(
+      (value: ResourceDefinition) => value.key === this.key
+    );
+    if (foundMatch === undefined) {
+      return error(`${this.key} does not exist as a Resource`);
+    }
+
+    if (this.oldIndex > foundMatch.values.length - 1) {
+      return error(
+        `${this.key} does not have a value at index ${this.oldIndex}`
+      );
+    }
+    if (this.newIndex > foundMatch.values.length - 1) {
+      return error(
+        `${this.key} does not have a value at index ${this.newIndex}`
+      );
+    }
+
+    // Swap the values.
+    const tmp = foundMatch.values[this.oldIndex];
+    foundMatch.values[this.oldIndex] = foundMatch.values[this.newIndex];
+    foundMatch.values[this.newIndex] = tmp;
+
+    // We don't need to do anything with Tasks because the index of a value is
+    // irrelevant since we store the value itself, not the index.
+
+    return ok({ plan: plan, inverse: this.inverse() });
+  }
+
+  inverse(): SubOp {
+    return new MoveResourceOptionSubOp(this.key, this.newIndex, this.oldIndex);
   }
 }
 
@@ -282,10 +328,18 @@ export function DeleteResourceOptionOp(key: string, value: string): Op {
   return new Op([new DeleteResourceOptionSubOp(key, value)]);
 }
 
-export function ReplaceResourceOptionOp(
+export function RenameResourceOptionOp(
   key: string,
   oldValue: string,
   newValue: string
 ) {
-  return new Op([new ReplaceResourceOptionSubOp(key, oldValue, newValue)]);
+  return new Op([new RenameResourceOptionSubOp(key, oldValue, newValue)]);
+}
+
+export function MoveResourceOptionOp(
+  key: string,
+  oldIndex: number,
+  newIndex: number
+) {
+  return new Op([new MoveResourceOptionSubOp(key, oldIndex, newIndex)]);
 }

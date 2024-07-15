@@ -6,7 +6,8 @@ import {
   AddResourceOptionOp,
   DeleteResourceOp,
   DeleteResourceOptionOp,
-  ReplaceResourceOptionOp,
+  MoveResourceOptionOp,
+  RenameResourceOptionOp,
 } from "../ops/resources";
 
 describe("AddResourceOp/DeleteResourceOp", () => {
@@ -199,7 +200,7 @@ describe("ReplaceResourceOptionSubOp", () => {
     plan.chart.Vertices[0].resources["Who"] = "Fred";
 
     // Replace "Fred" with "Wilma" everywhere.
-    let res = ReplaceResourceOptionOp("Who", "Fred", "Wilma").apply(plan);
+    let res = RenameResourceOptionOp("Who", "Fred", "Wilma").apply(plan);
     assert.isTrue(res.ok);
     assert.deepEqual(res.value.plan.resourceDefinitions, [
       {
@@ -231,7 +232,7 @@ describe("ReplaceResourceOptionSubOp", () => {
       },
     ]);
 
-    const res = ReplaceResourceOptionOp("Who", "Unknown Value", "Wilma").apply(
+    const res = RenameResourceOptionOp("Who", "Unknown Value", "Wilma").apply(
       plan
     );
     assert.isFalse(res.ok);
@@ -247,8 +248,57 @@ describe("ReplaceResourceOptionSubOp", () => {
       },
     ]);
 
-    // This should fail because "Barney" is already a value, and we can't have duplicate values.
-    const res = ReplaceResourceOptionOp("Who", "Fred", "Barney").apply(plan);
+    // This should fail because "Barney" is already a value, and we can't have
+    // duplicate values.
+    const res = RenameResourceOptionOp("Who", "Fred", "Barney").apply(plan);
     assert.isFalse(res.ok);
+  });
+});
+
+describe("MoveResourceOptionSubOp", () => {
+  const init = (): Plan => {
+    const plan = new Plan(new Chart());
+
+    let res = AddResourceOp("Who").apply(plan);
+    assert.isTrue(res.ok);
+    res = AddResourceOptionOp("Who", "Fred").apply(res.value.plan);
+    assert.isTrue(res.ok);
+    res = AddResourceOptionOp("Who", "Barney").apply(res.value.plan);
+    assert.isTrue(res.ok);
+    return res.value.plan;
+  };
+
+  it("Can change the order of resource values in the definition.", () => {
+    const plan = init();
+
+    let res = MoveResourceOptionOp("Who", 1, 2).apply(plan);
+    assert.isTrue(res.ok);
+    assert.deepEqual(res.value.plan.resourceDefinitions, [
+      {
+        key: "Who",
+        values: ["", "Barney", "Fred"],
+      },
+    ]);
+
+    // Confirm the inverse op restores the old resource value order.
+    res = res.value.inverse.apply(plan);
+    assert.isTrue(res.ok);
+    assert.deepEqual(res.value.plan.resourceDefinitions, [
+      {
+        key: "Who",
+        values: ["", "Fred", "Barney"],
+      },
+    ]);
+  });
+
+  it("Fails if either index exceeds the length of the array of resource values.", () => {
+    const plan = init();
+
+    let res = MoveResourceOptionOp("Who", 1, 5).apply(plan);
+    assert.isFalse(res.ok);
+    assert.equal("Who does not have a value at index 5", res.error.message);
+    res = MoveResourceOptionOp("Who", 7, 1).apply(plan);
+    assert.isFalse(res.ok);
+    assert.equal("Who does not have a value at index 7", res.error.message);
   });
 });
