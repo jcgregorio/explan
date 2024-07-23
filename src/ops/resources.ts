@@ -211,6 +211,49 @@ export class DeleteResourceOptionSubOp implements SubOp {
   }
 }
 
+export class RenameResourceSubOp implements SubOp {
+  oldKey: string;
+  newKey: string;
+
+  constructor(oldKey: string, newKey: string) {
+    this.oldKey = oldKey;
+    this.newKey = newKey;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    const foundMatch = plan.resourceDefinitions.find(
+      (value: ResourceDefinition) => value.key === this.oldKey
+    );
+    if (foundMatch === undefined) {
+      return error(`${this.oldKey} does not exist as a Resource`);
+    }
+
+    // Confirm the newKey is not already used.
+    const indexOfNewKey = plan.resourceDefinitions.findIndex(
+      (value: ResourceDefinition) => value.key === this.newKey
+    );
+
+    if (indexOfNewKey !== -1) {
+      return error(`${this.newKey} already exists as a resource name.`);
+    }
+
+    foundMatch.key = this.newKey;
+
+    // Now loop over every task and change oldKey -> newkey for the given resource key.
+    plan.chart.Vertices.forEach((task: Task) => {
+      const currentValue = task.resources[this.oldKey];
+      task.resources[this.newKey] = currentValue;
+      delete task.resources[this.oldKey];
+    });
+
+    return ok({ plan: plan, inverse: this.inverse() });
+  }
+
+  inverse(): SubOp {
+    return new RenameResourceSubOp(this.newKey, this.oldKey);
+  }
+}
+
 export class RenameResourceOptionSubOp implements SubOp {
   key: string;
   oldValue: string;
@@ -332,14 +375,18 @@ export function RenameResourceOptionOp(
   key: string,
   oldValue: string,
   newValue: string
-) {
+): Op {
   return new Op([new RenameResourceOptionSubOp(key, oldValue, newValue)]);
+}
+
+export function RenameResourceOp(oldValue: string, newValue: string): Op {
+  return new Op([new RenameResourceSubOp(oldValue, newValue)]);
 }
 
 export function MoveResourceOptionOp(
   key: string,
   oldIndex: number,
   newIndex: number
-) {
+): Op {
   return new Op([new MoveResourceOptionSubOp(key, oldIndex, newIndex)]);
 }

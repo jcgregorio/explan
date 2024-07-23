@@ -7,6 +7,7 @@ import {
   DeleteResourceOp,
   DeleteResourceOptionOp,
   MoveResourceOptionOp,
+  RenameResourceOp,
   RenameResourceOptionOp,
 } from "../ops/resources";
 
@@ -173,7 +174,76 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
   });
 });
 
-describe("ReplaceResourceOptionSubOp", () => {
+describe("RenameResourceOp", () => {
+  const init = (): Plan => {
+    const plan = new Plan(new Chart());
+
+    let res = AddResourceOp("Who").apply(plan);
+    assert.isTrue(res.ok);
+    res = AddResourceOptionOp("Who", "Fred").apply(res.value.plan);
+    assert.isTrue(res.ok);
+    res = AddResourceOptionOp("Who", "Barney").apply(res.value.plan);
+    assert.isTrue(res.ok);
+    return res.value.plan;
+  };
+
+  it("Can change the name of a resource both in the definition and in tasks.", () => {
+    const plan = init();
+
+    assert.deepEqual(plan.resourceDefinitions, [
+      {
+        key: "Who",
+        values: ["", "Fred", "Barney"],
+      },
+    ]);
+
+    // Set a Task resource value to a non-default value:
+    plan.chart.Vertices[0].resources["Who"] = "Fred";
+
+    // Replace "Who" with "Person" everywhere.
+    let res = RenameResourceOp("Who", "Person").apply(plan);
+    assert.isTrue(res.ok);
+    assert.deepEqual(res.value.plan.resourceDefinitions, [
+      {
+        key: "Person",
+        values: ["", "Fred", "Barney"],
+      },
+    ]);
+    assert.equal(plan.chart.Vertices[0].resources["Person"], "Fred");
+
+    // Now confirm the inverse Op restores the old value in both the definition and in the tasks.
+    res = res.value.inverse.apply(res.value.plan);
+    assert.isTrue(res.ok);
+    assert.deepEqual(res.value.plan.resourceDefinitions, [
+      {
+        key: "Who",
+        values: ["", "Fred", "Barney"],
+      },
+    ]);
+    assert.equal(plan.chart.Vertices[0].resources["Who"], "Fred");
+  });
+
+  it("Fails if the new resource name already exist.", () => {
+    const plan = init();
+
+    let res = AddResourceOp("Person").apply(plan);
+    assert.isTrue(res.ok);
+    res = RenameResourceOp("Who", "Person").apply(res.value.plan);
+    assert.isFalse(res.ok);
+  });
+
+  it("Fails if the old resource doesn't exist.", () => {
+    const plan = init();
+
+    const res = RenameResourceOp(
+      "Unknown Resource Name",
+      "New Unknown Resource Name"
+    ).apply(plan);
+    assert.isFalse(res.ok);
+  });
+});
+
+describe("RenameResourceOptionOp", () => {
   const init = (): Plan => {
     const plan = new Plan(new Chart());
 
