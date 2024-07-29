@@ -3,11 +3,17 @@ import { InsertNewEmptyTaskAfterOp } from "./ops/chart.ts";
 import { Plan } from "./plan/plan.ts";
 import { ComputeSlack } from "./slack/slack.ts";
 
+const taskA = new Task("A");
+taskA.duration = 10;
+
+const taskB = new Task("B");
+taskB.duration = 15;
+
 const C: Chart = {
   Vertices: [
     new Task("Start"),
-    new Task("A", 10),
-    new Task("B", 15),
+    taskA,
+    taskB,
     new Task("Finish"),
   ],
   Edges: [

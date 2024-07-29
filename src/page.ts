@@ -6,13 +6,26 @@ import {
 } from "./renderer/renderer.ts";
 import { ComputeSlack, Slack } from "./slack/slack";
 
+
+const taskA = new Task("Task A");
+taskA.duration = 10;
+
+const taskB = new Task("Task B");
+taskB.duration = 15;
+
+const milestone1 = new Task("Milestone 1");
+milestone1.duration = 0;
+
+const taskC = new Task("Task C");
+taskC.duration = 3;
+
 const C: Chart = {
   Vertices: [
     new Task("Start"),
-    new Task("Task A", 10),
-    new Task("Task B", 15),
-    new Task("Milestone 1", 0),
-    new Task("Task C", 3),
+    taskA,
+    taskB,
+    milestone1,
+    taskC,
     new Task("Finish"),
   ],
   Edges: [

@@ -10,6 +10,8 @@ import {
 import { topologicalSort } from "../dag/algorithms/toposort";
 import { DurationModel } from "../duration/duration";
 import { JacobianDuration, Uncertainty } from "../duration/jacobian";
+import { MetricDefinition, MetricDefinitions } from "../metrics/metrics";
+import { StaticKeys, StaticMetricDefinitions } from "../plan/plan";
 
 enum TaskState {
   unstarted = "unstarted",
@@ -28,28 +30,31 @@ enum TaskState {
 export class Task {
   constructor(
     name: string = "",
-    duration: number = 0,
-    durationModel: DurationModel | null = null
+    durationModel: DurationModel = new JacobianDuration(Uncertainty.moderate),
+    metricDefinitions: MetricDefinitions = StaticMetricDefinitions
   ) {
     if (name === "") {
       this.name = "Task Name";
     } else {
       this.name = name;
     }
-    this.duration = duration;
     this.durationModel =
       durationModel || new JacobianDuration(Uncertainty.moderate);
+
+    const metrics: { [key: string]: number } = {};
+    metricDefinitions.forEach((value: MetricDefinition, key: string) => {
+      metrics[key] = value.defaultValue;
+    });
+    this.metrics = metrics;
   }
 
+  // Resource keys and values. The parent plan contains all the resource
+  // definitions.
   resources: { [key: string]: string } = {};
 
+  metrics: { [key: string]: number } = {};
+
   name: string = "Task Name";
-
-  percentComplete: number = 0;
-
-  // How long does this task take. Note this value is unitless, so it could be
-  // seconds, days, or years.
-  duration: number;
 
   durationModel: DurationModel;
 
@@ -59,6 +64,18 @@ export class Task {
   actualStart: number = 0;
 
   actualFinish: number = 0;
+
+  public get duration(): number {
+    return this.metrics[StaticKeys.Duration];
+  }
+
+  public set duration(value: number)  {
+    this.metrics[StaticKeys.Duration] = value;
+  }
+
+  public get percent(): number {
+    return this.metrics[StaticKeys.Percent];
+  }
 }
 
 export type Tasks = Task[];
