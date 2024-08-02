@@ -6,19 +6,31 @@ import { Op, SubOp, SubOpResult } from "./ops";
 
 const testErrorMessage = "Forced test failure.";
 
+const inverseFailureErrorMessage = "Inverse failed to apply";
+
+enum FailureType {
+  None,
+  FailsOnApply,
+  InverseFailsOnApply,
+}
+
 // A SubOp used just for testing. It records apply()'s in subOpApplicationOrder.
 // It also knows if it's the inverse, and that's represented in
 // subOpApplicationOrder by prepending the subOp name with "-".
 class TestSubOp implements SubOp {
   name: string;
-  fails: boolean;
+  fails: FailureType;
   isInverse: boolean;
 
   static subOpApplicationOrder: string[] = [];
 
+  static reset() {
+    this.subOpApplicationOrder = [];
+  }
+
   constructor(
     name: string,
-    fails: boolean = false,
+    fails: FailureType = FailureType.None,
     isInverse: boolean = false
   ) {
     this.name = name;
@@ -27,8 +39,11 @@ class TestSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    if (this.fails) {
+    if (!this.isInverse && this.fails === FailureType.FailsOnApply) {
       return error(new Error(testErrorMessage));
+    }
+    if (this.isInverse && this.fails === FailureType.InverseFailsOnApply) {
+      return error(new Error(inverseFailureErrorMessage));
     }
     TestSubOp.subOpApplicationOrder.push(
       `${this.isInverse ? "-" : ""}${this.name}`
@@ -43,7 +58,7 @@ class TestSubOp implements SubOp {
 
 describe("Op", () => {
   it("Reverses the order of the inverse subOps", () => {
-    TestSubOp.subOpApplicationOrder = [];
+    TestSubOp.reset();
     const op = new Op([
       new TestSubOp("A"),
       new TestSubOp("B"),
@@ -64,15 +79,28 @@ describe("Op", () => {
   });
 
   it("Correctly unwinds partial applications if a subOp fails.", () => {
-    TestSubOp.subOpApplicationOrder = [];
+    TestSubOp.reset();
     const op = new Op([
       new TestSubOp("A"),
       new TestSubOp("B"),
-      new TestSubOp("C", true),
+      new TestSubOp("C", FailureType.FailsOnApply),
     ]);
     const res = op.apply(new Plan(new Chart()));
     assert.isFalse(res.ok);
     assert.deepEqual(TestSubOp.subOpApplicationOrder, ["A", "B", "-B", "-A"]);
     assert.isTrue(res.error.message.includes(testErrorMessage));
+  });
+
+  it("Correctly returns error if subOp fails and the inverse fails to apply.", () => {
+    TestSubOp.reset();
+    const op = new Op([
+      new TestSubOp("A"),
+      new TestSubOp("B", FailureType.InverseFailsOnApply),
+      new TestSubOp("C", FailureType.FailsOnApply),
+    ]);
+    const res = op.apply(new Plan(new Chart()));
+    assert.isFalse(res.ok);
+    assert.deepEqual(TestSubOp.subOpApplicationOrder, ["A", "B"]);
+    assert.isTrue(res.error.message.includes(inverseFailureErrorMessage));
   });
 });
