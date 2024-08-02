@@ -4,8 +4,11 @@ import { Plan } from "../plan/plan";
 import { error, ok, Result } from "../result";
 import { Op, SubOp, SubOpResult } from "./ops";
 
-// A SubOp used just for testing. It records apply()'s
-// in the subOpApplicationOrder.
+const testErrorMessage = "Forced test failure.";
+
+// A SubOp used just for testing. It records apply()'s in subOpApplicationOrder.
+// It also knows if it's the inverse, and that's represented in
+// subOpApplicationOrder by prepending the subOp name with "-".
 class TestSubOp implements SubOp {
   name: string;
   fails: boolean;
@@ -25,7 +28,7 @@ class TestSubOp implements SubOp {
 
   apply(plan: Plan): Result<SubOpResult> {
     if (this.fails) {
-      return error(new Error("Forced test failure."));
+      return error(new Error(testErrorMessage));
     }
     TestSubOp.subOpApplicationOrder.push(
       `${this.isInverse ? "-" : ""}${this.name}`
@@ -70,5 +73,6 @@ describe("Op", () => {
     const res = op.apply(new Plan(new Chart()));
     assert.isFalse(res.ok);
     assert.deepEqual(TestSubOp.subOpApplicationOrder, ["A", "B", "-B", "-A"]);
+    assert.isTrue(res.error.message.includes(testErrorMessage));
   });
 });
