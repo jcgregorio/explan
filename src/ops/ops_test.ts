@@ -113,7 +113,9 @@ describe("applyAllOpsToPlan", () => {
       new Op([new TestSubOp("B.1"), new TestSubOp("B.2")]),
       new Op([new TestSubOp("C.1"), new TestSubOp("C.2")]),
     ];
-    const ret = applyAllOpsToPlan(allOps, new Plan(new Chart()));
+    let ret = applyAllOpsToPlan(allOps, new Plan(new Chart()));
+    assert.isTrue(ret.ok);
+    ret = applyAllOpsToPlan(ret.value.ops, ret.value.plan);
     assert.isTrue(ret.ok);
     assert.deepEqual(TestSubOp.subOpApplicationOrder, [
       "A",
