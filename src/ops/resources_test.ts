@@ -10,6 +10,7 @@ import {
   RenameResourceOp,
   RenameResourceOptionOp,
 } from "../ops/resources";
+import { applyAllOpsToPlan } from "./ops";
 
 describe("AddResourceOp/DeleteResourceOp", () => {
   it("AddResourceOp adds a new resource to a Plan", () => {
@@ -247,11 +248,15 @@ describe("RenameResourceOptionOp", () => {
   const init = (): Plan => {
     const plan = new Plan(new Chart());
 
-    let res = AddResourceOp("Who").apply(plan);
-    assert.isTrue(res.ok);
-    res = AddResourceOptionOp("Who", "Fred").apply(res.value.plan);
-    assert.isTrue(res.ok);
-    res = AddResourceOptionOp("Who", "Barney").apply(res.value.plan);
+    const res = applyAllOpsToPlan(
+      [
+        AddResourceOp("Who"),
+        AddResourceOptionOp("Who", "Fred"),
+        AddResourceOptionOp("Who", "Barney"),
+      ],
+      plan
+    );
+
     assert.isTrue(res.ok);
     return res.value.plan;
   };

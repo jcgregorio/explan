@@ -37,7 +37,7 @@ import { Plan } from "../plan/plan";
 export interface SubOpResult {
   plan: Plan;
   inverse: SubOp;
-};
+}
 
 export interface SubOp {
   // If the apply returns an error it is guaranteed not to have modified the
@@ -48,7 +48,7 @@ export interface SubOp {
 export interface OpResult {
   plan: Plan;
   inverse: Op;
-};
+}
 
 // Op are operations are applied to make changes to a Plan.
 export class Op {
@@ -88,7 +88,7 @@ export class Op {
         return e;
       }
       plan = e.value.plan;
-      inverseSubOps.push(e.value.inverse);
+      inverseSubOps.unshift(e.value.inverse);
     }
 
     return ok({
@@ -97,3 +97,27 @@ export class Op {
     });
   }
 }
+
+export type OpArrayResult = {
+  ops: Op[];
+  plan: Plan;
+};
+
+export const applyAllOpsToPlan = (
+  ops: Op[],
+  plan: Plan
+): Result<OpArrayResult> => {
+  const inverses: Op[] = [];
+  for (let i = 0; i < ops.length; i++) {
+    const res = ops[i].apply(plan);
+    if (!res.ok) {
+      return res;
+    }
+    inverses.unshift(res.value.inverse);
+    plan = res.value.plan;
+  }
+  return ok({
+    ops: inverses,
+    plan: plan,
+  });
+};
