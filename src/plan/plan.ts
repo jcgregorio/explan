@@ -1,10 +1,11 @@
 import { Chart } from "../chart/chart";
-import { MetricDefinition, MetricDefinitions, Range } from "../metrics/metrics";
+import { MetricDefinition, MetricDefinitions } from "../metrics/metrics";
+import { MetricRange } from "../metrics/range";
 import { ResourceDefinitions } from "../resources/resources";
 
 export const enum StaticKeys {
   Duration = "duration",
-  Percent = "percent"
+  Percent = "percent",
 }
 
 export const StaticMetricDefinitions: MetricDefinitions = new Map<
@@ -12,9 +13,12 @@ export const StaticMetricDefinitions: MetricDefinitions = new Map<
   MetricDefinition
 >([
   // How long a task will take, in days.
-  [StaticKeys.Duration, new MetricDefinition("Duration", new Range(), 1)],
+  [StaticKeys.Duration, new MetricDefinition("Duration", new MetricRange(), 1)],
   // The percent complete for a task.
-  [StaticKeys.Percent, new MetricDefinition("Percent Complete", new Range(0, 100), 0)],
+  [
+    StaticKeys.Percent,
+    new MetricDefinition("Percent Complete", new MetricRange(0, 100), 0),
+  ],
 ]);
 
 export class Plan {
