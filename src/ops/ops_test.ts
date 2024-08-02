@@ -115,7 +115,7 @@ describe("applyAllOpsToPlan", () => {
     ];
     const ret = applyAllOpsToPlan(allOps, new Plan(new Chart()));
     assert.isTrue(ret.ok);
-    assert.equal(TestSubOp.subOpApplicationOrder, [
+    assert.deepEqual(TestSubOp.subOpApplicationOrder, [
       "A",
       "B.1",
       "B.2",
