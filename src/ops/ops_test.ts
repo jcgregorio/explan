@@ -2,7 +2,7 @@ import { assert } from "@esm-bundle/chai";
 import { Chart } from "../chart/chart";
 import { Plan } from "../plan/plan";
 import { error, ok, Result } from "../result";
-import { Op, SubOp, SubOpResult } from "./ops";
+import { applyAllOpsToPlan, Op, SubOp, SubOpResult } from "./ops";
 
 const testErrorMessage = "Forced test failure.";
 
@@ -102,5 +102,25 @@ describe("Op", () => {
     assert.isFalse(res.ok);
     assert.deepEqual(TestSubOp.subOpApplicationOrder, ["A", "B"]);
     assert.isTrue(res.error.message.includes(inverseFailureErrorMessage));
+  });
+});
+
+describe("applyAllOpsToPlan", () => {
+  it("Returns the set of inverse Ops in reverse order.", () => {
+    TestSubOp.reset();
+    const allOps: Op[] = [
+      new Op([new TestSubOp("A")]),
+      new Op([new TestSubOp("B.1"), new TestSubOp("B.2")]),
+      new Op([new TestSubOp("C.1"), new TestSubOp("C.2")]),
+    ];
+    const ret = applyAllOpsToPlan(allOps, new Plan(new Chart()));
+    assert.isTrue(ret.ok);
+    assert.equal(TestSubOp.subOpApplicationOrder, [
+      "A",
+      "B.1",
+      "B.2",
+      "C.1",
+      "C.2",
+    ]);
   });
 });

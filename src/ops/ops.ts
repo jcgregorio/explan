@@ -98,7 +98,7 @@ export class Op {
   }
 }
 
-export type OpArrayResult = {
+export type AllOpsResult = {
   ops: Op[];
   plan: Plan;
 };
@@ -106,7 +106,7 @@ export type OpArrayResult = {
 export const applyAllOpsToPlan = (
   ops: Op[],
   plan: Plan
-): Result<OpArrayResult> => {
+): Result<AllOpsResult> => {
   const inverses: Op[] = [];
   for (let i = 0; i < ops.length; i++) {
     const res = ops[i].apply(plan);
