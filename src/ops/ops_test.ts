@@ -130,4 +130,24 @@ describe("applyAllOpsToPlan", () => {
       "-A",
     ]);
   });
+
+  it("Correctly unwinds applied Ops if on Op fails.", () => {
+    TestSubOp.reset();
+    const allOps: Op[] = [
+      new Op([new TestSubOp("A")]),
+      new Op([
+        new TestSubOp("B.1"),
+        new TestSubOp("B.2", FailureType.FailsOnApply),
+      ]),
+      new Op([new TestSubOp("C.1"), new TestSubOp("C.2")]),
+    ];
+    const ret = applyAllOpsToPlan(allOps, new Plan(new Chart()));
+    assert.isFalse(ret.ok);
+    assert.deepEqual(TestSubOp.subOpApplicationOrder, [
+      "A",
+      "B.1",
+      "-B.1",
+      "-A",
+    ]);
+  });
 });

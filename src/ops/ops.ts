@@ -103,6 +103,17 @@ export type AllOpsResult = {
   plan: Plan;
 };
 
+const applyAllInverseOpsToPlan = (inverses: Op[], plan: Plan): Result<null> => {
+  for (let i = 0; i < inverses.length; i++) {
+    const res = inverses[i].apply(plan);
+    if (!res.ok) {
+      return res;
+    }
+    plan = res.value.plan;
+  }
+  return ok(null);
+};
+
 export const applyAllOpsToPlan = (
   ops: Op[],
   plan: Plan
@@ -111,6 +122,10 @@ export const applyAllOpsToPlan = (
   for (let i = 0; i < ops.length; i++) {
     const res = ops[i].apply(plan);
     if (!res.ok) {
+      const inverseRes = applyAllInverseOpsToPlan(inverses, plan);
+      if (!inverseRes) {
+        return inverseRes;
+      }
       return res;
     }
     inverses.unshift(res.value.inverse);
