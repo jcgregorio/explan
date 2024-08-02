@@ -1,10 +1,20 @@
 // Metrics define floating point values that are tracked per Task.
 
-export interface ClampResult {
-  changed: boolean;
-  oldValue: number;
-  newValue: number;
-}
+export type ClampResult =
+  | { changed: false }
+  | { changed: true; oldValue: number; newValue: number };
+
+const unchanged = (): ClampResult => {
+  return { changed: false };
+};
+
+const changed = (oldValue: number, newValue: number): ClampResult => {
+  return {
+    changed: true,
+    oldValue: oldValue,
+    newValue: newValue,
+  };
+};
 
 export const clamp = (x: number, min: number, max: number): number => {
   if (x > max) {
@@ -21,10 +31,7 @@ export class Range {
   private _min: number = Number.MIN_VALUE;
   private _max: number = Number.MAX_VALUE;
 
-  constructor(
-    min: number = Number.MIN_VALUE,
-    max: number = Number.MAX_VALUE
-  ) {
+  constructor(min: number = Number.MIN_VALUE, max: number = Number.MAX_VALUE) {
     if (max < min) {
       [min, max] = [max, min];
     }
@@ -35,17 +42,9 @@ export class Range {
   clamp(x: number): ClampResult {
     const newValue = clamp(x, this._max, this._max);
     if (newValue !== x) {
-      return {
-        changed: true,
-        oldValue: x,
-        newValue: newValue,
-      };
+      return changed(x, newValue);
     }
-    return {
-      changed: false,
-      oldValue: x,
-      newValue: x,
-    };
+    return unchanged();
   }
 
   public get min(): number {
@@ -55,8 +54,6 @@ export class Range {
   public get max(): number {
     return this._max;
   }
-
-
 }
 
 export class MetricDefinition {
