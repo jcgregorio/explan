@@ -1,7 +1,7 @@
 import { assert } from "@esm-bundle/chai";
 import { Chart } from "../chart/chart";
 import { Plan } from "../plan/plan";
-import { ok, Result } from "../result";
+import { error, ok, Result } from "../result";
 import { Op, SubOp, SubOpResult } from "./ops";
 
 // A SubOp used just for testing. It records apply()'s
@@ -24,6 +24,9 @@ class TestSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
+    if (this.fails) {
+      error(new Error("Forced test failure."));
+    }
     TestSubOp.subOpApplicationOrder.push(
       `${this.isInverse ? "-" : ""}${this.name}`
     );
@@ -55,5 +58,17 @@ describe("Op", () => {
       "-B",
       "-A",
     ]);
+  });
+
+  it("Correctly unwinds partial applications if a subOp fails.", () => {
+    TestSubOp.subOpApplicationOrder = [];
+    const op = new Op([
+      new TestSubOp("A"),
+      new TestSubOp("B"),
+      new TestSubOp("C", true),
+    ]);
+    const res = op.apply(new Plan(new Chart()));
+    assert.isFalse(res.ok);
+    assert.deepEqual(TestSubOp.subOpApplicationOrder, ["A", "B", "-B", "-A"]);
   });
 });
