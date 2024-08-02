@@ -116,6 +116,8 @@ const applyAllInverseOpsToPlan = (inverses: Op[], plan: Plan): Result<Plan> => {
   return ok(plan);
 };
 
+// Convenience function for applying multiple Ops to a plan, used mostly for
+// testing.
 export const applyAllOpsToPlan = (
   ops: Op[],
   plan: Plan
