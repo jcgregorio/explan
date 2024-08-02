@@ -4,41 +4,56 @@ import { Plan } from "../plan/plan";
 import { ok, Result } from "../result";
 import { Op, SubOp, SubOpResult } from "./ops";
 
-class TestSubOpA implements SubOp {
+// A SubOp used just for testing. It records apply()'s
+// in the subOpApplicationOrder.
+class TestSubOp implements SubOp {
+  name: string;
+  fails: boolean;
+  isInverse: boolean;
+
+  static subOpApplicationOrder: string[] = [];
+
+  constructor(
+    name: string,
+    fails: boolean = false,
+    isInverse: boolean = false
+  ) {
+    this.name = name;
+    this.fails = fails;
+    this.isInverse = isInverse;
+  }
+
   apply(plan: Plan): Result<SubOpResult> {
+    TestSubOp.subOpApplicationOrder.push(
+      `${this.isInverse ? "-" : ""}${this.name}`
+    );
     const ret: SubOpResult = {
       plan: plan,
-      inverse: new TestSubOpA(),
+      inverse: new TestSubOp(this.name, this.fails, !this.isInverse),
     };
     return ok(ret);
   }
 }
 
-class TestSubOpB implements SubOp {
-  apply(plan: Plan): Result<SubOpResult> {
-    const ret: SubOpResult = {
-      plan: plan,
-      inverse: new TestSubOpB(),
-    };
-    return ok(ret);
-  }
-}
-
-class TestSubOpC implements SubOp {
-  apply(plan: Plan): Result<SubOpResult> {
-    const ret: SubOpResult = {
-      plan: plan,
-      inverse: new TestSubOpC(),
-    };
-    return ok(ret);
-  }
-}
 describe("Op", () => {
   it("Reverses the order of the inverse subOps", () => {
-    const op = new Op([new TestSubOpA(), new TestSubOpB(), new TestSubOpC()]);
-    const res = op.apply(new Plan(new Chart()));
+    TestSubOp.subOpApplicationOrder = [];
+    const op = new Op([
+      new TestSubOp("A"),
+      new TestSubOp("B"),
+      new TestSubOp("C"),
+    ]);
+    let res = op.apply(new Plan(new Chart()));
     assert.isTrue(res.ok);
-    const iSubOps = res.value.inverse.subOps;
-    assert.isTrue(iSubOps[0] instanceof TestSubOpC);
+    res = res.value.inverse.apply(res.value.plan);
+    assert.isTrue(res.ok);
+    assert.deepEqual(TestSubOp.subOpApplicationOrder, [
+      "A",
+      "B",
+      "C",
+      "-C",
+      "-B",
+      "-A",
+    ]);
   });
 });
