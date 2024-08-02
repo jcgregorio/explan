@@ -70,6 +70,7 @@ export class Op {
       }
       plan = e.value.plan;
     }
+
     return ok(plan);
   }
 
@@ -103,7 +104,7 @@ export type AllOpsResult = {
   plan: Plan;
 };
 
-const applyAllInverseOpsToPlan = (inverses: Op[], plan: Plan): Result<null> => {
+const applyAllInverseOpsToPlan = (inverses: Op[], plan: Plan): Result<Plan> => {
   for (let i = 0; i < inverses.length; i++) {
     const res = inverses[i].apply(plan);
     if (!res.ok) {
@@ -111,7 +112,8 @@ const applyAllInverseOpsToPlan = (inverses: Op[], plan: Plan): Result<null> => {
     }
     plan = res.value.plan;
   }
-  return ok(null);
+
+  return ok(plan);
 };
 
 export const applyAllOpsToPlan = (
@@ -123,7 +125,10 @@ export const applyAllOpsToPlan = (
     const res = ops[i].apply(plan);
     if (!res.ok) {
       const inverseRes = applyAllInverseOpsToPlan(inverses, plan);
-      if (!inverseRes) {
+      if (!inverseRes.ok) {
+        // TODO Can we wrap the Error in another error to make it clear this
+        // error happened when trying to clean up from the previous Error when
+        // the apply() failed.
         return inverseRes;
       }
       return res;
@@ -131,6 +136,7 @@ export const applyAllOpsToPlan = (
     inverses.unshift(res.value.inverse);
     plan = res.value.plan;
   }
+
   return ok({
     ops: inverses,
     plan: plan,
