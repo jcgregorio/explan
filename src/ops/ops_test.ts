@@ -25,7 +25,7 @@ class TestSubOp implements SubOp {
 
   apply(plan: Plan): Result<SubOpResult> {
     if (this.fails) {
-      error(new Error("Forced test failure."));
+      return error(new Error("Forced test failure."));
     }
     TestSubOp.subOpApplicationOrder.push(
       `${this.isInverse ? "-" : ""}${this.name}`

@@ -79,7 +79,7 @@ export class Op {
     for (let i = 0; i < this.subOps.length; i++) {
       const e = this.subOps[i].apply(plan);
       if (!e.ok) {
-        // Revert all the SubOps applied to this point to get the Plan back in a
+        // Revert all the SubOps applied up to this point to get the Plan back in a
         // good place.
         const revertErr = this.applyAllInverseSubOpsToPlan(plan, inverseSubOps);
         if (!revertErr.ok) {
