@@ -1,12 +1,14 @@
+// Classes for dealing with a range of numbers.
+
 export type ClampResult =
   | { changed: false }
   | { changed: true; oldValue: number; newValue: number };
 
-const unchanged = (): ClampResult => {
+export const unchanged = (): ClampResult => {
   return { changed: false };
 };
 
-const changed = (oldValue: number, newValue: number): ClampResult => {
+export const changed = (oldValue: number, newValue: number): ClampResult => {
   return {
     changed: true,
     oldValue: oldValue,
@@ -37,10 +39,10 @@ export class MetricRange {
     this._max = max;
   }
 
-  clamp(x: number): ClampResult {
-    const newValue = clamp(x, this._max, this._max);
-    if (newValue !== x) {
-      return changed(x, newValue);
+  clamp(oldValue: number): ClampResult {
+    const newValue = clamp(oldValue, this._min, this._max);
+    if (newValue !== oldValue) {
+      return changed(oldValue, newValue);
     }
     return unchanged();
   }
