@@ -1,11 +1,11 @@
 // Classes for dealing with a range of numbers.
 
 export type ClampResult =
-  | { changed: false }
+  | { changed: false; newValue: number }
   | { changed: true; oldValue: number; newValue: number };
 
-export const unchanged = (): ClampResult => {
-  return { changed: false };
+export const unchanged = (newValue: number): ClampResult => {
+  return { changed: false, newValue: newValue };
 };
 
 export const changed = (oldValue: number, newValue: number): ClampResult => {
@@ -44,7 +44,7 @@ export class MetricRange {
     if (newValue !== oldValue) {
       return changed(oldValue, newValue);
     }
-    return unchanged();
+    return unchanged(oldValue);
   }
 
   public get min(): number {

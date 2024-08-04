@@ -33,17 +33,13 @@ export class Task {
     durationModel: DurationModel = new JacobianDuration(Uncertainty.moderate),
     metricDefinitions: MetricDefinitions = StaticMetricDefinitions
   ) {
-    if (name === "") {
-      this.name = "Task Name";
-    } else {
-      this.name = name;
-    }
+    this.name = name || "Task Name";
     this.durationModel =
       durationModel || new JacobianDuration(Uncertainty.moderate);
 
     const metrics: { [key: string]: number } = {};
     metricDefinitions.forEach((value: MetricDefinition, key: string) => {
-      metrics[key] = value.defaultValue;
+      metrics[key] = value.default;
     });
     this.metrics = metrics;
   }
@@ -52,9 +48,9 @@ export class Task {
   // definitions.
   resources: { [key: string]: string } = {};
 
-  metrics: { [key: string]: number } = {};
+  metrics: { [key: string]: number };
 
-  name: string = "Task Name";
+  name: string;
 
   durationModel: DurationModel;
 
@@ -69,12 +65,16 @@ export class Task {
     return this.metrics[StaticKeys.Duration];
   }
 
-  public set duration(value: number)  {
+  public set duration(value: number) {
     this.metrics[StaticKeys.Duration] = value;
   }
 
   public get percent(): number {
     return this.metrics[StaticKeys.Percent];
+  }
+
+  public set percent(value: number) {
+    this.metrics[StaticKeys.Percent] = value;
   }
 }
 
