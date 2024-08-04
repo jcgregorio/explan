@@ -5,16 +5,12 @@ import { clamp, MetricRange } from "./range";
 export class MetricDefinition {
   displayName: string;
   range: MetricRange;
-  _default: number;
+  default: number;
 
   constructor(displayName: string, range: MetricRange, defaultValue: number) {
     this.displayName = displayName;
     this.range = range;
-    this._default = clamp(defaultValue, range.min, range.max);
-  }
-
-  public get defaultValue(): number {
-    return this._default;
+    this.default = clamp(defaultValue, range.min, range.max);
   }
 }
 
