@@ -10,7 +10,11 @@ import {
 import { topologicalSort } from "../dag/algorithms/toposort";
 import { DurationModel } from "../duration/duration";
 import { JacobianDuration, Uncertainty } from "../duration/jacobian";
-import { MetricDefinition, MetricDefinitions } from "../metrics/metrics";
+import {
+  MetricDefinition,
+  MetricDefinitions,
+  MetricsContainer,
+} from "../metrics/metrics";
 import { StaticKeys, StaticMetricDefinitions } from "../plan/plan";
 
 enum TaskState {
@@ -37,18 +41,14 @@ export class Task {
     this.durationModel =
       durationModel || new JacobianDuration(Uncertainty.moderate);
 
-    const metrics: { [key: string]: number } = {};
-    metricDefinitions.forEach((value: MetricDefinition, key: string) => {
-      metrics[key] = value.default;
-    });
-    this.metrics = metrics;
+    this.metricsContainer = new MetricsContainer(metricDefinitions);
   }
 
   // Resource keys and values. The parent plan contains all the resource
   // definitions.
   resources: { [key: string]: string } = {};
 
-  metrics: { [key: string]: number };
+  metricsContainer: MetricsContainer;
 
   name: string;
 
@@ -62,19 +62,19 @@ export class Task {
   actualFinish: number = 0;
 
   public get duration(): number {
-    return this.metrics[StaticKeys.Duration];
+    return this.metricsContainer.get(StaticKeys.Duration)!;
   }
 
   public set duration(value: number) {
-    this.metrics[StaticKeys.Duration] = value;
+    this.metricsContainer.set(StaticKeys.Duration, value);
   }
 
   public get percent(): number {
-    return this.metrics[StaticKeys.Percent];
+    return this.metricsContainer.get(StaticKeys.Percent)!;
   }
 
   public set percent(value: number) {
-    this.metrics[StaticKeys.Percent] = value;
+    this.metricsContainer.set(StaticKeys.Percent, value);
   }
 }
 
