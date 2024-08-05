@@ -17,10 +17,16 @@ export class MetricDefinition {
 
 export type MetricDefinitions = Map<string, MetricDefinition>;
 
+export function newMetricDefinitions(): MetricDefinitions {
+  return new Map();
+}
+
 // Keeps track of Metric values for a single entity, such as a Task.
 export class MetricsContainer {
-  values: Map<string, number> = new Map();
-  metricDefinitions: MetricDefinitions;
+  private values: Map<string, number> = new Map();
+
+  // A reference to a common instance of MetricDefinitions.
+  private metricDefinitions: MetricDefinitions;
 
   constructor(metricDefinitions: MetricDefinitions) {
     this.metricDefinitions = metricDefinitions;
@@ -37,5 +43,15 @@ export class MetricsContainer {
     const cr = def.range.clamp(value);
     this.values.set(key, cr.newValue);
     return ok(cr);
+  }
+
+  get(key: string): number | undefined {
+    return this.values.get(key);
+  }
+
+  // Returns true if the metric existed and was been removed, or false if it
+  // didn't exist.
+  delete(key: string): boolean {
+    return this.values.delete(key);
   }
 }

@@ -37,7 +37,7 @@ describe("MetricRange", () => {
       assert.deepEqual(mr.clamp(-10), changed(-10, -1));
     });
     it("Handles numbers within the range.", () => {
-      assert.deepEqual(mr.clamp(0.1), unchanged());
+      assert.deepEqual(mr.clamp(0.1), unchanged(0.1));
     });
   });
 });
