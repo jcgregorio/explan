@@ -65,16 +65,8 @@ export class Task {
     return this.metricsContainer.get(StaticKeys.Duration)!;
   }
 
-  public set duration(value: number) {
-    this.metricsContainer.set(StaticKeys.Duration, value);
-  }
-
   public get percent(): number {
     return this.metricsContainer.get(StaticKeys.Percent)!;
-  }
-
-  public set percent(value: number) {
-    this.metricsContainer.set(StaticKeys.Percent, value);
   }
 }
 
