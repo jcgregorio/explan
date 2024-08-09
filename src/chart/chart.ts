@@ -10,11 +10,7 @@ import {
 import { topologicalSort } from "../dag/algorithms/toposort";
 import { DurationModel } from "../duration/duration";
 import { JacobianDuration, Uncertainty } from "../duration/jacobian";
-import {
-  MetricDefinition,
-  MetricDefinitions,
-  MetricsContainer,
-} from "../metrics/metrics";
+import { MetricDefinitions, MetricsContainer } from "../metrics/metrics";
 import { StaticKeys, StaticMetricDefinitions } from "../plan/plan";
 
 enum TaskState {
@@ -46,6 +42,8 @@ export class Task {
 
   // Resource keys and values. The parent plan contains all the resource
   // definitions.
+
+  // Should resources also have a ResourcesContainer?
   resources: { [key: string]: string } = {};
 
   metricsContainer: MetricsContainer;

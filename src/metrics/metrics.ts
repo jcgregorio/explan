@@ -4,12 +4,10 @@ import { error, ok, Result } from "../result";
 import { clamp, ClampResult, MetricRange } from "./range";
 
 export class MetricDefinition {
-  displayName: string;
   range: MetricRange;
   default: number;
 
-  constructor(displayName: string, range: MetricRange, defaultValue: number) {
-    this.displayName = displayName;
+  constructor(range: MetricRange, defaultValue: number) {
     this.range = range;
     this.default = clamp(defaultValue, range.min, range.max);
   }

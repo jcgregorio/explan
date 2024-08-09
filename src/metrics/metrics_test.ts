@@ -8,7 +8,7 @@ import { assert } from "@esm-bundle/chai";
 
 describe("MetricDefinition", () => {
   it("Clamps the provided default to the range.", () => {
-    const m = new MetricDefinition("Display Name", new MetricRange(-1, 1), 2);
+    const m = new MetricDefinition(new MetricRange(-1, 1), 2);
     assert.equal(m.default, 1);
   });
 });
@@ -21,18 +21,11 @@ const testMetricDefinitions: MetricDefinitions = new Map<
   MetricDefinition
 >([
   // How long a task will take, in days.
-  [
-    "duration",
-    new MetricDefinition("Duration", new MetricRange(), defaultDuration),
-  ],
+  ["duration", new MetricDefinition(new MetricRange(), defaultDuration)],
   // The percent complete for a task.
   [
     "percentComplete",
-    new MetricDefinition(
-      "Percent Complete",
-      new MetricRange(0, 100),
-      defaultPercentComplete
-    ),
+    new MetricDefinition(new MetricRange(0, 100), defaultPercentComplete),
   ],
 ]);
 
