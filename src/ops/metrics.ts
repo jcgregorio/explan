@@ -1,6 +1,3 @@
-// AddMetric
-// DeleteMetric
-// RenameMetric
 // ChangeMetricDefinition
 // ChangeMetricValue
 

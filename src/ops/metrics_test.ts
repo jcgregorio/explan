@@ -154,4 +154,31 @@ describe("RenameMetricOp", () => {
       defaultCostValue
     );
   });
+
+  it("generates a correct inverse Op", () => {
+    const plan = new Plan(new Chart());
+    const oldMetricName = "cost";
+    const newMetricName = "Cost ($)";
+    let res = AddMetricOp(
+      oldMetricName,
+      new MetricDefinition(defaultCostValue)
+    ).apply(plan);
+    assert.isTrue(res.ok);
+
+    const op = RenameMetricOp(oldMetricName, newMetricName);
+    res = op.apply(res.value.plan);
+    assert.isTrue(res.ok);
+
+    // Not apply the inverse.
+    res = res.value.inverse.apply(res.value.plan);
+    assert.isTrue(res.ok);
+
+    assert.isFalse(res.value.plan.metricDefinitions.has(newMetricName));
+    assert.isTrue(res.value.plan.metricDefinitions.has(oldMetricName));
+    assert.equal(res.value.plan.chart.Vertices[1].metrics.size, 3);
+    assert.equal(
+      res.value.plan.chart.Vertices[1].metrics.get(oldMetricName),
+      defaultCostValue
+    );
+  });
 });
