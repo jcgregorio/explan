@@ -9,6 +9,7 @@ import {
   UpdateMetricOp,
 } from "./metrics";
 import { applyAllOpsToPlan } from "./ops";
+import { MetricRange } from "../metrics/range";
 
 const defaultCostValue = 12;
 const newCostValue = 15;
@@ -229,5 +230,57 @@ describe("UpdateMetricSubOp", () => {
     res.value.plan.chart.Vertices.forEach((task: Task) => {
       assert.equal(task.metrics.get("cost"), newCostValue);
     });
+  });
+
+  it("can update the values to be in the new range in all the Tasks", () => {
+    const res = applyAllOpsToPlan(
+      [
+        AddMetricOp("cost", new MetricDefinition(defaultCostValue)),
+        UpdateMetricOp(
+          "cost",
+          new MetricDefinition(defaultCostValue, new MetricRange(100, 200))
+        ),
+      ],
+      new Plan(new Chart())
+    );
+
+    assert.isTrue(res.ok);
+
+    // Since defaultCostValue < 100 each Task's metric value should be clamped to 100.
+    res.value.plan.chart.Vertices.forEach((task: Task) => {
+      assert.equal(task.metrics.get("cost"), 100);
+    });
+  });
+
+  it("the inverse Op also restores values in Tasks", () => {
+    let res = AddMetricOp("cost", new MetricDefinition(defaultCostValue)).apply(
+      new Plan(new Chart())
+    );
+    assert.isTrue(res.ok);
+
+    const newCostForTask = 17;
+
+    // Set a task cost value to new value.
+    res.value.plan.chart.Vertices[1].metrics.set("cost", newCostForTask);
+
+    res = UpdateMetricOp(
+      "cost",
+      new MetricDefinition(defaultCostValue, new MetricRange(100, 200))
+    ).apply(res.value.plan);
+    assert.isTrue(res.ok);
+
+    res.value.plan.chart.Vertices.forEach((task: Task) => {
+      assert.equal(task.metrics.get("cost"), 100);
+    });
+
+    // Now apply the inverse.
+    res = res.value.inverse.apply(res.value.plan);
+    assert.isTrue(res.ok);
+
+    // Task value goes back to most recent value.
+    assert.equal(
+      res.value.plan.chart.Vertices[1].metrics.get("cost"),
+      newCostForTask
+    );
   });
 });
