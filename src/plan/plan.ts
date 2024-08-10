@@ -13,9 +13,12 @@ export const StaticMetricDefinitions: MetricDefinitions = new Map<
   MetricDefinition
 >([
   // How long a task will take, in days.
-  [StaticMetricKeys.Duration, new MetricDefinition(new MetricRange(), 1)],
+  [StaticMetricKeys.Duration, new MetricDefinition(1, new MetricRange(), true)],
   // The percent complete for a task.
-  [StaticMetricKeys.Percent, new MetricDefinition(new MetricRange(0, 100), 0)],
+  [
+    StaticMetricKeys.Percent,
+    new MetricDefinition(0, new MetricRange(0, 100), true),
+  ],
 ]);
 
 export class Plan {

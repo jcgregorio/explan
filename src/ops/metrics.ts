@@ -68,6 +68,10 @@ export class DeleteMetricSupOp implements SubOp {
       );
     }
 
+    if (metricDefinition.isStatic) {
+      return error(`The static Metric ${this.name} can't be deleted.`);
+    }
+
     // Remove from resource definitions.
     plan.metricDefinitions.delete(this.name);
 
