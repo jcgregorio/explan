@@ -1,13 +1,13 @@
 import { Chart, Task, validateChart } from "./chart/chart.ts";
 import { InsertNewEmptyTaskAfterOp } from "./ops/chart.ts";
-import { Plan, StaticKeys } from "./plan/plan.ts";
+import { Plan, StaticMetricKeys } from "./plan/plan.ts";
 import { ComputeSlack } from "./slack/slack.ts";
 
 const taskA = new Task("A");
-taskA.metricsContainer.set(StaticKeys.Duration, 10);
+taskA.metrics.set(StaticMetricKeys.Duration, 10);
 
 const taskB = new Task("B");
-taskB.metricsContainer.set(StaticKeys.Duration, 15);
+taskB.metrics.set(StaticMetricKeys.Duration, 15);
 
 const C: Chart = {
   Vertices: [new Task("Start"), taskA, taskB, new Task("Finish")],

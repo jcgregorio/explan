@@ -38,13 +38,10 @@ export class AddMetricSubOp implements SubOp {
     // use that value, i.e. this AddMetricSubOp is actually a revert of a
     // DeleteMetricSubOp.
     plan.chart.Vertices.forEach((task: Task, index: number) => {
-      const ret = task.metricsContainer.set(
+      task.metrics.set(
         this.name,
         this.taskMetricValues.get(index) || this.metricDefinition.default
       );
-      if (!ret.ok) {
-        return ret;
-      }
     });
 
     return ok({ plan: plan, inverse: this.inverse() });
@@ -79,11 +76,11 @@ export class DeleteMetricSupOp implements SubOp {
     // Now look at all Tasks and remove `this.name` from the metric while also
     // building up the info needed for a revert.
     plan.chart.Vertices.forEach((task: Task, index: number) => {
-      const value = task.metricsContainer.get(this.name);
+      const value = task.metrics.get(this.name);
       if (value !== undefined) {
         taskIndexToDeletedMetricValue.set(index, value);
       }
-      task.metricsContainer.delete(this.name);
+      task.metrics.delete(this.name);
     });
 
     return ok({

@@ -1,5 +1,5 @@
 import { Chart, Task } from "./chart/chart.ts";
-import { StaticKeys } from "./plan/plan.ts";
+import { StaticMetricKeys } from "./plan/plan.ts";
 import {
   ColorTheme,
   RenderOptions,
@@ -8,16 +8,16 @@ import {
 import { ComputeSlack, Slack } from "./slack/slack";
 
 const taskA = new Task("Task A");
-taskA.metricsContainer.set(StaticKeys.Duration, 10);
+taskA.metrics.set(StaticMetricKeys.Duration, 10);
 
 const taskB = new Task("Task B");
-taskB.metricsContainer.set(StaticKeys.Duration, 15);
+taskB.metrics.set(StaticMetricKeys.Duration, 15);
 
 const milestone1 = new Task("Milestone 1");
-milestone1.metricsContainer.set(StaticKeys.Duration, 0);
+milestone1.metrics.set(StaticMetricKeys.Duration, 0);
 
 const taskC = new Task("Task C");
-taskC.metricsContainer.set(StaticKeys.Duration, 3);
+taskC.metrics.set(StaticMetricKeys.Duration, 3);
 
 const C: Chart = {
   Vertices: [

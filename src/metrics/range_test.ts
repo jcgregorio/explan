@@ -1,4 +1,4 @@
-import { MetricRange, clamp, changed, unchanged } from "./range";
+import { MetricRange, clamp } from "./range";
 import { assert } from "@esm-bundle/chai";
 
 describe("clamp", () => {
@@ -31,13 +31,13 @@ describe("MetricRange", () => {
   describe("Returns the right information when clamping a value.", () => {
     const mr = new MetricRange(-1, 1);
     it("Handles numbers above the range.", () => {
-      assert.deepEqual(mr.clamp(10), changed(10, 1));
+      assert.deepEqual(mr.clamp(10), 1);
     });
     it("Handles numbers below the range.", () => {
-      assert.deepEqual(mr.clamp(-10), changed(-10, -1));
+      assert.deepEqual(mr.clamp(-10), -1);
     });
     it("Handles numbers within the range.", () => {
-      assert.deepEqual(mr.clamp(0.1), unchanged(0.1));
+      assert.deepEqual(mr.clamp(0.1), 0.1);
     });
   });
 });
