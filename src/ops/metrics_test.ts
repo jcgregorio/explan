@@ -2,7 +2,10 @@ import { assert } from "@esm-bundle/chai";
 import { Chart, Task } from "../chart/chart";
 import { Plan, StaticMetricKeys } from "../plan/plan";
 import { MetricDefinition } from "../metrics/metrics";
-import { AddMetricOp, DeleteMetricOp } from "./metrics";
+import { AddMetricOp, DeleteMetricOp, RenameMetricOp } from "./metrics";
+
+const defaultCostValue = 12;
+const newCostValue = 15;
 
 describe("AddMetricOp", () => {
   it("adds a new metric to a Plan", () => {
@@ -44,14 +47,13 @@ describe("AddMetricOp", () => {
     const op = AddMetricOp(StaticMetricKeys.Duration, new MetricDefinition(0));
     const res = op.apply(plan);
     assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("already exists"));
   });
 });
 
 describe("DeleteMetricOp", () => {
   it("creates an inverse that restores metric values in Tasks.", () => {
     const plan = new Plan(new Chart());
-    const defaultCostValue = 12;
-    const newCostValue = 15;
 
     let res = AddMetricOp("cost", new MetricDefinition(defaultCostValue)).apply(
       plan
@@ -72,6 +74,8 @@ describe("DeleteMetricOp", () => {
     // values in each task.
     res = res.value.inverse.apply(res.value.plan);
     assert.isTrue(res.ok);
+
+    // Confirm that cost reverts to its previous value.
     assert.equal(plan.chart.Vertices[1].metrics.get("cost"), newCostValue);
   });
 
@@ -89,5 +93,65 @@ describe("DeleteMetricOp", () => {
     const res = DeleteMetricOp("some unknown metric name").apply(plan);
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("does not exist"));
+  });
+});
+
+describe("RenameMetricOp", () => {
+  it("will not rename static Metrics", () => {
+    const plan = new Plan(new Chart());
+
+    const op = RenameMetricOp(
+      StaticMetricKeys.Duration,
+      "How long this will take"
+    );
+    const res = op.apply(plan);
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("can't be renamed"));
+  });
+
+  it("will not rename a metric to an existing Metric name", () => {
+    const plan = new Plan(new Chart());
+    let res = AddMetricOp("cost", new MetricDefinition(defaultCostValue)).apply(
+      plan
+    );
+    assert.isTrue(res.ok);
+
+    const op = RenameMetricOp("cost", StaticMetricKeys.Duration);
+    res = op.apply(res.value.plan);
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("already exists as a metric"));
+  });
+
+  it("will return an error if the Metric doesn't exist", () => {
+    const plan = new Plan(new Chart());
+    const op = RenameMetricOp(
+      "Some unknown metric",
+      "another name for that metric"
+    );
+    const res = op.apply(plan);
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("does not exist as a Metric"));
+  });
+
+  it("will rename a metric and all the keys in the Tasks", () => {
+    const plan = new Plan(new Chart());
+    const oldMetricName = "cost";
+    const newMetricName = "Cost ($)";
+    let res = AddMetricOp(
+      oldMetricName,
+      new MetricDefinition(defaultCostValue)
+    ).apply(plan);
+    assert.isTrue(res.ok);
+
+    const op = RenameMetricOp(oldMetricName, newMetricName);
+    res = op.apply(res.value.plan);
+    assert.isTrue(res.ok);
+    assert.isTrue(res.value.plan.metricDefinitions.has(newMetricName));
+    assert.isFalse(res.value.plan.metricDefinitions.has(oldMetricName));
+    assert.equal(res.value.plan.chart.Vertices[1].metrics.size, 3);
+    assert.equal(
+      res.value.plan.chart.Vertices[1].metrics.get(newMetricName),
+      defaultCostValue
+    );
   });
 });

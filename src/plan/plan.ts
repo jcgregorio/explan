@@ -1,4 +1,4 @@
-import { Chart } from "../chart/chart";
+import { Chart, Task } from "../chart/chart";
 import { MetricDefinition, MetricDefinitions } from "../metrics/metrics";
 import { MetricRange } from "../metrics/range";
 import { ResourceDefinitions } from "../resources/resources";
@@ -33,5 +33,11 @@ export class Plan {
     this.metricDefinitions = new Map<string, MetricDefinition>(
       StaticMetricDefinitions
     );
+    [...this.metricDefinitions.keys()].forEach((metricName: string) => {
+      const md = this.metricDefinitions.get(metricName)!;
+      this.chart.Vertices.forEach((task: Task) => {
+        task.metrics.set(metricName, md.default);
+      });
+    });
   }
 }

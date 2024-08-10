@@ -1,6 +1,7 @@
 // AddMetric
 // DeleteMetric
 // RenameMetric
+// ChangeMetricDefinition
 // ChangeMetricValue
 
 import { Task } from "../chart/chart";
@@ -48,11 +49,11 @@ export class AddMetricSubOp implements SubOp {
   }
 
   inverse(): SubOp {
-    return new DeleteMetricSupOp(this.name);
+    return new DeleteMetricSubOp(this.name);
   }
 }
 
-export class DeleteMetricSupOp implements SubOp {
+export class DeleteMetricSubOp implements SubOp {
   name: string;
 
   constructor(name: string) {
@@ -105,6 +106,46 @@ export class DeleteMetricSupOp implements SubOp {
   }
 }
 
+export class RenameMetricSubOp implements SubOp {
+  oldName: string;
+  newName: string;
+
+  constructor(oldName: string, newName: string) {
+    this.oldName = oldName;
+    this.newName = newName;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    if (plan.metricDefinitions.has(this.newName)) {
+      return error(`${this.newName} already exists as a metric.`);
+    }
+
+    const metricDefinition = plan.metricDefinitions.get(this.oldName);
+    if (metricDefinition === undefined) {
+      return error(`${this.oldName} does not exist as a Metric`);
+    }
+    if (metricDefinition.isStatic) {
+      return error(`Static metric ${this.oldName} can't be renamed.`);
+    }
+
+    plan.metricDefinitions.set(this.newName, metricDefinition);
+    plan.metricDefinitions.delete(this.oldName);
+
+    // Now loop over every task and rename this metric.
+    plan.chart.Vertices.forEach((task: Task) => {
+      const value = task.metrics.get(this.oldName) || metricDefinition.default;
+      task.metrics.set(this.newName, value);
+      task.metrics.delete(this.oldName);
+    });
+
+    return ok({ plan: plan, inverse: this.inverse() });
+  }
+
+  inverse(): SubOp {
+    return new RenameMetricSubOp(this.newName, this.oldName);
+  }
+}
+
 export function AddMetricOp(
   name: string,
   metricDefinition: MetricDefinition
@@ -113,5 +154,9 @@ export function AddMetricOp(
 }
 
 export function DeleteMetricOp(name: string): Op {
-  return new Op([new DeleteMetricSupOp(name)]);
+  return new Op([new DeleteMetricSubOp(name)]);
+}
+
+export function RenameMetricOp(oldName: string, newName: string): Op {
+  return new Op([new RenameMetricSubOp(oldName, newName)]);
 }
