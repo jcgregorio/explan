@@ -2,7 +2,13 @@ import { assert } from "@esm-bundle/chai";
 import { Chart, Task } from "../chart/chart";
 import { Plan, StaticMetricKeys } from "../plan/plan";
 import { MetricDefinition } from "../metrics/metrics";
-import { AddMetricOp, DeleteMetricOp, RenameMetricOp } from "./metrics";
+import {
+  AddMetricOp,
+  DeleteMetricOp,
+  RenameMetricOp,
+  UpdateMetricOp,
+} from "./metrics";
+import { applyAllOpsToPlan } from "./ops";
 
 const defaultCostValue = 12;
 const newCostValue = 15;
@@ -180,5 +186,48 @@ describe("RenameMetricOp", () => {
       res.value.plan.chart.Vertices[1].metrics.get(oldMetricName),
       defaultCostValue
     );
+  });
+});
+
+describe("UpdateMetricSubOp", () => {
+  it("fails when the metric doesn't exist", () => {
+    const plan = new Plan(new Chart());
+
+    const res = UpdateMetricOp(
+      "some unknown metric",
+      new MetricDefinition(defaultCostValue)
+    ).apply(plan);
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("does not exist"));
+  });
+
+  it("fails when the metric is Static", () => {
+    const plan = new Plan(new Chart());
+
+    const res = UpdateMetricOp(
+      StaticMetricKeys.Duration,
+      new MetricDefinition(defaultCostValue)
+    ).apply(plan);
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("Static metric"));
+  });
+
+  it("can update the default value in all the Tasks", () => {
+    const res = applyAllOpsToPlan(
+      [
+        AddMetricOp("cost", new MetricDefinition(defaultCostValue)),
+        UpdateMetricOp("cost", new MetricDefinition(newCostValue)),
+      ],
+      new Plan(new Chart())
+    );
+
+    assert.isTrue(res.ok);
+    assert.equal(
+      res.value.plan.metricDefinitions.get("cost")!.default,
+      newCostValue
+    );
+    res.value.plan.chart.Vertices.forEach((task: Task) => {
+      assert.equal(task.metrics.get("cost"), newCostValue);
+    });
   });
 });

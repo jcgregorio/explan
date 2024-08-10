@@ -143,6 +143,77 @@ export class RenameMetricSubOp implements SubOp {
   }
 }
 
+export class UpdateMetricSubOp implements SubOp {
+  name: string;
+  metricDefinition: MetricDefinition;
+
+  // Maps an index of a Task to a value for the given metric key.
+  taskMetricValues: Map<number, number>;
+
+  constructor(
+    name: string,
+    metricDefinition: MetricDefinition,
+    taskMetricValues: Map<number, number> = new Map() // Should only be supplied by inverse actions.
+  ) {
+    this.name = name;
+    this.metricDefinition = metricDefinition;
+    this.taskMetricValues = taskMetricValues;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    const oldMetricDefinition = plan.metricDefinitions.get(this.name);
+    if (oldMetricDefinition === undefined) {
+      return error(`${this.name} does not exist as a Metric`);
+    }
+    if (oldMetricDefinition.isStatic) {
+      return error(`Static metric ${this.name} can't be updated.`);
+    }
+
+    plan.metricDefinitions.set(this.name, this.metricDefinition);
+
+    const taskMetricValues: Map<number, number> = new Map();
+    // Now loop over every task and update the metric values to reflect the new
+    // metric definition, unless there is matching entry in taskMetricValues, in
+    // which case we will use that value, i.e. this UpdateMetricSubOp is
+    // actually a revert of another UpdateMetricSubOp.
+    plan.chart.Vertices.forEach((task: Task, index: number) => {
+      const oldValue = task.metrics.get(this.name)!;
+
+      let newValue: number;
+      if (this.taskMetricValues.has(index)) {
+        // taskMetricValues has a value then use that, as this is an inverse
+        // operation.
+        newValue = this.taskMetricValues.get(index)!;
+      } else if (oldValue === oldMetricDefinition.default) {
+        // If the oldValue is the default, change it to the new default.
+        newValue = this.metricDefinition.default;
+        taskMetricValues.set(index, oldValue);
+      } else {
+        // Clamp.
+        newValue = this.metricDefinition.range.clamp(oldValue);
+        taskMetricValues.set(index, oldValue);
+      }
+      task.metrics.set(this.name, newValue);
+    });
+
+    return ok({
+      plan: plan,
+      inverse: this.inverse(oldMetricDefinition, taskMetricValues),
+    });
+  }
+
+  inverse(
+    oldMetricDefinition: MetricDefinition,
+    taskMetricValues: Map<number, number>
+  ): SubOp {
+    return new UpdateMetricSubOp(
+      this.name,
+      oldMetricDefinition,
+      taskMetricValues
+    );
+  }
+}
+
 export function AddMetricOp(
   name: string,
   metricDefinition: MetricDefinition
@@ -156,4 +227,11 @@ export function DeleteMetricOp(name: string): Op {
 
 export function RenameMetricOp(oldName: string, newName: string): Op {
   return new Op([new RenameMetricSubOp(oldName, newName)]);
+}
+
+export function UpdateMetricOp(
+  name: string,
+  metricDefinition: MetricDefinition
+): Op {
+  return new Op([new UpdateMetricSubOp(name, metricDefinition)]);
 }
