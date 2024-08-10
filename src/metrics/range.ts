@@ -12,10 +12,10 @@ export const clamp = (x: number, min: number, max: number): number => {
 
 // Range defines a range of numbers, from [min, max] inclusive.
 export class MetricRange {
-  private _min: number = Number.MIN_VALUE;
+  private _min: number = -Number.MAX_VALUE;
   private _max: number = Number.MAX_VALUE;
 
-  constructor(min: number = Number.MIN_VALUE, max: number = Number.MAX_VALUE) {
+  constructor(min: number = -Number.MAX_VALUE, max: number = Number.MAX_VALUE) {
     if (max < min) {
       [min, max] = [max, min];
     }

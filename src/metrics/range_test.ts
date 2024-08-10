@@ -24,7 +24,7 @@ describe("MetricRange", () => {
   it("Has sensible defaults for constructor.", () => {
     // Note min and max are backwards.
     const r = new MetricRange();
-    assert.equal(r.min, Number.MIN_VALUE);
+    assert.equal(r.min, -Number.MAX_VALUE);
     assert.equal(r.max, Number.MAX_VALUE);
   });
 

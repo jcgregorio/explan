@@ -6,7 +6,7 @@ export class MetricDefinition {
   range: MetricRange;
   default: number;
 
-  constructor(range: MetricRange, defaultValue: number) {
+  constructor(defaultValue: number, range: MetricRange = new MetricRange()) {
     this.range = range;
     this.default = clamp(defaultValue, range.min, range.max);
   }

@@ -7,7 +7,7 @@ import { Task } from "../chart/chart";
 import { MetricDefinition } from "../metrics/metrics";
 import { Plan } from "../plan/plan";
 import { Result, error, ok } from "../result";
-import { SubOp, SubOpResult } from "./ops";
+import { Op, SubOp, SubOpResult } from "./ops";
 
 export class AddMetricSubOp implements SubOp {
   name: string;
@@ -99,4 +99,15 @@ export class DeleteMetricSupOp implements SubOp {
       metricValuesForDeletedResourceName
     );
   }
+}
+
+export function AddMetricOp(
+  name: string,
+  metricDefinition: MetricDefinition
+): Op {
+  return new Op([new AddMetricSubOp(name, metricDefinition)]);
+}
+
+export function DeleteMetricOp(name: string): Op {
+  return new Op([new DeleteMetricSupOp(name)]);
 }
