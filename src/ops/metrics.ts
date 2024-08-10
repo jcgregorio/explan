@@ -1,4 +1,3 @@
-// ChangeMetricDefinition
 // ChangeMetricValue
 
 import { Task } from "../chart/chart";
@@ -214,6 +213,35 @@ export class UpdateMetricSubOp implements SubOp {
   }
 }
 
+export class SetMetricValueSubOp implements SubOp {
+  name: string;
+  value: number;
+  taskIndex: number;
+
+  constructor(name: string, value: number, taskIndex: number) {
+    this.name = name;
+    this.value = value;
+    this.taskIndex = taskIndex;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    const metricsDefinition = plan.metricDefinitions.get(this.name);
+    if (metricsDefinition === undefined) {
+      return error(`${this.name} does not exist as a Metric`);
+    }
+
+    const metricsMap = plan.chart.Vertices[this.taskIndex].metrics;
+    const oldValue = metricsMap.get(this.name) || metricsDefinition.default;
+    metricsMap.set(this.name, this.value);
+
+    return ok({ plan: plan, inverse: this.inverse(oldValue) });
+  }
+
+  inverse(value: number): SubOp {
+    return new SetMetricValueSubOp(this.name, value, this.taskIndex);
+  }
+}
+
 export function AddMetricOp(
   name: string,
   metricDefinition: MetricDefinition
@@ -234,4 +262,12 @@ export function UpdateMetricOp(
   metricDefinition: MetricDefinition
 ): Op {
   return new Op([new UpdateMetricSubOp(name, metricDefinition)]);
+}
+
+export function SetMetricValueOp(
+  name: string,
+  value: number,
+  taskIndex: number
+): Op {
+  return new Op([new SetMetricValueSubOp(name, value, taskIndex)]);
 }
