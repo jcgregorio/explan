@@ -1,8 +1,15 @@
 // These are ops that are useful for testing.
-
+import { assert } from "@esm-bundle/chai";
+import { Chart } from "../chart/chart";
 import { Plan } from "../plan/plan";
 import { Result, ok } from "../result";
-import { Op, SubOp, SubOpResult } from "./ops";
+import {
+  Op,
+  SubOp,
+  SubOpResult,
+  applyAllOpsToPlan,
+  applyAllOpsToPlanAndThenInverse,
+} from "./ops";
 
 export class NoOpSubOp implements SubOp {
   constructor() {}
@@ -16,8 +23,8 @@ export class NoOpSubOp implements SubOp {
   }
 }
 
-// Callback function that passes in the plan to be inspected or altered mid-test.
-// The function will not be called on inverse.
+// Callback function that passes in the plan to be inspected or altered
+// mid-test. The function will not be called on inverse.
 export type inspect = (plan: Plan) => void;
 
 export class TestingSubOp implements SubOp {
@@ -70,4 +77,12 @@ export function TOp(f: inspect): Op {
 
 export function T2Op(f: inspectBothWays): Op {
   return new Op([new Testing2SubOp(f)]);
+}
+
+export function TestOpsForwardAndBack(ops: Op[]): void {
+  assert.isTrue(applyAllOpsToPlanAndThenInverse(ops, new Plan(new Chart())).ok);
+}
+
+export function TestOpsForward(ops: Op[]): void {
+  assert.isTrue(applyAllOpsToPlan(ops, new Plan(new Chart())).ok);
 }
