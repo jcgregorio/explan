@@ -71,10 +71,19 @@ export class Testing2SubOp implements SubOp {
   }
 }
 
+/** Op for testing that calls the given callback only in the forward direction.
+ * I.e. only while the Op's are being applied, not when their inverses are being
+ * applied.
+ */
 export function TOp(f: inspect): Op {
   return new Op([new TestingSubOp(f)]);
 }
 
+/** Op for testing that calls the given callback in both the forward and
+ * backward direction. I.e. while the Op's are being applied, and then when
+ * their inverses are being applied. Only makes sense to use this insde
+ * TestOpsForwardAndBack.
+ */
 export function T2Op(f: inspectBothWays): Op {
   return new Op([new Testing2SubOp(f)]);
 }
