@@ -142,51 +142,52 @@ describe("RenameMetricOp", () => {
   });
 
   it("will rename a metric and all the keys in the Tasks", () => {
-    const plan = new Plan(new Chart());
     const oldMetricName = "cost";
     const newMetricName = "Cost ($)";
-    let res = AddMetricOp(
-      oldMetricName,
-      new MetricDefinition(defaultCostValue)
-    ).apply(plan);
-    assert.isTrue(res.ok);
 
-    const op = RenameMetricOp(oldMetricName, newMetricName);
-    res = op.apply(res.value.plan);
-    assert.isTrue(res.ok);
-    assert.isTrue(res.value.plan.metricDefinitions.has(newMetricName));
-    assert.isFalse(res.value.plan.metricDefinitions.has(oldMetricName));
-    assert.equal(res.value.plan.chart.Vertices[1].metrics.size, 3);
-    assert.equal(
-      res.value.plan.chart.Vertices[1].metrics.get(newMetricName),
-      defaultCostValue
+    assert.isTrue(
+      applyAllOpsToPlanAndThenInverse(
+        [
+          AddMetricOp(oldMetricName, new MetricDefinition(defaultCostValue)),
+          RenameMetricOp(oldMetricName, newMetricName),
+          TOp((plan: Plan) => {
+            assert.isTrue(plan.metricDefinitions.has(newMetricName));
+            assert.isFalse(plan.metricDefinitions.has(oldMetricName));
+            assert.equal(plan.chart.Vertices[1].metrics.size, 3);
+            assert.equal(
+              plan.chart.Vertices[1].metrics.get(newMetricName),
+              defaultCostValue
+            );
+          }),
+        ],
+        new Plan(new Chart())
+      ).ok
     );
   });
 
   it("generates a correct inverse Op", () => {
-    const plan = new Plan(new Chart());
     const oldMetricName = "cost";
     const newMetricName = "Cost ($)";
-    let res = AddMetricOp(
-      oldMetricName,
-      new MetricDefinition(defaultCostValue)
-    ).apply(plan);
-    assert.isTrue(res.ok);
 
-    const op = RenameMetricOp(oldMetricName, newMetricName);
-    res = op.apply(res.value.plan);
-    assert.isTrue(res.ok);
-
-    // Not apply the inverse.
-    res = res.value.inverse.apply(res.value.plan);
-    assert.isTrue(res.ok);
-
-    assert.isFalse(res.value.plan.metricDefinitions.has(newMetricName));
-    assert.isTrue(res.value.plan.metricDefinitions.has(oldMetricName));
-    assert.equal(res.value.plan.chart.Vertices[1].metrics.size, 3);
-    assert.equal(
-      res.value.plan.chart.Vertices[1].metrics.get(oldMetricName),
-      defaultCostValue
+    assert.isTrue(
+      applyAllOpsToPlanAndThenInverse(
+        [
+          AddMetricOp(oldMetricName, new MetricDefinition(defaultCostValue)),
+          T2Op((plan: Plan, isForward: boolean) => {
+            if (!isForward) {
+              assert.isFalse(plan.metricDefinitions.has(newMetricName));
+              assert.isTrue(plan.metricDefinitions.has(oldMetricName));
+              assert.equal(plan.chart.Vertices[1].metrics.size, 3);
+              assert.equal(
+                plan.chart.Vertices[1].metrics.get(oldMetricName),
+                defaultCostValue
+              );
+            }
+          }),
+          RenameMetricOp(oldMetricName, newMetricName),
+        ],
+        new Plan(new Chart())
+      ).ok
     );
   });
 });
@@ -215,22 +216,24 @@ describe("UpdateMetricSubOp", () => {
   });
 
   it("can update the default value in all the Tasks", () => {
-    const res = applyAllOpsToPlan(
-      [
-        AddMetricOp("cost", new MetricDefinition(defaultCostValue)),
-        UpdateMetricOp("cost", new MetricDefinition(newCostValue)),
-      ],
-      new Plan(new Chart())
+    assert.isTrue(
+      applyAllOpsToPlan(
+        [
+          AddMetricOp("cost", new MetricDefinition(defaultCostValue)),
+          UpdateMetricOp("cost", new MetricDefinition(newCostValue)),
+          TOp((plan: Plan) => {
+            assert.equal(
+              plan.metricDefinitions.get("cost")!.default,
+              newCostValue
+            );
+            plan.chart.Vertices.forEach((task: Task) => {
+              assert.equal(task.metrics.get("cost"), newCostValue);
+            });
+          }),
+        ],
+        new Plan(new Chart())
+      ).ok
     );
-
-    assert.isTrue(res.ok);
-    assert.equal(
-      res.value.plan.metricDefinitions.get("cost")!.default,
-      newCostValue
-    );
-    res.value.plan.chart.Vertices.forEach((task: Task) => {
-      assert.equal(task.metrics.get("cost"), newCostValue);
-    });
   });
 
   it("can update the values to be in the new range in all the Tasks", () => {
