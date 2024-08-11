@@ -144,3 +144,18 @@ export const applyAllOpsToPlan = (
     plan: plan,
   });
 };
+
+export const applyAllOpsToPlanAndThenInverse = (
+  ops: Op[],
+  plan: Plan
+): Result<AllOpsResult> => {
+  const res = applyAllOpsToPlan(ops, plan);
+  if (!res.ok) {
+    return res;
+  }
+  return applyAllOpsToPlan(res.value.ops, res.value.plan);
+};
+// NoOp is a no-op.
+export function NoOp(): Op {
+  return new Op([]);
+}

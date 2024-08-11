@@ -1,0 +1,73 @@
+// These are ops that are useful for testing.
+
+import { Plan } from "../plan/plan";
+import { Result, ok } from "../result";
+import { Op, SubOp, SubOpResult } from "./ops";
+
+export class NoOpSubOp implements SubOp {
+  constructor() {}
+
+  apply(plan: Plan): Result<SubOpResult> {
+    return ok({ plan: plan, inverse: this.inverse() });
+  }
+
+  inverse(): SubOp {
+    return new NoOpSubOp();
+  }
+}
+
+// Callback function that passes in the plan to be inspected or altered mid-test.
+// The function will not be called on inverse.
+export type inspect = (plan: Plan) => void;
+
+export class TestingSubOp implements SubOp {
+  f: inspect;
+
+  constructor(f: inspect) {
+    this.f = f;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    this.f(plan);
+
+    return ok({ plan: plan, inverse: this.inverse() });
+  }
+
+  inverse(): SubOp {
+    return new NoOpSubOp();
+  }
+}
+
+// Callback function that passes in the plan to be inspected or altered
+// mid-test. Note that the function will be called both on the forward
+// application and also on the application of the inverse, and the `isForward`
+// argument indicates which direction Ops are being applied.
+export type inspectBothWays = (plan: Plan, isForward: boolean) => void;
+
+export class Testing2SubOp implements SubOp {
+  f: inspectBothWays;
+  isForward: boolean;
+
+  constructor(f: inspectBothWays, isForward: boolean = true) {
+    this.f = f;
+    this.isForward = isForward;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    this.f(plan, this.isForward);
+
+    return ok({ plan: plan, inverse: this.inverse() });
+  }
+
+  inverse(): SubOp {
+    return new Testing2SubOp(this.f, !this.isForward);
+  }
+}
+
+export function TOp(f: inspect): Op {
+  return new Op([new TestingSubOp(f)]);
+}
+
+export function T2Op(f: inspectBothWays): Op {
+  return new Op([new Testing2SubOp(f)]);
+}

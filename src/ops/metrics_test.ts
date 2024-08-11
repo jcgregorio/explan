@@ -8,8 +8,9 @@ import {
   RenameMetricOp,
   UpdateMetricOp,
 } from "./metrics";
-import { applyAllOpsToPlan } from "./ops";
+import { applyAllOpsToPlan, applyAllOpsToPlanAndThenInverse } from "./ops";
 import { MetricRange } from "../metrics/range";
+import { T2Op, TOp } from "../ops/opstestutil";
 
 const defaultCostValue = 12;
 const newCostValue = 15;
@@ -233,54 +234,57 @@ describe("UpdateMetricSubOp", () => {
   });
 
   it("can update the values to be in the new range in all the Tasks", () => {
-    const res = applyAllOpsToPlan(
+    assert.isTrue(
+      applyAllOpsToPlan(
+        [
+          AddMetricOp("cost", new MetricDefinition(defaultCostValue)),
+          UpdateMetricOp(
+            "cost",
+            new MetricDefinition(defaultCostValue, new MetricRange(100, 200))
+          ),
+          TOp((plan: Plan) => {
+            // Since defaultCostValue < 100 each Task's metric value, it should be clamped to 100.
+            plan.chart.Vertices.forEach((task: Task) => {
+              assert.equal(task.metrics.get("cost"), 100);
+            });
+          }),
+        ],
+        new Plan(new Chart())
+      ).ok
+    );
+  });
+
+  it("the inverse Op also restores values in Tasks", () => {
+    const newCostForTask = 17;
+
+    const res = applyAllOpsToPlanAndThenInverse(
       [
         AddMetricOp("cost", new MetricDefinition(defaultCostValue)),
+        T2Op((plan: Plan, isForward: boolean) => {
+          if (isForward) {
+            // Change the value for a single task.
+            plan.chart.Vertices[1].metrics.set("cost", newCostForTask);
+          } else {
+            // Confirm the value for that single task gets restored on revert.
+            assert.equal(
+              plan.chart.Vertices[1].metrics.get("cost"),
+              newCostForTask
+            );
+          }
+        }),
         UpdateMetricOp(
           "cost",
           new MetricDefinition(defaultCostValue, new MetricRange(100, 200))
         ),
+        TOp((plan: Plan) => {
+          // Confirm each Task cost metric got updated.
+          plan.chart.Vertices.forEach((task: Task) => {
+            assert.equal(task.metrics.get("cost"), 100);
+          });
+        }),
       ],
       new Plan(new Chart())
     );
-
     assert.isTrue(res.ok);
-
-    // Since defaultCostValue < 100 each Task's metric value should be clamped to 100.
-    res.value.plan.chart.Vertices.forEach((task: Task) => {
-      assert.equal(task.metrics.get("cost"), 100);
-    });
-  });
-
-  it("the inverse Op also restores values in Tasks", () => {
-    let res = AddMetricOp("cost", new MetricDefinition(defaultCostValue)).apply(
-      new Plan(new Chart())
-    );
-    assert.isTrue(res.ok);
-
-    const newCostForTask = 17;
-
-    // Set a task cost value to new value.
-    res.value.plan.chart.Vertices[1].metrics.set("cost", newCostForTask);
-
-    res = UpdateMetricOp(
-      "cost",
-      new MetricDefinition(defaultCostValue, new MetricRange(100, 200))
-    ).apply(res.value.plan);
-    assert.isTrue(res.ok);
-
-    res.value.plan.chart.Vertices.forEach((task: Task) => {
-      assert.equal(task.metrics.get("cost"), 100);
-    });
-
-    // Now apply the inverse.
-    res = res.value.inverse.apply(res.value.plan);
-    assert.isTrue(res.ok);
-
-    // Task value goes back to most recent value.
-    assert.equal(
-      res.value.plan.chart.Vertices[1].metrics.get("cost"),
-      newCostForTask
-    );
   });
 });
