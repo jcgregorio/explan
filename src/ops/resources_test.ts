@@ -11,35 +11,32 @@ import {
   RenameResourceOptionOp,
 } from "../ops/resources";
 import { applyAllOpsToPlan } from "./ops";
+import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil";
 
 describe("AddResourceOp/DeleteResourceOp", () => {
   it("AddResourceOp adds a new resource to a Plan", () => {
-    const plan = new Plan(new Chart());
+    TestOpsForwardAndBack([
+      T2Op((plan: Plan) => {
+        // Confirm "Who" isn't defined as a resource.
+        plan.chart.Vertices.forEach((task: Task) => {
+          assert.equal(task.resources["Who"], undefined);
+        });
+      }),
+      AddResourceOp("Who"),
+      TOp((plan: Plan) => {
+        assert.deepEqual(plan.resourceDefinitions, [
+          {
+            key: "Who",
+            values: [""],
+          },
+        ]);
 
-    const op = AddResourceOp("Who");
-    let res = op.apply(plan);
-    assert.isTrue(res.ok);
-    assert.deepEqual(res.value.plan.resourceDefinitions, [
-      {
-        key: "Who",
-        values: [""],
-      },
+        // Confirm each task was updated.
+        plan.chart.Vertices.forEach((task: Task) => {
+          assert.equal(task.resources["Who"], "");
+        });
+      }),
     ]);
-
-    // Confirm each task was updated.
-    res.value.plan.chart.Vertices.forEach((task: Task) => {
-      assert.equal(task.resources["Who"], "");
-    });
-
-    // Now show the inverse also works.
-    res = res.value.inverse.apply(res.value.plan);
-    assert.isTrue(res.ok);
-    assert.equal(res.value.plan.resourceDefinitions.length, 0);
-
-    // Confirm each task was updated.
-    res.value.plan.chart.Vertices.forEach((task: Task) => {
-      assert.equal(task.resources["Who"], undefined);
-    });
   });
 
   it("DeleteResourceOp fails if the Resource doesn't exist", () => {
