@@ -355,6 +355,48 @@ export class MoveResourceOptionSubOp implements SubOp {
   }
 }
 
+export class SetResourceValueSubOp implements SubOp {
+  key: string;
+  value: string;
+  taskIndex: number;
+
+  constructor(key: string, value: string, taskIndex: number) {
+    this.key = key;
+    this.value = value;
+    this.taskIndex = taskIndex;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    const foundMatch = plan.resourceDefinitions.find(
+      (value: ResourceDefinition) => value.key === this.key
+    );
+    if (foundMatch === undefined) {
+      return error(`${this.key} does not exist as a Resource`);
+    }
+
+    if (
+      foundMatch.values.find((v: string) => {
+        v === this.value;
+      }) === undefined
+    ) {
+      return error(`${this.key} does not have a value of ${this.value}`);
+    }
+    if (this.taskIndex < 0 || this.taskIndex >= plan.chart.Vertices.length) {
+      return error(`There is no Task at index ${this.taskIndex}`);
+    }
+
+    const task = plan.chart.Vertices[this.taskIndex];
+    const oldValue = task.resources[this.key]!;
+    task.resources[this.key] = this.value;
+
+    return ok({ plan: plan, inverse: this.inverse(oldValue) });
+  }
+
+  inverse(oldValue: string): SubOp {
+    return new SetResourceValueSubOp(this.key, oldValue, this.taskIndex);
+  }
+}
+
 export function AddResourceOp(name: string): Op {
   return new Op([new AddResourceSubOp(name)]);
 }
@@ -389,4 +431,12 @@ export function MoveResourceOptionOp(
   newIndex: number
 ): Op {
   return new Op([new MoveResourceOptionSubOp(key, oldIndex, newIndex)]);
+}
+
+export function SetResourceValueOp(
+  key: string,
+  value: string,
+  taskIndex: number
+): Op {
+  return new Op([new SetResourceValueSubOp(key, value, taskIndex)]);
 }

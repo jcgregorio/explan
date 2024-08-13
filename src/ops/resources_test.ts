@@ -9,9 +9,20 @@ import {
   MoveResourceOptionOp,
   RenameResourceOp,
   RenameResourceOptionOp,
+  SetResourceValueOp,
 } from "../ops/resources";
 import { applyAllOpsToPlan } from "./ops";
 import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil";
+
+describe("SetResourceValueOp", () => {
+  it("Fails if the key is not a valid resource.", () => {
+    const res = SetResourceValueOp("unknown resource", "foo", 1).apply(
+      new Plan(new Chart())
+    );
+    assert.isFalse(res.ok);
+    assert.include(res.error.message, "does not exist as a Resource");
+  });
+});
 
 describe("AddResourceOp/DeleteResourceOp", () => {
   it("AddResourceOp adds a new resource to a Plan", () => {
