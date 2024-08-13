@@ -6,6 +6,7 @@ import {
   AddMetricOp,
   DeleteMetricOp,
   RenameMetricOp,
+  SetMetricValueOp,
   UpdateMetricOp,
 } from "./metrics";
 import { MetricRange } from "../metrics/range";
@@ -273,6 +274,30 @@ describe("UpdateMetricSubOp", () => {
         plan.chart.Vertices.forEach((task: Task) => {
           assert.equal(task.metrics.get("cost"), 100);
         });
+      }),
+    ]);
+  });
+});
+
+describe("SetMetricValueOp", () => {
+  it("Fails if the metric doesn't exist", () => {
+    const res = SetMetricValueOp("unknown metric", 1, 0).apply(
+      new Plan(new Chart())
+    );
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("does not exist as a Metric"));
+  });
+
+  it("Sets a metric value, and the inverse unsets it.", () => {
+    const taskIndex = 1;
+    TestOpsForwardAndBack([
+      T2Op((plan: Plan) => {
+        assert.isUndefined(plan.chart.Vertices[taskIndex].metrics.get("cost"));
+      }),
+      AddMetricOp("cost", new MetricDefinition(100)),
+      SetMetricValueOp("cost", 200, taskIndex),
+      TOp((plan: Plan) => {
+        assert.equal(plan.chart.Vertices[taskIndex].metrics.get("cost"), 200);
       }),
     ]);
   });
