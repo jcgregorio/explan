@@ -8,7 +8,6 @@ import {
   RenameMetricOp,
   UpdateMetricOp,
 } from "./metrics";
-import { applyAllOpsToPlan, applyAllOpsToPlanAndThenInverse } from "./ops";
 import { MetricRange } from "../metrics/range";
 import {
   T2Op,
