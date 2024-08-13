@@ -46,35 +46,6 @@ describe("AddMetricOp", () => {
         });
       }),
     ]);
-    const plan = new Plan(new Chart());
-
-    const op = AddMetricOp("cost", new MetricDefinition(defaultCostValue));
-    let res = op.apply(plan);
-    assert.isTrue(res.ok);
-    assert.deepEqual(
-      res.value.plan.metricDefinitions.get("cost"),
-      new MetricDefinition(defaultCostValue)
-    );
-    assert.equal(
-      res.value.plan.metricDefinitions.size,
-      3,
-      "Because a Plan always starts with two metrics."
-    );
-
-    // Confirm each task was updated.
-    res.value.plan.chart.Vertices.forEach((task: Task) => {
-      assert.equal(task.metrics.get("cost"), defaultCostValue);
-    });
-
-    // Now show the inverse also works.
-    res = res.value.inverse.apply(res.value.plan);
-    assert.isTrue(res.ok);
-    assert.equal(res.value.plan.metricDefinitions.size, 2);
-
-    // Confirm each task was updated.
-    res.value.plan.chart.Vertices.forEach((task: Task) => {
-      assert.equal(task.metrics.get("cost"), undefined);
-    });
   });
 
   it("will fail to add a new metric with the same name as an existing metric", () => {
@@ -197,6 +168,14 @@ describe("RenameMetricOp", () => {
         }
       }),
       RenameMetricOp(oldMetricName, newMetricName),
+      TOp((plan: Plan) => {
+        assert.isTrue(plan.metricDefinitions.has(newMetricName));
+        assert.isFalse(plan.metricDefinitions.has(oldMetricName));
+        assert.equal(
+          plan.chart.Vertices[1].metrics.get(newMetricName),
+          defaultCostValue
+        );
+      }),
     ]);
   });
 });
@@ -250,20 +229,25 @@ describe("UpdateMetricSubOp", () => {
   });
 
   it("the inverse Op also restores values in Tasks", () => {
+    const taskIndex = 1;
+    const newCostForTask = 17;
+
     TestOpsForwardAndBack([
       AddMetricOp("cost", new MetricDefinition(defaultCostValue)),
-      T2Op((plan: Plan, isForward: boolean) => {
-        const newCostForTask = 17;
-        if (isForward) {
-          // Change the value for a single task.
-          plan.chart.Vertices[1].metrics.set("cost", newCostForTask);
-        } else {
-          // Confirm the value for that single task gets restored on revert.
-          assert.equal(
-            plan.chart.Vertices[1].metrics.get("cost"),
-            newCostForTask
-          );
-        }
+      T2Op((plan: Plan) => {
+        // Confirm the value for that single task gets restored on revert.
+        assert.equal(
+          plan.chart.Vertices[1].metrics.get("cost"),
+          defaultCostValue
+        );
+      }),
+      SetMetricValueOp("cost", newCostForTask, taskIndex),
+      T2Op((plan: Plan) => {
+        // Confirm the value for that single task gets restored on revert.
+        assert.equal(
+          plan.chart.Vertices[1].metrics.get("cost"),
+          newCostForTask
+        );
       }),
       UpdateMetricOp(
         "cost",
