@@ -374,11 +374,10 @@ export class SetResourceValueSubOp implements SubOp {
       return error(`${this.key} does not exist as a Resource`);
     }
 
-    if (
-      foundMatch.values.find((v: string) => {
-        v === this.value;
-      }) === undefined
-    ) {
+    const foundValueMatch = foundMatch.values.findIndex((v: string) => {
+      return v === this.value;
+    });
+    if (foundValueMatch === -1) {
       return error(`${this.key} does not have a value of ${this.value}`);
     }
     if (this.taskIndex < 0 || this.taskIndex >= plan.chart.Vertices.length) {

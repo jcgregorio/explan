@@ -22,6 +22,21 @@ describe("SetResourceValueOp", () => {
     assert.isFalse(res.ok);
     assert.include(res.error.message, "does not exist as a Resource");
   });
+
+  it("Creates a valid inverse.", () => {
+    TestOpsForwardAndBack([
+      AddResourceOp("Who"),
+      AddResourceOptionOp("Who", "Fred"),
+      AddResourceOptionOp("Who", "Barney"),
+      T2Op((plan: Plan) => {
+        assert.equal(plan.chart.Vertices[1].resources["Who"], "");
+      }),
+      SetResourceValueOp("Who", "Barney", 1),
+      TOp((plan: Plan) => {
+        assert.equal(plan.chart.Vertices[1].resources["Who"], "Barney");
+      }),
+    ]);
+  });
 });
 
 describe("AddResourceOp/DeleteResourceOp", () => {
