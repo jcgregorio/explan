@@ -226,39 +226,31 @@ describe("RenameResourceOp", () => {
   };
 
   it("Can change the name of a resource both in the definition and in tasks.", () => {
-    const plan = init();
+    TestOpsForwardAndBack([
+      AddResourceOp("Who"),
+      AddResourceOptionOp("Who", "Fred"),
+      AddResourceOptionOp("Who", "Barney"),
+      T2Op((plan: Plan) => {
+        assert.deepEqual(plan.resourceDefinitions, [
+          {
+            key: "Who",
+            values: ["", "Fred", "Barney"],
+          },
+        ]);
 
-    assert.deepEqual(plan.resourceDefinitions, [
-      {
-        key: "Who",
-        values: ["", "Fred", "Barney"],
-      },
+        assert.equal(plan.chart.Vertices[1].resources["Who"], "");
+      }),
+      SetResourceValueOp("Who", "Fred", 1),
+      T2Op((plan: Plan) => {
+        // Check forward and back have the resource set to "Barney".
+        assert.equal(plan.chart.Vertices[1].resources["Who"], "Fred");
+      }),
+      RenameResourceOp("Who", "Person"),
+      TOp((plan: Plan) => {
+        // Task resources should be updated to match.
+        assert.equal(plan.chart.Vertices[1].resources["Person"], "Fred");
+      }),
     ]);
-
-    // Set a Task resource value to a non-default value:
-    plan.chart.Vertices[0].resources["Who"] = "Fred";
-
-    // Replace "Who" with "Person" everywhere.
-    let res = RenameResourceOp("Who", "Person").apply(plan);
-    assert.isTrue(res.ok);
-    assert.deepEqual(res.value.plan.resourceDefinitions, [
-      {
-        key: "Person",
-        values: ["", "Fred", "Barney"],
-      },
-    ]);
-    assert.equal(plan.chart.Vertices[0].resources["Person"], "Fred");
-
-    // Now confirm the inverse Op restores the old value in both the definition and in the tasks.
-    res = res.value.inverse.apply(res.value.plan);
-    assert.isTrue(res.ok);
-    assert.deepEqual(res.value.plan.resourceDefinitions, [
-      {
-        key: "Who",
-        values: ["", "Fred", "Barney"],
-      },
-    ]);
-    assert.equal(plan.chart.Vertices[0].resources["Who"], "Fred");
   });
 
   it("Fails if the new resource name already exist.", () => {
@@ -299,51 +291,35 @@ describe("RenameResourceOptionOp", () => {
   };
 
   it("Can change the value of a resource both in the definition and in tasks.", () => {
-    const plan = init();
+    TestOpsForwardAndBack([
+      AddResourceOp("Who"),
+      AddResourceOptionOp("Who", "Fred"),
+      AddResourceOptionOp("Who", "Barney"),
+      T2Op((plan: Plan) => {
+        assert.deepEqual(plan.resourceDefinitions, [
+          {
+            key: "Who",
+            values: ["", "Fred", "Barney"],
+          },
+        ]);
 
-    assert.deepEqual(plan.resourceDefinitions, [
-      {
-        key: "Who",
-        values: ["", "Fred", "Barney"],
-      },
+        assert.equal(plan.chart.Vertices[1].resources["Who"], "");
+      }),
+      SetResourceValueOp("Who", "Fred", 1),
+      T2Op((plan: Plan) => {
+        // Check forward and back have the resource set to "Barney".
+        assert.equal(plan.chart.Vertices[1].resources["Who"], "Fred");
+      }),
+      RenameResourceOptionOp("Who", "Fred", "Wilma"),
+      TOp((plan: Plan) => {
+        // Task resources should be updated to match.
+        assert.equal(plan.chart.Vertices[1].resources["Who"], "Wilma");
+      }),
     ]);
-
-    // Set a Task resource value to a non-default value:
-    plan.chart.Vertices[0].resources["Who"] = "Fred";
-
-    // Replace "Fred" with "Wilma" everywhere.
-    let res = RenameResourceOptionOp("Who", "Fred", "Wilma").apply(plan);
-    assert.isTrue(res.ok);
-    assert.deepEqual(res.value.plan.resourceDefinitions, [
-      {
-        key: "Who",
-        values: ["", "Wilma", "Barney"],
-      },
-    ]);
-    assert.equal(plan.chart.Vertices[0].resources["Who"], "Wilma");
-
-    // Now confirm the inverse Op restores the old value in both the definition and in the tasks.
-    res = res.value.inverse.apply(res.value.plan);
-    assert.isTrue(res.ok);
-    assert.deepEqual(res.value.plan.resourceDefinitions, [
-      {
-        key: "Who",
-        values: ["", "Fred", "Barney"],
-      },
-    ]);
-    assert.equal(plan.chart.Vertices[0].resources["Who"], "Fred");
   });
 
   it("Fails if the oldValue doesn't exist.", () => {
     const plan = init();
-
-    assert.deepEqual(plan.resourceDefinitions, [
-      {
-        key: "Who",
-        values: ["", "Fred", "Barney"],
-      },
-    ]);
-
     const res = RenameResourceOptionOp("Who", "Unknown Value", "Wilma").apply(
       plan
     );
@@ -352,13 +328,6 @@ describe("RenameResourceOptionOp", () => {
 
   it("Fails if the newValue does exist.", () => {
     const plan = init();
-
-    assert.deepEqual(plan.resourceDefinitions, [
-      {
-        key: "Who",
-        values: ["", "Fred", "Barney"],
-      },
-    ]);
 
     // This should fail because "Barney" is already a value, and we can't have
     // duplicate values.
@@ -371,35 +340,41 @@ describe("MoveResourceOptionSubOp", () => {
   const init = (): Plan => {
     const plan = new Plan(new Chart());
 
-    let res = AddResourceOp("Who").apply(plan);
+    const res = applyAllOpsToPlan(
+      [
+        AddResourceOp("Who"),
+        AddResourceOptionOp("Who", "Fred"),
+        AddResourceOptionOp("Who", "Barney"),
+      ],
+      plan
+    );
     assert.isTrue(res.ok);
-    res = AddResourceOptionOp("Who", "Fred").apply(res.value.plan);
-    assert.isTrue(res.ok);
-    res = AddResourceOptionOp("Who", "Barney").apply(res.value.plan);
-    assert.isTrue(res.ok);
+
     return res.value.plan;
   };
 
   it("Can change the order of resource values in the definition.", () => {
-    const plan = init();
-
-    let res = MoveResourceOptionOp("Who", 1, 2).apply(plan);
-    assert.isTrue(res.ok);
-    assert.deepEqual(res.value.plan.resourceDefinitions, [
-      {
-        key: "Who",
-        values: ["", "Barney", "Fred"],
-      },
-    ]);
-
-    // Confirm the inverse op restores the old resource value order.
-    res = res.value.inverse.apply(plan);
-    assert.isTrue(res.ok);
-    assert.deepEqual(res.value.plan.resourceDefinitions, [
-      {
-        key: "Who",
-        values: ["", "Fred", "Barney"],
-      },
+    TestOpsForwardAndBack([
+      AddResourceOp("Who"),
+      AddResourceOptionOp("Who", "Fred"),
+      AddResourceOptionOp("Who", "Barney"),
+      T2Op((plan: Plan) => {
+        assert.deepEqual(plan.resourceDefinitions, [
+          {
+            key: "Who",
+            values: ["", "Fred", "Barney"],
+          },
+        ]);
+      }),
+      MoveResourceOptionOp("Who", 1, 2),
+      TOp((plan: Plan) => {
+        assert.deepEqual(plan.resourceDefinitions, [
+          {
+            key: "Who",
+            values: ["", "Barney", "Fred"],
+          },
+        ]);
+      }),
     ]);
   });
 
