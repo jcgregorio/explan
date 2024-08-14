@@ -112,6 +112,8 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
             },
           ]);
 
+          // Confirm that in both forward and back direction the task value for
+          // the resource is correct.
           assert.equal(plan.chart.Vertices[0].resources["Who"], "");
         }
       }),
@@ -186,6 +188,27 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
     assert.isTrue(
       res.error.message.includes("Resources must have at least one value.")
     );
+  });
+
+  it("DeleteResourceOptionOp forces task resource values back to the default", () => {
+    TestOpsForwardAndBack([
+      AddResourceOp("Who"),
+      AddResourceOptionOp("Who", "Fred"),
+      AddResourceOptionOp("Who", "Barney"),
+      T2Op((plan: Plan) => {
+        assert.equal(plan.chart.Vertices[1].resources["Who"], "");
+      }),
+      SetResourceValueOp("Who", "Barney", 1),
+      T2Op((plan: Plan) => {
+        // Check forward and back have the resource set to "Barney".
+        assert.equal(plan.chart.Vertices[1].resources["Who"], "Barney");
+      }),
+      DeleteResourceOptionOp("Who", "Barney"),
+      TOp((plan: Plan) => {
+        // Since Barney was deleted it should go back to the default.
+        assert.equal(plan.chart.Vertices[1].resources["Who"], "");
+      }),
+    ]);
   });
 });
 
