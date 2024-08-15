@@ -19,6 +19,8 @@ enum TaskState {
   complete = "complete",
 }
 
+export const DEFAULT_TASK_NAME = "Task Name";
+
 // Do we create sub-classes and then serialize separately? Or do we have a
 // config about which type of DurationSampler is being used?
 //
@@ -32,7 +34,7 @@ export class Task {
     name: string = "",
     durationModel: DurationModel = new JacobianDuration(Uncertainty.moderate)
   ) {
-    this.name = name || "Task Name";
+    this.name = name || DEFAULT_TASK_NAME;
     this.durationModel =
       durationModel || new JacobianDuration(Uncertainty.moderate);
 

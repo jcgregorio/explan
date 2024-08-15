@@ -114,7 +114,7 @@ export class AddTaskAfterSubOp implements SubOp {
         edge.j++;
       }
     }
-    return ok({plan:plan, inverse: this.inverse()});
+    return ok({ plan: plan, inverse: this.inverse() });
   }
 
   inverse(): SubOp {
@@ -149,7 +149,7 @@ export class DeleteTaskAfterSubOp implements SubOp {
       }
     }
 
-    return ok({plan:plan, inverse:this.inverse});
+    return ok({ plan: plan, inverse: this.inverse });
   }
 
   inverse(): SubOp {
@@ -157,10 +157,44 @@ export class DeleteTaskAfterSubOp implements SubOp {
   }
 }
 
-export function InsertNewEmptyTaskAfterOp(index: number): Op {
+export class SetTaskNameSubOp implements SubOp {
+  taskIndex: number;
+  name: string;
+
+  constructor(taskIndex: number, name: string) {
+    this.taskIndex = taskIndex;
+    this.name = name;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    if (this.taskIndex < 0 || this.taskIndex > plan.chart.Vertices.length - 2) {
+      return error(
+        `${this.taskIndex} is not in range [0, ${
+          plan.chart.Vertices.length - 2
+        }]`
+      );
+    }
+    const oldName = plan.chart.Vertices[this.taskIndex].name;
+    plan.chart.Vertices[this.taskIndex].name = this.name;
+    return ok({
+      plan: plan,
+      inverse: this.inverse(oldName),
+    });
+  }
+
+  inverse(oldName: string): SubOp {
+    return new SetTaskNameSubOp(this.taskIndex, oldName);
+  }
+}
+
+export function InsertNewEmptyTaskAfterOp(taskIndex: number): Op {
   return new Op([
-    new AddTaskAfterSubOp(index),
-    new AddEdgeSubOp(0, index + 1),
-    new AddEdgeSubOp(index + 1, -1),
+    new AddTaskAfterSubOp(taskIndex),
+    new AddEdgeSubOp(0, taskIndex + 1),
+    new AddEdgeSubOp(taskIndex + 1, -1),
   ]);
+}
+
+export function SetTaskNameOp(taskIndex: number, name: string): Op {
+  return new Op([new SetTaskNameSubOp(taskIndex, name)]);
 }
