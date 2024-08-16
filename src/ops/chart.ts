@@ -3,6 +3,7 @@ import { DirectedEdge } from "../dag/dag";
 import { Plan } from "../plan/plan";
 import { Task } from "../chart/chart";
 import { Op, SubOp, SubOpResult } from "./ops";
+import { DurationModel } from "../duration/duration";
 
 /** A value of -1 for j means the Finish Milestone. */
 export function DirectedEdgeForPlan(
@@ -184,6 +185,36 @@ export class SetTaskNameSubOp implements SubOp {
 
   inverse(oldName: string): SubOp {
     return new SetTaskNameSubOp(this.taskIndex, oldName);
+  }
+}
+
+export class SetDurationModelSubOp implements SubOp {
+  taskIndex: number;
+  durationModel: DurationModel;
+
+  constructor(taskIndex: number, durationModel: DurationModel) {
+    this.taskIndex = taskIndex;
+    this.durationModel = durationModel;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    if (this.taskIndex < 0 || this.taskIndex > plan.chart.Vertices.length - 2) {
+      return error(
+        `${this.taskIndex} is not in range [0, ${
+          plan.chart.Vertices.length - 2
+        }]`
+      );
+    }
+    const oldModel = plan.chart.Vertices[this.taskIndex].durationModel;
+    plan.chart.Vertices[this.taskIndex].durationModel = this.durationModel;
+    return ok({
+      plan: plan,
+      inverse: this.inverse(oldModel),
+    });
+  }
+
+  inverse(durationModel: DurationModel): SubOp {
+    return new SetDurationModelSubOp(this.taskIndex, durationModel);
   }
 }
 

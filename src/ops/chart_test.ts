@@ -64,4 +64,16 @@ describe("SetTaskName", () => {
       }),
     ]);
   });
+
+  it("Fails if the taskIndex is out of range", () => {
+    const res = SetTaskNameOp(-1, "foo").apply(new Plan(new Chart()));
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("is not in range"));
+  });
+
+  it("Fails if the taskIndex is out of range", () => {
+    const res = SetTaskNameOp(2, "bar").apply(new Plan(new Chart()));
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("is not in range"));
+  });
 });
