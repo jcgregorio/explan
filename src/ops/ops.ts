@@ -10,13 +10,12 @@ import { Plan } from "../plan/plan";
 //
 // * Change string value in a Task.
 // * Change duration value in a Task.
-// * Add predecessor to a Task.
-// * Add successor to a Task.
+// * Insert new empty Task after Index.
+//
+// * Duplicate a Task (all edges are duplicated from the source Task).
+// * Split a Task. (Predecessor takes all incoming edges, source tasks all outgoing edges).
 // * Delete predecessor to a Task.
 // * Delete successor to a Task.
-// * Insert new empty Task after another Task.
-// * Duplicate a Task.
-// * Split a Task.
 // * Delete a Task.
 
 // Need Undo/Redo Stacks.

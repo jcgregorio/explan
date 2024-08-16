@@ -3,7 +3,6 @@ import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil";
 import {
   InsertNewEmptyTaskAfterOp,
   SetTaskDurationModelOp,
-  SetTaskName,
   SetTaskNameOp,
   SetTaskStateOp,
 } from "./chart";
