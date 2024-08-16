@@ -5,9 +5,10 @@ import {
   SetTaskDurationModelOp,
   SetTaskName,
   SetTaskNameOp,
+  SetTaskStateOp,
 } from "./chart";
 import { Plan } from "../plan/plan";
-import { Chart, DEFAULT_TASK_NAME } from "../chart/chart";
+import { Chart, DEFAULT_TASK_NAME, TaskState } from "../chart/chart";
 import { JacobianDuration, Uncertainty } from "../duration/jacobian";
 
 describe("InsertNewEmptyTaskAfterOp", () => {
@@ -86,7 +87,7 @@ describe("SetTaskName", () => {
 
 describe("SetDurationModelOp", () => {
   const newDurationModel = new JacobianDuration(Uncertainty.extreme);
-  it("Sets a tasks name.", () => {
+  it("Sets a tasks duration model.", () => {
     TestOpsForwardAndBack([
       InsertNewEmptyTaskAfterOp(0),
       T2Op((plan: Plan) => {
@@ -119,6 +120,34 @@ describe("SetDurationModelOp", () => {
     const res = SetTaskDurationModelOp(2, newDurationModel).apply(
       new Plan(new Chart())
     );
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("is not in range"));
+  });
+});
+
+describe("SetTaskStateOp", () => {
+  const newTaskState = TaskState.complete;
+  it("Sets a tasks state.", () => {
+    TestOpsForwardAndBack([
+      InsertNewEmptyTaskAfterOp(0),
+      T2Op((plan: Plan) => {
+        assert.equal(plan.chart.Vertices[1].state, TaskState.unstarted);
+      }),
+      SetTaskStateOp(1, newTaskState),
+      TOp((plan: Plan) => {
+        assert.equal(plan.chart.Vertices[1].state, TaskState.complete);
+      }),
+    ]);
+  });
+
+  it("Fails if the taskIndex is out of range", () => {
+    const res = SetTaskStateOp(-1, newTaskState).apply(new Plan(new Chart()));
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("is not in range"));
+  });
+
+  it("Fails if the taskIndex is out of range", () => {
+    const res = SetTaskStateOp(2, newTaskState).apply(new Plan(new Chart()));
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });

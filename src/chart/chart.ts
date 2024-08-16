@@ -13,7 +13,7 @@ import { JacobianDuration, Uncertainty } from "../duration/jacobian";
 import { MetricValues } from "../metrics/metrics";
 import { StaticMetricKeys } from "../plan/plan";
 
-enum TaskState {
+export enum TaskState {
   unstarted = "unstarted",
   started = "started",
   complete = "complete",

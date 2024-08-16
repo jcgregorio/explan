@@ -1,7 +1,7 @@
 import { Result, ok, error } from "../result";
 import { DirectedEdge } from "../dag/dag";
 import { Plan } from "../plan/plan";
-import { Chart, Task } from "../chart/chart";
+import { Chart, Task, TaskState } from "../chart/chart";
 import { Op, SubOp, SubOpResult } from "./ops";
 import { DurationModel } from "../duration/duration";
 
@@ -217,6 +217,33 @@ export class SetTaskDurationModelSubOp implements SubOp {
   }
 }
 
+export class SetTaskStateSubOp implements SubOp {
+  taskState: TaskState;
+  taskIndex: number;
+
+  constructor(taskIndex: number, taskState: TaskState) {
+    this.taskIndex = taskIndex;
+    this.taskState = taskState;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    const ret = indexInRangeForVertices(this.taskIndex, plan.chart);
+    if (!ret.ok) {
+      return ret;
+    }
+    const oldState = plan.chart.Vertices[this.taskIndex].state;
+    plan.chart.Vertices[this.taskIndex].state = this.taskState;
+    return ok({
+      plan: plan,
+      inverse: this.inverse(oldState),
+    });
+  }
+
+  inverse(taskState: TaskState): SubOp {
+    return new SetTaskStateSubOp(this.taskIndex, taskState);
+  }
+}
+
 export function InsertNewEmptyTaskAfterOp(taskIndex: number): Op {
   return new Op([
     new AddTaskAfterSubOp(taskIndex),
@@ -234,4 +261,8 @@ export function SetTaskDurationModelOp(
   durationModel: DurationModel
 ): Op {
   return new Op([new SetTaskDurationModelSubOp(taskIndex, durationModel)]);
+}
+
+export function SetTaskStateOp(taskIndex: number, taskState: TaskState): Op {
+  return new Op([new SetTaskStateSubOp(taskIndex, taskState)]);
 }
