@@ -1,7 +1,7 @@
 import { Result, ok, error } from "../result";
 import { DirectedEdge } from "../dag/dag";
 import { Plan } from "../plan/plan";
-import { Task } from "../chart/chart";
+import { Chart, Task } from "../chart/chart";
 import { Op, SubOp, SubOpResult } from "./ops";
 import { DurationModel } from "../duration/duration";
 
@@ -89,6 +89,13 @@ export class RemoveEdgeSupOp implements SubOp {
   }
 }
 
+function indexInRangeForVertices(index: number, chart: Chart): Result<null> {
+  if (index < 0 || index > chart.Vertices.length - 2) {
+    return error(`${index} is not in range [0, ${chart.Vertices.length - 2}]`);
+  }
+  return ok(null);
+}
+
 export class AddTaskAfterSubOp implements SubOp {
   index: number = 0;
 
@@ -98,10 +105,9 @@ export class AddTaskAfterSubOp implements SubOp {
 
   apply(plan: Plan): Result<SubOpResult> {
     const chart = plan.chart;
-    if (this.index < 0 || this.index > chart.Vertices.length - 2) {
-      return error(
-        `${this.index} is not in range [0, ${chart.Vertices.length - 2}]`
-      );
+    const ret = indexInRangeForVertices(this.index, chart);
+    if (!ret.ok) {
+      return ret;
     }
     plan.chart.Vertices.splice(this.index + 1, 0, new Task());
 
@@ -132,10 +138,9 @@ export class DeleteTaskAfterSubOp implements SubOp {
 
   apply(plan: Plan): Result<SubOpResult> {
     const chart = plan.chart;
-    if (this.index < 0 || this.index > chart.Vertices.length - 2) {
-      return error(
-        `${this.index} is not in range [0, ${chart.Vertices.length - 2}]`
-      );
+    const ret = indexInRangeForVertices(this.index, chart);
+    if (!ret.ok) {
+      return ret;
     }
     chart.Vertices.splice(this.index + 1, 1);
 
@@ -168,12 +173,9 @@ export class SetTaskNameSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    if (this.taskIndex < 0 || this.taskIndex > plan.chart.Vertices.length - 2) {
-      return error(
-        `${this.taskIndex} is not in range [0, ${
-          plan.chart.Vertices.length - 2
-        }]`
-      );
+    const ret = indexInRangeForVertices(this.taskIndex, plan.chart);
+    if (!ret.ok) {
+      return ret;
     }
     const oldName = plan.chart.Vertices[this.taskIndex].name;
     plan.chart.Vertices[this.taskIndex].name = this.name;
@@ -188,7 +190,7 @@ export class SetTaskNameSubOp implements SubOp {
   }
 }
 
-export class SetDurationModelSubOp implements SubOp {
+export class SetTaskDurationModelSubOp implements SubOp {
   taskIndex: number;
   durationModel: DurationModel;
 
@@ -198,12 +200,9 @@ export class SetDurationModelSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    if (this.taskIndex < 0 || this.taskIndex > plan.chart.Vertices.length - 2) {
-      return error(
-        `${this.taskIndex} is not in range [0, ${
-          plan.chart.Vertices.length - 2
-        }]`
-      );
+    const ret = indexInRangeForVertices(this.taskIndex, plan.chart);
+    if (!ret.ok) {
+      return ret;
     }
     const oldModel = plan.chart.Vertices[this.taskIndex].durationModel;
     plan.chart.Vertices[this.taskIndex].durationModel = this.durationModel;
@@ -214,7 +213,7 @@ export class SetDurationModelSubOp implements SubOp {
   }
 
   inverse(durationModel: DurationModel): SubOp {
-    return new SetDurationModelSubOp(this.taskIndex, durationModel);
+    return new SetTaskDurationModelSubOp(this.taskIndex, durationModel);
   }
 }
 
@@ -228,4 +227,11 @@ export function InsertNewEmptyTaskAfterOp(taskIndex: number): Op {
 
 export function SetTaskNameOp(taskIndex: number, name: string): Op {
   return new Op([new SetTaskNameSubOp(taskIndex, name)]);
+}
+
+export function SetTaskDurationModelOp(
+  taskIndex: number,
+  durationModel: DurationModel
+): Op {
+  return new Op([new SetTaskDurationModelSubOp(taskIndex, durationModel)]);
 }

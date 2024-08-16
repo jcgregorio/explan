@@ -1,8 +1,14 @@
 import { assert } from "@esm-bundle/chai";
 import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil";
-import { InsertNewEmptyTaskAfterOp, SetTaskName, SetTaskNameOp } from "./chart";
+import {
+  InsertNewEmptyTaskAfterOp,
+  SetTaskDurationModelOp,
+  SetTaskName,
+  SetTaskNameOp,
+} from "./chart";
 import { Plan } from "../plan/plan";
 import { Chart, DEFAULT_TASK_NAME } from "../chart/chart";
+import { JacobianDuration, Uncertainty } from "../duration/jacobian";
 
 describe("InsertNewEmptyTaskAfterOp", () => {
   it("Adds both a Task and Vertices.", () => {
@@ -73,6 +79,46 @@ describe("SetTaskName", () => {
 
   it("Fails if the taskIndex is out of range", () => {
     const res = SetTaskNameOp(2, "bar").apply(new Plan(new Chart()));
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("is not in range"));
+  });
+});
+
+describe("SetDurationModelOp", () => {
+  const newDurationModel = new JacobianDuration(Uncertainty.extreme);
+  it("Sets a tasks name.", () => {
+    TestOpsForwardAndBack([
+      InsertNewEmptyTaskAfterOp(0),
+      T2Op((plan: Plan) => {
+        assert.equal(
+          (plan.chart.Vertices[1].durationModel as JacobianDuration)
+            .uncertainty,
+          Uncertainty.moderate
+        );
+      }),
+      SetTaskDurationModelOp(1, newDurationModel),
+      TOp((plan: Plan) => {
+        assert.equal(
+          (plan.chart.Vertices[1].durationModel as JacobianDuration)
+            .uncertainty,
+          Uncertainty.extreme
+        );
+      }),
+    ]);
+  });
+
+  it("Fails if the taskIndex is out of range", () => {
+    const res = SetTaskDurationModelOp(-1, newDurationModel).apply(
+      new Plan(new Chart())
+    );
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("is not in range"));
+  });
+
+  it("Fails if the taskIndex is out of range", () => {
+    const res = SetTaskDurationModelOp(2, newDurationModel).apply(
+      new Plan(new Chart())
+    );
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });

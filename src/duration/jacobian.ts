@@ -1,4 +1,5 @@
 import { Triangular } from "../stats/cdf/triangular/triangular";
+import { DurationModel } from "./duration";
 
 /**
  * Uncertainty is a measure of how uncertain you are of a tasks duration.
@@ -14,10 +15,10 @@ export enum Uncertainty {
   extreme = 5.0,
 }
 
-export class JacobianDuration {
-  private lastDuration: number = -1;
-  private uncertainty: Uncertainty;
-  private triangular: Triangular | null = null;
+export class JacobianDuration implements DurationModel {
+  lastDuration: number = -1;
+  uncertainty: Uncertainty;
+  triangular: Triangular | null = null;
 
   constructor(uncertainty: Uncertainty) {
     this.uncertainty = uncertainty;
