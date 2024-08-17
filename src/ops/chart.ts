@@ -76,12 +76,10 @@ export class RemoveEdgeSupOp implements SubOp {
     if (!e.ok) {
       return e;
     }
-    chart.Edges = chart.Edges.filter((v: DirectedEdge): boolean => {
-      if (v.i === e.value.i && v.j === e.value.j) {
-        return false;
-      }
-      return true;
-    });
+    chart.Edges = chart.Edges.filter(
+      (v: DirectedEdge): boolean => !v.equal(e.value)
+    );
+
     return ok({
       plan: plan,
       inverse: this.inverse(),
