@@ -45,6 +45,7 @@ export class AddEdgeSubOp implements SubOp {
     if (!e.ok) {
       return e;
     }
+    // Test that the edge doesn't already exist.
     plan.chart.Edges.push(e.value);
     return ok({
       plan: plan,

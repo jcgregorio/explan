@@ -9,34 +9,21 @@ import {
 import { Plan } from "../plan/plan";
 import { Chart, DEFAULT_TASK_NAME, TaskState } from "../chart/chart";
 import { JacobianDuration, Uncertainty } from "../duration/jacobian";
+import { DirectedEdge } from "../dag/dag";
 
 describe("InsertNewEmptyTaskAfterOp", () => {
   it("Adds both a Task and Vertices.", () => {
     TestOpsForwardAndBack([
       T2Op((plan: Plan) => {
-        assert.deepEqual(plan.chart.Edges, [
-          {
-            i: 0,
-            j: 1,
-          },
-        ]);
+        assert.deepEqual(plan.chart.Edges, [new DirectedEdge(0, 1)]);
         assert.equal(plan.chart.Vertices.length, 2);
       }),
       InsertNewEmptyTaskAfterOp(0),
       TOp((plan: Plan) => {
         assert.deepEqual(plan.chart.Edges, [
-          {
-            i: 0,
-            j: 2,
-          },
-          {
-            i: 0,
-            j: 1,
-          },
-          {
-            i: 1,
-            j: 2,
-          },
+          new DirectedEdge(0, 2),
+          new DirectedEdge(0, 1),
+          new DirectedEdge(1, 2),
         ]);
         assert.equal(plan.chart.Vertices.length, 3);
       }),

@@ -18,6 +18,10 @@ export class DirectedEdge {
     this.i = i;
     this.j = j;
   }
+
+  equal(rhs: DirectedEdge): boolean {
+    return rhs.i === this.i && rhs.j === this.j;
+  }
 }
 
 /** Every Egde in a graph. */
