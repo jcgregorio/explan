@@ -5,6 +5,7 @@ import {
   DirectedGraph,
   edgesBySrcToMap,
   edgesByDstToMap,
+  DirectedEdge,
 } from "../dag/dag";
 
 import { topologicalSort } from "../dag/algorithms/toposort";
@@ -74,7 +75,7 @@ export type Tasks = Task[];
 /** A Chart is a DirectedGraph, but with Tasks for Vertices. */
 export class Chart {
   Vertices: Tasks = [new Task("Start"), new Task("Finish")];
-  Edges: Edges = [{ i: 0, j: 1 }];
+  Edges: Edges = [new DirectedEdge(0, 1)];
 }
 
 export type TopologicalOrder = VertexIndices;
