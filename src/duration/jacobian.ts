@@ -42,4 +42,8 @@ export class JacobianDuration implements DurationModel {
       uncertainty: this.uncertainty,
     };
   }
+
+  dup(): DurationModel {
+    return new JacobianDuration(this.uncertainty);
+  }
 }

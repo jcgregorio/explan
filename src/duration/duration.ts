@@ -14,4 +14,6 @@ export interface DurationModel {
   // object. Unless that's not needed and we store the ctor as part of the
   // Chart?
   toJSON(key: string): object;
+
+  dup(): DurationModel;
 }

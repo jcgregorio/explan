@@ -1,36 +1,50 @@
 import { assert } from "@esm-bundle/chai";
-import { validateChart } from "./chart.ts";
+import { Task, validateChart } from "./chart.ts";
 import { Chart } from "./chart.ts";
-import { DirectedGraph } from "../dag/dag.ts";
+import { DirectedEdge, DirectedGraph } from "../dag/dag.ts";
 
-it("A directed graph validates:", () => {
-  const G: DirectedGraph = {
-    Vertices: [{}, {}, {}, {}],
-    Edges: [
-      { i: 0, j: 1 },
-      { i: 0, j: 2 },
-      { i: 1, j: 3 },
-      { i: 2, j: 3 },
-    ],
-  };
-  assert.isTrue(validateChart(G).ok);
+describe("validateChart", () => {
+  it("A directed graph validates:", () => {
+    const G: DirectedGraph = {
+      Vertices: [{}, {}, {}, {}],
+      Edges: [
+        new DirectedEdge(0, 1),
+        new DirectedEdge(0, 2),
+        new DirectedEdge(1, 3),
+        new DirectedEdge(2, 3),
+      ],
+    };
+    assert.isTrue(validateChart(G).ok);
+  });
+
+  it("A directed graph with a loop fails to validate:", () => {
+    const GWithLoop: DirectedGraph = {
+      Vertices: [{}, {}, {}, {}],
+      Edges: [
+        new DirectedEdge(0, 1),
+        new DirectedEdge(0, 2),
+        new DirectedEdge(1, 3),
+        new DirectedEdge(2, 3),
+        new DirectedEdge(2, 0),
+      ],
+    };
+    assert.isFalse(validateChart(GWithLoop).ok);
+  });
+
+  it("A default chart validates.", () => {
+    const r = validateChart(new Chart());
+    assert.isTrue(r.ok);
+  });
 });
 
-it("A directed graph with a loop fails to validate:", () => {
-  const GWithLoop: DirectedGraph = {
-    Vertices: [{}, {}, {}, {}],
-    Edges: [
-      { i: 0, j: 1 },
-      { i: 0, j: 2 },
-      { i: 1, j: 3 },
-      { i: 2, j: 3 },
-      { i: 2, j: 0 },
-    ],
-  };
-  assert.isFalse(validateChart(GWithLoop).ok);
-});
+describe("Task", () => {
+  it("Can duplicate itself", () => {
+    const t = new Task();
+    const copy = t.dup();
+    assert.deepEqual(t, copy);
 
-it("A default chart validates.", () => {
-  const r = validateChart(new Chart());
-  assert.isTrue(r.ok);
+    // Modify the copy and show they become different.
+    copy.name = "Some new name.";
+    assert.notDeepEqual(t, copy);
+  });
 });

@@ -68,6 +68,18 @@ export class Task {
   public get percent(): number {
     return this.metrics.get(StaticMetricKeys.Percent)!;
   }
+
+  public dup(): Task {
+    const ret = new Task();
+    ret.resources = Object.assign({}, this.resources);
+    ret.metrics = new Map(this.metrics);
+    ret.name = this.name;
+    ret.durationModel = this.durationModel.dup();
+    ret.state = this.state;
+    ret.actualFinish = this.actualFinish;
+    ret.actualStart = this.actualStart;
+    return ret;
+  }
 }
 
 export type Tasks = Task[];

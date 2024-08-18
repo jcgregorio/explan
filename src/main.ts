@@ -1,4 +1,5 @@
 import { Chart, Task, validateChart } from "./chart/chart.ts";
+import { DirectedEdge } from "./dag/dag.ts";
 import { InsertNewEmptyTaskAfterOp } from "./ops/chart.ts";
 import { Plan, StaticMetricKeys } from "./plan/plan.ts";
 import { ComputeSlack } from "./slack/slack.ts";
@@ -12,10 +13,10 @@ taskB.metrics.set(StaticMetricKeys.Duration, 15);
 const C: Chart = {
   Vertices: [new Task("Start"), taskA, taskB, new Task("Finish")],
   Edges: [
-    { i: 0, j: 1 },
-    { i: 0, j: 2 },
-    { i: 1, j: 3 },
-    { i: 2, j: 3 },
+    new DirectedEdge(0, 1),
+    new DirectedEdge(0, 2),
+    new DirectedEdge(1, 3),
+    new DirectedEdge(2, 3),
   ],
 };
 
