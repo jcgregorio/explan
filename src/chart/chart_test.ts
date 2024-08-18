@@ -47,4 +47,24 @@ describe("Task", () => {
     copy.name = "Some new name.";
     assert.notDeepEqual(t, copy);
   });
+
+  it("Duplicates are correct of metrics.", () => {
+    const t = new Task();
+    const copy = t.dup();
+    assert.deepEqual(t, copy);
+
+    // Modify the copy and show they become different.
+    copy.metrics.set("Some new name", 12);
+    assert.notDeepEqual(t, copy);
+  });
+
+  it("Duplicates are correct of resources.", () => {
+    const t = new Task();
+    const copy = t.dup();
+    assert.deepEqual(t, copy);
+
+    // Modify the copy and show they become different.
+    copy.resources["Some new name"] = "wilma";
+    assert.notDeepEqual(t, copy);
+  });
 });
