@@ -1,6 +1,8 @@
 import { assert } from "@esm-bundle/chai";
 import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil";
 import {
+  AddEdgeOp,
+  SplitTaskOp,
   InsertNewEmptyTaskAfterOp,
   SetTaskDurationModelOp,
   SetTaskNameOp,
@@ -134,6 +136,74 @@ describe("SetTaskStateOp", () => {
 
   it("Fails if the taskIndex is out of range", () => {
     const res = SetTaskStateOp(2, newTaskState).apply(new Plan(new Chart()));
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("is not in range"));
+  });
+});
+
+describe("DupTaskOp", () => {
+  it("Adds both a Task and moves the Vertices.", () => {
+    TestOpsForwardAndBack([
+      T2Op((plan: Plan) => {
+        assert.deepEqual(plan.chart.Edges, [new DirectedEdge(0, 1)]);
+        assert.equal(plan.chart.Vertices.length, 2);
+      }),
+      InsertNewEmptyTaskAfterOp(0),
+      SetTaskNameOp(1, "A"),
+      InsertNewEmptyTaskAfterOp(1),
+      SetTaskNameOp(2, "B"),
+      InsertNewEmptyTaskAfterOp(2),
+      SetTaskNameOp(3, "C"),
+      AddEdgeOp(1, 3),
+      AddEdgeOp(2, 3),
+      SplitTaskOp(3),
+      SetTaskNameOp(4, "D"),
+      TOp((plan: Plan) => {
+        assert.deepEqual(plan.chart.Edges, [
+          new DirectedEdge(0, 5),
+          new DirectedEdge(0, 1),
+          new DirectedEdge(1, 5),
+          new DirectedEdge(0, 2),
+          new DirectedEdge(2, 5),
+          new DirectedEdge(0, 3),
+          new DirectedEdge(4, 5),
+          new DirectedEdge(1, 3),
+          new DirectedEdge(2, 3),
+          new DirectedEdge(4, 4),
+        ]);
+        assert.deepEqual(
+          [
+            "Start->Finish",
+            "Start->A",
+            "A->Finish",
+            "Start->B",
+            "B->Finish",
+            "Start->C",
+            "D->Finish",
+            "A->C",
+            "B->C",
+            "D->D",
+          ],
+          plan.chart.Edges.map(
+            (d: DirectedEdge) =>
+              `${plan.chart.Vertices[d.i].name}->${
+                plan.chart.Vertices[d.j].name
+              }`
+          )
+        );
+        assert.equal(plan.chart.Vertices.length, 6);
+      }),
+    ]);
+  });
+
+  it("Fails if the taskIndex is out of range", () => {
+    const res = InsertNewEmptyTaskAfterOp(2).apply(new Plan(new Chart()));
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("is not in range"));
+  });
+
+  it("Fails if the taskIndex is out of range", () => {
+    const res = InsertNewEmptyTaskAfterOp(-1).apply(new Plan(new Chart()));
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });

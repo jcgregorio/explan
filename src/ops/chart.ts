@@ -50,6 +50,10 @@ export class AddEdgeSubOp implements SubOp {
       plan.chart.Edges.push(e.value);
     }
 
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!
+    // Also remove any links from 'Start' or to 'Finish' if appropriate.
+    // And then restore such links in RemoveEdgeSubOp.
+
     return ok({
       plan: plan,
       inverse: this.inverse(),
@@ -98,6 +102,16 @@ function indexInRangeForVertices(index: number, chart: Chart): Result<null> {
   return ok(null);
 }
 
+function indexInRangeForVerticesExclusive(
+  index: number,
+  chart: Chart
+): Result<null> {
+  if (index < 1 || index > chart.Vertices.length - 2) {
+    return error(`${index} is not in range [1, ${chart.Vertices.length - 2}]`);
+  }
+  return ok(null);
+}
+
 export class AddTaskAfterSubOp implements SubOp {
   index: number = 0;
 
@@ -127,11 +141,85 @@ export class AddTaskAfterSubOp implements SubOp {
   }
 
   inverse(): SubOp {
-    return new DeleteTaskAfterSubOp(this.index);
+    return new DeleteTaskSubOp(this.index);
   }
 }
 
-export class DeleteTaskAfterSubOp implements SubOp {
+export class DupTaskSubOp implements SubOp {
+  index: number = 0;
+
+  constructor(index: number) {
+    this.index = index;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    const chart = plan.chart;
+    const ret = indexInRangeForVerticesExclusive(this.index, chart);
+    if (!ret.ok) {
+      return ret;
+    }
+
+    const copy = plan.chart.Vertices[this.index].dup();
+    // Insert the duplicate immediately after the Task it is copied from.
+    plan.chart.Vertices.splice(this.index, 0, copy);
+
+    // Update Edges.
+    for (let i = 0; i < chart.Edges.length; i++) {
+      const edge = chart.Edges[i];
+      if (edge.i > this.index) {
+        edge.i++;
+      }
+      if (edge.j > this.index) {
+        edge.j++;
+      }
+    }
+    return ok({ plan: plan, inverse: this.inverse() });
+  }
+
+  inverse(): SubOp {
+    return new DeleteTaskSubOp(this.index + 1);
+  }
+}
+
+export class MoveAllOutgoingEdgesFromToSubOp implements SubOp {
+  fromTaskIndex: number = 0;
+  toTaskIndex: number = 0;
+
+  constructor(fromTaskIndex: number, toTaskIndex: number) {
+    this.fromTaskIndex = fromTaskIndex;
+    this.toTaskIndex = toTaskIndex;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    const chart = plan.chart;
+    let ret = indexInRangeForVerticesExclusive(this.fromTaskIndex, chart);
+    if (!ret.ok) {
+      return ret;
+    }
+    ret = indexInRangeForVerticesExclusive(this.toTaskIndex, chart);
+    if (!ret.ok) {
+      return ret;
+    }
+
+    // Update all Edges that start at 'fromTaskIndex' and change the start to 'toTaskIndex'.
+    for (let i = 0; i < chart.Edges.length; i++) {
+      const edge = chart.Edges[i];
+      if (edge.i === this.fromTaskIndex) {
+        edge.i = this.toTaskIndex;
+      }
+    }
+    return ok({
+      plan: plan,
+      inverse: this.inverse(this.toTaskIndex, this.fromTaskIndex),
+    });
+  }
+
+  inverse(toTaskIndex: number, fromTaskIndex: number): SubOp {
+    return new MoveAllOutgoingEdgesFromToSubOp(toTaskIndex, fromTaskIndex);
+  }
+}
+
+export class DeleteTaskSubOp implements SubOp {
   index: number = 0;
 
   constructor(index: number) {
@@ -144,15 +232,15 @@ export class DeleteTaskAfterSubOp implements SubOp {
     if (!ret.ok) {
       return ret;
     }
-    chart.Vertices.splice(this.index + 1, 1);
+    chart.Vertices.splice(this.index, 1);
 
     // Update Edges.
     for (let i = 0; i < chart.Edges.length; i++) {
       const edge = chart.Edges[i];
-      if (edge.i >= this.index + 1) {
+      if (edge.i > this.index) {
         edge.i--;
       }
-      if (edge.j >= this.index + 1) {
+      if (edge.j > this.index) {
         edge.j--;
       }
     }
@@ -161,7 +249,7 @@ export class DeleteTaskAfterSubOp implements SubOp {
   }
 
   inverse(): SubOp {
-    return new AddTaskAfterSubOp(this.index);
+    return new AddTaskAfterSubOp(this.index - 1);
   }
 }
 
@@ -267,4 +355,18 @@ export function SetTaskDurationModelOp(
 
 export function SetTaskStateOp(taskIndex: number, taskState: TaskState): Op {
   return new Op([new SetTaskStateSubOp(taskIndex, taskState)]);
+}
+
+export function SplitTaskOp(taskIndex: number): Op {
+  const subOps: SubOp[] = [
+    new DupTaskSubOp(taskIndex),
+    new AddEdgeSubOp(taskIndex, taskIndex + 1),
+    new MoveAllOutgoingEdgesFromToSubOp(taskIndex, taskIndex + 1),
+  ];
+
+  return new Op(subOps);
+}
+
+export function AddEdgeOp(fromTaskIndex: number, toTaskIndex: number): Op {
+  return new Op([new AddEdgeSubOp(fromTaskIndex, toTaskIndex)]);
 }
