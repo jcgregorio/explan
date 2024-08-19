@@ -13,19 +13,33 @@ import { Chart, DEFAULT_TASK_NAME, TaskState } from "../chart/chart";
 import { JacobianDuration, Uncertainty } from "../duration/jacobian";
 import { DirectedEdge } from "../dag/dag";
 
+const arrowSummary = (plan: Plan): string[] =>
+  plan.chart.Edges.map(
+    (d: DirectedEdge) =>
+      `${plan.chart.Vertices[d.i].name}->${plan.chart.Vertices[d.j].name}`
+  );
+
 describe("InsertNewEmptyTaskAfterOp", () => {
   it("Adds both a Task and Vertices.", () => {
     TestOpsForwardAndBack([
-      T2Op((plan: Plan) => {
-        assert.deepEqual(plan.chart.Edges, [new DirectedEdge(0, 1)]);
-        assert.equal(plan.chart.Vertices.length, 2);
+      T2Op((plan: Plan, forward: boolean) => {
+        if (forward) {
+          assert.deepEqual(plan.chart.Edges, [new DirectedEdge(0, 1)]);
+          assert.equal(plan.chart.Vertices.length, 2);
+        } else {
+          assert.deepEqual(plan.chart.Edges, [new DirectedEdge(0, 1)]);
+          assert.equal(plan.chart.Vertices.length, 2);
+        }
       }),
       InsertNewEmptyTaskAfterOp(0),
       TOp((plan: Plan) => {
         assert.deepEqual(plan.chart.Edges, [
-          new DirectedEdge(0, 2),
           new DirectedEdge(0, 1),
           new DirectedEdge(1, 2),
+        ]);
+        assert.deepEqual(arrowSummary(plan), [
+          "Start->Task Name",
+          "Task Name->Finish",
         ]);
         assert.equal(plan.chart.Vertices.length, 3);
       }),
@@ -159,38 +173,17 @@ describe("DupTaskOp", () => {
       SplitTaskOp(3),
       SetTaskNameOp(4, "D"),
       TOp((plan: Plan) => {
-        assert.deepEqual(plan.chart.Edges, [
-          new DirectedEdge(0, 5),
-          new DirectedEdge(0, 1),
-          new DirectedEdge(1, 5),
-          new DirectedEdge(0, 2),
-          new DirectedEdge(2, 5),
-          new DirectedEdge(0, 3),
-          new DirectedEdge(4, 5),
-          new DirectedEdge(1, 3),
-          new DirectedEdge(2, 3),
-          new DirectedEdge(4, 4),
+        assert.deepEqual(arrowSummary(plan), [
+          "Start->A",
+          "A->Finish",
+          "Start->B",
+          "B->Finish",
+          "Start->C",
+          "D->Finish",
+          "A->C",
+          "B->C",
+          "D->D",
         ]);
-        assert.deepEqual(
-          [
-            "Start->Finish",
-            "Start->A",
-            "A->Finish",
-            "Start->B",
-            "B->Finish",
-            "Start->C",
-            "D->Finish",
-            "A->C",
-            "B->C",
-            "D->D",
-          ],
-          plan.chart.Edges.map(
-            (d: DirectedEdge) =>
-              `${plan.chart.Vertices[d.i].name}->${
-                plan.chart.Vertices[d.j].name
-              }`
-          )
-        );
         assert.equal(plan.chart.Vertices.length, 6);
       }),
     ]);

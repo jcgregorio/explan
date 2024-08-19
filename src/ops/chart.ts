@@ -1,5 +1,5 @@
 import { Result, ok, error } from "../result";
-import { DirectedEdge } from "../dag/dag";
+import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag";
 import { Plan } from "../plan/plan";
 import { Chart, Task, TaskState } from "../chart/chart";
 import { Op, SubOp, SubOpResult } from "./ops";
@@ -41,18 +41,22 @@ export class AddEdgeSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
+    if (this.i === -1) {
+      this.i = plan.chart.Vertices.length - 1;
+    }
+    if (this.j === -1) {
+      this.j = plan.chart.Vertices.length - 1;
+    }
+
     const e = DirectedEdgeForPlan(this.i, this.j, plan);
     if (!e.ok) {
       return e;
     }
+
     // Only add the edge if it doesn't exists already.
     if (!plan.chart.Edges.find((value: DirectedEdge) => value.equal(e.value))) {
       plan.chart.Edges.push(e.value);
     }
-
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!
-    // Also remove any links from 'Start' or to 'Finish' if appropriate.
-    // And then restore such links in RemoveEdgeSubOp.
 
     return ok({
       plan: plan,
@@ -75,12 +79,18 @@ export class RemoveEdgeSupOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    const chart = plan.chart;
+    if (this.i === -1) {
+      this.i = plan.chart.Vertices.length - 1;
+    }
+    if (this.j === -1) {
+      this.j = plan.chart.Vertices.length - 1;
+    }
+
     const e = DirectedEdgeForPlan(this.i, this.j, plan);
     if (!e.ok) {
       return e;
     }
-    chart.Edges = chart.Edges.filter(
+    plan.chart.Edges = plan.chart.Edges.filter(
       (v: DirectedEdge): boolean => !v.equal(e.value)
     );
 
@@ -253,6 +263,67 @@ export class DeleteTaskSubOp implements SubOp {
   }
 }
 
+export class RationalizeEdgesSubOp implements SubOp {
+  constructor() {}
+
+  apply(plan: Plan): Result<SubOpResult> {
+    const srcAndDst = edgesBySrcAndDstToMap(plan.chart.Edges);
+    const Start = 0;
+    const Finish = plan.chart.Vertices.length - 1;
+
+    // loop over all vertics from [Start, Finish) and look for their
+    // destinations. If they have none then add in an edge to Finish. If they
+    // have more than one then remove any links to Finish.
+    for (let i = Start; i < Finish - 1; i++) {
+      const destinations = srcAndDst.bySrc.get(i);
+      if (destinations === undefined) {
+        plan.chart.Edges.push(new DirectedEdge(i, Finish));
+      } else {
+        // Are there any uneeded Egdes to Finish? If so filter them out.
+        if (
+          destinations.length > 1 &&
+          destinations.find((value: DirectedEdge) => value.j === Finish)
+        ) {
+          const toBeRemoved = new DirectedEdge(i, Finish);
+          plan.chart.Edges = plan.chart.Edges.filter(
+            (value: DirectedEdge) => !toBeRemoved.equal(value)
+          );
+        }
+      }
+    }
+
+    // loop over all vertics from(Start, Finish] and look for their sources. If
+    // they have none then add in an edge from Start. If they have more than one
+    // then remove any links from Start.
+    for (let i = Start + 1; i < Finish - 1; i++) {
+      const destinations = srcAndDst.bySrc.get(i);
+      if (destinations === undefined) {
+        plan.chart.Edges.push(new DirectedEdge(Start, i));
+      } else {
+        // Are there any un-needed Egdes from Start? If so filter them out.
+        if (
+          destinations.length > 1 &&
+          destinations.find((value: DirectedEdge) => value.i === Start)
+        ) {
+          const toBeRemoved = new DirectedEdge(Start, i);
+          plan.chart.Edges = plan.chart.Edges.filter(
+            (value: DirectedEdge) => !toBeRemoved.equal(value)
+          );
+        }
+      }
+    }
+    if (plan.chart.Edges.length === 0) {
+      plan.chart.Edges.push(new DirectedEdge(Start, Finish));
+    }
+
+    return ok({ plan: plan, inverse: this.inverse() });
+  }
+
+  inverse(): SubOp {
+    return new RationalizeEdgesSubOp();
+  }
+}
+
 export class SetTaskNameSubOp implements SubOp {
   taskIndex: number;
   name: string;
@@ -336,9 +407,11 @@ export class SetTaskStateSubOp implements SubOp {
 
 export function InsertNewEmptyTaskAfterOp(taskIndex: number): Op {
   return new Op([
+    new RationalizeEdgesSubOp(),
     new AddTaskAfterSubOp(taskIndex),
     new AddEdgeSubOp(0, taskIndex + 1),
     new AddEdgeSubOp(taskIndex + 1, -1),
+    new RationalizeEdgesSubOp(),
   ]);
 }
 

@@ -71,3 +71,26 @@ export const edgesByDstToMap = (edges: Edges): Map<number, Edges> => {
 
   return ret;
 };
+
+export type SrcAndDstReturn = {
+  bySrc: Map<number, Edges>;
+  byDst: Map<number, Edges>;
+};
+
+export const edgesBySrcAndDstToMap = (edges: Edges): SrcAndDstReturn => {
+  const ret = {
+    bySrc: new Map<number, Edges>(),
+    byDst: new Map<number, Edges>(),
+  };
+
+  edges.forEach((e: DirectedEdge) => {
+    let arr = ret.bySrc.get(e.i) || [];
+    arr.push(e);
+    ret.bySrc.set(e.i, arr);
+    arr = ret.byDst.get(e.j) || [];
+    arr.push(e);
+    ret.byDst.set(e.j, arr);
+  });
+
+  return ret;
+};

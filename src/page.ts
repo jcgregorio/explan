@@ -1,4 +1,5 @@
 import { Chart, Task } from "./chart/chart.ts";
+import { DirectedEdge } from "./dag/dag.ts";
 import { StaticMetricKeys } from "./plan/plan.ts";
 import {
   ColorTheme,
@@ -29,12 +30,12 @@ const C: Chart = {
     new Task("Finish"),
   ],
   Edges: [
-    { i: 0, j: 1 },
-    { i: 0, j: 2 },
-    { i: 1, j: 3 },
-    { i: 2, j: 3 },
-    { i: 3, j: 4 },
-    { i: 4, j: 5 },
+    new DirectedEdge(0, 1),
+    new DirectedEdge(0, 2),
+    new DirectedEdge(1, 3),
+    new DirectedEdge(2, 3),
+    new DirectedEdge(3, 4),
+    new DirectedEdge(4, 5),
   ],
 };
 
