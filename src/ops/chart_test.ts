@@ -33,10 +33,6 @@ describe("InsertNewEmptyTaskAfterOp", () => {
       }),
       InsertNewEmptyTaskAfterOp(0),
       TOp((plan: Plan) => {
-        assert.deepEqual(plan.chart.Edges, [
-          new DirectedEdge(0, 1),
-          new DirectedEdge(1, 2),
-        ]);
         assert.deepEqual(arrowSummary(plan), [
           "Start->Task Name",
           "Task Name->Finish",
@@ -168,21 +164,32 @@ describe("DupTaskOp", () => {
       SetTaskNameOp(2, "B"),
       InsertNewEmptyTaskAfterOp(2),
       SetTaskNameOp(3, "C"),
+      TOp((plan: Plan) => {
+        debugger;
+      }),
+
       AddEdgeOp(1, 3),
       AddEdgeOp(2, 3),
+      T2Op((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan), [
+          "Start->A",
+          "Start->B",
+          "C->Finish",
+          "A->C",
+          "B->C",
+        ]);
+        assert.equal(plan.chart.Vertices.length, 5);
+      }),
       SplitTaskOp(3),
       SetTaskNameOp(4, "D"),
       TOp((plan: Plan) => {
         assert.deepEqual(arrowSummary(plan), [
           "Start->A",
-          "A->Finish",
           "Start->B",
-          "B->Finish",
-          "Start->C",
           "D->Finish",
           "A->C",
           "B->C",
-          "D->D",
+          "C->D",
         ]);
         assert.equal(plan.chart.Vertices.length, 6);
       }),

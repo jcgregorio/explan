@@ -214,6 +214,10 @@ export class MoveAllOutgoingEdgesFromToSubOp implements SubOp {
     // Update all Edges that start at 'fromTaskIndex' and change the start to 'toTaskIndex'.
     for (let i = 0; i < chart.Edges.length; i++) {
       const edge = chart.Edges[i];
+      // Skip the corner case there fromTaskIndex points to toTaskIndex.
+      if (edge.i == this.fromTaskIndex && edge.j === this.toTaskIndex) {
+        continue;
+      }
       if (edge.i === this.fromTaskIndex) {
         edge.i = this.toTaskIndex;
       }
@@ -274,7 +278,7 @@ export class RationalizeEdgesSubOp implements SubOp {
     // loop over all vertics from [Start, Finish) and look for their
     // destinations. If they have none then add in an edge to Finish. If they
     // have more than one then remove any links to Finish.
-    for (let i = Start; i < Finish - 1; i++) {
+    for (let i = Start; i < Finish; i++) {
       const destinations = srcAndDst.bySrc.get(i);
       if (destinations === undefined) {
         plan.chart.Edges.push(new DirectedEdge(i, Finish));
@@ -295,8 +299,8 @@ export class RationalizeEdgesSubOp implements SubOp {
     // loop over all vertics from(Start, Finish] and look for their sources. If
     // they have none then add in an edge from Start. If they have more than one
     // then remove any links from Start.
-    for (let i = Start + 1; i < Finish - 1; i++) {
-      const destinations = srcAndDst.bySrc.get(i);
+    for (let i = Start + 1; i < Finish; i++) {
+      const destinations = srcAndDst.byDst.get(i);
       if (destinations === undefined) {
         plan.chart.Edges.push(new DirectedEdge(Start, i));
       } else {
@@ -435,11 +439,15 @@ export function SplitTaskOp(taskIndex: number): Op {
     new DupTaskSubOp(taskIndex),
     new AddEdgeSubOp(taskIndex, taskIndex + 1),
     new MoveAllOutgoingEdgesFromToSubOp(taskIndex, taskIndex + 1),
+    new RationalizeEdgesSubOp(),
   ];
 
   return new Op(subOps);
 }
 
 export function AddEdgeOp(fromTaskIndex: number, toTaskIndex: number): Op {
-  return new Op([new AddEdgeSubOp(fromTaskIndex, toTaskIndex)]);
+  return new Op([
+    new AddEdgeSubOp(fromTaskIndex, toTaskIndex),
+    new RationalizeEdgesSubOp(),
+  ]);
 }
