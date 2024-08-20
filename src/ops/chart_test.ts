@@ -155,7 +155,7 @@ describe("DupTaskOp", () => {
   it("Adds both a Task and moves the Vertices.", () => {
     TestOpsForwardAndBack([
       T2Op((plan: Plan) => {
-        assert.deepEqual(plan.chart.Edges, [new DirectedEdge(0, 1)]);
+        assert.deepEqual(arrowSummary(plan), ["Start->Finish"]);
         assert.equal(plan.chart.Vertices.length, 2);
       }),
       InsertNewEmptyTaskAfterOp(0),
@@ -164,10 +164,6 @@ describe("DupTaskOp", () => {
       SetTaskNameOp(2, "B"),
       InsertNewEmptyTaskAfterOp(2),
       SetTaskNameOp(3, "C"),
-      TOp((plan: Plan) => {
-        debugger;
-      }),
-
       AddEdgeOp(1, 3),
       AddEdgeOp(2, 3),
       T2Op((plan: Plan) => {
