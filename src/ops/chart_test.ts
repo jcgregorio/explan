@@ -17,7 +17,7 @@ const arrowSummary = (plan: Plan): string[] =>
   plan.chart.Edges.map(
     (d: DirectedEdge) =>
       `${plan.chart.Vertices[d.i].name}->${plan.chart.Vertices[d.j].name}`
-  );
+  ).sort();
 
 describe("InsertNewEmptyTaskAfterOp", () => {
   it("Adds both a Task and Vertices.", () => {
@@ -162,17 +162,42 @@ describe("DupTaskOp", () => {
       SetTaskNameOp(1, "A"),
       InsertNewEmptyTaskAfterOp(1),
       SetTaskNameOp(2, "B"),
+      T2Op((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan).sort(), [
+          "A->Finish",
+          "B->Finish",
+          "Start->A",
+          "Start->B",
+        ]);
+      }),
+
       InsertNewEmptyTaskAfterOp(2),
       SetTaskNameOp(3, "C"),
+      T2Op((plan: Plan, forward: boolean) => {
+        assert.deepEqual(
+          arrowSummary(plan).sort(),
+          [
+            "A->Finish",
+            "B->Finish",
+            "C->Finish",
+            "Start->A",
+            "Start->B",
+            "Start->C",
+          ],
+          `Direction: ${forward ? "forward" : "backward"}`
+        );
+        assert.equal(plan.chart.Vertices.length, 5);
+      }),
+
       AddEdgeOp(1, 3),
       AddEdgeOp(2, 3),
       T2Op((plan: Plan) => {
         assert.deepEqual(arrowSummary(plan), [
-          "Start->A",
-          "Start->B",
-          "C->Finish",
           "A->C",
           "B->C",
+          "C->Finish",
+          "Start->A",
+          "Start->B",
         ]);
         assert.equal(plan.chart.Vertices.length, 5);
       }),
@@ -180,12 +205,12 @@ describe("DupTaskOp", () => {
       SetTaskNameOp(4, "D"),
       TOp((plan: Plan) => {
         assert.deepEqual(arrowSummary(plan), [
-          "Start->A",
-          "Start->B",
-          "D->Finish",
           "A->C",
           "B->C",
           "C->D",
+          "D->Finish",
+          "Start->A",
+          "Start->B",
         ]);
         assert.equal(plan.chart.Vertices.length, 6);
       }),

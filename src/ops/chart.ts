@@ -151,7 +151,7 @@ export class AddTaskAfterSubOp implements SubOp {
   }
 
   inverse(): SubOp {
-    return new DeleteTaskSubOp(this.index);
+    return new DeleteTaskSubOp(this.index + 1);
   }
 }
 
@@ -191,13 +191,21 @@ export class DupTaskSubOp implements SubOp {
   }
 }
 
+type Substitution = Map<DirectedEdge, DirectedEdge>;
+
 export class MoveAllOutgoingEdgesFromToSubOp implements SubOp {
   fromTaskIndex: number = 0;
   toTaskIndex: number = 0;
+  actualMoves: Substitution;
 
-  constructor(fromTaskIndex: number, toTaskIndex: number) {
+  constructor(
+    fromTaskIndex: number,
+    toTaskIndex: number,
+    actualMoves: Substitution = new Map()
+  ) {
     this.fromTaskIndex = fromTaskIndex;
     this.toTaskIndex = toTaskIndex;
+    this.actualMoves = actualMoves;
   }
 
   apply(plan: Plan): Result<SubOpResult> {
@@ -211,25 +219,60 @@ export class MoveAllOutgoingEdgesFromToSubOp implements SubOp {
       return ret;
     }
 
-    // Update all Edges that start at 'fromTaskIndex' and change the start to 'toTaskIndex'.
-    for (let i = 0; i < chart.Edges.length; i++) {
-      const edge = chart.Edges[i];
-      // Skip the corner case there fromTaskIndex points to toTaskIndex.
-      if (edge.i == this.fromTaskIndex && edge.j === this.toTaskIndex) {
-        continue;
+    if (this.actualMoves.values.length === 0) {
+      const actualMoves: Substitution = new Map();
+      // Update all Edges that start at 'fromTaskIndex' and change the start to 'toTaskIndex'.
+      for (let i = 0; i < chart.Edges.length; i++) {
+        const edge = chart.Edges[i];
+        // Skip the corner case there fromTaskIndex points to TaskIndex.
+        if (edge.i === this.fromTaskIndex && edge.j === this.toTaskIndex) {
+          continue;
+        }
+
+        if (edge.i === this.fromTaskIndex) {
+          actualMoves.set(
+            new DirectedEdge(this.toTaskIndex, edge.j),
+            new DirectedEdge(edge.i, edge.j)
+          );
+          edge.i = this.toTaskIndex;
+        }
       }
-      if (edge.i === this.fromTaskIndex) {
-        edge.i = this.toTaskIndex;
+      return ok({
+        plan: plan,
+        inverse: this.inverse(
+          this.toTaskIndex,
+          this.fromTaskIndex,
+          actualMoves
+        ),
+      });
+    } else {
+      for (let i = 0; i < chart.Edges.length; i++) {
+        const newEdge = this.actualMoves.get(plan.chart.Edges[i]);
+        if (newEdge !== undefined) {
+          plan.chart.Edges[i] = newEdge;
+        }
       }
+
+      return ok({
+        plan: plan,
+        inverse: new MoveAllOutgoingEdgesFromToSubOp(
+          this.toTaskIndex,
+          this.fromTaskIndex
+        ),
+      });
     }
-    return ok({
-      plan: plan,
-      inverse: this.inverse(this.toTaskIndex, this.fromTaskIndex),
-    });
   }
 
-  inverse(toTaskIndex: number, fromTaskIndex: number): SubOp {
-    return new MoveAllOutgoingEdgesFromToSubOp(toTaskIndex, fromTaskIndex);
+  inverse(
+    toTaskIndex: number,
+    fromTaskIndex: number,
+    actualMoves: Substitution
+  ): SubOp {
+    return new MoveAllOutgoingEdgesFromToSubOp(
+      toTaskIndex,
+      fromTaskIndex,
+      actualMoves
+    );
   }
 }
 
@@ -439,7 +482,6 @@ export function SplitTaskOp(taskIndex: number): Op {
     new DupTaskSubOp(taskIndex),
     new AddEdgeSubOp(taskIndex, taskIndex + 1),
     new MoveAllOutgoingEdgesFromToSubOp(taskIndex, taskIndex + 1),
-    new RationalizeEdgesSubOp(),
   ];
 
   return new Op(subOps);
@@ -447,6 +489,7 @@ export function SplitTaskOp(taskIndex: number): Op {
 
 export function AddEdgeOp(fromTaskIndex: number, toTaskIndex: number): Op {
   return new Op([
+    new RationalizeEdgesSubOp(),
     new AddEdgeSubOp(fromTaskIndex, toTaskIndex),
     new RationalizeEdgesSubOp(),
   ]);
