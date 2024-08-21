@@ -11,9 +11,9 @@ import { Plan } from "../plan/plan";
 // * Change string value in a Task.
 // * Change duration value in a Task.
 // * Insert new empty Task after Index.
+// * Split a Task. (Predecessor takes all incoming edges, source tasks all outgoing edges).
 //
 // * Duplicate a Task (all edges are duplicated from the source Task).
-// * Split a Task. (Predecessor takes all incoming edges, source tasks all outgoing edges).
 // * Delete predecessor to a Task.
 // * Delete successor to a Task.
 // * Delete a Task.
