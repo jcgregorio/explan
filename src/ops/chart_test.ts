@@ -314,4 +314,26 @@ describe("DupTaskOp", () => {
       }),
     ]);
   });
+
+  it("Adds both a Task and moves the Vertices.", () => {
+    TestOpsForwardAndBack([
+      T2Op((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan), ["Start->Finish"]);
+        assert.equal(plan.chart.Vertices.length, 2);
+      }),
+      InsertNewEmptyTaskAfterOp(0),
+      SetTaskNameOp(1, "A"),
+      DupTaskOp(1),
+      SetTaskNameOp(2, "B"),
+      TOp((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan), [
+          "A->Finish",
+          "B->Finish",
+          "Start->A",
+          "Start->B",
+        ]);
+        assert.equal(plan.chart.Vertices.length, 4);
+      }),
+    ]);
+  });
 });
