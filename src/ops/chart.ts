@@ -276,6 +276,70 @@ export class MoveAllOutgoingEdgesFromToSubOp implements SubOp {
   }
 }
 
+export class CopyAllEdgesFromToSubOp implements SubOp {
+  fromIndex: number = 0;
+  toIndex: number = 0;
+
+  constructor(fromIndex: number, toIndex: number) {
+    this.fromIndex = fromIndex;
+    this.toIndex = toIndex;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    const ret = indexInRangeForVertices(this.fromIndex, plan.chart);
+    if (!ret.ok) {
+      return ret;
+    }
+
+    const newEdges: DirectedEdge[] = [];
+    plan.chart.Edges.forEach((edge: DirectedEdge) => {
+      if (edge.i === this.fromIndex) {
+        newEdges.push(new DirectedEdge(this.toIndex, edge.j));
+      }
+      if (edge.j === this.fromIndex) {
+        newEdges.push(new DirectedEdge(edge.i, this.toIndex));
+      }
+    });
+    plan.chart.Edges.push(...newEdges);
+
+    return ok({ plan: plan, inverse: new RemoveAllEdgesSubOp(newEdges) });
+  }
+}
+
+export class RemoveAllEdgesSubOp implements SubOp {
+  edges: DirectedEdge[];
+
+  constructor(edges: DirectedEdge[]) {
+    this.edges = edges;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    plan.chart.Edges = plan.chart.Edges.filter(
+      (edge: DirectedEdge) =>
+        -1 ===
+        this.edges.findIndex((toBeRemoved: DirectedEdge) =>
+          edge.equal(toBeRemoved)
+        )
+    );
+
+    return ok({ plan: plan, inverse: new AddAllEdgesSubOp(this.edges) });
+  }
+}
+
+export class AddAllEdgesSubOp implements SubOp {
+  edges: DirectedEdge[];
+
+  constructor(edges: DirectedEdge[]) {
+    this.edges = edges;
+  }
+
+  apply(plan: Plan): Result<SubOpResult> {
+    plan.chart.Edges.push(...this.edges);
+
+    return ok({ plan: plan, inverse: new RemoveAllEdgesSubOp(this.edges) });
+  }
+}
+
 export class DeleteTaskSubOp implements SubOp {
   index: number = 0;
 
@@ -302,7 +366,7 @@ export class DeleteTaskSubOp implements SubOp {
       }
     }
 
-    return ok({ plan: plan, inverse: this.inverse });
+    return ok({ plan: plan, inverse: this.inverse() });
   }
 
   inverse(): SubOp {
@@ -482,6 +546,15 @@ export function SplitTaskOp(taskIndex: number): Op {
     new DupTaskSubOp(taskIndex),
     new AddEdgeSubOp(taskIndex, taskIndex + 1),
     new MoveAllOutgoingEdgesFromToSubOp(taskIndex, taskIndex + 1),
+  ];
+
+  return new Op(subOps);
+}
+
+export function DupTaskOp(taskIndex: number): Op {
+  const subOps: SubOp[] = [
+    new DupTaskSubOp(taskIndex),
+    new CopyAllEdgesFromToSubOp(taskIndex, taskIndex + 1),
   ];
 
   return new Op(subOps);

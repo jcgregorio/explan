@@ -7,6 +7,7 @@ import {
   SetTaskDurationModelOp,
   SetTaskNameOp,
   SetTaskStateOp,
+  DupTaskOp,
 } from "./chart";
 import { Plan } from "../plan/plan";
 import { Chart, DEFAULT_TASK_NAME, TaskState } from "../chart/chart";
@@ -151,7 +152,7 @@ describe("SetTaskStateOp", () => {
   });
 });
 
-describe("DupTaskOp", () => {
+describe("SplitTaskOp", () => {
   it("Adds both a Task and moves the Vertices.", () => {
     TestOpsForwardAndBack([
       T2Op((plan: Plan) => {
@@ -227,5 +228,90 @@ describe("DupTaskOp", () => {
     const res = InsertNewEmptyTaskAfterOp(-1).apply(new Plan(new Chart()));
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
+  });
+});
+
+describe("DupTaskOp", () => {
+  it("Fails if the taskIndex is out of range", () => {
+    let res = InsertNewEmptyTaskAfterOp(0).apply(new Plan(new Chart()));
+    assert.isTrue(res.ok);
+    res = DupTaskOp(-1).apply(res.value.plan);
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("is not in range"));
+  });
+
+  it("Fails if the taskIndex is out of range", () => {
+    let res = InsertNewEmptyTaskAfterOp(0).apply(new Plan(new Chart()));
+    assert.isTrue(res.ok);
+    res = DupTaskOp(2).apply(res.value.plan);
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes("is not in range"));
+  });
+
+  it("Adds both a Task and moves the Vertices.", () => {
+    TestOpsForwardAndBack([
+      T2Op((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan), ["Start->Finish"]);
+        assert.equal(plan.chart.Vertices.length, 2);
+      }),
+      InsertNewEmptyTaskAfterOp(0),
+      SetTaskNameOp(1, "A"),
+      InsertNewEmptyTaskAfterOp(1),
+      SetTaskNameOp(2, "B"),
+      T2Op((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan).sort(), [
+          "A->Finish",
+          "B->Finish",
+          "Start->A",
+          "Start->B",
+        ]);
+      }),
+
+      InsertNewEmptyTaskAfterOp(2),
+      SetTaskNameOp(3, "C"),
+      T2Op((plan: Plan, forward: boolean) => {
+        assert.deepEqual(
+          arrowSummary(plan).sort(),
+          [
+            "A->Finish",
+            "B->Finish",
+            "C->Finish",
+            "Start->A",
+            "Start->B",
+            "Start->C",
+          ],
+          `Direction: ${forward ? "forward" : "backward"}`
+        );
+        assert.equal(plan.chart.Vertices.length, 5);
+      }),
+
+      AddEdgeOp(1, 3),
+      AddEdgeOp(2, 3),
+      T2Op((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan), [
+          "A->C",
+          "B->C",
+          "C->Finish",
+          "Start->A",
+          "Start->B",
+        ]);
+        assert.equal(plan.chart.Vertices.length, 5);
+      }),
+      DupTaskOp(3),
+      SetTaskNameOp(4, "D"),
+      TOp((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan), [
+          "A->C",
+          "A->D",
+          "B->C",
+          "B->D",
+          "C->Finish",
+          "D->Finish",
+          "Start->A",
+          "Start->B",
+        ]);
+        assert.equal(plan.chart.Vertices.length, 6);
+      }),
+    ]);
   });
 });
