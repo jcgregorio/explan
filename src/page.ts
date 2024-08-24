@@ -1,6 +1,14 @@
 import { Chart, Task } from "./chart/chart.ts";
 import { DirectedEdge } from "./dag/dag.ts";
-import { StaticMetricKeys } from "./plan/plan.ts";
+import {
+  DupTaskOp,
+  InsertNewEmptyTaskAfterOp,
+  SetTaskNameOp,
+  SplitTaskOp,
+} from "./ops/chart.ts";
+import { SetMetricValueOp } from "./ops/metrics.ts";
+import { applyAllOpsToPlan } from "./ops/ops.ts";
+import { Plan, StaticMetricKeys } from "./plan/plan.ts";
 import {
   ColorTheme,
   RenderOptions,
@@ -8,39 +16,34 @@ import {
 } from "./renderer/renderer.ts";
 import { ComputeSlack, Slack } from "./slack/slack";
 
-const taskA = new Task("Task A");
-taskA.metrics.set(StaticMetricKeys.Duration, 10);
+const plan = new Plan(new Chart());
 
-const taskB = new Task("Task B");
-taskB.metrics.set(StaticMetricKeys.Duration, 15);
-
-const milestone1 = new Task("Milestone 1");
-milestone1.metrics.set(StaticMetricKeys.Duration, 0);
-
-const taskC = new Task("Task C");
-taskC.metrics.set(StaticMetricKeys.Duration, 3);
-
-const C: Chart = {
-  Vertices: [
-    new Task("Start"),
-    taskA,
-    taskB,
-    milestone1,
-    taskC,
-    new Task("Finish"),
+// StaticMetricKeys aren't being applied to new Tasks... ?!?!?
+const res = applyAllOpsToPlan(
+  [
+    SetMetricValueOp(StaticMetricKeys.Duration, 0, 0),
+    SetMetricValueOp(StaticMetricKeys.Duration, 0, 1),
+    InsertNewEmptyTaskAfterOp(0),
+    SetTaskNameOp(1, "Task A"),
+    SetMetricValueOp(StaticMetricKeys.Duration, 5, 1),
+    SplitTaskOp(1),
+    SetTaskNameOp(2, "Task B"),
+    SplitTaskOp(2),
+    SetTaskNameOp(3, "Task C"),
+    SetMetricValueOp(StaticMetricKeys.Duration, 10, 2),
+    DupTaskOp(2),
+    SetTaskNameOp(3, "Task C"),
+    SetMetricValueOp(StaticMetricKeys.Duration, 15, 3),
   ],
-  Edges: [
-    new DirectedEdge(0, 1),
-    new DirectedEdge(0, 2),
-    new DirectedEdge(1, 3),
-    new DirectedEdge(2, 3),
-    new DirectedEdge(3, 4),
-    new DirectedEdge(4, 5),
-  ],
-};
+  plan
+);
+
+if (!res.ok) {
+  console.log(res.error);
+}
 
 let slack: Slack[] = [];
-const slackResult = ComputeSlack(C);
+const slackResult = ComputeSlack(plan.chart);
 if (!slackResult.ok) {
   console.error(slackResult);
 } else {
@@ -74,7 +77,7 @@ const paintChart = () => {
     displayTimes: true,
   };
 
-  renderTasksToCanvas(parent, canvas, ctx, C, slack, opts);
+  renderTasksToCanvas(parent, canvas, ctx, plan.chart, slack, opts);
 };
 
 paintChart();
