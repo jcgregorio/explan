@@ -135,7 +135,7 @@ export class AddTaskAfterSubOp implements SubOp {
     if (!ret.ok) {
       return ret;
     }
-    plan.chart.Vertices.splice(this.index + 1, 0, new Task());
+    plan.chart.Vertices.splice(this.index + 1, 0, plan.newTask());
 
     // Update Edges.
     for (let i = 0; i < chart.Edges.length; i++) {

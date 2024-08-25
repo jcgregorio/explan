@@ -1,5 +1,3 @@
-import { Chart, Task } from "./chart/chart.ts";
-import { DirectedEdge } from "./dag/dag.ts";
 import {
   DupTaskOp,
   InsertNewEmptyTaskAfterOp,
@@ -16,24 +14,25 @@ import {
 } from "./renderer/renderer.ts";
 import { ComputeSlack, Slack } from "./slack/slack";
 
-const plan = new Plan(new Chart());
+const plan = new Plan();
 
 // StaticMetricKeys aren't being applied to new Tasks... ?!?!?
 const res = applyAllOpsToPlan(
   [
-    SetMetricValueOp(StaticMetricKeys.Duration, 0, 0),
-    SetMetricValueOp(StaticMetricKeys.Duration, 0, 1),
     InsertNewEmptyTaskAfterOp(0),
     SetTaskNameOp(1, "Task A"),
     SetMetricValueOp(StaticMetricKeys.Duration, 5, 1),
     SplitTaskOp(1),
-    SetTaskNameOp(2, "Task B"),
+    SetTaskNameOp(2, "Task B.1"),
     SplitTaskOp(2),
     SetTaskNameOp(3, "Task C"),
-    SetMetricValueOp(StaticMetricKeys.Duration, 10, 2),
+    SetMetricValueOp(StaticMetricKeys.Duration, 7, 2),
     DupTaskOp(2),
-    SetTaskNameOp(3, "Task C"),
-    SetMetricValueOp(StaticMetricKeys.Duration, 15, 3),
+    SetTaskNameOp(3, "Task B.2"),
+
+    SplitTaskOp(2),
+    SetTaskNameOp(3, "Task B.1 Part 2"),
+    SetMetricValueOp(StaticMetricKeys.Duration, 15, 4),
   ],
   plan
 );

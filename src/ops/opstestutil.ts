@@ -1,6 +1,5 @@
 // These are ops that are useful for testing.
 import { assert } from "@esm-bundle/chai";
-import { Chart } from "../chart/chart";
 import { Plan } from "../plan/plan";
 import { Result, ok } from "../result";
 import {
@@ -89,9 +88,9 @@ export function T2Op(f: inspectBothWays): Op {
 }
 
 export function TestOpsForwardAndBack(ops: Op[]): void {
-  assert.isTrue(applyAllOpsToPlanAndThenInverse(ops, new Plan(new Chart())).ok);
+  assert.isTrue(applyAllOpsToPlanAndThenInverse(ops, new Plan()).ok);
 }
 
 export function TestOpsForward(ops: Op[]): void {
-  assert.isTrue(applyAllOpsToPlan(ops, new Plan(new Chart())).ok);
+  assert.isTrue(applyAllOpsToPlan(ops, new Plan()).ok);
 }

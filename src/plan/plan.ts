@@ -1,7 +1,10 @@
 import { Chart, Task } from "../chart/chart";
 import { MetricDefinition, MetricDefinitions } from "../metrics/metrics";
 import { MetricRange } from "../metrics/range";
-import { ResourceDefinitions } from "../resources/resources";
+import {
+  ResourceDefinition,
+  ResourceDefinitions,
+} from "../resources/resources";
 
 export const enum StaticMetricKeys {
   Duration = "Duration",
@@ -13,7 +16,7 @@ export const StaticMetricDefinitions: MetricDefinitions = new Map<
   MetricDefinition
 >([
   // How long a task will take, in days.
-  [StaticMetricKeys.Duration, new MetricDefinition(1, new MetricRange(), true)],
+  [StaticMetricKeys.Duration, new MetricDefinition(0, new MetricRange(), true)],
   // The percent complete for a task.
   [
     StaticMetricKeys.Percent,
@@ -28,8 +31,8 @@ export class Plan {
 
   metricDefinitions: MetricDefinitions;
 
-  constructor(chart: Chart) {
-    this.chart = chart;
+  constructor() {
+    this.chart = new Chart();
     this.metricDefinitions = new Map<string, MetricDefinition>(
       StaticMetricDefinitions
     );
@@ -39,5 +42,28 @@ export class Plan {
         task.metrics.set(metricName, md.default);
       });
     });
+    this.resourceDefinitions.forEach(
+      (resourceDefinition: ResourceDefinition) => {
+        this.chart.Vertices.forEach((task: Task) => {
+          task.resources[resourceDefinition.key] = resourceDefinition.values[0];
+        });
+      }
+    );
+  }
+
+  // Returns a new Task with defaults for all metrics and resources.
+  newTask(): Task {
+    const ret = new Task();
+    [...this.metricDefinitions.keys()].forEach((metricName: string) => {
+      const md = this.metricDefinitions.get(metricName)!;
+
+      ret.metrics.set(metricName, md.default);
+    });
+    this.resourceDefinitions.forEach(
+      (resourceDefinition: ResourceDefinition) => {
+        ret.resources[resourceDefinition.key] = resourceDefinition.values[0];
+      }
+    );
+    return ret;
   }
 }

@@ -26,7 +26,7 @@ console.log(
   ComputeSlack(C, (t: Task) => t.durationModel.sample(t.duration, 0.25))
 );
 
-const plan = new Plan(new Chart());
+const plan = new Plan();
 const op = InsertNewEmptyTaskAfterOp(0);
 let err = op.apply(plan);
 console.log("Applying op: ", err);

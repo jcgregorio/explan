@@ -10,7 +10,7 @@ import {
   DupTaskOp,
 } from "./chart";
 import { Plan } from "../plan/plan";
-import { Chart, DEFAULT_TASK_NAME, TaskState } from "../chart/chart";
+import { DEFAULT_TASK_NAME, TaskState } from "../chart/chart";
 import { JacobianDuration, Uncertainty } from "../duration/jacobian";
 import { DirectedEdge } from "../dag/dag";
 
@@ -44,13 +44,13 @@ describe("InsertNewEmptyTaskAfterOp", () => {
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = InsertNewEmptyTaskAfterOp(2).apply(new Plan(new Chart()));
+    const res = InsertNewEmptyTaskAfterOp(2).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = InsertNewEmptyTaskAfterOp(-1).apply(new Plan(new Chart()));
+    const res = InsertNewEmptyTaskAfterOp(-1).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
@@ -72,13 +72,13 @@ describe("SetTaskName", () => {
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskNameOp(-1, "foo").apply(new Plan(new Chart()));
+    const res = SetTaskNameOp(-1, "foo").apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskNameOp(2, "bar").apply(new Plan(new Chart()));
+    const res = SetTaskNameOp(2, "bar").apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
@@ -108,17 +108,13 @@ describe("SetDurationModelOp", () => {
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskDurationModelOp(-1, newDurationModel).apply(
-      new Plan(new Chart())
-    );
+    const res = SetTaskDurationModelOp(-1, newDurationModel).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskDurationModelOp(2, newDurationModel).apply(
-      new Plan(new Chart())
-    );
+    const res = SetTaskDurationModelOp(2, newDurationModel).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
@@ -140,13 +136,13 @@ describe("SetTaskStateOp", () => {
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskStateOp(-1, newTaskState).apply(new Plan(new Chart()));
+    const res = SetTaskStateOp(-1, newTaskState).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskStateOp(2, newTaskState).apply(new Plan(new Chart()));
+    const res = SetTaskStateOp(2, newTaskState).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
@@ -219,13 +215,13 @@ describe("SplitTaskOp", () => {
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = InsertNewEmptyTaskAfterOp(2).apply(new Plan(new Chart()));
+    const res = InsertNewEmptyTaskAfterOp(2).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = InsertNewEmptyTaskAfterOp(-1).apply(new Plan(new Chart()));
+    const res = InsertNewEmptyTaskAfterOp(-1).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
@@ -233,7 +229,7 @@ describe("SplitTaskOp", () => {
 
 describe("DupTaskOp", () => {
   it("Fails if the taskIndex is out of range", () => {
-    let res = InsertNewEmptyTaskAfterOp(0).apply(new Plan(new Chart()));
+    let res = InsertNewEmptyTaskAfterOp(0).apply(new Plan());
     assert.isTrue(res.ok);
     res = DupTaskOp(-1).apply(res.value.plan);
     assert.isFalse(res.ok);
@@ -241,7 +237,7 @@ describe("DupTaskOp", () => {
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    let res = InsertNewEmptyTaskAfterOp(0).apply(new Plan(new Chart()));
+    let res = InsertNewEmptyTaskAfterOp(0).apply(new Plan());
     assert.isTrue(res.ok);
     res = DupTaskOp(2).apply(res.value.plan);
     assert.isFalse(res.ok);

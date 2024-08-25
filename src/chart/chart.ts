@@ -86,8 +86,17 @@ export type Tasks = Task[];
 
 /** A Chart is a DirectedGraph, but with Tasks for Vertices. */
 export class Chart {
-  Vertices: Tasks = [new Task("Start"), new Task("Finish")];
-  Edges: Edges = [new DirectedEdge(0, 1)];
+  Vertices: Tasks;
+  Edges: Edges;
+
+  constructor() {
+    const start = new Task("Start");
+    start.metrics.set(StaticMetricKeys.Duration, 0);
+    const finish = new Task("Finish");
+    finish.metrics.set(StaticMetricKeys.Duration, 0);
+    this.Vertices = [start, finish];
+    this.Edges = [new DirectedEdge(0, 1)];
+  }
 }
 
 export type TopologicalOrder = VertexIndices;
