@@ -22,9 +22,16 @@ const rndInt = (n: number): number => {
 
 const DURATION = 20;
 
+const rndDuration = (): number => {
+  return rndInt(DURATION) + 1;
+};
+
+const rndName = (): string => `Task ${String.fromCharCode(65 + rndInt(26))}`;
+
 const ops: Op[] = [
   InsertNewEmptyTaskAfterOp(0),
-  SetMetricValueOp(StaticMetricKeys.Duration, rndInt(DURATION) + 1, 1),
+  SetMetricValueOp(StaticMetricKeys.Duration, rndDuration(), 1),
+  SetTaskNameOp(1, rndName()),
 ];
 
 let numTasks = 1;
@@ -32,18 +39,21 @@ for (let i = 0; i < 3; i++) {
   let index = rndInt(numTasks) + 1;
   ops.push(
     InsertNewEmptyTaskAfterOp(index),
-    SetMetricValueOp(StaticMetricKeys.Duration, rndInt(DURATION) + 1, index + 1)
+    SetMetricValueOp(StaticMetricKeys.Duration, rndDuration(), index + 1),
+    SetTaskNameOp(index + 1, rndName())
   );
   numTasks++;
   index = rndInt(numTasks) + 1;
   ops.push(
     SplitTaskOp(index),
-    SetMetricValueOp(StaticMetricKeys.Duration, rndInt(DURATION) + 1, index + 1)
+    SetMetricValueOp(StaticMetricKeys.Duration, rndDuration(), index + 1),
+    SetTaskNameOp(index + 1, rndName())
   );
   index = rndInt(numTasks) + 1;
   ops.push(
     DupTaskOp(index),
-    SetMetricValueOp(StaticMetricKeys.Duration, rndInt(10) + 1, index + 1)
+    SetMetricValueOp(StaticMetricKeys.Duration, rndInt(10) + 1, index + 1),
+    SetTaskNameOp(index + 1, rndName())
   );
 }
 
@@ -80,7 +90,7 @@ const paintChart = () => {
     onSurface: "#000",
   };
   const opts: RenderOptions = {
-    fontSizePx: 36,
+    fontSizePx: 18,
     hasText: true,
     displaySubRange: null,
     colorTheme: colorTheme,
