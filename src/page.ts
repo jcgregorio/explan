@@ -21,17 +21,14 @@ const res = applyAllOpsToPlan(
     InsertNewEmptyTaskAfterOp(0),
     SetTaskNameOp(1, "Task A"),
     SetMetricValueOp(StaticMetricKeys.Duration, 5, 1),
+    DupTaskOp(1),
     SplitTaskOp(1),
-    SetTaskNameOp(2, "Task B.1"),
     SplitTaskOp(2),
-    SetTaskNameOp(3, "Task C"),
-    SetMetricValueOp(StaticMetricKeys.Duration, 7, 2),
     DupTaskOp(2),
-    SetTaskNameOp(3, "Task B.2"),
-
     SplitTaskOp(3),
-    SetTaskNameOp(4, "Task B.2 Part 2"),
-    //SetMetricValueOp(StaticMetricKeys.Duration, 15, 4),
+    DupTaskOp(4),
+    SplitTaskOp(2),
+    SplitTaskOp(3),
   ],
   plan
 );
