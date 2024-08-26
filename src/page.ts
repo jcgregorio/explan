@@ -16,7 +16,6 @@ import { ComputeSlack, Slack } from "./slack/slack";
 
 const plan = new Plan();
 
-// StaticMetricKeys aren't being applied to new Tasks... ?!?!?
 const res = applyAllOpsToPlan(
   [
     InsertNewEmptyTaskAfterOp(0),
@@ -30,9 +29,9 @@ const res = applyAllOpsToPlan(
     DupTaskOp(2),
     SetTaskNameOp(3, "Task B.2"),
 
-    SplitTaskOp(2),
-    SetTaskNameOp(3, "Task B.1 Part 2"),
-    SetMetricValueOp(StaticMetricKeys.Duration, 15, 4),
+    SplitTaskOp(3),
+    SetTaskNameOp(4, "Task B.2 Part 2"),
+    //SetMetricValueOp(StaticMetricKeys.Duration, 15, 4),
   ],
   plan
 );

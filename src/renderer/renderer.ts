@@ -105,7 +105,7 @@ export function renderTasksToCanvas(
   // topologicalOrder maps from row to task index. We also need to construct a
   // map that goes in the opposite direction.
   const taskIndexToRow: Map<number, number> = new Map(
-    topologicalOrder.map((taskIndex: number, row: number) => [row, taskIndex])
+    topologicalOrder.map((taskIndex: number, row: number) => [taskIndex, row])
   );
 
   const scale = new Scale(
@@ -196,6 +196,8 @@ export function renderTasksToCanvas(
   ctx.strokeStyle = opts.colorTheme.onSurface;
 
   // Now draw all the arrows, i.e. edges.
+
+  // Is this taking topoligicalOrder into account?
   chart.Edges.forEach((e: DirectedEdge) => {
     const srcSlack: Slack = slacks[e.i];
     const dstSlack: Slack = slacks[e.j];
