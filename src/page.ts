@@ -5,7 +5,7 @@ import {
   SplitTaskOp,
 } from "./ops/chart.ts";
 import { SetMetricValueOp } from "./ops/metrics.ts";
-import { applyAllOpsToPlan } from "./ops/ops.ts";
+import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
 import { Plan, StaticMetricKeys } from "./plan/plan.ts";
 import {
   ColorTheme,
@@ -16,22 +16,38 @@ import { ComputeSlack, Slack } from "./slack/slack";
 
 const plan = new Plan();
 
-const res = applyAllOpsToPlan(
-  [
-    InsertNewEmptyTaskAfterOp(0),
-    SetTaskNameOp(1, "Task A"),
-    SetMetricValueOp(StaticMetricKeys.Duration, 5, 1),
-    DupTaskOp(1),
-    SplitTaskOp(1),
-    SplitTaskOp(2),
-    DupTaskOp(2),
-    SplitTaskOp(3),
-    DupTaskOp(4),
-    SplitTaskOp(2),
-    SplitTaskOp(3),
-  ],
-  plan
-);
+const rndInt = (n: number): number => {
+  return Math.floor(Math.random() * n);
+};
+
+const DURATION = 20;
+
+const ops: Op[] = [
+  InsertNewEmptyTaskAfterOp(0),
+  SetMetricValueOp(StaticMetricKeys.Duration, rndInt(DURATION) + 1, 1),
+];
+
+let numTasks = 1;
+for (let i = 0; i < 3; i++) {
+  let index = rndInt(numTasks) + 1;
+  ops.push(
+    InsertNewEmptyTaskAfterOp(index),
+    SetMetricValueOp(StaticMetricKeys.Duration, rndInt(DURATION) + 1, index + 1)
+  );
+  numTasks++;
+  index = rndInt(numTasks) + 1;
+  ops.push(
+    SplitTaskOp(index),
+    SetMetricValueOp(StaticMetricKeys.Duration, rndInt(DURATION) + 1, index + 1)
+  );
+  index = rndInt(numTasks) + 1;
+  ops.push(
+    DupTaskOp(index),
+    SetMetricValueOp(StaticMetricKeys.Duration, rndInt(10) + 1, index + 1)
+  );
+}
+
+const res = applyAllOpsToPlan(ops, plan);
 
 if (!res.ok) {
   console.log(res.error);
