@@ -162,7 +162,7 @@ export function renderTasksToCanvas(
     if (taskStart.x === taskEnd.x) {
       drawMilestone(ctx, scale, taskStart, diamondDiameter);
     } else {
-      drawTaskBar(ctx, scale, taskStart, taskEnd, taskLineHeight);
+      drawTaskBar(ctx, taskStart, taskEnd, taskLineHeight);
     }
 
     drawTaskText(ctx, opts, scale, row, slack, task);
@@ -370,12 +370,10 @@ function drawTaskText(
 
 function drawTaskBar(
   ctx: CanvasRenderingContext2D,
-  scale: Scale,
   taskStart: Point,
   taskEnd: Point,
   taskLineHeight: number
 ) {
-  ctx.lineWidth = scale.metric(Metric.taskLineHeight);
   ctx.fillRect(
     taskStart.x,
     taskStart.y,
@@ -392,7 +390,6 @@ function drawMilestone(
 ) {
   ctx.beginPath();
   ctx.lineWidth = scale.metric(Metric.percentHeight);
-  ctx.lineWidth = 1;
   ctx.moveTo(taskStart.x, taskStart.y - diamondDiameter);
   ctx.lineTo(taskStart.x + diamondDiameter, taskStart.y);
   ctx.lineTo(taskStart.x, taskStart.y + diamondDiameter);
