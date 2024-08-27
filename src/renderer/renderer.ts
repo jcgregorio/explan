@@ -119,6 +119,9 @@ export function renderTasksToCanvas(
 
   const taskLineHeight = scale.metric(Metric.taskLineHeight);
   const diamondDiameter = scale.metric(Metric.milestoneDiameter);
+  const percentHeight = scale.metric(Metric.percentHeight);
+  const arrowHeadHeight = scale.metric(Metric.arrowHeadHeight);
+  const arrowHeadWidth = scale.metric(Metric.arrowHeadWidth);
 
   const daysWithTimeMarkers: Set<number> = new Set();
   // Descend through the topological order drawing task lines in their swim
@@ -160,7 +163,7 @@ export function renderTasksToCanvas(
     }
 
     if (taskStart.x === taskEnd.x) {
-      drawMilestone(ctx, scale, taskStart, diamondDiameter);
+      drawMilestone(ctx, taskStart, diamondDiameter, percentHeight);
     } else {
       drawTaskBar(ctx, taskStart, taskEnd, taskLineHeight);
     }
@@ -181,8 +184,6 @@ export function renderTasksToCanvas(
     const dstRow = taskIndexToRow.get(e.j)!;
     const srcDay = srcSlack.earlyFinish;
     const dstDay = dstSlack.earlyStart;
-    const arrowHeadHeight = scale.metric(Metric.arrowHeadHeight);
-    const arrowHeadWidth = scale.metric(Metric.arrowHeadWidth);
 
     drawArrowBetweenTasks(
       srcDay,
@@ -384,12 +385,12 @@ function drawTaskBar(
 
 function drawMilestone(
   ctx: CanvasRenderingContext2D,
-  scale: Scale,
   taskStart: Point,
-  diamondDiameter: number
+  diamondDiameter: number,
+  percentHeight: number
 ) {
   ctx.beginPath();
-  ctx.lineWidth = scale.metric(Metric.percentHeight);
+  ctx.lineWidth = percentHeight / 2;
   ctx.moveTo(taskStart.x, taskStart.y - diamondDiameter);
   ctx.lineTo(taskStart.x + diamondDiameter, taskStart.y);
   ctx.lineTo(taskStart.x, taskStart.y + diamondDiameter);
