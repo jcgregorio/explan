@@ -186,6 +186,7 @@ export function renderTasksToCanvas(
     const dstDay = dstSlack.earlyStart;
 
     drawArrowBetweenTasks(
+      ctx,
       srcDay,
       dstDay,
       scale,
@@ -193,7 +194,6 @@ export function renderTasksToCanvas(
       srcTask,
       dstRow,
       dstTask,
-      ctx,
       arrowHeadWidth,
       arrowHeadHeight
     );
@@ -202,6 +202,7 @@ export function renderTasksToCanvas(
 }
 
 function drawArrowBetweenTasks(
+  ctx: CanvasRenderingContext2D,
   srcDay: number,
   dstDay: number,
   scale: Scale,
@@ -209,7 +210,6 @@ function drawArrowBetweenTasks(
   srcTask: Task,
   dstRow: number,
   dstTask: Task,
-  ctx: CanvasRenderingContext2D,
   arrowHeadWidth: number,
   arrowHeadHeight: number
 ) {
@@ -219,6 +219,7 @@ function drawArrowBetweenTasks(
     // start pointing up, so both the arrow start and arrow head direction
     // might change and need to depend on the direction from srcRow to dstRow.
     drawVerticalArrowToTask(
+      ctx,
       scale,
       srcRow,
       srcDay,
@@ -226,19 +227,18 @@ function drawArrowBetweenTasks(
       dstRow,
       dstDay,
       dstTask,
-      ctx,
       arrowHeadWidth,
       arrowHeadHeight
     );
   } else {
     drawLShapedArrowToTask(
+      ctx,
       scale,
       srcRow,
       srcDay,
       srcTask,
       dstRow,
       dstTask,
-      ctx,
       dstDay,
       arrowHeadHeight,
       arrowHeadWidth
@@ -262,13 +262,13 @@ function setFontSize(ctx: CanvasRenderingContext2D, opts: RenderOptions) {
 
 // Draw L shaped arrow, first going between rows, then going between days.
 function drawLShapedArrowToTask(
+  ctx: CanvasRenderingContext2D,
   scale: Scale,
   srcRow: number,
   srcDay: number,
   srcTask: Task,
   dstRow: number,
   dstTask: Task,
-  ctx: CanvasRenderingContext2D,
   dstDay: number,
   arrowHeadHeight: number,
   arrowHeadWidth: number
@@ -320,6 +320,7 @@ function drawLShapedArrowToTask(
 }
 
 function drawVerticalArrowToTask(
+  ctx: CanvasRenderingContext2D,
   scale: Scale,
   srcRow: number,
   srcDay: number,
@@ -327,7 +328,6 @@ function drawVerticalArrowToTask(
   dstRow: number,
   dstDay: number,
   dstTask: Task,
-  ctx: CanvasRenderingContext2D,
   arrowHeadWidth: number,
   arrowHeadHeight: number
 ) {
