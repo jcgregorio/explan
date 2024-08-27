@@ -90,7 +90,7 @@ const paintChart = () => {
     onSurface: "#000",
   };
   const opts: RenderOptions = {
-    fontSizePx: 18,
+    fontSizePx: 32,
     hasText: true,
     displaySubRange: null,
     colorTheme: colorTheme,
