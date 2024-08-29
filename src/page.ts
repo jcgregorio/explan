@@ -13,6 +13,7 @@ import {
   RenderOptions,
   TaskLabel,
   renderTasksToCanvas,
+  suggestedCanvasHeight,
 } from "./renderer/renderer.ts";
 import { ComputeSlack, Slack } from "./slack/slack";
 
@@ -37,26 +38,21 @@ const ops: Op[] = [
 ];
 
 let numTasks = 1;
-for (let i = 0; i < 3; i++) {
+for (let i = 0; i < 10; i++) {
   let index = rndInt(numTasks) + 1;
   ops.push(
-    InsertNewEmptyTaskAfterOp(index),
+    SplitTaskOp(index),
     SetMetricValueOp(StaticMetricKeys.Duration, rndDuration(), index + 1),
     SetTaskNameOp(index + 1, rndName())
   );
   numTasks++;
   index = rndInt(numTasks) + 1;
   ops.push(
-    SplitTaskOp(index),
-    SetMetricValueOp(StaticMetricKeys.Duration, rndDuration(), index + 1),
-    SetTaskNameOp(index + 1, rndName())
-  );
-  index = rndInt(numTasks) + 1;
-  ops.push(
     DupTaskOp(index),
     SetMetricValueOp(StaticMetricKeys.Duration, rndInt(10) + 1, index + 1),
     SetTaskNameOp(index + 1, rndName())
   );
+  numTasks++;
 }
 
 const res = applyAllOpsToPlan(ops, plan);
@@ -88,12 +84,11 @@ const paintChart = () => {
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
 
-  const ctx = canvas.getContext("2d")!;
-  ctx.imageSmoothingEnabled = false;
   const colorTheme: ColorTheme = {
     surface: "#fff",
     onSurface: "#000",
   };
+
   const opts: RenderOptions = {
     fontSizePx: 32,
     hasText: true,
@@ -103,6 +98,20 @@ const paintChart = () => {
     displayTimes: true,
     taskLabel: taskLabel,
   };
+
+  // Now update the canvas height so that it fits the chart being drawn.
+  // TODO Turn this into an option since we won't always want this.
+  const newHeight = suggestedCanvasHeight(
+    canvas,
+    slack,
+    opts,
+    plan.chart.Vertices.length
+  );
+  canvas.height = newHeight;
+  canvas.style.height = `${newHeight / ratio}px`;
+
+  const ctx = canvas.getContext("2d")!;
+  ctx.imageSmoothingEnabled = false;
 
   renderTasksToCanvas(parent, canvas, ctx, plan.chart, slack, opts);
 };

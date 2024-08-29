@@ -79,6 +79,19 @@ const horizontalArrowDestFeatureFromTaskDuration = (task: Task): Feature => {
   }
 };
 
+export function suggestedCanvasHeight(
+  canvas: HTMLCanvasElement,
+  slacks: Slack[],
+  opts: RenderOptions,
+  maxRows: number
+): number {
+  return new Scale(
+    opts,
+    canvas.width,
+    slacks[slacks.length - 1].earlyFinish + 1
+  ).height(maxRows);
+}
+
 export function renderTasksToCanvas(
   parent: HTMLElement,
   canvas: HTMLCanvasElement,

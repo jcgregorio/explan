@@ -89,6 +89,12 @@ export class Scale {
     this.rowHeightPx = 6 * this.blockSizePx; // This might also be `(canvasHeightPx - 2 * opts.marginSizePx) / numberSwimLanes` if height is supplied?
   }
 
+  public height(maxRows: number): number {
+    return (
+      maxRows * this.rowHeightPx + this.topAxisHeightPx + 2 * this.marginSizePx
+    );
+  }
+
   /** The top left corner of the bounding box for a single task. */
   private envelopeStart(row: number, day: number): Point {
     return new Point(
