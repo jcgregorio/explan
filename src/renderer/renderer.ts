@@ -14,6 +14,7 @@ export interface DisplayRange {
   end: number;
 }
 
+/** Function use to produce a text label for a task and its slack. */
 export type TaskLabel = (task: Task, slack: Slack) => string;
 
 export const defaultTaskLabel: TaskLabel = (
@@ -79,6 +80,11 @@ const horizontalArrowDestFeatureFromTaskDuration = (task: Task): Feature => {
   }
 };
 
+/**
+ * Compute what the height of the canvas should be. Note that the value doesn't
+ * know about `window.devicePixelRatio`, so if the canvas is already scaled by
+ * `window.devicePixelRatio` then so will the result of this function.
+ */
 export function suggestedCanvasHeight(
   canvas: HTMLCanvasElement,
   slacks: Slack[],

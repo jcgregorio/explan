@@ -89,6 +89,7 @@ export class Scale {
     this.rowHeightPx = 6 * this.blockSizePx; // This might also be `(canvasHeightPx - 2 * opts.marginSizePx) / numberSwimLanes` if height is supplied?
   }
 
+  /** The height of the chart. Note that it's not constrained by the canvas. */
   public height(maxRows: number): number {
     return (
       maxRows * this.rowHeightPx + this.topAxisHeightPx + 2 * this.marginSizePx
