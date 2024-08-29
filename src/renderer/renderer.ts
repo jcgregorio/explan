@@ -1,8 +1,11 @@
+import { RoughCanvas } from "roughjs/bin/canvas";
 import { Chart, Task, validateChart } from "../chart/chart";
 import { DirectedEdge } from "../dag/dag";
 import { Result, ok } from "../result";
 import { Slack } from "../slack/slack";
 import { Feature, Metric, Point, Scale } from "./scale/scale";
+import rough from "roughjs/bin/rough";
+import { Options } from "roughjs/bin/core";
 
 export interface ColorTheme {
   surface: string;
@@ -127,6 +130,8 @@ export function renderTasksToCanvas(
   setFontSize(ctx, opts);
   clearCanvas(ctx, opts, canvas);
 
+  const rcanvas = rough.canvas(canvas);
+
   const taskLineHeight = scale.metric(Metric.taskLineHeight);
   const diamondDiameter = scale.metric(Metric.milestoneDiameter);
   const percentHeight = scale.metric(Metric.percentHeight);
@@ -175,7 +180,7 @@ export function renderTasksToCanvas(
     if (taskStart.x === taskEnd.x) {
       drawMilestone(ctx, taskStart, diamondDiameter, percentHeight);
     } else {
-      drawTaskBar(ctx, taskStart, taskEnd, taskLineHeight);
+      drawTaskBar(rcanvas, taskStart, taskEnd, taskLineHeight);
     }
 
     drawTaskText(ctx, opts, scale, row, slack, task);
@@ -196,7 +201,7 @@ export function renderTasksToCanvas(
     const dstDay = dstSlack.earlyStart;
 
     drawArrowBetweenTasks(
-      ctx,
+      rcanvas,
       srcDay,
       dstDay,
       scale,
@@ -212,7 +217,7 @@ export function renderTasksToCanvas(
 }
 
 function drawArrowBetweenTasks(
-  ctx: CanvasRenderingContext2D,
+  rcanvas: RoughCanvas,
   srcDay: number,
   dstDay: number,
   scale: Scale,
@@ -229,7 +234,7 @@ function drawArrowBetweenTasks(
     // start pointing up, so both the arrow start and arrow head direction
     // might change and need to depend on the direction from srcRow to dstRow.
     drawVerticalArrowToTask(
-      ctx,
+      rcanvas,
       scale,
       srcRow,
       srcDay,
@@ -242,7 +247,7 @@ function drawArrowBetweenTasks(
     );
   } else {
     drawLShapedArrowToTask(
-      ctx,
+      rcanvas,
       scale,
       srcRow,
       srcDay,
@@ -272,7 +277,7 @@ function setFontSize(ctx: CanvasRenderingContext2D, opts: RenderOptions) {
 
 // Draw L shaped arrow, first going between rows, then going between days.
 function drawLShapedArrowToTask(
-  ctx: CanvasRenderingContext2D,
+  rcanvas: RoughCanvas,
   scale: Scale,
   srcRow: number,
   srcDay: number,
@@ -290,7 +295,6 @@ function drawLShapedArrowToTask(
   // need to depend on the direction from srcRow to dstRow.
 
   // Draw vertical part of the "L".
-  ctx.beginPath();
   const vertLineStart = scale.feature(
     srcRow,
     srcDay,
@@ -301,8 +305,12 @@ function drawLShapedArrowToTask(
     srcDay,
     horizontalArrowDestFeatureFromTaskDuration(dstTask)
   );
-  ctx.moveTo(vertLineStart.x + 0.5, vertLineStart.y);
-  ctx.lineTo(vertLineStart.x + 0.5, vertLineEnd.y);
+  rcanvas.line(
+    vertLineStart.x + 0.5,
+    vertLineStart.y,
+    vertLineStart.x + 0.5,
+    vertLineEnd.y
+  );
 
   // Draw horizontal part of the "L".
   const horzLineStart = vertLineEnd;
@@ -311,26 +319,31 @@ function drawLShapedArrowToTask(
     dstDay,
     horizontalArrowDestFeatureFromTaskDuration(dstTask)
   );
-  ctx.moveTo(vertLineStart.x + 0.5, horzLineStart.y);
-  ctx.lineTo(horzLineEnd.x + 0.5, horzLineEnd.y);
+  rcanvas.line(
+    vertLineStart.x + 0.5,
+    horzLineStart.y,
+    horzLineEnd.x + 0.5,
+    horzLineEnd.y
+  );
 
   // Draw the arrowhead. This arrow head will always point to the right
   // since that's how time flows.
-  ctx.moveTo(horzLineEnd.x + 0.5, horzLineEnd.y);
-  ctx.lineTo(
+  rcanvas.line(
+    horzLineEnd.x + 0.5,
+    horzLineEnd.y,
     horzLineEnd.x - arrowHeadHeight + 0.5,
     horzLineEnd.y + arrowHeadWidth
   );
-  ctx.moveTo(horzLineEnd.x + 0.5, horzLineEnd.y);
-  ctx.lineTo(
+  rcanvas.line(
+    horzLineEnd.x + 0.5,
+    horzLineEnd.y,
     horzLineEnd.x - arrowHeadHeight + 0.5,
     horzLineEnd.y - arrowHeadWidth
   );
-  ctx.stroke();
 }
 
 function drawVerticalArrowToTask(
-  ctx: CanvasRenderingContext2D,
+  rcanvas: RoughCanvas,
   scale: Scale,
   srcRow: number,
   srcDay: number,
@@ -352,16 +365,21 @@ function drawVerticalArrowToTask(
     verticalArrowDestFeatureFromTaskDuration(dstTask)
   );
 
-  ctx.beginPath();
-  ctx.moveTo(arrowStart.x + 0.5, arrowStart.y);
-  ctx.lineTo(arrowEnd.x + 0.5, arrowEnd.y);
+  rcanvas.line(arrowStart.x + 0.5, arrowStart.y, arrowEnd.x + 0.5, arrowEnd.y);
 
   // Draw the arrowhead.
-  ctx.moveTo(arrowEnd.x + 0.5, arrowEnd.y);
-  ctx.lineTo(arrowEnd.x - arrowHeadWidth + 0.5, arrowEnd.y - arrowHeadHeight);
-  ctx.moveTo(arrowEnd.x + 0.5, arrowEnd.y);
-  ctx.lineTo(arrowEnd.x + arrowHeadWidth + 0.5, arrowEnd.y - arrowHeadHeight);
-  ctx.stroke();
+  rcanvas.line(
+    arrowEnd.x + 0.5,
+    arrowEnd.y,
+    arrowEnd.x - arrowHeadWidth + 0.5,
+    arrowEnd.y - arrowHeadHeight
+  );
+  rcanvas.line(
+    arrowEnd.x + 0.5,
+    arrowEnd.y,
+    arrowEnd.x + arrowHeadWidth + 0.5,
+    arrowEnd.y - arrowHeadHeight
+  );
 }
 
 function drawTaskText(
@@ -380,16 +398,25 @@ function drawTaskText(
 }
 
 function drawTaskBar(
-  ctx: CanvasRenderingContext2D,
+  rcanvas: RoughCanvas,
   taskStart: Point,
   taskEnd: Point,
   taskLineHeight: number
 ) {
-  ctx.fillRect(
+  const opt: Options = {
+    fillWeight: 1,
+    hachureGap: 2,
+    strokeWidth: 1,
+    hachureAngle: 65,
+    fill: "rgb(0, 0, 0, 0.5)",
+    fillStyle: "hachure",
+  };
+  rcanvas.rectangle(
     taskStart.x,
     taskStart.y,
     taskEnd.x - taskStart.x,
-    taskLineHeight
+    taskLineHeight,
+    opt
   );
 }
 

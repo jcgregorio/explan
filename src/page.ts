@@ -69,8 +69,7 @@ if (!slackResult.ok) {
   slack = slackResult.value;
 }
 
-const taskLabel: TaskLabel = (task: Task, slack: Slack): string =>
-  `${task.name} (${slack.earlyStart}) `;
+const taskLabel: TaskLabel = (task: Task): string => `${task.name}`;
 
 const paintChart = () => {
   const canvas = document.querySelector<HTMLCanvasElement>("canvas")!;
