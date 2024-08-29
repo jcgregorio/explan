@@ -1,3 +1,4 @@
+import { Task } from "./chart/chart.ts";
 import {
   DupTaskOp,
   InsertNewEmptyTaskAfterOp,
@@ -10,6 +11,7 @@ import { Plan, StaticMetricKeys } from "./plan/plan.ts";
 import {
   ColorTheme,
   RenderOptions,
+  TaskLabel,
   renderTasksToCanvas,
 } from "./renderer/renderer.ts";
 import { ComputeSlack, Slack } from "./slack/slack";
@@ -71,6 +73,9 @@ if (!slackResult.ok) {
   slack = slackResult.value;
 }
 
+const taskLabel: TaskLabel = (task: Task, slack: Slack): string =>
+  `${task.name} (${slack.earlyStart}) `;
+
 const paintChart = () => {
   const canvas = document.querySelector<HTMLCanvasElement>("canvas")!;
   const parent = canvas!.parentElement!;
@@ -96,6 +101,7 @@ const paintChart = () => {
     colorTheme: colorTheme,
     marginSizePx: 10,
     displayTimes: true,
+    taskLabel: taskLabel,
   };
 
   renderTasksToCanvas(parent, canvas, ctx, plan.chart, slack, opts);

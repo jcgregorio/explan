@@ -13,13 +13,37 @@ export interface DisplayRange {
   begin: number;
   end: number;
 }
+
+export type TaskLabel = (task: Task, slack: Slack) => string;
+
+export const defaultTaskLabel: TaskLabel = (
+  task: Task,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _slack: Slack
+): string => task.name;
+
 export interface RenderOptions {
+  /** The text font size, this drives the size of all other chart features.
+   * */
   fontSizePx: number;
+
+  /** Display text if true. */
   hasText: boolean;
+
+  /** If supplied then only the tasks in the given range will be displayed. */
   displaySubRange: DisplayRange | null;
+
+  /** The color theme. */
   colorTheme: ColorTheme;
+
+  /** The margin, in pixels, around the chart. */
   marginSizePx: number;
+
+  /** If true then display times at the top of the chart. */
   displayTimes: boolean;
+
+  /** Function that produces display text for a Task and its associated Slack. */
+  taskLabel: TaskLabel;
 }
 
 const verticalArrowStartFeatureFromTaskDuration = (task: Task): Feature => {
@@ -53,39 +77,6 @@ const horizontalArrowDestFeatureFromTaskDuration = (task: Task): Feature => {
   } else {
     return Feature.horizontalArrowDest;
   }
-};
-
-const drawTimeMarkerAtDayToTask = (
-  ctx: CanvasRenderingContext2D,
-  row: number,
-  day: number,
-  task: Task,
-  opts: RenderOptions,
-  scale: Scale,
-  daysWithTimeMarkers: Set<number>
-) => {
-  if (daysWithTimeMarkers.has(day)) {
-    return;
-  }
-  daysWithTimeMarkers.add(day);
-  const timeMarkStart = scale.feature(row, day, Feature.timeMarkStart);
-  const timeMarkEnd = scale.feature(
-    row,
-    day,
-    verticalArrowDestFeatureFromTaskDuration(task)
-  );
-  ctx.lineWidth = 1;
-  ctx.setLineDash([1, 2]);
-  ctx.moveTo(timeMarkStart.x + 0.5, timeMarkStart.y);
-  ctx.lineTo(timeMarkStart.x + 0.5, timeMarkEnd.y);
-  ctx.stroke();
-
-  ctx.setLineDash([]);
-
-  ctx.fillStyle = opts.colorTheme.onSurface;
-  ctx.textBaseline = "top";
-  const textStart = scale.feature(row, day, Feature.timeTextStart);
-  ctx.fillText(`${day}`, textStart.x, textStart.y);
 };
 
 export function renderTasksToCanvas(
@@ -366,7 +357,7 @@ function drawTaskText(
   ctx.fillStyle = opts.colorTheme.onSurface;
   ctx.textBaseline = "top";
   const textStart = scale.feature(row, slack.earlyStart, Feature.textStart);
-  ctx.fillText(task.name, textStart.x, textStart.y);
+  ctx.fillText(opts.taskLabel(task, slack), textStart.x, textStart.y);
 }
 
 function drawTaskBar(
@@ -398,3 +389,36 @@ function drawMilestone(
   ctx.closePath();
   ctx.stroke();
 }
+
+const drawTimeMarkerAtDayToTask = (
+  ctx: CanvasRenderingContext2D,
+  row: number,
+  day: number,
+  task: Task,
+  opts: RenderOptions,
+  scale: Scale,
+  daysWithTimeMarkers: Set<number>
+) => {
+  if (daysWithTimeMarkers.has(day)) {
+    return;
+  }
+  daysWithTimeMarkers.add(day);
+  const timeMarkStart = scale.feature(row, day, Feature.timeMarkStart);
+  const timeMarkEnd = scale.feature(
+    row,
+    day,
+    verticalArrowDestFeatureFromTaskDuration(task)
+  );
+  ctx.lineWidth = 1;
+  ctx.setLineDash([1, 2]);
+  ctx.moveTo(timeMarkStart.x + 0.5, timeMarkStart.y);
+  ctx.lineTo(timeMarkStart.x + 0.5, timeMarkEnd.y);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = opts.colorTheme.onSurface;
+  ctx.textBaseline = "top";
+  const textStart = scale.feature(row, day, Feature.timeTextStart);
+  ctx.fillText(`${day}`, textStart.x, textStart.y);
+};
