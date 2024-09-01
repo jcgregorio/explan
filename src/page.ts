@@ -90,26 +90,28 @@ const paintChart = () => {
   };
 
   const opts: RenderOptions = {
-    fontSizePx: 32,
-    hasText: true,
+    fontSizePx: 12,
+    hasText: false,
     displaySubRange: null,
     colorTheme: colorTheme,
     marginSizePx: 10,
-    displayTimes: true,
+    displayTimes: false,
     taskLabel: taskLabel,
   };
 
   // Now update the canvas height so that it fits the chart being drawn.
   // TODO Turn this into an option since we won't always want this.
-  const newHeight = suggestedCanvasHeight(
-    canvas,
-    slack,
-    opts,
-    plan.chart.Vertices.length
-  );
-  canvas.height = newHeight;
-  canvas.style.height = `${newHeight / ratio}px`;
 
+  if (0) {
+    const newHeight = suggestedCanvasHeight(
+      canvas,
+      slack,
+      opts,
+      plan.chart.Vertices.length
+    );
+    canvas.height = newHeight;
+    canvas.style.height = `${newHeight / ratio}px`;
+  }
   const ctx = canvas.getContext("2d")!;
   ctx.imageSmoothingEnabled = false;
 

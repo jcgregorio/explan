@@ -127,6 +127,9 @@ export function renderTasksToCanvas(
   setFontSize(ctx, opts);
   clearCanvas(ctx, opts, canvas);
 
+  ctx.fillStyle = opts.colorTheme.onSurface;
+  ctx.strokeStyle = opts.colorTheme.onSurface;
+
   const taskLineHeight = scale.metric(Metric.taskLineHeight);
   const diamondDiameter = scale.metric(Metric.milestoneDiameter);
   const percentHeight = scale.metric(Metric.percentHeight);
@@ -372,6 +375,9 @@ function drawTaskText(
   slack: Slack,
   task: Task
 ) {
+  if (!opts.hasText) {
+    return;
+  }
   ctx.lineWidth = 1;
   ctx.fillStyle = opts.colorTheme.onSurface;
   ctx.textBaseline = "top";
@@ -439,5 +445,7 @@ const drawTimeMarkerAtDayToTask = (
   ctx.fillStyle = opts.colorTheme.onSurface;
   ctx.textBaseline = "top";
   const textStart = scale.feature(row, day, Feature.timeTextStart);
-  ctx.fillText(`${day}`, textStart.x, textStart.y);
+  if (opts.hasText) {
+    ctx.fillText(`${day}`, textStart.x, textStart.y);
+  }
 };

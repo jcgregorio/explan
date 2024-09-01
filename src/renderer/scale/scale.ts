@@ -86,7 +86,11 @@ export class Scale {
     this.blockSizePx = Math.floor(opts.fontSizePx / 3);
     this.taskHeightPx = makeOdd(Math.floor((this.blockSizePx * 3) / 4));
     this.lineWidthPx = makeOdd(Math.floor(this.taskHeightPx / 3));
-    this.rowHeightPx = 6 * this.blockSizePx; // This might also be `(canvasHeightPx - 2 * opts.marginSizePx) / numberSwimLanes` if height is supplied?
+    if (opts.hasText) {
+      this.rowHeightPx = 6 * this.blockSizePx; // This might also be `(canvasHeightPx - 2 * opts.marginSizePx) / numberSwimLanes` if height is supplied?
+    } else {
+      this.rowHeightPx = 1.1 * this.blockSizePx;
+    }
   }
 
   /** The height of the chart. Note that it's not constrained by the canvas. */
