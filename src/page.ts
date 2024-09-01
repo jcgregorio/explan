@@ -73,7 +73,38 @@ const taskLabel: TaskLabel = (task: Task, slack: Slack): string =>
   `${task.name} (${slack.earlyStart}) `;
 
 const paintChart = () => {
-  const canvas = document.querySelector<HTMLCanvasElement>("canvas")!;
+  const radarOpts: RenderOptions = {
+    fontSizePx: 12,
+    hasText: false,
+    displaySubRange: null,
+    colorTheme: {
+      surface: "#fff",
+      onSurface: "#2072c3",
+    },
+    marginSizePx: 10,
+    displayTimes: false,
+    taskLabel: taskLabel,
+  };
+
+  const zoomOpts: RenderOptions = {
+    fontSizePx: 32,
+    hasText: true,
+    displaySubRange: null,
+    colorTheme: {
+      surface: "#fff",
+      onSurface: "#000",
+    },
+    marginSizePx: 10,
+    displayTimes: true,
+    taskLabel: taskLabel,
+  };
+
+  paintOneChart("#radar", radarOpts);
+  paintOneChart("#zoomed", zoomOpts);
+};
+
+const paintOneChart = (canvasID: string, opts: RenderOptions) => {
+  const canvas = document.querySelector<HTMLCanvasElement>(canvasID)!;
   const parent = canvas!.parentElement!;
   const ratio = window.devicePixelRatio;
   const { width, height } = parent.getBoundingClientRect();
@@ -84,30 +115,15 @@ const paintChart = () => {
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
 
-  const colorTheme: ColorTheme = {
-    surface: "#fff",
-    onSurface: "#000",
-  };
-
-  const opts: RenderOptions = {
-    fontSizePx: 12,
-    hasText: false,
-    displaySubRange: null,
-    colorTheme: colorTheme,
-    marginSizePx: 10,
-    displayTimes: false,
-    taskLabel: taskLabel,
-  };
-
   // Now update the canvas height so that it fits the chart being drawn.
   // TODO Turn this into an option since we won't always want this.
 
-  if (0) {
+  if (1) {
     const newHeight = suggestedCanvasHeight(
       canvas,
       slack,
       opts,
-      plan.chart.Vertices.length
+      plan.chart.Vertices.length + 2 // TODO - Why do we need the +1 here!?
     );
     canvas.height = newHeight;
     canvas.style.height = `${newHeight / ratio}px`;
