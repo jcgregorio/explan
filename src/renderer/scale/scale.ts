@@ -68,6 +68,7 @@ export class Scale {
   private lineWidthPx: number;
   private marginSizePx: number;
   private topAxisHeightPx: number;
+  private origin: Point;
 
   constructor(
     opts: RenderOptions,
@@ -78,10 +79,24 @@ export class Scale {
     this.topAxisHeightPx = opts.displayTimes
       ? Math.ceil((opts.fontSizePx * 4) / 3)
       : 0;
-    // TODO Change calcs if opts.displaySubRange is non-Null.
-    this.dayWidthPx = Math.floor(
-      (canvasWidthPx - 2 * opts.marginSizePx) / totalNumberOfDays
-    );
+    if (opts.displaySubRange === null) {
+      this.dayWidthPx = Math.floor(
+        (canvasWidthPx - 2 * opts.marginSizePx) / totalNumberOfDays
+      );
+      this.origin = new Point(0, 0);
+    } else {
+      // Should we set x-margins to 0 if a SubRange is requested?
+      // Or should we totally drop all margins from here and just use
+      // CSS margins on the canvas element?
+      this.dayWidthPx = Math.floor(
+        (canvasWidthPx - 2 * opts.marginSizePx) /
+          opts.displaySubRange.rangeInDays
+      );
+      const beginOffset = Math.floor(
+        this.dayWidthPx * opts.displaySubRange.begin + opts.marginSizePx
+      );
+      this.origin = new Point(-beginOffset + opts.marginSizePx, 0);
+    }
 
     this.blockSizePx = Math.floor(opts.fontSizePx / 3);
     this.taskHeightPx = makeOdd(Math.floor((this.blockSizePx * 3) / 4));
@@ -102,16 +117,17 @@ export class Scale {
 
   /** The top left corner of the bounding box for a single task. */
   private envelopeStart(row: number, day: number): Point {
-    return new Point(
-      day * this.dayWidthPx + this.marginSizePx,
-      row * this.rowHeightPx + this.marginSizePx + this.topAxisHeightPx
+    return this.origin.sum(
+      new Point(
+        day * this.dayWidthPx + this.marginSizePx,
+        row * this.rowHeightPx + this.marginSizePx + this.topAxisHeightPx
+      )
     );
   }
 
   private timeEnvelopeStart(day: number): Point {
-    return new Point(
-      day * this.dayWidthPx + this.marginSizePx,
-      this.marginSizePx
+    return this.origin.sum(
+      new Point(day * this.dayWidthPx + this.marginSizePx, this.marginSizePx)
     );
   }
 

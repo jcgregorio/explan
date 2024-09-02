@@ -8,6 +8,7 @@ import {
 import { SetMetricValueOp } from "./ops/metrics.ts";
 import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
 import { Plan, StaticMetricKeys } from "./plan/plan.ts";
+import { DisplayRange } from "./renderer/range/range.ts";
 import {
   RenderOptions,
   TaskLabel,
@@ -88,7 +89,7 @@ const paintChart = () => {
   const zoomOpts: RenderOptions = {
     fontSizePx: 32,
     hasText: true,
-    displaySubRange: null,
+    displaySubRange: new DisplayRange(50, 100),
     colorTheme: {
       surface: "#fff",
       onSurface: "#000",

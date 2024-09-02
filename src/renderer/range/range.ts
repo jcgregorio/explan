@@ -1,6 +1,8 @@
 export const MIN_DISPLAY_RANGE = 7;
 
-/** Represents a range of days over which to display a zoomed in view. */
+/** Represents a range of days over which to display a zoomed in view, using
+ * the half-open interval [begin, end).
+ */
 export class DisplayRange {
   private _begin: number;
   private _end: number;
@@ -22,5 +24,9 @@ export class DisplayRange {
 
   public get end(): number {
     return this._end;
+  }
+
+  public get rangeInDays(): number {
+    return this._end - this._begin;
   }
 }
