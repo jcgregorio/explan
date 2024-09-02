@@ -9,7 +9,6 @@ import { SetMetricValueOp } from "./ops/metrics.ts";
 import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
 import { Plan, StaticMetricKeys } from "./plan/plan.ts";
 import {
-  ColorTheme,
   RenderOptions,
   TaskLabel,
   renderTasksToCanvas,
@@ -23,7 +22,7 @@ const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
 };
 
-const DURATION = 20;
+const DURATION = 100;
 
 const rndDuration = (): number => {
   return rndInt(DURATION) + 1;

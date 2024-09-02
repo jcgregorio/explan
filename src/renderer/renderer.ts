@@ -2,16 +2,12 @@ import { Chart, Task, validateChart } from "../chart/chart";
 import { DirectedEdge } from "../dag/dag";
 import { Result, ok } from "../result";
 import { Slack } from "../slack/slack";
+import { DisplayRange } from "./range/range";
 import { Feature, Metric, Point, Scale } from "./scale/scale";
 
 export interface ColorTheme {
   surface: string;
   onSurface: string;
-}
-
-export interface DisplayRange {
-  begin: number;
-  end: number;
 }
 
 /** Function use to produce a text label for a task and its slack. */
