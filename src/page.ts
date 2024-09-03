@@ -15,6 +15,8 @@ import {
   renderTasksToCanvas,
   suggestedCanvasHeight,
 } from "./renderer/renderer.ts";
+import { DayRow, Point, Scale } from "./renderer/scale/scale.ts";
+import { Result } from "./result.ts";
 import { ComputeSlack, Slack } from "./slack/slack";
 
 const plan = new Plan();
@@ -72,6 +74,48 @@ if (!slackResult.ok) {
 const taskLabel: TaskLabel = (task: Task, slack: Slack): string =>
   `${task.name} (${slack.earlyStart}) `;
 
+let displayRange: DisplayRange | null = null;
+let scale: Scale | null = null;
+let begin: DayRow | null = null;
+
+const radarEle = document.querySelector<HTMLCanvasElement>("#radar")!;
+radarEle.addEventListener("mousemove", (e: MouseEvent) => {
+  if (!scale) {
+    return;
+  }
+  console.log("move", scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY)));
+});
+
+radarEle.addEventListener("mousedown", (e: MouseEvent) => {
+  if (!scale) {
+    return;
+  }
+  console.log("down", scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY)));
+  begin = scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY));
+});
+
+radarEle.addEventListener("mouseup", (e: MouseEvent) => {
+  if (!scale) {
+    return;
+  }
+  console.log("up", scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY)));
+  const end = scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY));
+  displayRange = new DisplayRange(begin!.day, end.day);
+  begin = null;
+  paintChart();
+});
+
+radarEle.addEventListener("mouseleave", (e: MouseEvent) => {
+  if (!scale) {
+    return;
+  }
+  console.log("leave", scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY)));
+  const end = scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY));
+  displayRange = new DisplayRange(begin!.day, end.day);
+  begin = null;
+  paintChart();
+});
+
 const paintChart = () => {
   const radarOpts: RenderOptions = {
     fontSizePx: 12,
@@ -89,7 +133,7 @@ const paintChart = () => {
   const zoomOpts: RenderOptions = {
     fontSizePx: 32,
     hasText: true,
-    displaySubRange: new DisplayRange(50, 100),
+    displaySubRange: displayRange, // new DisplayRange(50, 100),
     colorTheme: {
       surface: "#fff",
       onSurface: "#000",
@@ -99,11 +143,19 @@ const paintChart = () => {
     taskLabel: taskLabel,
   };
 
-  paintOneChart("#radar", radarOpts);
   paintOneChart("#zoomed", zoomOpts);
+  const ret = paintOneChart("#radar", radarOpts);
+
+  if (!ret.ok) {
+    return;
+  }
+  scale = ret.value;
 };
 
-const paintOneChart = (canvasID: string, opts: RenderOptions) => {
+const paintOneChart = (
+  canvasID: string,
+  opts: RenderOptions
+): Result<Scale> => {
   const canvas = document.querySelector<HTMLCanvasElement>(canvasID)!;
   const parent = canvas!.parentElement!;
   const ratio = window.devicePixelRatio;
@@ -123,7 +175,7 @@ const paintOneChart = (canvasID: string, opts: RenderOptions) => {
       canvas,
       slack,
       opts,
-      plan.chart.Vertices.length + 2 // TODO - Why do we need the +1 here!?
+      plan.chart.Vertices.length + 2 // TODO - Why do we need the +2 here!?
     );
     canvas.height = newHeight;
     canvas.style.height = `${newHeight / ratio}px`;
@@ -131,7 +183,7 @@ const paintOneChart = (canvasID: string, opts: RenderOptions) => {
   const ctx = canvas.getContext("2d")!;
   ctx.imageSmoothingEnabled = false;
 
-  renderTasksToCanvas(parent, canvas, ctx, plan.chart, slack, opts);
+  return renderTasksToCanvas(parent, canvas, ctx, plan.chart, slack, opts);
 };
 
 paintChart();

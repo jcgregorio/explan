@@ -1,3 +1,4 @@
+import { clamp } from "../../metrics/range";
 import { RenderOptions } from "../renderer";
 
 /** A coordinate point on the rendering surface. */
@@ -19,6 +20,11 @@ export class Point {
   sum(rhs: Point): Point {
     return new Point(this.x + rhs.x, this.y + rhs.y);
   }
+}
+
+export interface DayRow {
+  day: number;
+  row: number;
 }
 
 /** Features of the chart we can ask for coordinates of, where the value returned is
@@ -69,12 +75,14 @@ export class Scale {
   private marginSizePx: number;
   private topAxisHeightPx: number;
   private origin: Point;
+  private totalNumberOfDays: number;
 
   constructor(
     opts: RenderOptions,
     canvasWidthPx: number,
     totalNumberOfDays: number
   ) {
+    this.totalNumberOfDays = totalNumberOfDays;
     this.marginSizePx = opts.marginSizePx;
     this.topAxisHeightPx = opts.displayTimes
       ? Math.ceil((opts.fontSizePx * 4) / 3)
@@ -113,6 +121,29 @@ export class Scale {
     return (
       maxRows * this.rowHeightPx + this.topAxisHeightPx + 2 * this.marginSizePx
     );
+  }
+
+  public dayRowFromPoint(point: Point): DayRow {
+    // This should also clamp the returned 'x' value to [0, maxRows).
+    return {
+      day: clamp(
+        Math.floor(
+          (window.devicePixelRatio *
+            (point.x - this.origin.x - this.marginSizePx)) /
+            this.dayWidthPx
+        ),
+        0,
+        this.totalNumberOfDays
+      ),
+      row: Math.floor(
+        (window.devicePixelRatio *
+          (point.y -
+            this.origin.y -
+            this.marginSizePx -
+            this.topAxisHeightPx)) /
+          this.rowHeightPx
+      ),
+    };
   }
 
   /** The top left corner of the bounding box for a single task. */

@@ -101,7 +101,7 @@ export function renderTasksToCanvas(
   chart: Chart,
   slacks: Slack[],
   opts: RenderOptions
-): Result<null> {
+): Result<Scale> {
   const vret = validateChart(chart);
   if (!vret.ok) {
     return vret;
@@ -207,7 +207,7 @@ export function renderTasksToCanvas(
       arrowHeadHeight
     );
   });
-  return ok(null);
+  return ok(scale);
 }
 
 function drawArrowBetweenTasks(
