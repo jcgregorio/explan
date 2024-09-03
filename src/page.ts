@@ -83,14 +83,17 @@ radarEle.addEventListener("mousemove", (e: MouseEvent) => {
   if (!scale) {
     return;
   }
-  console.log("move", scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY)));
+  if (begin !== null) {
+    const end = scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY));
+    displayRange = new DisplayRange(begin!.day, end.day);
+    paintChart();
+  }
 });
 
 radarEle.addEventListener("mousedown", (e: MouseEvent) => {
   if (!scale) {
     return;
   }
-  console.log("down", scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY)));
   begin = scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY));
 });
 
@@ -98,7 +101,6 @@ radarEle.addEventListener("mouseup", (e: MouseEvent) => {
   if (!scale) {
     return;
   }
-  console.log("up", scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY)));
   const end = scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY));
   displayRange = new DisplayRange(begin!.day, end.day);
   begin = null;
@@ -109,7 +111,6 @@ radarEle.addEventListener("mouseleave", (e: MouseEvent) => {
   if (!scale) {
     return;
   }
-  console.log("leave", scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY)));
   const end = scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY));
   displayRange = new DisplayRange(begin!.day, end.day);
   begin = null;
@@ -117,6 +118,8 @@ radarEle.addEventListener("mouseleave", (e: MouseEvent) => {
 });
 
 const paintChart = () => {
+  console.time("paintChart");
+
   const radarOpts: RenderOptions = {
     fontSizePx: 12,
     hasText: false,
@@ -150,6 +153,7 @@ const paintChart = () => {
     return;
   }
   scale = ret.value;
+  console.timeEnd("paintChart");
 };
 
 const paintOneChart = (
