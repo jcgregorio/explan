@@ -40,7 +40,7 @@ const ops: Op[] = [
 ];
 
 let numTasks = 1;
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 30; i++) {
   let index = rndInt(numTasks) + 1;
   ops.push(
     SplitTaskOp(index),
