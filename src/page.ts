@@ -8,6 +8,11 @@ import {
 import { SetMetricValueOp } from "./ops/metrics.ts";
 import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
 import { Plan, StaticMetricKeys } from "./plan/plan.ts";
+import {
+  DRAG_RANGE_EVENT,
+  DragRange,
+  MouseMove,
+} from "./renderer/mousemove/mousemove.ts";
 import { DisplayRange } from "./renderer/range/range.ts";
 import {
   RenderOptions,
@@ -76,57 +81,23 @@ const taskLabel: TaskLabel = (task: Task, slack: Slack): string =>
   `${task.name} (${slack.earlyStart}) `;
 
 // TODO Extract this as a helper for the radar view.
-// Can always attach the listeners, but needs a 'scale' to be functional. Once a
-// scale is in place the mouse move, mouseup and mouseleave events can produce a
-// new event which contains a DisplayRange.
-//
-// OR
-//
-// This just emits RawDisplayRange events with pixels, and something else
-// listens to that event and converts the RawDisplayRange to a DisplayRange and
-// then triggers a paintChart().
 let displayRange: DisplayRange | null = null;
 let scale: Scale | null = null;
-let begin: DayRow | null = null;
 
-const radarEle = document.querySelector<HTMLCanvasElement>("#radar")!;
-radarEle.addEventListener("mousemove", (e: MouseEvent) => {
-  if (!scale) {
+const radar = document.querySelector<HTMLElement>("#radar")!;
+new MouseMove(radar);
+
+const dragRangeHandler = (e: CustomEvent<DragRange>) => {
+  if (scale === null) {
     return;
   }
-  if (begin !== null) {
-    const end = scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY));
-    displayRange = new DisplayRange(begin!.day, end.day);
-    paintChart();
-  }
-});
-
-radarEle.addEventListener("mousedown", (e: MouseEvent) => {
-  if (!scale) {
-    return;
-  }
-  begin = scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY));
-});
-
-radarEle.addEventListener("mouseup", (e: MouseEvent) => {
-  if (!scale) {
-    return;
-  }
-  const end = scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY));
-  displayRange = new DisplayRange(begin!.day, end.day);
-  begin = null;
+  const begin = scale.dayRowFromPoint(e.detail.begin);
+  const end = scale.dayRowFromPoint(e.detail.end);
+  displayRange = new DisplayRange(begin.day, end.day);
   paintChart();
-});
+};
 
-radarEle.addEventListener("mouseleave", (e: MouseEvent) => {
-  if (!scale) {
-    return;
-  }
-  const end = scale.dayRowFromPoint(new Point(e.offsetX, e.offsetY));
-  displayRange = new DisplayRange(begin!.day, end.day);
-  begin = null;
-  paintChart();
-});
+radar.addEventListener(DRAG_RANGE_EVENT, dragRangeHandler as EventListener);
 
 const paintChart = () => {
   console.time("paintChart");

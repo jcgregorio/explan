@@ -32,7 +32,7 @@ export class MouseMove {
     ele.addEventListener("mouseup", this.mouseup.bind(this));
     ele.addEventListener("mouseleave", this.mouseleave.bind(this));
 
-    this.internvalHandle = window.setInterval(this.onTimeout.bind(this), 32);
+    this.internvalHandle = window.setInterval(this.onTimeout.bind(this), 16);
   }
 
   detach() {
