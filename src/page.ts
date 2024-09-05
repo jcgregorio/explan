@@ -15,7 +15,8 @@ import {
   renderTasksToCanvas,
   suggestedCanvasHeight,
 } from "./renderer/renderer.ts";
-import { DayRow, Point, Scale } from "./renderer/scale/scale.ts";
+import { Point } from "./renderer/scale/point.ts";
+import { DayRow, Scale } from "./renderer/scale/scale.ts";
 import { Result } from "./result.ts";
 import { ComputeSlack, Slack } from "./slack/slack";
 
@@ -74,6 +75,16 @@ if (!slackResult.ok) {
 const taskLabel: TaskLabel = (task: Task, slack: Slack): string =>
   `${task.name} (${slack.earlyStart}) `;
 
+// TODO Extract this as a helper for the radar view.
+// Can always attach the listeners, but needs a 'scale' to be functional. Once a
+// scale is in place the mouse move, mouseup and mouseleave events can produce a
+// new event which contains a DisplayRange.
+//
+// OR
+//
+// This just emits RawDisplayRange events with pixels, and something else
+// listens to that event and converts the RawDisplayRange to a DisplayRange and
+// then triggers a paintChart().
 let displayRange: DisplayRange | null = null;
 let scale: Scale | null = null;
 let begin: DayRow | null = null;

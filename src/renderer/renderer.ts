@@ -3,7 +3,8 @@ import { DirectedEdge } from "../dag/dag";
 import { Result, ok } from "../result";
 import { Slack } from "../slack/slack";
 import { DisplayRange } from "./range/range";
-import { Feature, Metric, Point, Scale } from "./scale/scale";
+import { Point } from "./scale/point";
+import { Feature, Metric, Scale } from "./scale/scale";
 
 export interface ColorTheme {
   surface: string;

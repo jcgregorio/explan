@@ -1,26 +1,6 @@
 import { clamp } from "../../metrics/range";
 import { RenderOptions } from "../renderer";
-
-/** A coordinate point on the rendering surface. */
-export class Point {
-  x: number;
-  y: number;
-
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
-
-  add(x: number, y: number): Point {
-    this.x += x;
-    this.y += y;
-    return this;
-  }
-
-  sum(rhs: Point): Point {
-    return new Point(this.x + rhs.x, this.y + rhs.y);
-  }
-}
+import { Point } from "./point";
 
 export interface DayRow {
   day: number;
