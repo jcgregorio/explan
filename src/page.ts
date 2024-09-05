@@ -20,8 +20,7 @@ import {
   renderTasksToCanvas,
   suggestedCanvasHeight,
 } from "./renderer/renderer.ts";
-import { Point } from "./renderer/scale/point.ts";
-import { DayRow, Scale } from "./renderer/scale/scale.ts";
+import { Scale } from "./renderer/scale/scale.ts";
 import { Result } from "./result.ts";
 import { ComputeSlack, Slack } from "./slack/slack";
 

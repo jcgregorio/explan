@@ -32,6 +32,7 @@ export class MouseMove {
     ele.addEventListener("mouseup", this.mouseup.bind(this));
     ele.addEventListener("mouseleave", this.mouseleave.bind(this));
 
+    // TODO Only turn on the setInterval when between mousedown and finish.
     this.internvalHandle = window.setInterval(this.onTimeout.bind(this), 16);
   }
 
