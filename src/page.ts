@@ -104,7 +104,8 @@ const paintChart = () => {
   const radarOpts: RenderOptions = {
     fontSizePx: 12,
     hasText: false,
-    displaySubRange: null,
+    displayRange: displayRange,
+    displayRangeUsage: "highlight",
     colorTheme: {
       surface: "#fff",
       onSurface: "#2072c3",
@@ -119,7 +120,8 @@ const paintChart = () => {
     hasText: true,
     // Need a toggle to either use the range to control what is displayed, or to
     // use it to draw the opaque regions over the radar.
-    displaySubRange: displayRange, // new DisplayRange(50, 100),
+    displayRange: displayRange, // new DisplayRange(50, 100),
+    displayRangeUsage: "restrict",
     colorTheme: {
       surface: "#fff",
       onSurface: "#000",

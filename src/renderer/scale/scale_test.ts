@@ -8,7 +8,8 @@ describe("Scale", () => {
   const optsForTest: RenderOptions = {
     fontSizePx: 12,
     hasText: true,
-    displaySubRange: null,
+    displayRange: null,
+    displayRangeUsage: "restrict",
     colorTheme: {
       surface: "#000",
       onSurface: "#222",
@@ -50,7 +51,7 @@ describe("Scale", () => {
 
   it("Calculates metrics correctly for 12px font with a non-null displaySubRange", () => {
     const optsCopy = Object.assign({}, optsForTest);
-    optsCopy.displaySubRange = new DisplayRange(5, 15);
+    optsCopy.displayRange = new DisplayRange(5, 15);
     optsCopy.fontSizePx = 12;
     const s = new Scale(optsCopy, 256, 20);
     assert.equal(s.metric(Metric.percentHeight), 1);

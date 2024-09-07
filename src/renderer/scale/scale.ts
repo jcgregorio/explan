@@ -23,6 +23,9 @@ export enum Feature {
   verticalArrowStartFromMilestone,
   horizontalArrowStartFromMilestone,
 
+  displayRangeTop,
+  taskRowBottom,
+
   timeMarkStart,
   timeMarkEnd,
   timeTextStart,
@@ -67,7 +70,7 @@ export class Scale {
     this.topAxisHeightPx = opts.displayTimes
       ? Math.ceil((opts.fontSizePx * 4) / 3)
       : 0;
-    if (opts.displaySubRange === null) {
+    if (opts.displayRange === null || opts.displayRangeUsage === "highlight") {
       this.dayWidthPx = Math.floor(
         (canvasWidthPx - 2 * opts.marginSizePx) / totalNumberOfDays
       );
@@ -77,11 +80,10 @@ export class Scale {
       // Or should we totally drop all margins from here and just use
       // CSS margins on the canvas element?
       this.dayWidthPx = Math.floor(
-        (canvasWidthPx - 2 * opts.marginSizePx) /
-          opts.displaySubRange.rangeInDays
+        (canvasWidthPx - 2 * opts.marginSizePx) / opts.displayRange.rangeInDays
       );
       const beginOffset = Math.floor(
-        this.dayWidthPx * opts.displaySubRange.begin + opts.marginSizePx
+        this.dayWidthPx * opts.displayRange.begin + opts.marginSizePx
       );
       this.origin = new Point(-beginOffset + opts.marginSizePx, 0);
     }
@@ -191,6 +193,12 @@ export class Scale {
         return this.timeEnvelopeStart(day).add(0, this.rowHeightPx * (row + 1));
       case Feature.timeTextStart:
         return this.timeEnvelopeStart(day).add(this.blockSizePx, 0);
+
+      case Feature.displayRangeTop:
+        return this.timeEnvelopeStart(day);
+
+      case Feature.taskRowBottom:
+        return this.envelopeStart(row + 1, day);
       default:
         // The line below will not compile if you missed an enum in the switch above.
         coord satisfies never;

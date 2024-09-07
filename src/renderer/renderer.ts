@@ -14,6 +14,14 @@ export interface ColorTheme {
 /** Function use to produce a text label for a task and its slack. */
 export type TaskLabel = (task: Task, slack: Slack) => string;
 
+/** Controls of the displayRange in RenderOptions is used.
+ *
+ *  "restrict": Only display the parts of the chart that appear in the range.
+ *
+ *  "highlight": Display the full range of the data, but highlight the range.
+ */
+export type DisplayRangeUsage = "restrict" | "highlight";
+
 export const defaultTaskLabel: TaskLabel = (
   task: Task,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -29,7 +37,10 @@ export interface RenderOptions {
   hasText: boolean;
 
   /** If supplied then only the tasks in the given range will be displayed. */
-  displaySubRange: DisplayRange | null;
+  displayRange: DisplayRange | null;
+
+  /** Controls how the `displayRange` is used if supplied. */
+  displayRangeUsage: DisplayRangeUsage;
 
   /** The color theme. */
   colorTheme: ColorTheme;
@@ -115,11 +126,9 @@ export function renderTasksToCanvas(
     topologicalOrder.map((taskIndex: number, row: number) => [taskIndex, row])
   );
 
-  const scale = new Scale(
-    opts,
-    canvas.width,
-    slacks[slacks.length - 1].earlyFinish + 1
-  );
+  const totalNumberOfRows = slacks.length;
+  const totalNumberOfDays = slacks[slacks.length - 1].earlyFinish;
+  const scale = new Scale(opts, canvas.width, totalNumberOfDays + 1);
 
   setFontSize(ctx, opts);
   clearCanvas(ctx, opts, canvas);
@@ -208,7 +217,49 @@ export function renderTasksToCanvas(
       arrowHeadHeight
     );
   });
+
+  // Now draw the range highlights if required.
+  if (opts.displayRange !== null && opts.displayRangeUsage === "highlight") {
+    // Draw a rect over each size that isn't in the range.
+    if (opts.displayRange.begin > 0) {
+      drawRangeOverlay(
+        ctx,
+        scale,
+        0,
+        opts.displayRange.begin,
+        totalNumberOfRows
+      );
+    }
+    if (opts.displayRange.end < totalNumberOfDays) {
+      drawRangeOverlay(
+        ctx,
+        scale,
+        opts.displayRange.end,
+        totalNumberOfDays + 1,
+        totalNumberOfRows
+      );
+    }
+  }
+
   return ok(scale);
+}
+
+function drawRangeOverlay(
+  ctx: CanvasRenderingContext2D,
+  scale: Scale,
+  beginDay: number,
+  endDay: number,
+  totalNumberOfRows: number
+) {
+  const topLeft = scale.feature(0, beginDay, Feature.displayRangeTop);
+  const bottomRight = scale.feature(
+    totalNumberOfRows,
+    endDay,
+    Feature.taskRowBottom
+  );
+  // TODO Make this settable via Theme.
+  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+  ctx.fillRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
 }
 
 function drawArrowBetweenTasks(
