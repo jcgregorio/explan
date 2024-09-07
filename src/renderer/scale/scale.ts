@@ -193,10 +193,8 @@ export class Scale {
         return this.timeEnvelopeStart(day).add(0, this.rowHeightPx * (row + 1));
       case Feature.timeTextStart:
         return this.timeEnvelopeStart(day).add(this.blockSizePx, 0);
-
       case Feature.displayRangeTop:
         return this.timeEnvelopeStart(day);
-
       case Feature.taskRowBottom:
         return this.envelopeStart(row + 1, day);
       default:
