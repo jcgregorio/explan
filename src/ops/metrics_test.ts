@@ -1,6 +1,6 @@
 import { assert } from "@esm-bundle/chai";
-import { Chart, Task } from "../chart/chart";
-import { Plan, StaticMetricKeys } from "../plan/plan";
+import { Task } from "../chart/chart";
+import { Plan } from "../plan/plan";
 import { MetricDefinition } from "../metrics/metrics";
 import {
   AddMetricOp,
@@ -49,10 +49,9 @@ describe("AddMetricOp", () => {
   });
 
   it("will fail to add a new metric with the same name as an existing metric", () => {
-    const res = AddMetricOp(
-      StaticMetricKeys.Duration,
-      new MetricDefinition(0)
-    ).apply(new Plan(new Chart()));
+    const res = AddMetricOp("Duration", new MetricDefinition(0)).apply(
+      new Plan()
+    );
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("already exists"));
   });
@@ -83,17 +82,13 @@ describe("DeleteMetricOp", () => {
   });
 
   it("will not delete a static metric", () => {
-    const res = DeleteMetricOp(StaticMetricKeys.Percent).apply(
-      new Plan(new Chart())
-    );
+    const res = DeleteMetricOp("Percent").apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("The static Metric"));
   });
 
   it("will not delete a metric that does not exist", () => {
-    const res = DeleteMetricOp("some unknown metric name").apply(
-      new Plan(new Chart())
-    );
+    const res = DeleteMetricOp("some unknown metric name").apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("does not exist"));
   });
@@ -101,23 +96,20 @@ describe("DeleteMetricOp", () => {
 
 describe("RenameMetricOp", () => {
   it("will not rename static Metrics", () => {
-    const res = RenameMetricOp(
-      StaticMetricKeys.Duration,
-      "How long this will take"
-    ).apply(new Plan(new Chart()));
+    const res = RenameMetricOp("Duration", "How long this will take").apply(
+      new Plan()
+    );
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("can't be renamed"));
   });
 
   it("will not rename a metric to an existing Metric name", () => {
     let res = AddMetricOp("cost", new MetricDefinition(defaultCostValue)).apply(
-      new Plan(new Chart())
+      new Plan()
     );
     assert.isTrue(res.ok);
 
-    res = RenameMetricOp("cost", StaticMetricKeys.Duration).apply(
-      res.value.plan
-    );
+    res = RenameMetricOp("cost", "Duration").apply(res.value.plan);
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("already exists as a metric"));
   });
@@ -126,7 +118,7 @@ describe("RenameMetricOp", () => {
     const res = RenameMetricOp(
       "Some unknown metric",
       "another name for that metric"
-    ).apply(new Plan(new Chart()));
+    ).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("does not exist as a Metric"));
   });
@@ -185,16 +177,16 @@ describe("UpdateMetricSubOp", () => {
     const res = UpdateMetricOp(
       "some unknown metric",
       new MetricDefinition(defaultCostValue)
-    ).apply(new Plan(new Chart()));
+    ).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("does not exist"));
   });
 
   it("fails when the metric is Static", () => {
     const res = UpdateMetricOp(
-      StaticMetricKeys.Duration,
+      "Duration",
       new MetricDefinition(defaultCostValue)
-    ).apply(new Plan(new Chart()));
+    ).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("Static metric"));
   });
@@ -265,9 +257,7 @@ describe("UpdateMetricSubOp", () => {
 
 describe("SetMetricValueOp", () => {
   it("Fails if the metric doesn't exist", () => {
-    const res = SetMetricValueOp("unknown metric", 1, 0).apply(
-      new Plan(new Chart())
-    );
+    const res = SetMetricValueOp("unknown metric", 1, 0).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("does not exist as a Metric"));
   });

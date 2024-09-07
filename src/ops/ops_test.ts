@@ -1,5 +1,4 @@
 import { assert } from "@esm-bundle/chai";
-import { Chart } from "../chart/chart";
 import { Plan } from "../plan/plan";
 import { error, ok, Result } from "../result";
 import { applyAllOpsToPlan, Op, SubOp, SubOpResult } from "./ops";
@@ -8,11 +7,7 @@ const testErrorMessage = "Forced test failure.";
 
 const inverseFailureErrorMessage = "Inverse failed to apply";
 
-enum FailureType {
-  None,
-  FailsOnApply,
-  InverseFailsOnApply,
-}
+export type FailureType = "None" | "FailsOnApply" | "InverseFailsOnApply";
 
 // A SubOp used just for testing. It records apply()'s in subOpApplicationOrder.
 // It also knows if it's the inverse, and that's represented in
@@ -30,7 +25,7 @@ class TestSubOp implements SubOp {
 
   constructor(
     name: string,
-    fails: FailureType = FailureType.None,
+    fails: FailureType = "None",
     isInverse: boolean = false
   ) {
     this.name = name;
@@ -39,10 +34,10 @@ class TestSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    if (!this.isInverse && this.fails === FailureType.FailsOnApply) {
+    if (!this.isInverse && this.fails === "FailsOnApply") {
       return error(new Error(testErrorMessage));
     }
-    if (this.isInverse && this.fails === FailureType.InverseFailsOnApply) {
+    if (this.isInverse && this.fails === "InverseFailsOnApply") {
       return error(new Error(inverseFailureErrorMessage));
     }
     TestSubOp.subOpApplicationOrder.push(
@@ -64,7 +59,7 @@ describe("Op", () => {
       new TestSubOp("B"),
       new TestSubOp("C"),
     ]);
-    let res = op.apply(new Plan(new Chart()));
+    let res = op.apply(new Plan());
     assert.isTrue(res.ok);
     res = res.value.inverse.apply(res.value.plan);
     assert.isTrue(res.ok);
@@ -83,9 +78,9 @@ describe("Op", () => {
     const op = new Op([
       new TestSubOp("A"),
       new TestSubOp("B"),
-      new TestSubOp("C", FailureType.FailsOnApply),
+      new TestSubOp("C", "FailsOnApply"),
     ]);
-    const res = op.apply(new Plan(new Chart()));
+    const res = op.apply(new Plan());
     assert.isFalse(res.ok);
     assert.deepEqual(TestSubOp.subOpApplicationOrder, ["A", "B", "-B", "-A"]);
     assert.isTrue(res.error.message.includes(testErrorMessage));
@@ -95,10 +90,10 @@ describe("Op", () => {
     TestSubOp.reset();
     const op = new Op([
       new TestSubOp("A"),
-      new TestSubOp("B", FailureType.InverseFailsOnApply),
-      new TestSubOp("C", FailureType.FailsOnApply),
+      new TestSubOp("B", "InverseFailsOnApply"),
+      new TestSubOp("C", "FailsOnApply"),
     ]);
-    const res = op.apply(new Plan(new Chart()));
+    const res = op.apply(new Plan());
     assert.isFalse(res.ok);
     assert.deepEqual(TestSubOp.subOpApplicationOrder, ["A", "B"]);
     assert.isTrue(res.error.message.includes(inverseFailureErrorMessage));
@@ -113,7 +108,7 @@ describe("applyAllOpsToPlan", () => {
       new Op([new TestSubOp("B.1"), new TestSubOp("B.2")]),
       new Op([new TestSubOp("C.1"), new TestSubOp("C.2")]),
     ];
-    let ret = applyAllOpsToPlan(allOps, new Plan(new Chart()));
+    let ret = applyAllOpsToPlan(allOps, new Plan());
     assert.isTrue(ret.ok);
     ret = applyAllOpsToPlan(ret.value.ops, ret.value.plan);
     assert.isTrue(ret.ok);
@@ -135,13 +130,10 @@ describe("applyAllOpsToPlan", () => {
     TestSubOp.reset();
     const allOps: Op[] = [
       new Op([new TestSubOp("A")]),
-      new Op([
-        new TestSubOp("B.1"),
-        new TestSubOp("B.2", FailureType.FailsOnApply),
-      ]),
+      new Op([new TestSubOp("B.1"), new TestSubOp("B.2", "FailsOnApply")]),
       new Op([new TestSubOp("C.1"), new TestSubOp("C.2")]),
     ];
-    const ret = applyAllOpsToPlan(allOps, new Plan(new Chart()));
+    const ret = applyAllOpsToPlan(allOps, new Plan());
     assert.isFalse(ret.ok);
     assert.deepEqual(TestSubOp.subOpApplicationOrder, [
       "A",
@@ -157,12 +149,12 @@ describe("applyAllOpsToPlan", () => {
     const allOps: Op[] = [
       new Op([new TestSubOp("A")]),
       new Op([
-        new TestSubOp("B.1", FailureType.InverseFailsOnApply),
-        new TestSubOp("B.2", FailureType.FailsOnApply),
+        new TestSubOp("B.1", "InverseFailsOnApply"),
+        new TestSubOp("B.2", "FailsOnApply"),
       ]),
       new Op([new TestSubOp("C.1"), new TestSubOp("C.2")]),
     ];
-    const ret = applyAllOpsToPlan(allOps, new Plan(new Chart()));
+    const ret = applyAllOpsToPlan(allOps, new Plan());
     assert.isFalse(ret.ok);
     assert.deepEqual(TestSubOp.subOpApplicationOrder, ["A", "B.1", "-A"]);
     assert.isTrue(ret.error.message.includes(inverseFailureErrorMessage));

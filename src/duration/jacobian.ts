@@ -8,19 +8,19 @@ import { DurationModel } from "./duration";
  *
  *    https://jacobian.org/2021/may/25/my-estimation-technique/
  */
-export enum Uncertainty {
-  low = 1.1,
-  moderate = 1.5,
-  high = 2.0,
-  extreme = 5.0,
-}
+export const Uncertainty = {
+  low: 1.1,
+  moderate: 1.5,
+  high: 2.0,
+  extreme: 5.0,
+};
 
 export class JacobianDuration implements DurationModel {
   lastDuration: number = -1;
-  uncertainty: Uncertainty;
+  uncertainty: number;
   triangular: Triangular | null = null;
 
-  constructor(uncertainty: Uncertainty) {
+  constructor(uncertainty: number) {
     this.uncertainty = uncertainty;
   }
 

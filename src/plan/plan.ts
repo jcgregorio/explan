@@ -6,22 +6,16 @@ import {
   ResourceDefinitions,
 } from "../resources/resources";
 
-export const enum StaticMetricKeys {
-  Duration = "Duration",
-  Percent = "Percent Complete",
-}
+export type StaticMetricKeys = "Duration" | "Percent Complete";
 
 export const StaticMetricDefinitions: MetricDefinitions = new Map<
   string,
   MetricDefinition
 >([
   // How long a task will take, in days.
-  [StaticMetricKeys.Duration, new MetricDefinition(0, new MetricRange(), true)],
+  ["Duration", new MetricDefinition(0, new MetricRange(), true)],
   // The percent complete for a task.
-  [
-    StaticMetricKeys.Percent,
-    new MetricDefinition(0, new MetricRange(0, 100), true),
-  ],
+  ["Percent", new MetricDefinition(0, new MetricRange(0, 100), true)],
 ]);
 
 export class Plan {

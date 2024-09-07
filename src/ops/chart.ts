@@ -1,7 +1,7 @@
 import { Result, ok, error } from "../result";
 import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag";
 import { Plan } from "../plan/plan";
-import { Chart, Task, TaskState } from "../chart/chart";
+import { Chart, TaskState } from "../chart/chart";
 import { Op, SubOp, SubOpResult } from "./ops";
 import { DurationModel } from "../duration/duration";
 

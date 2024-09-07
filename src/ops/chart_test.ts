@@ -10,7 +10,7 @@ import {
   DupTaskOp,
 } from "./chart";
 import { Plan } from "../plan/plan";
-import { DEFAULT_TASK_NAME, TaskState } from "../chart/chart";
+import { DEFAULT_TASK_NAME } from "../chart/chart";
 import { JacobianDuration, Uncertainty } from "../duration/jacobian";
 import { DirectedEdge } from "../dag/dag";
 
@@ -121,16 +121,16 @@ describe("SetDurationModelOp", () => {
 });
 
 describe("SetTaskStateOp", () => {
-  const newTaskState = TaskState.complete;
+  const newTaskState = "complete";
   it("Sets a tasks state.", () => {
     TestOpsForwardAndBack([
       InsertNewEmptyTaskAfterOp(0),
       T2Op((plan: Plan) => {
-        assert.equal(plan.chart.Vertices[1].state, TaskState.unstarted);
+        assert.equal(plan.chart.Vertices[1].state, "unstarted");
       }),
       SetTaskStateOp(1, newTaskState),
       TOp((plan: Plan) => {
-        assert.equal(plan.chart.Vertices[1].state, TaskState.complete);
+        assert.equal(plan.chart.Vertices[1].state, "complete");
       }),
     ]);
   });

@@ -7,7 +7,7 @@ import {
 } from "./ops/chart.ts";
 import { SetMetricValueOp } from "./ops/metrics.ts";
 import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
-import { Plan, StaticMetricKeys } from "./plan/plan.ts";
+import { Plan } from "./plan/plan.ts";
 import {
   DRAG_RANGE_EVENT,
   DragRange,
@@ -40,7 +40,7 @@ const rndName = (): string => `Task ${String.fromCharCode(65 + rndInt(26))}`;
 
 const ops: Op[] = [
   InsertNewEmptyTaskAfterOp(0),
-  SetMetricValueOp(StaticMetricKeys.Duration, rndDuration(), 1),
+  SetMetricValueOp("Duration", rndDuration(), 1),
   SetTaskNameOp(1, rndName()),
 ];
 
@@ -49,14 +49,14 @@ for (let i = 0; i < 30; i++) {
   let index = rndInt(numTasks) + 1;
   ops.push(
     SplitTaskOp(index),
-    SetMetricValueOp(StaticMetricKeys.Duration, rndDuration(), index + 1),
+    SetMetricValueOp("Duration", rndDuration(), index + 1),
     SetTaskNameOp(index + 1, rndName())
   );
   numTasks++;
   index = rndInt(numTasks) + 1;
   ops.push(
     DupTaskOp(index),
-    SetMetricValueOp(StaticMetricKeys.Duration, rndInt(10) + 1, index + 1),
+    SetMetricValueOp("Duration", rndInt(10) + 1, index + 1),
     SetTaskNameOp(index + 1, rndName())
   );
   numTasks++;
@@ -117,6 +117,8 @@ const paintChart = () => {
   const zoomOpts: RenderOptions = {
     fontSizePx: 32,
     hasText: true,
+    // Need a toggle to either use the range to control what is displayed, or to
+    // use it to draw the opaque regions over the radar.
     displaySubRange: displayRange, // new DisplayRange(50, 100),
     colorTheme: {
       surface: "#fff",

@@ -12,13 +12,8 @@ import { topologicalSort } from "../dag/algorithms/toposort";
 import { DurationModel } from "../duration/duration";
 import { JacobianDuration, Uncertainty } from "../duration/jacobian";
 import { MetricValues } from "../metrics/metrics";
-import { StaticMetricKeys } from "../plan/plan";
 
-export enum TaskState {
-  unstarted = "unstarted",
-  started = "started",
-  complete = "complete",
-}
+export type TaskState = "unstarted" | "started" | "complete";
 
 export const DEFAULT_TASK_NAME = "Task Name";
 
@@ -54,7 +49,7 @@ export class Task {
 
   durationModel: DurationModel;
 
-  state: TaskState = TaskState.unstarted;
+  state: TaskState = "unstarted";
 
   // Recorded as the number of days from the Start Milestone.
   actualStart: number = 0;
@@ -62,11 +57,11 @@ export class Task {
   actualFinish: number = 0;
 
   public get duration(): number {
-    return this.metrics.get(StaticMetricKeys.Duration)!;
+    return this.metrics.get("Duration")!;
   }
 
   public get percent(): number {
-    return this.metrics.get(StaticMetricKeys.Percent)!;
+    return this.metrics.get("Percent")!;
   }
 
   public dup(): Task {
@@ -91,9 +86,9 @@ export class Chart {
 
   constructor() {
     const start = new Task("Start");
-    start.metrics.set(StaticMetricKeys.Duration, 0);
+    start.metrics.set("Duration", 0);
     const finish = new Task("Finish");
-    finish.metrics.set(StaticMetricKeys.Duration, 0);
+    finish.metrics.set("Duration", 0);
     this.Vertices = [start, finish];
     this.Edges = [new DirectedEdge(0, 1)];
   }
