@@ -258,7 +258,7 @@ function drawRangeOverlay(
     Feature.taskRowBottom
   );
   // TODO Make this settable via Theme.
-  ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+  ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
   ctx.fillRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
 }
 

@@ -45,7 +45,7 @@ const ops: Op[] = [
 ];
 
 let numTasks = 1;
-for (let i = 0; i < 30; i++) {
+for (let i = 0; i < 20; i++) {
   let index = rndInt(numTasks) + 1;
   ops.push(
     SplitTaskOp(index),
@@ -108,7 +108,7 @@ const paintChart = () => {
     displayRangeUsage: "highlight",
     colorTheme: {
       surface: "#fff",
-      onSurface: "#2072c3",
+      onSurface: "#222",
     },
     marginSizePx: 10,
     displayTimes: false,
@@ -124,7 +124,7 @@ const paintChart = () => {
     displayRangeUsage: "restrict",
     colorTheme: {
       surface: "#fff",
-      onSurface: "#000",
+      onSurface: "#2072c3",
     },
     marginSizePx: 10,
     displayTimes: true,
