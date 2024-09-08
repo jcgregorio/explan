@@ -24,7 +24,7 @@ import { Scale } from "./renderer/scale/scale.ts";
 import { Result } from "./result.ts";
 import { ComputeSlack, Slack } from "./slack/slack";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
-import { toggleTheme, toggleThemeOnClick } from "./style/toggler/toggler.ts";
+import { toggleTheme } from "./style/toggler/toggler.ts";
 
 const plan = new Plan();
 
