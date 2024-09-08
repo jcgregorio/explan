@@ -1,6 +1,6 @@
 <html>
 
-<body>
+<body class="darkmode">
     <style>
         canvas {
             font-size: 24px;
@@ -9,6 +9,44 @@
         plan-parent {
             width: 100%;
             display: block;
+        }
+
+        @property --surface {
+            syntax: "<color>";
+            inherits: true;
+            initial-value: #ddd;
+        }
+
+        @property --onSurface {
+            syntax: "<color>";
+            inherits: true;
+            initial-value: #222;
+        }
+
+        @property --onSurfaceSecondary {
+            syntax: "<color>";
+            inherits: true;
+            initial-value: #2072c3;
+        }
+
+        @property --overlay {
+            syntax: "<color>";
+            inherits: true;
+            initial-value: rgb(0, 0, 0, 0.25);
+        }
+
+        :root {
+            --surface: #fff;
+            --onSurface: #222;
+            --onSurfaceSecondary: #2072c3;
+            --overlay: rgb(0, 0, 0, 0.25);
+        }
+
+        :root .darkmode {
+            --surface: #000;
+            --onSurface: #ddd;
+            --onSurfaceSecondary: #2072c3;
+            --overlay: rgb(255, 255, 255, 0.1);
         }
     </style>
     <plan-parent>

@@ -23,6 +23,7 @@ import {
 import { Scale } from "./renderer/scale/scale.ts";
 import { Result } from "./result.ts";
 import { ComputeSlack, Slack } from "./slack/slack";
+import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 
 const plan = new Plan();
 
@@ -101,14 +102,17 @@ radar.addEventListener(DRAG_RANGE_EVENT, dragRangeHandler as EventListener);
 const paintChart = () => {
   console.time("paintChart");
 
+  const themeColors: Theme = colorThemeFromElement(document.body);
+
   const radarOpts: RenderOptions = {
     fontSizePx: 12,
     hasText: false,
     displayRange: displayRange,
     displayRangeUsage: "highlight",
-    colorTheme: {
-      surface: "#fff",
-      onSurface: "#222",
+    colors: {
+      surface: themeColors.surface,
+      onSurface: themeColors.onSurface,
+      overlay: themeColors.overlay,
     },
     marginSizePx: 10,
     displayTimes: false,
@@ -122,9 +126,10 @@ const paintChart = () => {
     // use it to draw the opaque regions over the radar.
     displayRange: displayRange, // new DisplayRange(50, 100),
     displayRangeUsage: "restrict",
-    colorTheme: {
-      surface: "#fff",
-      onSurface: "#2072c3",
+    colors: {
+      surface: themeColors.surface,
+      onSurface: themeColors.onSurfaceSecondary,
+      overlay: themeColors.overlay,
     },
     marginSizePx: 10,
     displayTimes: true,

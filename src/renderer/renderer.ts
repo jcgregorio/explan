@@ -6,9 +6,10 @@ import { DisplayRange } from "./range/range";
 import { Point } from "./scale/point";
 import { Feature, Metric, Scale } from "./scale/scale";
 
-export interface ColorTheme {
+export interface Colors {
   surface: string;
   onSurface: string;
+  overlay: string;
 }
 
 /** Function use to produce a text label for a task and its slack. */
@@ -43,7 +44,7 @@ export interface RenderOptions {
   displayRangeUsage: DisplayRangeUsage;
 
   /** The color theme. */
-  colorTheme: ColorTheme;
+  colors: Colors;
 
   /** The margin, in pixels, around the chart. */
   marginSizePx: number;
@@ -133,8 +134,8 @@ export function renderTasksToCanvas(
   setFontSize(ctx, opts);
   clearCanvas(ctx, opts, canvas);
 
-  ctx.fillStyle = opts.colorTheme.onSurface;
-  ctx.strokeStyle = opts.colorTheme.onSurface;
+  ctx.fillStyle = opts.colors.onSurface;
+  ctx.strokeStyle = opts.colors.onSurface;
 
   const taskLineHeight = scale.metric(Metric.taskLineHeight);
   const diamondDiameter = scale.metric(Metric.milestoneDiameter);
@@ -191,7 +192,7 @@ export function renderTasksToCanvas(
   });
 
   ctx.lineWidth = 1;
-  ctx.strokeStyle = opts.colorTheme.onSurface;
+  ctx.strokeStyle = opts.colors.onSurface;
 
   // Now draw all the arrows, i.e. edges.
   chart.Edges.forEach((e: DirectedEdge) => {
@@ -224,6 +225,7 @@ export function renderTasksToCanvas(
     if (opts.displayRange.begin > 0) {
       drawRangeOverlay(
         ctx,
+        opts,
         scale,
         0,
         opts.displayRange.begin,
@@ -233,6 +235,7 @@ export function renderTasksToCanvas(
     if (opts.displayRange.end < totalNumberOfDays) {
       drawRangeOverlay(
         ctx,
+        opts,
         scale,
         opts.displayRange.end,
         totalNumberOfDays + 1,
@@ -246,6 +249,7 @@ export function renderTasksToCanvas(
 
 function drawRangeOverlay(
   ctx: CanvasRenderingContext2D,
+  opts: RenderOptions,
   scale: Scale,
   beginDay: number,
   endDay: number,
@@ -258,7 +262,7 @@ function drawRangeOverlay(
     Feature.taskRowBottom
   );
   // TODO Make this settable via Theme.
-  ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+  ctx.fillStyle = opts.colors.overlay;
   ctx.fillRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
 }
 
@@ -312,8 +316,8 @@ function clearCanvas(
   opts: RenderOptions,
   canvas: HTMLCanvasElement
 ) {
-  ctx.fillStyle = opts.colorTheme.surface;
-  ctx.strokeStyle = opts.colorTheme.onSurface;
+  ctx.fillStyle = opts.colors.surface;
+  ctx.strokeStyle = opts.colors.onSurface;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -427,7 +431,7 @@ function drawTaskText(
     return;
   }
   ctx.lineWidth = 1;
-  ctx.fillStyle = opts.colorTheme.onSurface;
+  ctx.fillStyle = opts.colors.onSurface;
   ctx.textBaseline = "top";
   const textStart = scale.feature(row, slack.earlyStart, Feature.textStart);
   ctx.fillText(opts.taskLabel(task, slack), textStart.x, textStart.y);
@@ -490,7 +494,7 @@ const drawTimeMarkerAtDayToTask = (
 
   ctx.setLineDash([]);
 
-  ctx.fillStyle = opts.colorTheme.onSurface;
+  ctx.fillStyle = opts.colors.onSurface;
   ctx.textBaseline = "top";
   const textStart = scale.feature(row, day, Feature.timeTextStart);
   if (opts.hasText) {
