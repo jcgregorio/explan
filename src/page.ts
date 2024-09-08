@@ -24,6 +24,7 @@ import { Scale } from "./renderer/scale/scale.ts";
 import { Result } from "./result.ts";
 import { ComputeSlack, Slack } from "./slack/slack";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
+import { toggleTheme, toggleThemeOnClick } from "./style/toggler/toggler.ts";
 
 const plan = new Plan();
 
@@ -98,6 +99,11 @@ const dragRangeHandler = (e: CustomEvent<DragRange>) => {
 };
 
 radar.addEventListener(DRAG_RANGE_EVENT, dragRangeHandler as EventListener);
+
+document.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
+  toggleTheme();
+  paintChart();
+});
 
 const paintChart = () => {
   console.time("paintChart");
