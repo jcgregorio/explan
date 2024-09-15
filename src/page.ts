@@ -120,9 +120,10 @@ const paintChart = () => {
   }
   const topologicalOrder = vret.value;
 
-  // topologicalOrder maps from row to task index. We also need to construct a
-  // map that goes in the opposite direction.
+  // topologicalOrder maps from row to task index, this will produce the inverse mapping.
   const taskIndexToRow: Map<number, number> = new Map(
+    // This looks backwards, but it isn't. Remember that the map callback takes
+    // (value, index) as its arguments.
     topologicalOrder.map((taskIndex: number, row: number) => [taskIndex, row])
   );
 

@@ -128,22 +128,20 @@ export function renderTasksToCanvas(
   const totalNumberOfRows = spans.length;
   const totalNumberOfDays = spans[spans.length - 1].finish;
   const scale = new Scale(opts, canvas.width, totalNumberOfDays + 1);
-
-  setFontSize(ctx, opts);
-  clearCanvas(ctx, opts, canvas);
-
-  ctx.fillStyle = opts.colors.onSurface;
-  ctx.strokeStyle = opts.colors.onSurface;
-
   const taskLineHeight = scale.metric(Metric.taskLineHeight);
   const diamondDiameter = scale.metric(Metric.milestoneDiameter);
   const percentHeight = scale.metric(Metric.percentHeight);
   const arrowHeadHeight = scale.metric(Metric.arrowHeadHeight);
   const arrowHeadWidth = scale.metric(Metric.arrowHeadWidth);
-
   const daysWithTimeMarkers: Set<number> = new Set();
-  // Descend through the topological order drawing task lines in their swim
-  // lanes.
+
+  // Set up canvas basics.
+  clearCanvas(ctx, opts, canvas);
+  setFontSize(ctx, opts);
+  ctx.fillStyle = opts.colors.onSurface;
+  ctx.strokeStyle = opts.colors.onSurface;
+
+  // Draw tasks in their rows.
   chart.Vertices.forEach((task: Task, taskIndex: number) => {
     const row = opts.taskIndexToRow.get(taskIndex)!;
     const span = spans[taskIndex];
