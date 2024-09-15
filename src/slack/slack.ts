@@ -1,13 +1,18 @@
 import { Result, ok, error } from "../result";
 import { Task, Chart, ChartValidate } from "../chart/chart";
-import { DirectedEdge, edgesByDstToMap, edgesBySrcToMap } from "../dag/dag";
+import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag";
+
+// Span represents when a task will be done, i.e. it contains the time the task
+// is expected to begin and end.
+export class Span {
+  start: number = 0;
+  finish: number = 0;
+}
 
 /** The standard slack calculation values. */
 export class Slack {
-  earlyStart: number = 0;
-  earlyFinish: number = 0;
-  lateStart: number = 0;
-  lateFinish: number = 0;
+  early: Span = new Span();
+  late: Span = new Span();
   slack: number = 0;
 }
 
@@ -35,8 +40,7 @@ export function ComputeSlack(
     return error(r.error);
   }
 
-  const edgesByDst = edgesByDstToMap(c.Edges);
-  const edgesBySrc = edgesBySrcToMap(c.Edges);
+  const edges = edgesBySrcAndDstToMap(c.Edges);
 
   const topologicalOrder = r.value;
 
@@ -46,13 +50,13 @@ export function ComputeSlack(
   topologicalOrder.slice(1).forEach((vertexIndex: number) => {
     const task = c.Vertices[vertexIndex];
     const slack = slacks[vertexIndex];
-    slack.earlyStart = Math.max(
-      ...edgesByDst.get(vertexIndex)!.map((e: DirectedEdge): number => {
+    slack.early.start = Math.max(
+      ...edges.byDst.get(vertexIndex)!.map((e: DirectedEdge): number => {
         const predecessorSlack = slacks[e.i];
-        return predecessorSlack.earlyFinish;
+        return predecessorSlack.early.finish;
       })
     );
-    slack.earlyFinish = slack.earlyStart + taskDuration(task);
+    slack.early.finish = slack.early.start + taskDuration(task);
   });
 
   // Now backwards through the topological sort and find the late finish of each
@@ -63,19 +67,19 @@ export function ComputeSlack(
   topologicalOrder.reverse().forEach((vertexIndex: number) => {
     const task = c.Vertices[vertexIndex];
     const slack = slacks[vertexIndex];
-    const successors = edgesBySrc.get(vertexIndex);
+    const successors = edges.bySrc.get(vertexIndex);
     if (!successors) {
-      slack.lateFinish = slack.earlyFinish;
-      slack.lateStart = slack.earlyStart;
+      slack.late.finish = slack.early.finish;
+      slack.late.start = slack.early.start;
     } else {
-      slack.lateFinish = Math.min(
-        ...edgesBySrc.get(vertexIndex)!.map((e: DirectedEdge): number => {
+      slack.late.finish = Math.min(
+        ...edges.bySrc.get(vertexIndex)!.map((e: DirectedEdge): number => {
           const successorSlack = slacks[e.j];
-          return successorSlack.lateStart;
+          return successorSlack.late.start;
         })
       );
-      slack.lateStart = slack.lateFinish - taskDuration(task);
-      slack.slack = slack.lateFinish - slack.earlyFinish;
+      slack.late.start = slack.late.finish - taskDuration(task);
+      slack.slack = slack.late.finish - slack.early.finish;
     }
   });
 

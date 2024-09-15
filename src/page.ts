@@ -1,4 +1,3 @@
-import { Task } from "./chart/chart.ts";
 import {
   DupTaskOp,
   InsertNewEmptyTaskAfterOp,
@@ -22,7 +21,7 @@ import {
 } from "./renderer/renderer.ts";
 import { Scale } from "./renderer/scale/scale.ts";
 import { Result } from "./result.ts";
-import { ComputeSlack, Slack } from "./slack/slack";
+import { ComputeSlack, Slack, Span } from "./slack/slack";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
 
@@ -78,8 +77,12 @@ if (!slackResult.ok) {
   slack = slackResult.value;
 }
 
-const taskLabel: TaskLabel = (task: Task, slack: Slack): string =>
-  `${task.name} (${slack.earlyStart}) `;
+const spans: Span[] = slack.map((value: Slack): Span => {
+  return value.early;
+});
+
+const taskLabel: TaskLabel = (taskIndex: number): string =>
+  `${plan.chart.Vertices[taskIndex].name} (${slack[taskIndex].early.start}) `;
 
 // TODO Extract this as a helper for the radar view.
 let displayRange: DisplayRange | null = null;
@@ -173,7 +176,7 @@ const paintOneChart = (
   if (1) {
     const newHeight = suggestedCanvasHeight(
       canvas,
-      slack,
+      spans,
       opts,
       plan.chart.Vertices.length + 2 // TODO - Why do we need the +2 here!?
     );
@@ -183,7 +186,7 @@ const paintOneChart = (
   const ctx = canvas.getContext("2d")!;
   ctx.imageSmoothingEnabled = false;
 
-  return renderTasksToCanvas(parent, canvas, ctx, plan.chart, slack, opts);
+  return renderTasksToCanvas(parent, canvas, ctx, plan.chart, spans, opts);
 };
 
 paintChart();

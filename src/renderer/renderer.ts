@@ -1,7 +1,7 @@
 import { Chart, Task, validateChart } from "../chart/chart";
 import { DirectedEdge } from "../dag/dag";
 import { Result, ok } from "../result";
-import { Slack } from "../slack/slack";
+import { Span } from "../slack/slack";
 import { DisplayRange } from "./range/range";
 import { Point } from "./scale/point";
 import { Feature, Metric, Scale } from "./scale/scale";
@@ -13,7 +13,7 @@ export interface Colors {
 }
 
 /** Function use to produce a text label for a task and its slack. */
-export type TaskLabel = (task: Task, slack: Slack) => string;
+export type TaskLabel = (taskIndex: number) => string;
 
 /** Controls of the displayRange in RenderOptions is used.
  *
@@ -23,11 +23,8 @@ export type TaskLabel = (task: Task, slack: Slack) => string;
  */
 export type DisplayRangeUsage = "restrict" | "highlight";
 
-export const defaultTaskLabel: TaskLabel = (
-  task: Task,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _slack: Slack
-): string => task.name;
+export const defaultTaskLabel: TaskLabel = (taskIndex: number): string =>
+  taskIndex.toFixed(0);
 
 export interface RenderOptions {
   /** The text font size, this drives the size of all other chart features.
@@ -96,14 +93,14 @@ const horizontalArrowDestFeatureFromTaskDuration = (task: Task): Feature => {
  */
 export function suggestedCanvasHeight(
   canvas: HTMLCanvasElement,
-  slacks: Slack[],
+  spans: Span[],
   opts: RenderOptions,
   maxRows: number
 ): number {
   return new Scale(
     opts,
     canvas.width,
-    slacks[slacks.length - 1].earlyFinish + 1
+    spans[spans.length - 1].finish + 1
   ).height(maxRows);
 }
 
@@ -112,7 +109,7 @@ export function renderTasksToCanvas(
   canvas: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D,
   chart: Chart,
-  slacks: Slack[],
+  spans: Span[],
   opts: RenderOptions
 ): Result<Scale> {
   const vret = validateChart(chart);
@@ -127,8 +124,8 @@ export function renderTasksToCanvas(
     topologicalOrder.map((taskIndex: number, row: number) => [taskIndex, row])
   );
 
-  const totalNumberOfRows = slacks.length;
-  const totalNumberOfDays = slacks[slacks.length - 1].earlyFinish;
+  const totalNumberOfRows = spans.length;
+  const totalNumberOfDays = spans[spans.length - 1].finish;
   const scale = new Scale(opts, canvas.width, totalNumberOfDays + 1);
 
   setFontSize(ctx, opts);
@@ -148,24 +145,16 @@ export function renderTasksToCanvas(
   // lanes.
   topologicalOrder.forEach((index: number, row: number) => {
     const task = chart.Vertices[index];
-    const slack = slacks[index];
-    const taskStart = scale.feature(
-      row,
-      slack.earlyStart,
-      Feature.taskLineStart
-    );
-    const taskEnd = scale.feature(
-      row,
-      slack.earlyFinish,
-      Feature.taskLineStart
-    );
+    const span = spans[index];
+    const taskStart = scale.feature(row, span.start, Feature.taskLineStart);
+    const taskEnd = scale.feature(row, span.finish, Feature.taskLineStart);
 
     // Draw in time markers if displayed.
     if (opts.displayTimes) {
       drawTimeMarkerAtDayToTask(
         ctx,
         row,
-        slack.earlyStart,
+        span.start,
         task,
         opts,
         scale,
@@ -174,7 +163,7 @@ export function renderTasksToCanvas(
       drawTimeMarkerAtDayToTask(
         ctx,
         row,
-        slack.earlyFinish,
+        span.finish,
         task,
         opts,
         scale,
@@ -188,7 +177,7 @@ export function renderTasksToCanvas(
       drawTaskBar(ctx, taskStart, taskEnd, taskLineHeight);
     }
 
-    drawTaskText(ctx, opts, scale, row, slack, task);
+    drawTaskText(ctx, opts, scale, row, span, task, index);
   });
 
   ctx.lineWidth = 1;
@@ -196,14 +185,14 @@ export function renderTasksToCanvas(
 
   // Now draw all the arrows, i.e. edges.
   chart.Edges.forEach((e: DirectedEdge) => {
-    const srcSlack: Slack = slacks[e.i];
-    const dstSlack: Slack = slacks[e.j];
+    const srcSlack: Span = spans[e.i];
+    const dstSlack: Span = spans[e.j];
     const srcTask: Task = chart.Vertices[e.i];
     const dstTask: Task = chart.Vertices[e.j];
     const srcRow = taskIndexToRow.get(e.i)!;
     const dstRow = taskIndexToRow.get(e.j)!;
-    const srcDay = srcSlack.earlyFinish;
-    const dstDay = dstSlack.earlyStart;
+    const srcDay = srcSlack.finish;
+    const dstDay = dstSlack.start;
 
     drawArrowBetweenTasks(
       ctx,
@@ -424,8 +413,9 @@ function drawTaskText(
   opts: RenderOptions,
   scale: Scale,
   row: number,
-  slack: Slack,
-  task: Task
+  span: Span,
+  task: Task,
+  taskIndex: number
 ) {
   if (!opts.hasText) {
     return;
@@ -433,8 +423,8 @@ function drawTaskText(
   ctx.lineWidth = 1;
   ctx.fillStyle = opts.colors.onSurface;
   ctx.textBaseline = "top";
-  const textStart = scale.feature(row, slack.earlyStart, Feature.textStart);
-  ctx.fillText(opts.taskLabel(task, slack), textStart.x, textStart.y);
+  const textStart = scale.feature(row, span.start, Feature.textStart);
+  ctx.fillText(opts.taskLabel(taskIndex), textStart.x, textStart.y);
 }
 
 function drawTaskBar(
