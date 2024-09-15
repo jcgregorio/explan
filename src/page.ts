@@ -6,6 +6,11 @@ import {
 } from "./ops/chart.ts";
 import { SetMetricValueOp } from "./ops/metrics.ts";
 import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
+import {
+  AddResourceOp,
+  AddResourceOptionOp,
+  SetResourceValueOp,
+} from "./ops/resources.ts";
 import { Plan } from "./plan/plan.ts";
 import {
   DRAG_RANGE_EVENT,
@@ -37,13 +42,22 @@ const rndDuration = (): number => {
   return rndInt(DURATION);
 };
 
+const people: string[] = ["Fred", "Barney", "Wilma", "Betty"];
+
 const rndName = (): string => `Task ${String.fromCharCode(65 + rndInt(26))}`;
 
-const ops: Op[] = [
+const ops: Op[] = [AddResourceOp("person")];
+
+people.forEach((person: string) => {
+  ops.push(AddResourceOptionOp("person", person));
+});
+
+ops.push(
   InsertNewEmptyTaskAfterOp(0),
   SetMetricValueOp("Duration", rndDuration(), 1),
   SetTaskNameOp(1, rndName()),
-];
+  SetResourceValueOp("person", people[rndInt(people.length)], 1)
+);
 
 let numTasks = 1;
 for (let i = 0; i < 20; i++) {
@@ -51,14 +65,16 @@ for (let i = 0; i < 20; i++) {
   ops.push(
     SplitTaskOp(index),
     SetMetricValueOp("Duration", rndDuration(), index + 1),
-    SetTaskNameOp(index + 1, rndName())
+    SetTaskNameOp(index + 1, rndName()),
+    SetResourceValueOp("person", people[rndInt(people.length)], index + 1)
   );
   numTasks++;
   index = rndInt(numTasks) + 1;
   ops.push(
     DupTaskOp(index),
     SetMetricValueOp("Duration", rndDuration(), index + 1),
-    SetTaskNameOp(index + 1, rndName())
+    SetTaskNameOp(index + 1, rndName()),
+    SetResourceValueOp("person", people[rndInt(people.length)], index + 1)
   );
   numTasks++;
 }
@@ -82,7 +98,7 @@ const spans: Span[] = slack.map((value: Slack): Span => {
 });
 
 const taskLabel: TaskLabel = (taskIndex: number): string =>
-  `${plan.chart.Vertices[taskIndex].name} (${slack[taskIndex].early.start}) `;
+  `${plan.chart.Vertices[taskIndex].name} (${plan.chart.Vertices[taskIndex].resources["person"]}) `;
 
 // TODO Extract this as a helper for the radar view.
 let displayRange: DisplayRange | null = null;
