@@ -35,7 +35,7 @@ const rndInt = (n: number): number => {
 const DURATION = 100;
 
 const rndDuration = (): number => {
-  return rndInt(DURATION) + 1;
+  return rndInt(DURATION);
 };
 
 const rndName = (): string => `Task ${String.fromCharCode(65 + rndInt(26))}`;
@@ -58,7 +58,7 @@ for (let i = 0; i < 20; i++) {
   index = rndInt(numTasks) + 1;
   ops.push(
     DupTaskOp(index),
-    SetMetricValueOp("Duration", rndInt(10) + 1, index + 1),
+    SetMetricValueOp("Duration", rndDuration(), index + 1),
     SetTaskNameOp(index + 1, rndName())
   );
   numTasks++;
