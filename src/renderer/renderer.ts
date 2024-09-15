@@ -1,5 +1,6 @@
-import { Chart, Task, validateChart } from "../chart/chart";
+import { Task, validateChart } from "../chart/chart";
 import { DirectedEdge } from "../dag/dag";
+import { Plan } from "../plan/plan";
 import { Result, ok } from "../result";
 import { Span } from "../slack/slack";
 import { DisplayRange } from "./range/range";
@@ -55,6 +56,9 @@ export interface RenderOptions {
   taskLabel: TaskLabel;
 
   /** Maps each task to the row in which it will be displayed. */
+  // Now covert this into an option to render either by topological order, or to
+  // group by resource. First we'll need to pass the plan to the renderer, not
+  // just the chart.
   taskIndexToRow: TaskIndexToRow;
 }
 
@@ -116,11 +120,11 @@ export function renderTasksToCanvas(
   parent: HTMLElement,
   canvas: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D,
-  chart: Chart,
+  plan: Plan,
   spans: Span[],
   opts: RenderOptions
 ): Result<Scale> {
-  const vret = validateChart(chart);
+  const vret = validateChart(plan.chart);
   if (!vret.ok) {
     return vret;
   }
@@ -142,7 +146,7 @@ export function renderTasksToCanvas(
   ctx.strokeStyle = opts.colors.onSurface;
 
   // Draw tasks in their rows.
-  chart.Vertices.forEach((task: Task, taskIndex: number) => {
+  plan.chart.Vertices.forEach((task: Task, taskIndex: number) => {
     const row = opts.taskIndexToRow.get(taskIndex)!;
     const span = spans[taskIndex];
     const taskStart = scale.feature(row, span.start, Feature.taskLineStart);
@@ -183,11 +187,11 @@ export function renderTasksToCanvas(
   ctx.strokeStyle = opts.colors.onSurface;
 
   // Now draw all the arrows, i.e. edges.
-  chart.Edges.forEach((e: DirectedEdge) => {
+  plan.chart.Edges.forEach((e: DirectedEdge) => {
     const srcSlack: Span = spans[e.i];
     const dstSlack: Span = spans[e.j];
-    const srcTask: Task = chart.Vertices[e.i];
-    const dstTask: Task = chart.Vertices[e.j];
+    const srcTask: Task = plan.chart.Vertices[e.i];
+    const dstTask: Task = plan.chart.Vertices[e.j];
     const srcRow = opts.taskIndexToRow.get(e.i)!;
     const dstRow = opts.taskIndexToRow.get(e.j)!;
     const srcDay = srcSlack.finish;

@@ -202,7 +202,7 @@ const paintOneChart = (
   const ctx = canvas.getContext("2d")!;
   ctx.imageSmoothingEnabled = false;
 
-  return renderTasksToCanvas(parent, canvas, ctx, plan.chart, spans, opts);
+  return renderTasksToCanvas(parent, canvas, ctx, plan, spans, opts);
 };
 
 paintChart();
