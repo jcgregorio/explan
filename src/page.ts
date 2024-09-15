@@ -1,4 +1,3 @@
-import { validateChart } from "./chart/chart.ts";
 import {
   DupTaskOp,
   InsertNewEmptyTaskAfterOp,
@@ -114,19 +113,6 @@ const paintChart = () => {
 
   const themeColors: Theme = colorThemeFromElement(document.body);
 
-  const vret = validateChart(plan.chart);
-  if (!vret.ok) {
-    return vret;
-  }
-  const topologicalOrder = vret.value;
-
-  // topologicalOrder maps from row to task index, this will produce the inverse mapping.
-  const taskIndexToRow: Map<number, number> = new Map(
-    // This looks backwards, but it isn't. Remember that the map callback takes
-    // (value, index) as its arguments.
-    topologicalOrder.map((taskIndex: number, row: number) => [taskIndex, row])
-  );
-
   const radarOpts: RenderOptions = {
     fontSizePx: 12,
     hasText: false,
@@ -140,7 +126,7 @@ const paintChart = () => {
     marginSizePx: 10,
     displayTimes: false,
     taskLabel: taskLabel,
-    taskIndexToRow: taskIndexToRow,
+    groupByResource: "",
   };
 
   const zoomOpts: RenderOptions = {
@@ -158,7 +144,7 @@ const paintChart = () => {
     marginSizePx: 10,
     displayTimes: true,
     taskLabel: taskLabel,
-    taskIndexToRow: taskIndexToRow,
+    groupByResource: "",
   };
 
   paintOneChart("#zoomed", zoomOpts);

@@ -1,7 +1,7 @@
 import { Task, validateChart } from "../chart/chart";
 import { DirectedEdge } from "../dag/dag";
 import { Plan } from "../plan/plan";
-import { Result, ok } from "../result";
+import { Result, error, ok } from "../result";
 import { Span } from "../slack/slack";
 import { DisplayRange } from "./range/range";
 import { Point } from "./scale/point";
@@ -59,7 +59,9 @@ export interface RenderOptions {
   // Now covert this into an option to render either by topological order, or to
   // group by resource. First we'll need to pass the plan to the renderer, not
   // just the chart.
-  taskIndexToRow: TaskIndexToRow;
+
+  // If the empty string then just display by topological order.
+  groupByResource: string;
 }
 
 const verticalArrowStartFeatureFromTaskDuration = (task: Task): Feature => {
@@ -138,6 +140,11 @@ export function renderTasksToCanvas(
   const arrowHeadHeight = scale.metric(Metric.arrowHeadHeight);
   const arrowHeadWidth = scale.metric(Metric.arrowHeadWidth);
   const daysWithTimeMarkers: Set<number> = new Set();
+  const tiret = taskIndexToRowFromGroupBy(opts, plan);
+  if (!tiret.ok) {
+    return tiret;
+  }
+  const taskIndexToRow = tiret.value;
 
   // Set up canvas basics.
   clearCanvas(ctx, opts, canvas);
@@ -147,7 +154,7 @@ export function renderTasksToCanvas(
 
   // Draw tasks in their rows.
   plan.chart.Vertices.forEach((task: Task, taskIndex: number) => {
-    const row = opts.taskIndexToRow.get(taskIndex)!;
+    const row = taskIndexToRow.get(taskIndex)!;
     const span = spans[taskIndex];
     const taskStart = scale.feature(row, span.start, Feature.taskLineStart);
     const taskEnd = scale.feature(row, span.finish, Feature.taskLineStart);
@@ -192,8 +199,8 @@ export function renderTasksToCanvas(
     const dstSlack: Span = spans[e.j];
     const srcTask: Task = plan.chart.Vertices[e.i];
     const dstTask: Task = plan.chart.Vertices[e.j];
-    const srcRow = opts.taskIndexToRow.get(e.i)!;
-    const dstRow = opts.taskIndexToRow.get(e.j)!;
+    const srcRow = taskIndexToRow.get(e.i)!;
+    const dstRow = taskIndexToRow.get(e.j)!;
     const srcDay = srcSlack.finish;
     const dstDay = dstSlack.start;
 
@@ -493,4 +500,30 @@ const drawTimeMarkerAtDayToTask = (
   if (opts.hasText) {
     ctx.fillText(`${day}`, textStart.x, textStart.y);
   }
+};
+
+const taskIndexToRowFromGroupBy = (
+  opts: RenderOptions,
+  plan: Plan
+): Result<TaskIndexToRow> => {
+  const vret = validateChart(plan.chart);
+  if (!vret.ok) {
+    return vret;
+  }
+  const topologicalOrder = vret.value;
+
+  if (opts.groupByResource === "") {
+    // topologicalOrder maps from row to task index, this will produce the inverse mapping.
+    return ok(
+      new Map(
+        // This looks backwards, but it isn't. Remember that the map callback takes
+        // (value, index) as its arguments.
+        topologicalOrder.map((taskIndex: number, row: number) => [
+          taskIndex,
+          row,
+        ])
+      )
+    );
+  }
+  return error("??");
 };
