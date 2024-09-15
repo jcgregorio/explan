@@ -12,6 +12,8 @@ export interface Colors {
   overlay: string;
 }
 
+export type TaskIndexToRow = Map<number, number>;
+
 /** Function use to produce a text label for a task and its slack. */
 export type TaskLabel = (taskIndex: number) => string;
 
@@ -51,6 +53,9 @@ export interface RenderOptions {
 
   /** Function that produces display text for a Task and its associated Slack. */
   taskLabel: TaskLabel;
+
+  /** Maps each task to the row in which it will be displayed. */
+  taskIndexToRow: TaskIndexToRow;
 }
 
 const verticalArrowStartFeatureFromTaskDuration = (task: Task): Feature => {
@@ -104,6 +109,9 @@ export function suggestedCanvasHeight(
   ).height(maxRows);
 }
 
+// TODO - Pass in max rows, and a mapping that maps from taskIndex to row,
+// because two different tasks might be placed on the same row. Also we should
+// pass in max rows? Or should that come from the above mapping?
 export function renderTasksToCanvas(
   parent: HTMLElement,
   canvas: HTMLCanvasElement,
@@ -116,13 +124,6 @@ export function renderTasksToCanvas(
   if (!vret.ok) {
     return vret;
   }
-  const topologicalOrder = vret.value;
-
-  // topologicalOrder maps from row to task index. We also need to construct a
-  // map that goes in the opposite direction.
-  const taskIndexToRow: Map<number, number> = new Map(
-    topologicalOrder.map((taskIndex: number, row: number) => [taskIndex, row])
-  );
 
   const totalNumberOfRows = spans.length;
   const totalNumberOfDays = spans[spans.length - 1].finish;
@@ -143,9 +144,9 @@ export function renderTasksToCanvas(
   const daysWithTimeMarkers: Set<number> = new Set();
   // Descend through the topological order drawing task lines in their swim
   // lanes.
-  topologicalOrder.forEach((index: number, row: number) => {
-    const task = chart.Vertices[index];
-    const span = spans[index];
+  chart.Vertices.forEach((task: Task, taskIndex: number) => {
+    const row = opts.taskIndexToRow.get(taskIndex)!;
+    const span = spans[taskIndex];
     const taskStart = scale.feature(row, span.start, Feature.taskLineStart);
     const taskEnd = scale.feature(row, span.finish, Feature.taskLineStart);
 
@@ -177,7 +178,7 @@ export function renderTasksToCanvas(
       drawTaskBar(ctx, taskStart, taskEnd, taskLineHeight);
     }
 
-    drawTaskText(ctx, opts, scale, row, span, task, index);
+    drawTaskText(ctx, opts, scale, row, span, task, taskIndex);
   });
 
   ctx.lineWidth = 1;
@@ -189,8 +190,8 @@ export function renderTasksToCanvas(
     const dstSlack: Span = spans[e.j];
     const srcTask: Task = chart.Vertices[e.i];
     const dstTask: Task = chart.Vertices[e.j];
-    const srcRow = taskIndexToRow.get(e.i)!;
-    const dstRow = taskIndexToRow.get(e.j)!;
+    const srcRow = opts.taskIndexToRow.get(e.i)!;
+    const dstRow = opts.taskIndexToRow.get(e.j)!;
     const srcDay = srcSlack.finish;
     const dstDay = dstSlack.start;
 
