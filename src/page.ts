@@ -142,7 +142,7 @@ const paintChart = () => {
     marginSizePx: 10,
     displayTimes: false,
     taskLabel: taskLabel,
-    groupByResource: "",
+    groupByResource: "person",
   };
 
   const zoomOpts: RenderOptions = {
@@ -160,7 +160,7 @@ const paintChart = () => {
     marginSizePx: 10,
     displayTimes: true,
     taskLabel: taskLabel,
-    groupByResource: "",
+    groupByResource: "person",
   };
 
   paintOneChart("#zoomed", zoomOpts);

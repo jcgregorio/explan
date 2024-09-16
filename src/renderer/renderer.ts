@@ -1,7 +1,8 @@
 import { Task, validateChart } from "../chart/chart";
 import { DirectedEdge } from "../dag/dag";
 import { Plan } from "../plan/plan";
-import { Result, error, ok } from "../result";
+import { ResourceDefinition } from "../resources/resources";
+import { Result, ok } from "../result";
 import { Span } from "../slack/slack";
 import { DisplayRange } from "./range/range";
 import { Point } from "./scale/point";
@@ -512,18 +513,54 @@ const taskIndexToRowFromGroupBy = (
   }
   const topologicalOrder = vret.value;
 
-  if (opts.groupByResource === "") {
-    // topologicalOrder maps from row to task index, this will produce the inverse mapping.
-    return ok(
-      new Map(
-        // This looks backwards, but it isn't. Remember that the map callback takes
-        // (value, index) as its arguments.
-        topologicalOrder.map((taskIndex: number, row: number) => [
-          taskIndex,
-          row,
-        ])
-      )
-    );
+  const resource = plan.resourceDefinitions.find(
+    (r: ResourceDefinition) => r.key === opts.groupByResource
+  );
+
+  // topologicalOrder maps from row to task index, this will produce the inverse mapping.
+  const taskIndexToRow = new Map(
+    // This looks backwards, but it isn't. Remember that the map callback takes
+    // (value, index) as its arguments.
+    topologicalOrder.map((taskIndex: number, row: number) => [taskIndex, row])
+  );
+
+  if (resource === undefined) {
+    return ok(taskIndexToRow);
   }
-  return error("??");
+
+  const startTaskIndex = 0;
+  const finishTaskIndex = plan.chart.Vertices.length - 1;
+  const ignorable = [startTaskIndex, finishTaskIndex];
+
+  // Group all tasks by their resource value, while preserving topological
+  // order with the groups.
+  const groups = new Map<string, number[]>();
+  topologicalOrder.forEach((taskIndex: number) => {
+    const resourceValue =
+      plan.chart.Vertices[taskIndex].resources[resource.key] || "";
+    const groupMembers = groups.get(resourceValue) || [];
+    groupMembers.push(taskIndex);
+    groups.set(resourceValue, groupMembers);
+  });
+
+  const ret = new Map<number, number>();
+
+  // Ugh, Start and Finish Tasks need to be mapped, but should not be done via
+  // resource value, so Start should always be first.
+  ret.set(0, 0);
+
+  // Now increment up the rows as we move through all the groups.
+  let row = 1;
+  resource.values.forEach((resourceValue: string) => {
+    (groups.get(resourceValue) || []).forEach((taskIndex: number) => {
+      if (ignorable.includes(taskIndex)) {
+        return;
+      }
+      ret.set(taskIndex, row);
+      row++;
+    });
+  });
+  ret.set(finishTaskIndex, row);
+
+  return ok(ret);
 };
