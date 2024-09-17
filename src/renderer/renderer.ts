@@ -8,6 +8,8 @@ import { DisplayRange } from "./range/range";
 import { Point } from "./scale/point";
 import { Feature, Metric, Scale } from "./scale/scale";
 
+type Direction = "up" | "down";
+
 export interface Colors {
   surface: string;
   onSurface: string;
@@ -56,28 +58,40 @@ export interface RenderOptions {
   /** Function that produces display text for a Task and its associated Slack. */
   taskLabel: TaskLabel;
 
-  /** Maps each task to the row in which it will be displayed. */
-  // Now covert this into an option to render either by topological order, or to
-  // group by resource. First we'll need to pass the plan to the renderer, not
-  // just the chart.
-
-  // If the empty string then just display by topological order.
+  /** Group the tasks together vertically based on the given resource. If the
+   * empty string is supplied then just display by topological order.
+   */
   groupByResource: string;
 }
 
-const verticalArrowStartFeatureFromTaskDuration = (task: Task): Feature => {
+const verticalArrowStartFeatureFromTaskDuration = (
+  task: Task,
+  direction: Direction
+): Feature => {
   if (task.duration === 0) {
-    return Feature.verticalArrowStartFromMilestone;
+    if (direction === "down") {
+      return Feature.verticalArrowStartFromMilestoneBottom;
+    }
+    return Feature.verticalArrowStartFromMilestoneTop;
   } else {
     return Feature.verticalArrowStart;
   }
 };
 
-const verticalArrowDestFeatureFromTaskDuration = (task: Task): Feature => {
+const verticalArrowDestFeatureFromTaskDuration = (
+  task: Task,
+  direction: Direction
+): Feature => {
   if (task.duration === 0) {
-    return Feature.verticalArrowDestToMilestone;
+    if (direction === "down") {
+      return Feature.verticalArrowDestToMilestoneTop;
+    }
+    return Feature.verticalArrowDestToMilestoneBottom;
   } else {
-    return Feature.verticalArrowDest;
+    if (direction === "down") {
+      return Feature.verticalArrowDestTop;
+    }
+    return Feature.verticalArrowDestBottom;
   }
 };
 
@@ -346,10 +360,11 @@ function drawLShapedArrowToTask(
 
   // Draw vertical part of the "L".
   ctx.beginPath();
+  const direction: Direction = srcRow < dstRow ? "down" : "up";
   const vertLineStart = scale.feature(
     srcRow,
     srcDay,
-    verticalArrowStartFeatureFromTaskDuration(srcTask)
+    verticalArrowStartFeatureFromTaskDuration(srcTask, direction)
   );
   const vertLineEnd = scale.feature(
     dstRow,
@@ -396,15 +411,16 @@ function drawVerticalArrowToTask(
   arrowHeadWidth: number,
   arrowHeadHeight: number
 ) {
+  const direction: Direction = srcRow < dstRow ? "down" : "up";
   const arrowStart = scale.feature(
     srcRow,
     srcDay,
-    verticalArrowStartFeatureFromTaskDuration(srcTask)
+    verticalArrowStartFeatureFromTaskDuration(srcTask, direction)
   );
   const arrowEnd = scale.feature(
     dstRow,
     dstDay,
-    verticalArrowDestFeatureFromTaskDuration(dstTask)
+    verticalArrowDestFeatureFromTaskDuration(dstTask, direction)
   );
 
   ctx.beginPath();
@@ -412,10 +428,11 @@ function drawVerticalArrowToTask(
   ctx.lineTo(arrowEnd.x + 0.5, arrowEnd.y);
 
   // Draw the arrowhead.
+  const deltaY = direction === "down" ? -arrowHeadHeight : arrowHeadHeight;
   ctx.moveTo(arrowEnd.x + 0.5, arrowEnd.y);
-  ctx.lineTo(arrowEnd.x - arrowHeadWidth + 0.5, arrowEnd.y - arrowHeadHeight);
+  ctx.lineTo(arrowEnd.x - arrowHeadWidth + 0.5, arrowEnd.y + deltaY);
   ctx.moveTo(arrowEnd.x + 0.5, arrowEnd.y);
-  ctx.lineTo(arrowEnd.x + arrowHeadWidth + 0.5, arrowEnd.y - arrowHeadHeight);
+  ctx.lineTo(arrowEnd.x + arrowHeadWidth + 0.5, arrowEnd.y + deltaY);
   ctx.stroke();
 }
 
@@ -485,7 +502,7 @@ const drawTimeMarkerAtDayToTask = (
   const timeMarkEnd = scale.feature(
     row,
     day,
-    verticalArrowDestFeatureFromTaskDuration(task)
+    verticalArrowDestFeatureFromTaskDuration(task, "down")
   );
   ctx.lineWidth = 1;
   ctx.setLineDash([1, 2]);

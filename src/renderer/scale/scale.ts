@@ -14,13 +14,16 @@ export enum Feature {
   taskLineStart,
   textStart,
   percentStart,
-  verticalArrowDest,
+  verticalArrowDestTop,
+  verticalArrowDestBottom,
   horizontalArrowDest,
   verticalArrowStart,
   horizontalArrowStart,
-  verticalArrowDestToMilestone,
+  verticalArrowDestToMilestoneTop,
+  verticalArrowDestToMilestoneBottom,
   horizontalArrowDestToMilestone,
-  verticalArrowStartFromMilestone,
+  verticalArrowStartFromMilestoneTop,
+  verticalArrowStartFromMilestoneBottom,
   horizontalArrowStartFromMilestone,
 
   displayRangeTop,
@@ -148,9 +151,12 @@ export class Scale {
   feature(row: number, day: number, coord: Feature): Point {
     switch (coord) {
       case Feature.taskLineStart:
-      case Feature.verticalArrowDest:
+      case Feature.verticalArrowDestTop:
       case Feature.verticalArrowStart:
         return this.envelopeStart(row, day).add(0, 5 * this.blockSizePx);
+
+      case Feature.verticalArrowDestBottom:
+        return this.envelopeStart(row, day).add(0, 6 * this.blockSizePx);
       case Feature.textStart:
         return this.envelopeStart(row, day).add(
           this.blockSizePx,
@@ -167,17 +173,28 @@ export class Scale {
           0,
           Math.floor(5.5 * this.blockSizePx) - 1
         );
-      case Feature.verticalArrowDestToMilestone:
-        return this.feature(row, day, Feature.verticalArrowDest).add(
+      case Feature.verticalArrowDestToMilestoneTop:
+        return this.feature(row, day, Feature.verticalArrowDestTop).add(
           0,
           -1 * this.metric(Metric.milestoneDiameter)
+        );
+      case Feature.verticalArrowDestToMilestoneBottom:
+        return this.feature(row, day, Feature.verticalArrowDestTop).add(
+          0,
+          this.metric(Metric.milestoneDiameter)
         );
       case Feature.horizontalArrowDestToMilestone:
         return this.feature(row, day, Feature.horizontalArrowDest).add(
           -1 * this.metric(Metric.milestoneDiameter),
           -1 * this.metric(Metric.milestoneDiameter)
         );
-      case Feature.verticalArrowStartFromMilestone:
+      case Feature.verticalArrowStartFromMilestoneTop:
+        return this.feature(row, day, Feature.verticalArrowStart).add(
+          0,
+          -1 * this.metric(Metric.milestoneDiameter)
+        );
+
+      case Feature.verticalArrowStartFromMilestoneBottom:
         return this.feature(row, day, Feature.verticalArrowStart).add(
           0,
           this.metric(Metric.milestoneDiameter)

@@ -30,13 +30,15 @@ import { ComputeSlack, Slack, Span } from "./slack/slack";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
 
+const FONT_SIZE_PX = 64;
+
 const plan = new Plan();
 
 const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
 };
 
-const DURATION = 100;
+const DURATION = 3;
 
 const rndDuration = (): number => {
   return rndInt(DURATION);
@@ -130,7 +132,7 @@ const paintChart = () => {
   const themeColors: Theme = colorThemeFromElement(document.body);
 
   const radarOpts: RenderOptions = {
-    fontSizePx: 12,
+    fontSizePx: FONT_SIZE_PX,
     hasText: false,
     displayRange: displayRange,
     displayRangeUsage: "highlight",
@@ -146,7 +148,7 @@ const paintChart = () => {
   };
 
   const zoomOpts: RenderOptions = {
-    fontSizePx: 32,
+    fontSizePx: FONT_SIZE_PX,
     hasText: true,
     // Need a toggle to either use the range to control what is displayed, or to
     // use it to draw the opaque regions over the radar.
