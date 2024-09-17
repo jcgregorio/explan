@@ -30,7 +30,7 @@ import { ComputeSlack, Slack, Span } from "./slack/slack";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
 
-const FONT_SIZE_PX = 64;
+const FONT_SIZE_PX = 20;
 
 const plan = new Plan();
 
@@ -38,7 +38,7 @@ const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
 };
 
-const DURATION = 3;
+const DURATION = 100;
 
 const rndDuration = (): number => {
   return rndInt(DURATION);
@@ -144,7 +144,7 @@ const paintChart = () => {
     marginSizePx: 10,
     displayTimes: false,
     taskLabel: taskLabel,
-    groupByResource: "person",
+    groupByResource: "",
   };
 
   const zoomOpts: RenderOptions = {
@@ -162,7 +162,7 @@ const paintChart = () => {
     marginSizePx: 10,
     displayTimes: true,
     taskLabel: taskLabel,
-    groupByResource: "person",
+    groupByResource: "",
   };
 
   paintOneChart("#zoomed", zoomOpts);

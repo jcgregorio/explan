@@ -41,6 +41,8 @@ export enum Metric {
   arrowHeadHeight,
   arrowHeadWidth,
   milestoneDiameter,
+  lineDashLine,
+  lineDashGap,
 }
 
 /** Makes a number odd, adds one if even. */
@@ -241,6 +243,14 @@ export class Scale {
 
       case Metric.milestoneDiameter:
         return Math.ceil(this.taskHeightPx / 2);
+        break;
+
+      case Metric.lineDashLine:
+        return this.blockSizePx;
+        break;
+
+      case Metric.lineDashGap:
+        return this.blockSizePx;
         break;
 
       default:
