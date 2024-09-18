@@ -11,15 +11,15 @@ import { Feature, Metric, Scale } from "./scale/scale";
 type Direction = "up" | "down";
 
 const COLORS = [
-  "#00000011",
-  "#1B9E7711",
-  "#D95F0211",
-  "#7570B311",
-  "#E7298A11",
-  "#66A61E11",
-  "#E6AB0211",
-  "#A6761D11",
-  "#66666611",
+  "#00000033",
+  "#1B9E7733",
+  "#D95F0233",
+  "#7570B333",
+  "#E7298A33",
+  "#66A61E33",
+  "#E6AB0233",
+  "#A6761D33",
+  "#66666633",
 ];
 export interface Colors {
   surface: string;
