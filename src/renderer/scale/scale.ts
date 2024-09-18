@@ -25,6 +25,7 @@ export enum Feature {
   verticalArrowStartFromMilestoneTop,
   verticalArrowStartFromMilestoneBottom,
   horizontalArrowStartFromMilestone,
+  taskEnvelopeTop,
 
   displayRangeTop,
   taskRowBottom,
@@ -206,6 +207,8 @@ export class Scale {
           this.metric(Metric.milestoneDiameter),
           0
         );
+      case Feature.taskEnvelopeTop:
+        return this.envelopeStart(row, day);
       case Feature.timeMarkStart:
         return this.timeEnvelopeStart(day);
       case Feature.timeMarkEnd:

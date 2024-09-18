@@ -10,6 +10,17 @@ import { Feature, Metric, Scale } from "./scale/scale";
 
 type Direction = "up" | "down";
 
+const COLORS = [
+  "#00000011",
+  "#1B9E7711",
+  "#D95F0211",
+  "#7570B311",
+  "#E7298A11",
+  "#66A61E11",
+  "#E6AB0211",
+  "#A6761D11",
+  "#66666611",
+];
 export interface Colors {
   surface: string;
   onSurface: string;
@@ -159,13 +170,18 @@ export function renderTasksToCanvas(
   if (!tiret.ok) {
     return tiret;
   }
-  const taskIndexToRow = tiret.value;
+  const taskIndexToRow = tiret.value.taskIndexToRow;
+  const rowRanges = tiret.value.rowRanges;
 
   // Set up canvas basics.
   clearCanvas(ctx, opts, canvas);
   setFontSize(ctx, opts);
   ctx.fillStyle = opts.colors.onSurface;
   ctx.strokeStyle = opts.colors.onSurface;
+
+  if (rowRanges !== null) {
+    drawSwimLaneHighlights(ctx, scale, rowRanges, totalNumberOfDays);
+  }
 
   // Draw tasks in their rows.
   plan.chart.Vertices.forEach((task: Task, taskIndex: number) => {
@@ -524,10 +540,23 @@ const drawTimeMarkerAtDayToTask = (
   }
 };
 
+/** Represents a half-open interval of rows, e.g. [start, finish). */
+interface RowRange {
+  start: number;
+  finish: number;
+}
+
+interface TaskIndexToRowReturn {
+  taskIndexToRow: TaskIndexToRow;
+
+  /** Maps each resource value index to a range of rows. */
+  rowRanges: Map<number, RowRange> | null;
+}
+
 const taskIndexToRowFromGroupBy = (
   opts: RenderOptions,
   plan: Plan
-): Result<TaskIndexToRow> => {
+): Result<TaskIndexToRowReturn> => {
   const vret = validateChart(plan.chart);
   if (!vret.ok) {
     return vret;
@@ -546,7 +575,7 @@ const taskIndexToRowFromGroupBy = (
   );
 
   if (resource === undefined) {
-    return ok(taskIndexToRow);
+    return ok({ taskIndexToRow: taskIndexToRow, rowRanges: null });
   }
 
   const startTaskIndex = 0;
@@ -572,7 +601,10 @@ const taskIndexToRowFromGroupBy = (
 
   // Now increment up the rows as we move through all the groups.
   let row = 1;
-  resource.values.forEach((resourceValue: string) => {
+  // And track how many rows are in each group.
+  const rowRanges: Map<number, RowRange> = new Map();
+  resource.values.forEach((resourceValue: string, resourceIndex: number) => {
+    const startOfRow = row;
     (groups.get(resourceValue) || []).forEach((taskIndex: number) => {
       if (ignorable.includes(taskIndex)) {
         return;
@@ -580,8 +612,34 @@ const taskIndexToRowFromGroupBy = (
       ret.set(taskIndex, row);
       row++;
     });
+    rowRanges.set(resourceIndex, { start: startOfRow, finish: row });
   });
   ret.set(finishTaskIndex, row);
 
-  return ok(ret);
+  return ok({ taskIndexToRow: ret, rowRanges: rowRanges });
+};
+
+const drawSwimLaneHighlights = (
+  ctx: CanvasRenderingContext2D,
+  scale: Scale,
+  rowRanges: Map<number, RowRange>,
+  totalNumberOfDays: number
+) => {
+  let color = 0;
+  rowRanges.forEach((rowRange: RowRange) => {
+    const topLeft = scale.feature(rowRange.start, 0, Feature.taskEnvelopeTop);
+    const bottomRight = scale.feature(
+      rowRange.finish,
+      totalNumberOfDays + 1,
+      Feature.taskEnvelopeTop
+    );
+    ctx.fillStyle = COLORS[color];
+    color = (color + 1) % COLORS.length;
+    ctx.fillRect(
+      topLeft.x,
+      topLeft.y,
+      bottomRight.x - topLeft.x,
+      bottomRight.y - topLeft.y
+    );
+  });
 };
