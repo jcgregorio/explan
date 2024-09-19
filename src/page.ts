@@ -34,7 +34,7 @@ import {
 } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
 
-const FONT_SIZE_PX = 20;
+const FONT_SIZE_PX = 32;
 
 const plan = new Plan();
 
@@ -137,7 +137,7 @@ const paintChart = () => {
   const groupColors = arrayOfGroupColors(themeColors);
 
   const radarOpts: RenderOptions = {
-    fontSizePx: FONT_SIZE_PX,
+    fontSizePx: 12,
     hasText: false,
     displayRange: displayRange,
     displayRangeUsage: "highlight",

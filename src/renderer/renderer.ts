@@ -179,6 +179,9 @@ export function renderTasksToCanvas(
     );
   }
 
+  ctx.fillStyle = opts.colors.onSurface;
+  ctx.strokeStyle = opts.colors.onSurface;
+
   // Draw tasks in their rows.
   plan.chart.Vertices.forEach((task: Task, taskIndex: number) => {
     const row = taskIndexToRow.get(taskIndex)!;
