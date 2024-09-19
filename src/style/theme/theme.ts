@@ -8,7 +8,13 @@ export interface Theme {
   onSurface: string;
   onSurfaceSecondary: string;
   overlay: string;
+  groupColor1: string;
+  groupColor2: string;
 }
+
+export const arrayOfGroupColors = (t: Theme): string[] => {
+  return [t.groupColor1, t.groupColor2];
+};
 
 type ThemeProp = keyof Theme;
 
@@ -17,6 +23,8 @@ const colorThemePrototype: Theme = {
   onSurface: "",
   onSurfaceSecondary: "",
   overlay: "",
+  groupColor1: "",
+  groupColor2: "",
 };
 
 export const colorThemeFromElement = (ele: HTMLElement): Theme => {

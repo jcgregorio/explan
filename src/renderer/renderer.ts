@@ -10,21 +10,11 @@ import { Feature, Metric, Scale } from "./scale/scale";
 
 type Direction = "up" | "down";
 
-const COLORS = [
-  "#00000033",
-  "#1B9E7733",
-  "#D95F0233",
-  "#7570B333",
-  "#E7298A33",
-  "#66A61E33",
-  "#E6AB0233",
-  "#A6761D33",
-  "#66666633",
-];
 export interface Colors {
   surface: string;
   onSurface: string;
   overlay: string;
+  groupColors: string[];
 }
 
 export type TaskIndexToRow = Map<number, number>;
@@ -180,7 +170,13 @@ export function renderTasksToCanvas(
   ctx.strokeStyle = opts.colors.onSurface;
 
   if (rowRanges !== null) {
-    drawSwimLaneHighlights(ctx, scale, rowRanges, totalNumberOfDays);
+    drawSwimLaneHighlights(
+      ctx,
+      scale,
+      rowRanges,
+      totalNumberOfDays,
+      opts.colors.groupColors
+    );
   }
 
   // Draw tasks in their rows.
@@ -623,7 +619,8 @@ const drawSwimLaneHighlights = (
   ctx: CanvasRenderingContext2D,
   scale: Scale,
   rowRanges: Map<number, RowRange>,
-  totalNumberOfDays: number
+  totalNumberOfDays: number,
+  groupColors: string[]
 ) => {
   let color = 0;
   rowRanges.forEach((rowRange: RowRange) => {
@@ -633,8 +630,8 @@ const drawSwimLaneHighlights = (
       totalNumberOfDays + 1,
       Feature.taskEnvelopeTop
     );
-    ctx.fillStyle = COLORS[color];
-    color = (color + 1) % COLORS.length;
+    ctx.fillStyle = groupColors[color];
+    color = (color + 1) % groupColors.length;
     ctx.fillRect(
       topLeft.x,
       topLeft.y,

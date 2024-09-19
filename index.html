@@ -16,6 +16,18 @@
             display: block;
         }
 
+        @property --groupColor1 {
+            syntax: "<color>";
+            inherits: true;
+            initial-value: rgb(0, 0, 0, 0);
+        }
+
+        @property --groupColor2 {
+            syntax: "<color>";
+            inherits: true;
+            initial-value: rgb(0, 0, 0, 0);
+        }
+
         @property --surface {
             syntax: "<color>";
             inherits: true;
@@ -45,6 +57,8 @@
             --onSurface: #222;
             --onSurfaceSecondary: #2072c3;
             --overlay: rgb(0, 0, 0, 0.25);
+            --groupColor1: rgba(90, 206, 6, 0.15);
+            --groupColor2: rgba(42, 152, 249, 0);
         }
 
         :root .darkmode {
@@ -52,6 +66,8 @@
             --onSurface: #ddd;
             --onSurfaceSecondary: #2072c3;
             --overlay: rgb(255, 255, 255, 0.1);
+            --groupColor1: rgba(90, 206, 6, 0.1);
+            --groupColor2: rgba(42, 152, 249, 0);
         }
     </style>
     <button id=dark-mode-toggle>Mode</button>
