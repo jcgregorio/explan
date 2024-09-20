@@ -27,11 +27,7 @@ import {
 import { Scale } from "./renderer/scale/scale.ts";
 import { Result } from "./result.ts";
 import { ComputeSlack, Slack, Span } from "./slack/slack";
-import {
-  Theme,
-  arrayOfGroupColors,
-  colorThemeFromElement,
-} from "./style/theme/theme.ts";
+import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
 
 const FONT_SIZE_PX = 32;
@@ -134,7 +130,6 @@ const paintChart = () => {
   console.time("paintChart");
 
   const themeColors: Theme = colorThemeFromElement(document.body);
-  const groupColors = arrayOfGroupColors(themeColors);
 
   const radarOpts: RenderOptions = {
     fontSizePx: 12,
@@ -145,7 +140,7 @@ const paintChart = () => {
       surface: themeColors.surface,
       onSurface: themeColors.onSurface,
       overlay: themeColors.overlay,
-      groupColors: groupColors,
+      groupColor: themeColors.groupColor,
     },
     marginSizePx: 10,
     displayTimes: false,
@@ -164,7 +159,7 @@ const paintChart = () => {
       surface: themeColors.surface,
       onSurface: themeColors.onSurfaceSecondary,
       overlay: themeColors.overlay,
-      groupColors: groupColors,
+      groupColor: themeColors.groupColor,
     },
     marginSizePx: 10,
     displayTimes: true,

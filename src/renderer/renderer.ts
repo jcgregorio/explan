@@ -14,7 +14,7 @@ export interface Colors {
   surface: string;
   onSurface: string;
   overlay: string;
-  groupColors: string[];
+  groupColor: string;
 }
 
 export type TaskIndexToRow = Map<number, number>;
@@ -175,7 +175,7 @@ export function renderTasksToCanvas(
       scale,
       rowRanges,
       totalNumberOfDays,
-      opts.colors.groupColors
+      opts.colors.groupColor
     );
   }
 
@@ -623,9 +623,11 @@ const drawSwimLaneHighlights = (
   scale: Scale,
   rowRanges: Map<number, RowRange>,
   totalNumberOfDays: number,
-  groupColors: string[]
+  groupColor: string
 ) => {
-  let color = 0;
+  ctx.fillStyle = groupColor;
+
+  let group = 0;
   rowRanges.forEach((rowRange: RowRange) => {
     const topLeft = scale.feature(rowRange.start, 0, Feature.taskEnvelopeTop);
     const bottomRight = scale.feature(
@@ -633,8 +635,11 @@ const drawSwimLaneHighlights = (
       totalNumberOfDays + 1,
       Feature.taskEnvelopeTop
     );
-    ctx.fillStyle = groupColors[color];
-    color = (color + 1) % groupColors.length;
+    group++;
+    // Only highlight every other group backgroud with the groupColor.
+    if (group % 2 == 1) {
+      return;
+    }
     ctx.fillRect(
       topLeft.x,
       topLeft.y,
