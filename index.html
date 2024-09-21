@@ -16,6 +16,10 @@
             display: block;
         }
 
+        nav {
+            display: flexbox;
+        }
+
         @property --groupColor {
             syntax: "<color>";
             inherits: true;
@@ -62,7 +66,10 @@
             --groupColor: rgba(89, 206, 6, 0.1);
         }
     </style>
-    <button id=dark-mode-toggle>Mode</button>
+    <nav>
+        <button id=dark-mode-toggle>Mode</button>
+        <button id=group-by-toggle>GroupBy</button>
+    </nav>
     <plan-parent>
         <canvas id="radar" width=1000 height="1000"></canvas>
     </plan-parent>

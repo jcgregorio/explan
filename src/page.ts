@@ -126,6 +126,18 @@ document.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
   paintChart();
 });
 
+const groupByOptions: string[] = ["", "person"];
+let groupByOptionsIndex: number = 1;
+
+const toggleGroupBy = () => {
+  groupByOptionsIndex = (groupByOptionsIndex + 1) % groupByOptions.length;
+};
+
+document.querySelector("#group-by-toggle")!.addEventListener("click", () => {
+  toggleGroupBy();
+  paintChart();
+});
+
 const paintChart = () => {
   console.time("paintChart");
 
@@ -145,7 +157,7 @@ const paintChart = () => {
     marginSizePx: 10,
     displayTimes: false,
     taskLabel: taskLabel,
-    groupByResource: "person",
+    groupByResource: groupByOptions[groupByOptionsIndex],
   };
 
   const zoomOpts: RenderOptions = {
@@ -164,7 +176,7 @@ const paintChart = () => {
     marginSizePx: 10,
     displayTimes: true,
     taskLabel: taskLabel,
-    groupByResource: "person",
+    groupByResource: groupByOptions[groupByOptionsIndex],
   };
 
   paintOneChart("#zoomed", zoomOpts);
