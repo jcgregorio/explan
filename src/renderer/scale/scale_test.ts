@@ -10,12 +10,15 @@ describe("Scale", () => {
     hasText: true,
     displayRange: null,
     displayRangeUsage: "restrict",
-    colorTheme: {
+    colors: {
       surface: "#000",
       onSurface: "#222",
+      overlay: "rgba(0,0,0,0.2)",
+      groupColor: "rgba(0,0,200rrt,0.2)",
     },
     marginSizePx: 10,
     displayTimes: false,
+    groupByResource: "",
     taskLabel: defaultTaskLabel,
   };
 
