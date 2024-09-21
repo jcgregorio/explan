@@ -156,10 +156,13 @@ export class Scale {
       case Feature.taskLineStart:
       case Feature.verticalArrowDestTop:
       case Feature.verticalArrowStart:
-        return this.envelopeStart(row, day).add(0, 5 * this.blockSizePx);
+        return this.envelopeStart(row, day).add(
+          0,
+          this.rowHeightPx - this.blockSizePx
+        );
 
       case Feature.verticalArrowDestBottom:
-        return this.envelopeStart(row, day).add(0, 6 * this.blockSizePx);
+        return this.envelopeStart(row, day).add(0, this.rowHeightPx);
       case Feature.textStart:
         return this.envelopeStart(row, day).add(
           this.blockSizePx,
@@ -168,13 +171,13 @@ export class Scale {
       case Feature.percentStart:
         return this.envelopeStart(row, day).add(
           0,
-          6 * this.blockSizePx - this.lineWidthPx
+          this.rowHeightPx - this.lineWidthPx
         );
       case Feature.horizontalArrowDest:
       case Feature.horizontalArrowStart:
         return this.envelopeStart(row, day).add(
           0,
-          Math.floor(5.5 * this.blockSizePx) - 1
+          Math.floor(this.rowHeightPx - 0.5 * this.blockSizePx) - 1
         );
       case Feature.verticalArrowDestToMilestoneTop:
         return this.feature(row, day, Feature.verticalArrowDestTop).add(
