@@ -22,9 +22,10 @@ export class Point {
     return this.x === rhs.x && this.y === rhs.y;
   }
 
-  set(rhs: Point): void {
+  set(rhs: Point): Point {
     this.x = rhs.x;
     this.y = rhs.y;
+    return this;
   }
 
   dup(): Point {
