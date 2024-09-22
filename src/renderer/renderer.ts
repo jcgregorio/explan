@@ -149,7 +149,7 @@ export function renderTasksToCanvas(
 
   // Calculate how wide we need to make the groupBy column.
   let maxGroupNameLength = 0;
-  if (opts.groupByResource !== "" /* && opts.hasText*/) {
+  if (opts.groupByResource !== "" && opts.hasText) {
     maxGroupNameLength = opts.groupByResource.length;
     const resourceDefinition = plan.resourceDefinitions.find(
       (rd: ResourceDefinition) => {
@@ -198,6 +198,7 @@ export function renderTasksToCanvas(
       totalNumberOfDays,
       opts.colors.groupColor
     );
+    //drawSwimLaneLabels(ctx, scale, rowRanges, totalNumberOfDays);
   }
 
   ctx.fillStyle = opts.colors.onSurface;
@@ -655,7 +656,11 @@ const drawSwimLaneHighlights = (
 
   let group = 0;
   rowRanges.forEach((rowRange: RowRange) => {
-    const topLeft = scale.feature(rowRange.start, 0, Feature.taskEnvelopeTop);
+    const topLeft = scale.feature(
+      rowRange.start,
+      0,
+      Feature.groupEnvelopeStart
+    );
     const bottomRight = scale.feature(
       rowRange.finish,
       totalNumberOfDays + 1,

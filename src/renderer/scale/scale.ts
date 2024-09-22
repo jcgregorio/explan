@@ -26,6 +26,7 @@ export enum Feature {
   verticalArrowStartFromMilestoneTop,
   verticalArrowStartFromMilestoneBottom,
   horizontalArrowStartFromMilestone,
+  groupEnvelopeStart,
   taskEnvelopeTop,
 
   displayRangeTop,
@@ -241,6 +242,8 @@ export class Scale {
         );
       case Feature.taskEnvelopeTop:
         return this.taskRowEnvelopeStart(row, day);
+      case Feature.groupEnvelopeStart:
+        return this.groupRowEnvelopeStart(row, day);
       case Feature.timeMarkStart:
         return this.timeEnvelopeStart(day);
       case Feature.timeMarkEnd:
