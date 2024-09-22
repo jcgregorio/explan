@@ -136,11 +136,10 @@ export class Scale {
         this.totalNumberOfDays
       ),
       row: Math.floor(
-        (window.devicePixelRatio *
-          (point.y -
-            this.origin.y -
-            this.marginSizePx -
-            this.topAxisHeightPx)) /
+        (window.devicePixelRatio * point.y -
+          this.origin.y -
+          this.marginSizePx -
+          this.topAxisHeightPx) /
           this.rowHeightPx
       ),
     };
