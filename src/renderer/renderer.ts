@@ -147,9 +147,30 @@ export function renderTasksToCanvas(
     return vret;
   }
 
+  // Calculate how wide we need to make the groupBy column.
+  let maxGroupNameLength = 0;
+  if (opts.groupByResource !== "" /* && opts.hasText*/) {
+    maxGroupNameLength = opts.groupByResource.length;
+    const resourceDefinition = plan.resourceDefinitions.find(
+      (rd: ResourceDefinition) => {
+        return rd.key === opts.groupByResource;
+      }
+    );
+    if (resourceDefinition !== undefined) {
+      resourceDefinition.values.forEach((value: string) => {
+        maxGroupNameLength = Math.max(maxGroupNameLength, value.length);
+      });
+    }
+  }
+
   const totalNumberOfRows = spans.length;
   const totalNumberOfDays = spans[spans.length - 1].finish;
-  const scale = new Scale(opts, canvas.width, totalNumberOfDays + 1);
+  const scale = new Scale(
+    opts,
+    canvas.width,
+    totalNumberOfDays + 1,
+    maxGroupNameLength
+  );
   const taskLineHeight = scale.metric(Metric.taskLineHeight);
   const diamondDiameter = scale.metric(Metric.milestoneDiameter);
   const percentHeight = scale.metric(Metric.percentHeight);
@@ -250,7 +271,7 @@ export function renderTasksToCanvas(
 
   // Now draw the range highlights if required.
   if (opts.displayRange !== null && opts.displayRangeUsage === "highlight") {
-    // Draw a rect over each size that isn't in the range.
+    // Draw a rect over each side that isn't in the range.
     if (opts.displayRange.begin > 0) {
       drawRangeOverlay(
         ctx,
@@ -290,9 +311,14 @@ function drawRangeOverlay(
     endDay,
     Feature.taskRowBottom
   );
-  // TODO Make this settable via Theme.
   ctx.fillStyle = opts.colors.overlay;
-  ctx.fillRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
+  ctx.fillRect(
+    topLeft.x,
+    topLeft.y,
+    bottomRight.x - topLeft.x,
+    bottomRight.y - topLeft.y
+  );
+  console.log("drawRangeOverlay", topLeft, bottomRight);
 }
 
 function drawArrowBetweenTasks(

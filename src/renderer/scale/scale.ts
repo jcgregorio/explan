@@ -13,6 +13,7 @@ export interface DayRow {
 export enum Feature {
   taskLineStart,
   textStart,
+  groupTextStart,
   percentStart,
   verticalArrowDestTop,
   verticalArrowDestBottom,
@@ -65,13 +66,16 @@ export class Scale {
   private topAxisHeightPx: number;
   private origin: Point;
   private totalNumberOfDays: number;
+  private groupByColumnWidthPx: number;
 
   constructor(
     opts: RenderOptions,
     canvasWidthPx: number,
-    totalNumberOfDays: number
+    totalNumberOfDays: number,
+    maxGroupNameLength: number = 0
   ) {
     this.totalNumberOfDays = totalNumberOfDays;
+    this.groupByColumnWidthPx = maxGroupNameLength * opts.fontSizePx;
     this.marginSizePx = opts.marginSizePx;
     this.topAxisHeightPx = opts.displayTimes
       ? Math.ceil((opts.fontSizePx * 4) / 3)
@@ -82,7 +86,8 @@ export class Scale {
       // might be to let this.dayWidthPx be a floating point value and then
       // apply Math.floor() calls to feature() results.
       this.dayWidthPx = Math.floor(
-        (canvasWidthPx - 2 * opts.marginSizePx) / totalNumberOfDays
+        (canvasWidthPx - this.groupByColumnWidthPx - 2 * opts.marginSizePx) /
+          totalNumberOfDays
       );
       this.origin = new Point(0, 0);
     } else {
@@ -90,7 +95,8 @@ export class Scale {
       // Or should we totally drop all margins from here and just use
       // CSS margins on the canvas element?
       this.dayWidthPx = Math.floor(
-        (canvasWidthPx - 2 * opts.marginSizePx) / opts.displayRange.rangeInDays
+        (canvasWidthPx - this.groupByColumnWidthPx - 2 * opts.marginSizePx) /
+          opts.displayRange.rangeInDays
       );
       const beginOffset = Math.floor(
         this.dayWidthPx * opts.displayRange.begin + opts.marginSizePx
@@ -120,8 +126,10 @@ export class Scale {
     return {
       day: clamp(
         Math.floor(
-          (window.devicePixelRatio *
-            (point.x - this.origin.x - this.marginSizePx)) /
+          (window.devicePixelRatio * point.x -
+            this.origin.x -
+            this.marginSizePx -
+            this.groupByColumnWidthPx) /
             this.dayWidthPx
         ),
         0,
@@ -139,10 +147,20 @@ export class Scale {
   }
 
   /** The top left corner of the bounding box for a single task. */
-  private envelopeStart(row: number, day: number): Point {
+  private taskRowEnvelopeStart(row: number, day: number): Point {
     return this.origin.sum(
       new Point(
-        day * this.dayWidthPx + this.marginSizePx,
+        day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx,
+        row * this.rowHeightPx + this.marginSizePx + this.topAxisHeightPx
+      )
+    );
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private groupRowEnvelopeStart(row: number, day: number): Point {
+    return this.origin.sum(
+      new Point(
+        0,
         row * this.rowHeightPx + this.marginSizePx + this.topAxisHeightPx
       )
     );
@@ -150,7 +168,10 @@ export class Scale {
 
   private timeEnvelopeStart(day: number): Point {
     return this.origin.sum(
-      new Point(day * this.dayWidthPx + this.marginSizePx, this.marginSizePx)
+      new Point(
+        day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx,
+        this.marginSizePx
+      )
     );
   }
 
@@ -160,26 +181,31 @@ export class Scale {
       case Feature.taskLineStart:
       case Feature.verticalArrowDestTop:
       case Feature.verticalArrowStart:
-        return this.envelopeStart(row, day).add(
+        return this.taskRowEnvelopeStart(row, day).add(
           0,
           this.rowHeightPx - this.blockSizePx
         );
 
       case Feature.verticalArrowDestBottom:
-        return this.envelopeStart(row, day).add(0, this.rowHeightPx);
+        return this.taskRowEnvelopeStart(row, day).add(0, this.rowHeightPx);
       case Feature.textStart:
-        return this.envelopeStart(row, day).add(
+        return this.taskRowEnvelopeStart(row, day).add(
+          this.blockSizePx,
+          this.blockSizePx
+        );
+      case Feature.groupTextStart:
+        return this.groupRowEnvelopeStart(row, day).add(
           this.blockSizePx,
           this.blockSizePx
         );
       case Feature.percentStart:
-        return this.envelopeStart(row, day).add(
+        return this.taskRowEnvelopeStart(row, day).add(
           0,
           this.rowHeightPx - this.lineWidthPx
         );
       case Feature.horizontalArrowDest:
       case Feature.horizontalArrowStart:
-        return this.envelopeStart(row, day).add(
+        return this.taskRowEnvelopeStart(row, day).add(
           0,
           Math.floor(this.rowHeightPx - 0.5 * this.blockSizePx) - 1
         );
@@ -215,7 +241,7 @@ export class Scale {
           0
         );
       case Feature.taskEnvelopeTop:
-        return this.envelopeStart(row, day);
+        return this.taskRowEnvelopeStart(row, day);
       case Feature.timeMarkStart:
         return this.timeEnvelopeStart(day);
       case Feature.timeMarkEnd:
@@ -225,7 +251,7 @@ export class Scale {
       case Feature.displayRangeTop:
         return this.timeEnvelopeStart(day);
       case Feature.taskRowBottom:
-        return this.envelopeStart(row + 1, day);
+        return this.taskRowEnvelopeStart(row + 1, day);
       default:
         // The line below will not compile if you missed an enum in the switch above.
         coord satisfies never;

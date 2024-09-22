@@ -113,9 +113,11 @@ const dragRangeHandler = (e: CustomEvent<DragRange>) => {
   if (scale === null) {
     return;
   }
+  console.log("mouse", e.detail);
   const begin = scale.dayRowFromPoint(e.detail.begin);
   const end = scale.dayRowFromPoint(e.detail.end);
   displayRange = new DisplayRange(begin.day, end.day);
+  console.log(displayRange);
   paintChart();
 };
 
