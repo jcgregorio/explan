@@ -77,6 +77,10 @@ export class Scale {
       ? Math.ceil((opts.fontSizePx * 4) / 3)
       : 0;
     if (opts.displayRange === null || opts.displayRangeUsage === "highlight") {
+      // TODO - The Math.floor() call here causes zooming to start to look
+      // choppy when large ranges of the chart are selected. One way to fix this
+      // might be to let this.dayWidthPx be a floating point value and then
+      // apply Math.floor() calls to feature() results.
       this.dayWidthPx = Math.floor(
         (canvasWidthPx - 2 * opts.marginSizePx) / totalNumberOfDays
       );
