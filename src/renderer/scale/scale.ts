@@ -35,6 +35,8 @@ export enum Feature {
   timeMarkStart,
   timeMarkEnd,
   timeTextStart,
+
+  groupTitleTextStart,
 }
 
 /** Sizes of features of a rendered chart. */
@@ -166,6 +168,10 @@ export class Scale {
     );
   }
 
+  private groupHeaderStart(): Point {
+    return this.origin.sum(new Point(this.marginSizePx, this.marginSizePx));
+  }
+
   private timeEnvelopeStart(day: number): Point {
     return this.origin.sum(
       new Point(
@@ -250,6 +256,9 @@ export class Scale {
         return this.timeEnvelopeStart(day).add(0, this.rowHeightPx * (row + 1));
       case Feature.timeTextStart:
         return this.timeEnvelopeStart(day).add(this.blockSizePx, 0);
+
+      case Feature.groupTitleTextStart:
+        return this.groupHeaderStart().add(this.blockSizePx, 0);
       case Feature.displayRangeTop:
         return this.timeEnvelopeStart(day);
       case Feature.taskRowBottom:

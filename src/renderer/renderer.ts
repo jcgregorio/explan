@@ -183,6 +183,7 @@ export function renderTasksToCanvas(
   }
   const taskIndexToRow = tiret.value.taskIndexToRow;
   const rowRanges = tiret.value.rowRanges;
+  const resourceDefinition = tiret.value.resourceDefinition;
 
   // Set up canvas basics.
   clearCanvas(ctx, opts, canvas);
@@ -198,7 +199,10 @@ export function renderTasksToCanvas(
       totalNumberOfDays,
       opts.colors.groupColor
     );
-    //drawSwimLaneLabels(ctx, scale, rowRanges, totalNumberOfDays);
+
+    if (resourceDefinition !== null && opts.hasText) {
+      drawSwimLaneLabels(ctx, opts, resourceDefinition, scale, rowRanges);
+    }
   }
 
   ctx.fillStyle = opts.colors.onSurface;
@@ -577,6 +581,8 @@ interface TaskIndexToRowReturn {
 
   /** Maps each resource value index to a range of rows. */
   rowRanges: Map<number, RowRange> | null;
+
+  resourceDefinition: ResourceDefinition | null;
 }
 
 const taskIndexToRowFromGroupBy = (
@@ -601,7 +607,11 @@ const taskIndexToRowFromGroupBy = (
   );
 
   if (resource === undefined) {
-    return ok({ taskIndexToRow: taskIndexToRow, rowRanges: null });
+    return ok({
+      taskIndexToRow: taskIndexToRow,
+      rowRanges: null,
+      resourceDefinition: null,
+    });
   }
 
   const startTaskIndex = 0;
@@ -642,7 +652,11 @@ const taskIndexToRowFromGroupBy = (
   });
   ret.set(finishTaskIndex, row);
 
-  return ok({ taskIndexToRow: ret, rowRanges: rowRanges });
+  return ok({
+    taskIndexToRow: ret,
+    rowRanges: rowRanges,
+    resourceDefinition: resource,
+  });
 };
 
 const drawSwimLaneHighlights = (
@@ -676,6 +690,34 @@ const drawSwimLaneHighlights = (
       topLeft.y,
       bottomRight.x - topLeft.x,
       bottomRight.y - topLeft.y
+    );
+  });
+};
+
+const drawSwimLaneLabels = (
+  ctx: CanvasRenderingContext2D,
+  opts: RenderOptions,
+  resourceDefinition: ResourceDefinition,
+  scale: Scale,
+  rowRanges: Map<number, RowRange>
+) => {
+  if (rowRanges) ctx.lineWidth = 1;
+  ctx.fillStyle = opts.colors.onSurface;
+  ctx.textBaseline = "top";
+
+  const textStart = scale.feature(0, 0, Feature.groupTitleTextStart);
+  ctx.fillText(resourceDefinition.key, textStart.x, textStart.y);
+  rowRanges.forEach((rowRange: RowRange, resourceIndex: number) => {
+    if (rowRange.start === rowRange.finish) {
+      return;
+    }
+    const middleRow =
+      rowRange.start + Math.floor((rowRange.finish - rowRange.start) / 2);
+    const textStart = scale.feature(middleRow, 0, Feature.groupTextStart);
+    ctx.fillText(
+      resourceDefinition.values[resourceIndex],
+      textStart.x,
+      textStart.y
     );
   });
 };
