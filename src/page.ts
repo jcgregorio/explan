@@ -46,19 +46,19 @@ const rndDuration = (): number => {
 
 const people: string[] = ["Fred", "Barney", "Wilma", "Betty"];
 
-const rndName = (): string => `Task ${String.fromCharCode(65 + rndInt(26))}`;
+const rndName = (): string => `${String.fromCharCode(65 + rndInt(26))}`;
 
-const ops: Op[] = [AddResourceOp("person")];
+const ops: Op[] = [AddResourceOp("Person")];
 
 people.forEach((person: string) => {
-  ops.push(AddResourceOptionOp("person", person));
+  ops.push(AddResourceOptionOp("Person", person));
 });
 
 ops.push(
   InsertNewEmptyTaskAfterOp(0),
   SetMetricValueOp("Duration", rndDuration(), 1),
   SetTaskNameOp(1, rndName()),
-  SetResourceValueOp("person", people[rndInt(people.length)], 1)
+  SetResourceValueOp("Person", people[rndInt(people.length)], 1)
 );
 
 let numTasks = 1;
@@ -68,7 +68,7 @@ for (let i = 0; i < 20; i++) {
     SplitTaskOp(index),
     SetMetricValueOp("Duration", rndDuration(), index + 1),
     SetTaskNameOp(index + 1, rndName()),
-    SetResourceValueOp("person", people[rndInt(people.length)], index + 1)
+    SetResourceValueOp("Person", people[rndInt(people.length)], index + 1)
   );
   numTasks++;
   index = rndInt(numTasks) + 1;
@@ -76,7 +76,7 @@ for (let i = 0; i < 20; i++) {
     DupTaskOp(index),
     SetMetricValueOp("Duration", rndDuration(), index + 1),
     SetTaskNameOp(index + 1, rndName()),
-    SetResourceValueOp("person", people[rndInt(people.length)], index + 1)
+    SetResourceValueOp("Person", people[rndInt(people.length)], index + 1)
   );
   numTasks++;
 }
@@ -100,7 +100,8 @@ const spans: Span[] = slack.map((value: Slack): Span => {
 });
 
 const taskLabel: TaskLabel = (taskIndex: number): string =>
-  `${plan.chart.Vertices[taskIndex].name} (${plan.chart.Vertices[taskIndex].resources["person"]}) `;
+  `${plan.chart.Vertices[taskIndex].name}`;
+//  `${plan.chart.Vertices[taskIndex].name} (${plan.chart.Vertices[taskIndex].resources["Person"]}) `;
 
 // TODO Extract this as a helper for the radar view.
 let displayRange: DisplayRange | null = null;
@@ -128,7 +129,7 @@ document.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
   paintChart();
 });
 
-const groupByOptions: string[] = ["", "person"];
+const groupByOptions: string[] = ["", "Person"];
 let groupByOptionsIndex: number = 1;
 
 const toggleGroupBy = () => {
