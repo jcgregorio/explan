@@ -243,7 +243,10 @@ export function renderTasksToCanvas(
       drawTaskBar(ctx, taskStart, taskEnd, taskLineHeight);
     }
 
-    drawTaskText(ctx, opts, scale, row, span, task, taskIndex);
+    // Skip drawing the test of the Start and Finish tasks.
+    if (taskIndex !== 0 && taskIndex !== totalNumberOfRows-1) {
+      drawTaskText(ctx, opts, scale, row, span, task, taskIndex);
+    }
   });
 
   ctx.lineWidth = 1;
