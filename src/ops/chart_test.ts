@@ -17,7 +17,7 @@ import { DirectedEdge } from "../dag/dag";
 const arrowSummary = (plan: Plan): string[] =>
   plan.chart.Edges.map(
     (d: DirectedEdge) =>
-      `${plan.chart.Vertices[d.i].name}->${plan.chart.Vertices[d.j].name}`
+      `${plan.chart.Vertices[d.i].name}->${plan.chart.Vertices[d.j].name}`,
   ).sort();
 
 describe("InsertNewEmptyTaskAfterOp", () => {
@@ -93,7 +93,7 @@ describe("SetDurationModelOp", () => {
         assert.equal(
           (plan.chart.Vertices[1].durationModel as JacobianDuration)
             .uncertainty,
-          Uncertainty.moderate
+          Uncertainty.moderate,
         );
       }),
       SetTaskDurationModelOp(1, newDurationModel),
@@ -101,7 +101,7 @@ describe("SetDurationModelOp", () => {
         assert.equal(
           (plan.chart.Vertices[1].durationModel as JacobianDuration)
             .uncertainty,
-          Uncertainty.extreme
+          Uncertainty.extreme,
         );
       }),
     ]);
@@ -181,7 +181,7 @@ describe("SplitTaskOp", () => {
             "Start->B",
             "Start->C",
           ],
-          `Direction: ${forward ? "forward" : "backward"}`
+          `Direction: ${forward ? "forward" : "backward"}`,
         );
         assert.equal(plan.chart.Vertices.length, 5);
       }),
@@ -276,7 +276,7 @@ describe("DupTaskOp", () => {
             "Start->B",
             "Start->C",
           ],
-          `Direction: ${forward ? "forward" : "backward"}`
+          `Direction: ${forward ? "forward" : "backward"}`,
         );
         assert.equal(plan.chart.Vertices.length, 5);
       }),

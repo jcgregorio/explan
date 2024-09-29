@@ -13,7 +13,7 @@ export class Jacobian {
     this.triangular = new Triangular(
       expected / uncertainty,
       expected * uncertainty,
-      expected
+      expected,
     );
   }
 

@@ -26,7 +26,7 @@ class TestSubOp implements SubOp {
   constructor(
     name: string,
     fails: FailureType = "None",
-    isInverse: boolean = false
+    isInverse: boolean = false,
   ) {
     this.name = name;
     this.fails = fails;
@@ -41,7 +41,7 @@ class TestSubOp implements SubOp {
       return error(new Error(inverseFailureErrorMessage));
     }
     TestSubOp.subOpApplicationOrder.push(
-      `${this.isInverse ? "-" : ""}${this.name}`
+      `${this.isInverse ? "-" : ""}${this.name}`,
     );
     const ret: SubOpResult = {
       plan: plan,

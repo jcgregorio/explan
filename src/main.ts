@@ -23,7 +23,7 @@ const C: Chart = {
 console.log("Tasks on the critical path:", ComputeSlack(C));
 console.log(
   "Tasks on the critical path for in the first quartile:",
-  ComputeSlack(C, (t: Task) => t.durationModel.sample(t.duration, 0.25))
+  ComputeSlack(C, (t: Task) => t.durationModel.sample(t.duration, 0.25)),
 );
 
 const plan = new Plan();

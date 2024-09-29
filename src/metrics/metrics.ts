@@ -10,7 +10,7 @@ export class MetricDefinition {
   constructor(
     defaultValue: number,
     range: MetricRange = new MetricRange(),
-    isStatic: boolean = false
+    isStatic: boolean = false,
   ) {
     this.range = range;
     this.default = clamp(defaultValue, range.min, range.max);

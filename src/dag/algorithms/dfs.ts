@@ -15,7 +15,7 @@ export type vertexFunction = (v: Vertex, index: number) => boolean;
 /** Returns the index of all Vertices that have no incoming edge.
  */
 export const setOfVerticesWithNoIncomingEdge = (
-  g: DirectedGraph
+  g: DirectedGraph,
 ): VertexIndices => {
   const nodesWithIncomingEdges = edgesByDstToMap(g.Edges);
   const ret: VertexIndices = [];
@@ -40,7 +40,7 @@ export const depthFirstSearch = (g: DirectedGraph, f: vertexFunction) => {
 export const depthFirstSearchFromIndex = (
   g: DirectedGraph,
   start_index: number,
-  f: vertexFunction
+  f: vertexFunction,
 ) => {
   const edgesBySrc = edgesBySrcToMap(g.Edges);
 

@@ -17,7 +17,7 @@ import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil";
 describe("SetResourceValueOp", () => {
   it("Fails if the key is not a valid resource.", () => {
     const res = SetResourceValueOp("unknown resource", "foo", 1).apply(
-      new Plan(new Chart())
+      new Plan(new Chart()),
     );
     assert.isFalse(res.ok);
     assert.include(res.error.message, "does not exist as a Resource");
@@ -72,8 +72,8 @@ describe("AddResourceOp/DeleteResourceOp", () => {
     assert.isFalse(res.ok);
     assert.isTrue(
       res.error.message.includes(
-        "The resource with name Who does not exist and can't be deleted."
-      )
+        "The resource with name Who does not exist and can't be deleted.",
+      ),
     );
   });
 
@@ -145,8 +145,8 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
     assert.isFalse(res.ok);
     assert.isTrue(
       res.error.message.includes(
-        "Unknown Resource Key doesn't exist as a Resource"
-      )
+        "Unknown Resource Key doesn't exist as a Resource",
+      ),
     );
   });
 
@@ -155,20 +155,20 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
     const res = AddResourceOptionOp("Who", "").apply(plan);
     assert.isFalse(res.ok);
     assert.isTrue(
-      res.error.message.includes("already exists as a value in the Resource")
+      res.error.message.includes("already exists as a value in the Resource"),
     );
   });
 
   it("DeleteResourceOptionOp fails if a Resource with the given key doesn't exist.", () => {
     const plan = init();
     const res = DeleteResourceOptionOp("Unknown Resource Key", "Fred").apply(
-      plan
+      plan,
     );
     assert.isFalse(res.ok);
     assert.isTrue(
       res.error.message.includes(
-        "Unknown Resource Key doesn't exist as a Resource"
-      )
+        "Unknown Resource Key doesn't exist as a Resource",
+      ),
     );
   });
 
@@ -177,7 +177,7 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
     const res = DeleteResourceOptionOp("Who", "Unknown Value").apply(plan);
     assert.isFalse(res.ok);
     assert.isTrue(
-      res.error.message.includes("does not exist as a value in the Resource")
+      res.error.message.includes("does not exist as a value in the Resource"),
     );
   });
 
@@ -186,7 +186,7 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
     const res = DeleteResourceOptionOp("Who", "").apply(plan);
     assert.isFalse(res.ok);
     assert.isTrue(
-      res.error.message.includes("Resources must have at least one value.")
+      res.error.message.includes("Resources must have at least one value."),
     );
   });
 
@@ -267,7 +267,7 @@ describe("RenameResourceOp", () => {
 
     const res = RenameResourceOp(
       "Unknown Resource Name",
-      "New Unknown Resource Name"
+      "New Unknown Resource Name",
     ).apply(plan);
     assert.isFalse(res.ok);
   });
@@ -283,7 +283,7 @@ describe("RenameResourceOptionOp", () => {
         AddResourceOptionOp("Who", "Fred"),
         AddResourceOptionOp("Who", "Barney"),
       ],
-      plan
+      plan,
     );
 
     assert.isTrue(res.ok);
@@ -321,7 +321,7 @@ describe("RenameResourceOptionOp", () => {
   it("Fails if the oldValue doesn't exist.", () => {
     const plan = init();
     const res = RenameResourceOptionOp("Who", "Unknown Value", "Wilma").apply(
-      plan
+      plan,
     );
     assert.isFalse(res.ok);
   });
@@ -346,7 +346,7 @@ describe("MoveResourceOptionSubOp", () => {
         AddResourceOptionOp("Who", "Fred"),
         AddResourceOptionOp("Who", "Barney"),
       ],
-      plan
+      plan,
     );
     assert.isTrue(res.ok);
 

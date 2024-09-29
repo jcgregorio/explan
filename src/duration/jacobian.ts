@@ -29,7 +29,7 @@ export class JacobianDuration implements DurationModel {
       this.triangular = new Triangular(
         duration / this.uncertainty,
         duration * this.uncertainty,
-        duration
+        duration,
       );
     }
     return this.triangular.sample(p);

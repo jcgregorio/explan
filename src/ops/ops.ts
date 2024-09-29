@@ -60,7 +60,7 @@ export class Op {
   // Reverts all SubOps up to the given index.
   applyAllInverseSubOpsToPlan(
     plan: Plan,
-    inverseSubOps: SubOp[]
+    inverseSubOps: SubOp[],
   ): Result<Plan> {
     for (let i = 0; i < inverseSubOps.length; i++) {
       const e = inverseSubOps[i].apply(plan);
@@ -119,7 +119,7 @@ const applyAllInverseOpsToPlan = (inverses: Op[], plan: Plan): Result<Plan> => {
 // testing.
 export const applyAllOpsToPlan = (
   ops: Op[],
-  plan: Plan
+  plan: Plan,
 ): Result<AllOpsResult> => {
   const inverses: Op[] = [];
   for (let i = 0; i < ops.length; i++) {
@@ -146,7 +146,7 @@ export const applyAllOpsToPlan = (
 
 export const applyAllOpsToPlanAndThenInverse = (
   ops: Op[],
-  plan: Plan
+  plan: Plan,
 ): Result<AllOpsResult> => {
   const res = applyAllOpsToPlan(ops, plan);
   if (!res.ok) {

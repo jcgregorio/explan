@@ -33,12 +33,12 @@ describe("AddMetricOp", () => {
       TOp((plan: Plan) => {
         assert.deepEqual(
           plan.metricDefinitions.get("cost"),
-          new MetricDefinition(defaultCostValue)
+          new MetricDefinition(defaultCostValue),
         );
         assert.equal(
           plan.metricDefinitions.size,
           3,
-          "Because a Plan always starts with two metrics."
+          "Because a Plan always starts with two metrics.",
         );
         // Confirm each task was updated.
         plan.chart.Vertices.forEach((task: Task) => {
@@ -50,7 +50,7 @@ describe("AddMetricOp", () => {
 
   it("will fail to add a new metric with the same name as an existing metric", () => {
     const res = AddMetricOp("Duration", new MetricDefinition(0)).apply(
-      new Plan()
+      new Plan(),
     );
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("already exists"));
@@ -67,7 +67,7 @@ describe("DeleteMetricOp", () => {
         } else {
           assert.equal(
             plan.chart.Vertices[1].metrics.get("cost"),
-            newCostValue
+            newCostValue,
           );
         }
       }),
@@ -97,7 +97,7 @@ describe("DeleteMetricOp", () => {
 describe("RenameMetricOp", () => {
   it("will not rename static Metrics", () => {
     const res = RenameMetricOp("Duration", "How long this will take").apply(
-      new Plan()
+      new Plan(),
     );
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("can't be renamed"));
@@ -105,7 +105,7 @@ describe("RenameMetricOp", () => {
 
   it("will not rename a metric to an existing Metric name", () => {
     let res = AddMetricOp("cost", new MetricDefinition(defaultCostValue)).apply(
-      new Plan()
+      new Plan(),
     );
     assert.isTrue(res.ok);
 
@@ -117,7 +117,7 @@ describe("RenameMetricOp", () => {
   it("will return an error if the Metric doesn't exist", () => {
     const res = RenameMetricOp(
       "Some unknown metric",
-      "another name for that metric"
+      "another name for that metric",
     ).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("does not exist as a Metric"));
@@ -136,7 +136,7 @@ describe("RenameMetricOp", () => {
         assert.equal(plan.chart.Vertices[1].metrics.size, 3);
         assert.equal(
           plan.chart.Vertices[1].metrics.get(newMetricName),
-          defaultCostValue
+          defaultCostValue,
         );
       }),
     ]);
@@ -155,7 +155,7 @@ describe("RenameMetricOp", () => {
           assert.equal(plan.chart.Vertices[1].metrics.size, 3);
           assert.equal(
             plan.chart.Vertices[1].metrics.get(oldMetricName),
-            defaultCostValue
+            defaultCostValue,
           );
         }
       }),
@@ -165,7 +165,7 @@ describe("RenameMetricOp", () => {
         assert.isFalse(plan.metricDefinitions.has(oldMetricName));
         assert.equal(
           plan.chart.Vertices[1].metrics.get(newMetricName),
-          defaultCostValue
+          defaultCostValue,
         );
       }),
     ]);
@@ -176,7 +176,7 @@ describe("UpdateMetricSubOp", () => {
   it("fails when the metric doesn't exist", () => {
     const res = UpdateMetricOp(
       "some unknown metric",
-      new MetricDefinition(defaultCostValue)
+      new MetricDefinition(defaultCostValue),
     ).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("does not exist"));
@@ -185,7 +185,7 @@ describe("UpdateMetricSubOp", () => {
   it("fails when the metric is Static", () => {
     const res = UpdateMetricOp(
       "Duration",
-      new MetricDefinition(defaultCostValue)
+      new MetricDefinition(defaultCostValue),
     ).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("Static metric"));
@@ -209,7 +209,7 @@ describe("UpdateMetricSubOp", () => {
       AddMetricOp("cost", new MetricDefinition(defaultCostValue)),
       UpdateMetricOp(
         "cost",
-        new MetricDefinition(defaultCostValue, new MetricRange(100, 200))
+        new MetricDefinition(defaultCostValue, new MetricRange(100, 200)),
       ),
       TOp((plan: Plan) => {
         // Since defaultCostValue < 100 each Task's metric value, it should be clamped to 100.
@@ -230,7 +230,7 @@ describe("UpdateMetricSubOp", () => {
         // Confirm the value for that single task gets restored on revert.
         assert.equal(
           plan.chart.Vertices[1].metrics.get("cost"),
-          defaultCostValue
+          defaultCostValue,
         );
       }),
       SetMetricValueOp("cost", newCostForTask, taskIndex),
@@ -238,12 +238,12 @@ describe("UpdateMetricSubOp", () => {
         // Confirm the value for that single task gets restored on revert.
         assert.equal(
           plan.chart.Vertices[1].metrics.get("cost"),
-          newCostForTask
+          newCostForTask,
         );
       }),
       UpdateMetricOp(
         "cost",
-        new MetricDefinition(defaultCostValue, new MetricRange(100, 200))
+        new MetricDefinition(defaultCostValue, new MetricRange(100, 200)),
       ),
       TOp((plan: Plan) => {
         // Confirm each Task cost metric got updated.

@@ -10,7 +10,8 @@
     "compile": "npx tsc",
     "build": "npx esbuild ./src/page.ts --bundle --outdir=dst --sourcemap=inline",
     "watch": "git ls-files | entr npm run build",
-    "serve": "npx http-server -c-1 -a localhost"
+    "serve": "npx http-server -c-1 -a localhost",
+    "format": "npx prettier -w \"./src/**/*.ts\""
   },
   "keywords": [
     "gantt",
@@ -28,10 +29,10 @@
     "@web/test-runner": "0.18.2",
     "@web/test-runner-puppeteer": "0.16.0",
     "esbuild": "0.21.5",
-    "eslint": "8.57.0",
+    "eslint": "^9.11.1",
     "globals": "15.4.0",
     "http-server": "14.1.1",
-    "typescript": "5.4.5",
-    "typescript-eslint": "7.13.0"
+    "prettier": "^3.3.3",
+    "typescript": "5.4.5"
   }
 }

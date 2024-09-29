@@ -49,7 +49,7 @@ export class MouseMove {
             begin: this.begin!.dup(),
             end: this.currentMoveLocation.dup(),
           },
-        })
+        }),
       );
       this.lastMoveSent.set(this.currentMoveLocation);
     }

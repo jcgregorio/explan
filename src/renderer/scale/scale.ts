@@ -75,7 +75,7 @@ export class Scale {
     opts: RenderOptions,
     canvasWidthPx: number,
     totalNumberOfDays: number,
-    maxGroupNameLength: number = 0
+    maxGroupNameLength: number = 0,
   ) {
     this.totalNumberOfDays = totalNumberOfDays;
     this.groupByColumnWidthPx = maxGroupNameLength * opts.fontSizePx;
@@ -90,7 +90,7 @@ export class Scale {
       // apply Math.floor() calls to feature() results.
       this.dayWidthPx = Math.floor(
         (canvasWidthPx - this.groupByColumnWidthPx - 2 * opts.marginSizePx) /
-          totalNumberOfDays
+          totalNumberOfDays,
       );
       this.origin = new Point(0, 0);
     } else {
@@ -99,10 +99,10 @@ export class Scale {
       // CSS margins on the canvas element?
       this.dayWidthPx = Math.floor(
         (canvasWidthPx - this.groupByColumnWidthPx - 2 * opts.marginSizePx) /
-          opts.displayRange.rangeInDays
+          opts.displayRange.rangeInDays,
       );
       const beginOffset = Math.floor(
-        this.dayWidthPx * opts.displayRange.begin + opts.marginSizePx
+        this.dayWidthPx * opts.displayRange.begin + opts.marginSizePx,
       );
       this.origin = new Point(-beginOffset + opts.marginSizePx, 0);
     }
@@ -133,17 +133,17 @@ export class Scale {
             this.origin.x -
             this.marginSizePx -
             this.groupByColumnWidthPx) /
-            this.dayWidthPx
+            this.dayWidthPx,
         ),
         0,
-        this.totalNumberOfDays
+        this.totalNumberOfDays,
       ),
       row: Math.floor(
         (window.devicePixelRatio * point.y -
           this.origin.y -
           this.marginSizePx -
           this.topAxisHeightPx) /
-          this.rowHeightPx
+          this.rowHeightPx,
       ),
     };
   }
@@ -153,8 +153,8 @@ export class Scale {
     return this.origin.sum(
       new Point(
         day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx,
-        row * this.rowHeightPx + this.marginSizePx + this.topAxisHeightPx
-      )
+        row * this.rowHeightPx + this.marginSizePx + this.topAxisHeightPx,
+      ),
     );
   }
 
@@ -163,8 +163,8 @@ export class Scale {
     return this.origin.sum(
       new Point(
         0,
-        row * this.rowHeightPx + this.marginSizePx + this.topAxisHeightPx
-      )
+        row * this.rowHeightPx + this.marginSizePx + this.topAxisHeightPx,
+      ),
     );
   }
 
@@ -176,8 +176,8 @@ export class Scale {
     return this.origin.sum(
       new Point(
         day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx,
-        this.marginSizePx
-      )
+        this.marginSizePx,
+      ),
     );
   }
 
@@ -189,7 +189,7 @@ export class Scale {
       case Feature.verticalArrowStart:
         return this.taskRowEnvelopeStart(row, day).add(
           0,
-          this.rowHeightPx - this.blockSizePx
+          this.rowHeightPx - this.blockSizePx,
         );
 
       case Feature.verticalArrowDestBottom:
@@ -197,54 +197,54 @@ export class Scale {
       case Feature.textStart:
         return this.taskRowEnvelopeStart(row, day).add(
           this.blockSizePx,
-          this.blockSizePx
+          this.blockSizePx,
         );
       case Feature.groupTextStart:
         return this.groupRowEnvelopeStart(row, day).add(
           this.blockSizePx,
-          this.blockSizePx
+          this.blockSizePx,
         );
       case Feature.percentStart:
         return this.taskRowEnvelopeStart(row, day).add(
           0,
-          this.rowHeightPx - this.lineWidthPx
+          this.rowHeightPx - this.lineWidthPx,
         );
       case Feature.horizontalArrowDest:
       case Feature.horizontalArrowStart:
         return this.taskRowEnvelopeStart(row, day).add(
           0,
-          Math.floor(this.rowHeightPx - 0.5 * this.blockSizePx) - 1
+          Math.floor(this.rowHeightPx - 0.5 * this.blockSizePx) - 1,
         );
       case Feature.verticalArrowDestToMilestoneTop:
         return this.feature(row, day, Feature.verticalArrowDestTop).add(
           0,
-          -1 * this.metric(Metric.milestoneDiameter)
+          -1 * this.metric(Metric.milestoneDiameter),
         );
       case Feature.verticalArrowDestToMilestoneBottom:
         return this.feature(row, day, Feature.verticalArrowDestTop).add(
           0,
-          this.metric(Metric.milestoneDiameter)
+          this.metric(Metric.milestoneDiameter),
         );
       case Feature.horizontalArrowDestToMilestone:
         return this.feature(row, day, Feature.horizontalArrowDest).add(
           -1 * this.metric(Metric.milestoneDiameter),
-          -1 * this.metric(Metric.milestoneDiameter)
+          -1 * this.metric(Metric.milestoneDiameter),
         );
       case Feature.verticalArrowStartFromMilestoneTop:
         return this.feature(row, day, Feature.verticalArrowStart).add(
           0,
-          -1 * this.metric(Metric.milestoneDiameter)
+          -1 * this.metric(Metric.milestoneDiameter),
         );
 
       case Feature.verticalArrowStartFromMilestoneBottom:
         return this.feature(row, day, Feature.verticalArrowStart).add(
           0,
-          this.metric(Metric.milestoneDiameter)
+          this.metric(Metric.milestoneDiameter),
         );
       case Feature.horizontalArrowStartFromMilestone:
         return this.feature(row, day, Feature.horizontalArrowStart).add(
           this.metric(Metric.milestoneDiameter),
-          0
+          0,
         );
       case Feature.taskEnvelopeTop:
         return this.taskRowEnvelopeStart(row, day);
@@ -274,37 +274,22 @@ export class Scale {
     switch (feature) {
       case Metric.taskLineHeight:
         return this.taskHeightPx;
-        break;
-
       case Metric.percentHeight:
         return this.lineWidthPx;
-        break;
-
       case Metric.arrowHeadHeight:
         return this.taskHeightPx;
-        break;
-
       case Metric.arrowHeadWidth:
         return Math.ceil(this.taskHeightPx / 2);
-        break;
-
       case Metric.milestoneDiameter:
         return Math.ceil(this.taskHeightPx / 2);
-        break;
-
       case Metric.lineDashLine:
         return this.blockSizePx;
-        break;
-
       case Metric.lineDashGap:
         return this.blockSizePx;
-        break;
-
       default:
         // The line below will not compile if you missed an enum in the switch above.
         feature satisfies never;
         return 0.0;
-        break;
     }
   }
 }
