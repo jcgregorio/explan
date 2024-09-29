@@ -50,9 +50,6 @@ export interface RenderOptions {
   /** The color theme. */
   colors: Colors;
 
-  /** The margin, in pixels, around the chart. */
-  marginSizePx: number;
-
   /** If true then display times at the top of the chart. */
   displayTimes: boolean;
 

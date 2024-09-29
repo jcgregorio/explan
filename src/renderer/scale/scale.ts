@@ -79,7 +79,13 @@ export class Scale {
   ) {
     this.totalNumberOfDays = totalNumberOfDays;
     this.groupByColumnWidthPx = maxGroupNameLength * opts.fontSizePx;
-    this.marginSizePx = opts.marginSizePx;
+
+    this.blockSizePx = Math.floor(opts.fontSizePx / 3);
+    this.taskHeightPx = makeOdd(Math.floor((this.blockSizePx * 3) / 4));
+    this.lineWidthPx = makeOdd(Math.floor(this.taskHeightPx / 3));
+    this.marginSizePx = this.taskHeightPx / 2; // Same as milestone radius.
+
+    this.marginSizePx = this.marginSizePx;
     this.topAxisHeightPx = opts.displayTimes
       ? Math.ceil((opts.fontSizePx * 4) / 3)
       : 0;
@@ -89,7 +95,7 @@ export class Scale {
       // might be to let this.dayWidthPx be a floating point value and then
       // apply Math.floor() calls to feature() results.
       this.dayWidthPx = Math.floor(
-        (canvasWidthPx - this.groupByColumnWidthPx - 2 * opts.marginSizePx) /
+        (canvasWidthPx - this.groupByColumnWidthPx - 2 * this.marginSizePx) /
           totalNumberOfDays,
       );
       this.origin = new Point(0, 0);
@@ -98,18 +104,14 @@ export class Scale {
       // Or should we totally drop all margins from here and just use
       // CSS margins on the canvas element?
       this.dayWidthPx = Math.floor(
-        (canvasWidthPx - this.groupByColumnWidthPx - 2 * opts.marginSizePx) /
+        (canvasWidthPx - this.groupByColumnWidthPx - 2 * this.marginSizePx) /
           opts.displayRange.rangeInDays,
       );
       const beginOffset = Math.floor(
-        this.dayWidthPx * opts.displayRange.begin + opts.marginSizePx,
+        this.dayWidthPx * opts.displayRange.begin + this.marginSizePx,
       );
-      this.origin = new Point(-beginOffset + opts.marginSizePx, 0);
+      this.origin = new Point(-beginOffset + this.marginSizePx, 0);
     }
-
-    this.blockSizePx = Math.floor(opts.fontSizePx / 3);
-    this.taskHeightPx = makeOdd(Math.floor((this.blockSizePx * 3) / 4));
-    this.lineWidthPx = makeOdd(Math.floor(this.taskHeightPx / 3));
     if (opts.hasText) {
       this.rowHeightPx = 6 * this.blockSizePx; // This might also be `(canvasHeightPx - 2 * opts.marginSizePx) / numberSwimLanes` if height is supplied?
     } else {
@@ -279,9 +281,9 @@ export class Scale {
       case Metric.arrowHeadHeight:
         return this.taskHeightPx;
       case Metric.arrowHeadWidth:
-        return Math.ceil(this.taskHeightPx / 2);
+        return Math.ceil(this.taskHeightPx);
       case Metric.milestoneDiameter:
-        return Math.ceil(this.taskHeightPx / 2);
+        return Math.ceil(this.taskHeightPx);
       case Metric.lineDashLine:
         return this.blockSizePx;
       case Metric.lineDashGap:
