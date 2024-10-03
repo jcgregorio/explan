@@ -51,7 +51,7 @@ export interface RenderOptions {
   colors: Colors;
 
   /** If true then display times at the top of the chart. */
-  displayTimes: boolean;
+  hasTimeline: boolean;
 
   /** Function that produces display text for a Task and its associated Slack. */
   taskLabel: TaskLabel;
@@ -213,7 +213,7 @@ export function renderTasksToCanvas(
     const taskEnd = scale.feature(row, span.finish, Feature.taskLineStart);
 
     // Draw in time markers if displayed.
-    if (opts.displayTimes) {
+    if (opts.hasTimeline) {
       drawTimeMarkerAtDayToTask(
         ctx,
         row,

@@ -86,7 +86,7 @@ export class Scale {
     this.marginSizePx = this.taskHeightPx / 2; // Same as milestone radius.
 
     this.marginSizePx = this.marginSizePx;
-    this.topAxisHeightPx = opts.displayTimes
+    this.topAxisHeightPx = opts.hasTimeline
       ? Math.ceil((opts.fontSizePx * 4) / 3)
       : 0;
     if (opts.displayRange === null || opts.displayRangeUsage === "highlight") {

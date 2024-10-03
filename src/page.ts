@@ -157,7 +157,7 @@ const paintChart = () => {
       overlay: themeColors.overlay,
       groupColor: themeColors.groupColor,
     },
-    displayTimes: false,
+    hasTimeline: false,
     taskLabel: taskLabel,
     groupByResource: groupByOptions[groupByOptionsIndex],
   };
@@ -175,7 +175,7 @@ const paintChart = () => {
       overlay: themeColors.overlay,
       groupColor: themeColors.groupColor,
     },
-    displayTimes: true,
+    hasTimeline: true,
     taskLabel: taskLabel,
     groupByResource: groupByOptions[groupByOptionsIndex],
   };
