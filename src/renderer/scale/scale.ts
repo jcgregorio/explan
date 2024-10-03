@@ -37,6 +37,9 @@ export enum Feature {
   timeTextStart,
 
   groupTitleTextStart,
+
+  tasksClipRectOrigin,
+  groupByOrigin,
 }
 
 /** Sizes of features of a rendered chart. */
@@ -66,16 +69,21 @@ export class Scale {
   private taskHeightPx: number;
   private lineWidthPx: number;
   private marginSizePx: number;
-  private topAxisHeightPx: number;
+  private timelineHeightPx: number;
   private origin: Point;
   private totalNumberOfDays: number;
   private groupByColumnWidthPx: number;
+
+  private timelineOrigin: Point;
+  private tasksOrigin: Point;
+  private groupByOrigin: Point;
+  private tasksClipRectOrigin: Point;
 
   constructor(
     opts: RenderOptions,
     canvasWidthPx: number,
     totalNumberOfDays: number,
-    maxGroupNameLength: number = 0,
+    maxGroupNameLength: number = 0
   ) {
     this.totalNumberOfDays = totalNumberOfDays;
     this.groupByColumnWidthPx = maxGroupNameLength * opts.fontSizePx;
@@ -83,12 +91,16 @@ export class Scale {
     this.blockSizePx = Math.floor(opts.fontSizePx / 3);
     this.taskHeightPx = makeOdd(Math.floor((this.blockSizePx * 3) / 4));
     this.lineWidthPx = makeOdd(Math.floor(this.taskHeightPx / 3));
-    this.marginSizePx = this.taskHeightPx / 2; // Same as milestone radius.
-
-    this.marginSizePx = this.marginSizePx;
-    this.topAxisHeightPx = opts.hasTimeline
+    const milestoneRadius = Math.ceil(this.taskHeightPx / 2) + this.lineWidthPx;
+    this.marginSizePx = milestoneRadius;
+    this.timelineHeightPx = opts.hasTimeline
       ? Math.ceil((opts.fontSizePx * 4) / 3)
       : 0;
+
+    this.timelineOrigin = new Point(milestoneRadius, 0);
+    this.groupByOrigin = new Point(0, milestoneRadius + this.timelineHeightPx);
+
+    let beginOffset = 0;
     if (opts.displayRange === null || opts.displayRangeUsage === "highlight") {
       // TODO - The Math.floor() call here causes zooming to start to look
       // choppy when large ranges of the chart are selected. One way to fix this
@@ -96,7 +108,7 @@ export class Scale {
       // apply Math.floor() calls to feature() results.
       this.dayWidthPx = Math.floor(
         (canvasWidthPx - this.groupByColumnWidthPx - 2 * this.marginSizePx) /
-          totalNumberOfDays,
+          totalNumberOfDays
       );
       this.origin = new Point(0, 0);
     } else {
@@ -105,13 +117,24 @@ export class Scale {
       // CSS margins on the canvas element?
       this.dayWidthPx = Math.floor(
         (canvasWidthPx - this.groupByColumnWidthPx - 2 * this.marginSizePx) /
-          opts.displayRange.rangeInDays,
+          opts.displayRange.rangeInDays
       );
-      const beginOffset = Math.floor(
-        this.dayWidthPx * opts.displayRange.begin + this.marginSizePx,
+      beginOffset = Math.floor(
+        this.dayWidthPx * opts.displayRange.begin + this.marginSizePx
       );
       this.origin = new Point(-beginOffset + this.marginSizePx, 0);
     }
+
+    this.tasksOrigin = new Point(
+      this.groupByColumnWidthPx - beginOffset + milestoneRadius,
+      this.timelineHeightPx + milestoneRadius
+    );
+
+    this.tasksClipRectOrigin = new Point(
+      this.groupByColumnWidthPx,
+      this.timelineHeightPx
+    );
+
     if (opts.hasText) {
       this.rowHeightPx = 6 * this.blockSizePx; // This might also be `(canvasHeightPx - 2 * opts.marginSizePx) / numberSwimLanes` if height is supplied?
     } else {
@@ -122,7 +145,7 @@ export class Scale {
   /** The height of the chart. Note that it's not constrained by the canvas. */
   public height(maxRows: number): number {
     return (
-      maxRows * this.rowHeightPx + this.topAxisHeightPx + 2 * this.marginSizePx
+      maxRows * this.rowHeightPx + this.timelineHeightPx + 2 * this.marginSizePx
     );
   }
 
@@ -135,17 +158,17 @@ export class Scale {
             this.origin.x -
             this.marginSizePx -
             this.groupByColumnWidthPx) /
-            this.dayWidthPx,
+            this.dayWidthPx
         ),
         0,
-        this.totalNumberOfDays,
+        this.totalNumberOfDays
       ),
       row: Math.floor(
         (window.devicePixelRatio * point.y -
           this.origin.y -
           this.marginSizePx -
-          this.topAxisHeightPx) /
-          this.rowHeightPx,
+          this.timelineHeightPx) /
+          this.rowHeightPx
       ),
     };
   }
@@ -155,18 +178,18 @@ export class Scale {
     return this.origin.sum(
       new Point(
         day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx,
-        row * this.rowHeightPx + this.marginSizePx + this.topAxisHeightPx,
-      ),
+        row * this.rowHeightPx + this.marginSizePx + this.timelineHeightPx
+      )
     );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private groupRowEnvelopeStart(row: number, day: number): Point {
-    return this.origin.sum(
+    return this.groupByOrigin.sum(
       new Point(
         0,
-        row * this.rowHeightPx + this.marginSizePx + this.topAxisHeightPx,
-      ),
+        row * this.rowHeightPx + this.marginSizePx + this.timelineHeightPx
+      )
     );
   }
 
@@ -178,8 +201,8 @@ export class Scale {
     return this.origin.sum(
       new Point(
         day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx,
-        this.marginSizePx,
-      ),
+        this.marginSizePx
+      )
     );
   }
 
@@ -191,7 +214,7 @@ export class Scale {
       case Feature.verticalArrowStart:
         return this.taskRowEnvelopeStart(row, day).add(
           0,
-          this.rowHeightPx - this.blockSizePx,
+          this.rowHeightPx - this.blockSizePx
         );
 
       case Feature.verticalArrowDestBottom:
@@ -199,54 +222,54 @@ export class Scale {
       case Feature.textStart:
         return this.taskRowEnvelopeStart(row, day).add(
           this.blockSizePx,
-          this.blockSizePx,
+          this.blockSizePx
         );
       case Feature.groupTextStart:
         return this.groupRowEnvelopeStart(row, day).add(
           this.blockSizePx,
-          this.blockSizePx,
+          this.blockSizePx
         );
       case Feature.percentStart:
         return this.taskRowEnvelopeStart(row, day).add(
           0,
-          this.rowHeightPx - this.lineWidthPx,
+          this.rowHeightPx - this.lineWidthPx
         );
       case Feature.horizontalArrowDest:
       case Feature.horizontalArrowStart:
         return this.taskRowEnvelopeStart(row, day).add(
           0,
-          Math.floor(this.rowHeightPx - 0.5 * this.blockSizePx) - 1,
+          Math.floor(this.rowHeightPx - 0.5 * this.blockSizePx) - 1
         );
       case Feature.verticalArrowDestToMilestoneTop:
         return this.feature(row, day, Feature.verticalArrowDestTop).add(
           0,
-          -1 * this.metric(Metric.milestoneDiameter),
+          -1 * this.metric(Metric.milestoneDiameter)
         );
       case Feature.verticalArrowDestToMilestoneBottom:
         return this.feature(row, day, Feature.verticalArrowDestTop).add(
           0,
-          this.metric(Metric.milestoneDiameter),
+          this.metric(Metric.milestoneDiameter)
         );
       case Feature.horizontalArrowDestToMilestone:
         return this.feature(row, day, Feature.horizontalArrowDest).add(
           -1 * this.metric(Metric.milestoneDiameter),
-          -1 * this.metric(Metric.milestoneDiameter),
+          -1 * this.metric(Metric.milestoneDiameter)
         );
       case Feature.verticalArrowStartFromMilestoneTop:
         return this.feature(row, day, Feature.verticalArrowStart).add(
           0,
-          -1 * this.metric(Metric.milestoneDiameter),
+          -1 * this.metric(Metric.milestoneDiameter)
         );
 
       case Feature.verticalArrowStartFromMilestoneBottom:
         return this.feature(row, day, Feature.verticalArrowStart).add(
           0,
-          this.metric(Metric.milestoneDiameter),
+          this.metric(Metric.milestoneDiameter)
         );
       case Feature.horizontalArrowStartFromMilestone:
         return this.feature(row, day, Feature.horizontalArrowStart).add(
           this.metric(Metric.milestoneDiameter),
-          0,
+          0
         );
       case Feature.taskEnvelopeTop:
         return this.taskRowEnvelopeStart(row, day);
@@ -265,6 +288,10 @@ export class Scale {
         return this.timeEnvelopeStart(day);
       case Feature.taskRowBottom:
         return this.taskRowEnvelopeStart(row + 1, day);
+      case Feature.tasksClipRectOrigin:
+        return this.tasksClipRectOrigin;
+      case Feature.groupByOrigin:
+        return this.groupByOrigin;
       default:
         // The line below will not compile if you missed an enum in the switch above.
         coord satisfies never;
