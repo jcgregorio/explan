@@ -2,8 +2,8 @@ import { Result, ok, error } from "../result.ts";
 import { Task, Chart, ChartValidate } from "../chart/chart.ts";
 import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
 
-// Span represents when a task will be done, i.e. it contains the time the task
-// is expected to begin and end.
+/** Span represents when a task will be done, i.e. it contains the time the task
+ * is expected to begin and end. */
 export class Span {
   start: number = 0;
   finish: number = 0;
@@ -16,7 +16,7 @@ export class Slack {
   slack: number = 0;
 }
 
-export type TaskDuration = (t: Task) => number;
+export type TaskDuration = (t: Task, taskIndex: number) => number;
 
 export const defaultTaskDuration = (t: Task): number => {
   return t.duration;
@@ -56,7 +56,7 @@ export function ComputeSlack(
         return predecessorSlack.early.finish;
       })
     );
-    slack.early.finish = slack.early.start + taskDuration(task);
+    slack.early.finish = slack.early.start + taskDuration(task, vertexIndex);
   });
 
   // Now backwards through the topological sort and find the late finish of each
@@ -78,7 +78,7 @@ export function ComputeSlack(
           return successorSlack.late.start;
         })
       );
-      slack.late.start = slack.late.finish - taskDuration(task);
+      slack.late.start = slack.late.finish - taskDuration(task, vertexIndex);
       slack.slack = slack.late.finish - slack.early.finish;
     }
   });
