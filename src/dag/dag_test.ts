@@ -1,5 +1,5 @@
 import { assert } from "@esm-bundle/chai";
-import { DirectedEdge } from "./dag";
+import { DirectedEdge } from "./dag.ts";
 
 describe("DirectedEdge", () => {
   it("has equality comparison", () => {

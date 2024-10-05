@@ -1,4 +1,9 @@
-import { Vertex, VertexIndices, DirectedGraph, edgesBySrcToMap } from "../dag";
+import {
+  Vertex,
+  VertexIndices,
+  DirectedGraph,
+  edgesBySrcToMap,
+} from "../dag.ts";
 
 /**
 The return type for the ToplogicalSort function. 
@@ -51,7 +56,7 @@ export const topologicalSort = (g: DirectedGraph): TSReturn => {
 
   const nodesWithoutPermanentMark = new Set<number>();
   g.Vertices.forEach((_: Vertex, index: number) =>
-    nodesWithoutPermanentMark.add(index),
+    nodesWithoutPermanentMark.add(index)
   );
 
   const hasPermanentMark = (index: number): boolean => {

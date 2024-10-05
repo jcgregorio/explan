@@ -1,5 +1,5 @@
-import { Triangular } from "../stats/cdf/triangular/triangular";
-import { DurationModel } from "./duration";
+import { Triangular } from "../stats/cdf/triangular/triangular.ts";
+import { DurationModel } from "./duration.ts";
 
 /**
  * Uncertainty is a measure of how uncertain you are of a tasks duration.
@@ -29,7 +29,7 @@ export class JacobianDuration implements DurationModel {
       this.triangular = new Triangular(
         duration / this.uncertainty,
         duration * this.uncertainty,
-        duration,
+        duration
       );
     }
     return this.triangular.sample(p);

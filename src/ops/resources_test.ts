@@ -1,6 +1,6 @@
 import { assert } from "@esm-bundle/chai";
-import { Chart, Task } from "../chart/chart";
-import { Plan } from "../plan/plan";
+import { Task } from "../chart/chart.ts";
+import { Plan } from "../plan/plan.ts";
 import {
   AddResourceOp,
   AddResourceOptionOp,
@@ -10,9 +10,9 @@ import {
   RenameResourceOp,
   RenameResourceOptionOp,
   SetResourceValueOp,
-} from "../ops/resources";
-import { applyAllOpsToPlan } from "./ops";
-import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil";
+} from "../ops/resources.ts";
+import { applyAllOpsToPlan } from "./ops.ts";
+import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil.ts";
 
 describe("SetResourceValueOp", () => {
   it("Fails if the key is not a valid resource.", () => {

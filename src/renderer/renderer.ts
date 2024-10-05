@@ -1,12 +1,12 @@
-import { Task, validateChart } from "../chart/chart";
-import { DirectedEdge } from "../dag/dag";
-import { Plan } from "../plan/plan";
-import { ResourceDefinition } from "../resources/resources";
-import { Result, ok } from "../result";
-import { Span } from "../slack/slack";
-import { DisplayRange } from "./range/range";
-import { Point } from "./scale/point";
-import { Feature, Metric, Scale } from "./scale/scale";
+import { Task, validateChart } from "../chart/chart.ts";
+import { DirectedEdge } from "../dag/dag.ts";
+import { Plan } from "../plan/plan.ts";
+import { ResourceDefinition } from "../resources/resources.ts";
+import { Result, ok } from "../result.ts";
+import { Span } from "../slack/slack.ts";
+import { DisplayRange } from "./range/range.ts";
+import { Point } from "./scale/point.ts";
+import { Feature, Metric, Scale } from "./scale/scale.ts";
 
 type Direction = "up" | "down";
 

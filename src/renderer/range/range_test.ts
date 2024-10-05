@@ -1,5 +1,5 @@
 import { assert } from "@esm-bundle/chai";
-import { DisplayRange, MIN_DISPLAY_RANGE } from "./range";
+import { DisplayRange, MIN_DISPLAY_RANGE } from "./range.ts";
 
 describe("DisplayRange", () => {
   it("Fixes up the order of its inputs", () => {

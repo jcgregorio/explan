@@ -1,5 +1,5 @@
 import { assert } from "@esm-bundle/chai";
-import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil";
+import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil.ts";
 import {
   AddEdgeOp,
   SplitTaskOp,
@@ -8,16 +8,16 @@ import {
   SetTaskNameOp,
   SetTaskStateOp,
   DupTaskOp,
-} from "./chart";
-import { Plan } from "../plan/plan";
-import { DEFAULT_TASK_NAME } from "../chart/chart";
-import { JacobianDuration, Uncertainty } from "../duration/jacobian";
-import { DirectedEdge } from "../dag/dag";
+} from "./chart.ts";
+import { Plan } from "../plan/plan.ts";
+import { DEFAULT_TASK_NAME } from "../chart/chart.ts";
+import { JacobianDuration, Uncertainty } from "../duration/jacobian.ts";
+import { DirectedEdge } from "../dag/dag.ts";
 
 const arrowSummary = (plan: Plan): string[] =>
   plan.chart.Edges.map(
     (d: DirectedEdge) =>
-      `${plan.chart.Vertices[d.i].name}->${plan.chart.Vertices[d.j].name}`,
+      `${plan.chart.Vertices[d.i].name}->${plan.chart.Vertices[d.j].name}`
   ).sort();
 
 describe("InsertNewEmptyTaskAfterOp", () => {
@@ -93,7 +93,7 @@ describe("SetDurationModelOp", () => {
         assert.equal(
           (plan.chart.Vertices[1].durationModel as JacobianDuration)
             .uncertainty,
-          Uncertainty.moderate,
+          Uncertainty.moderate
         );
       }),
       SetTaskDurationModelOp(1, newDurationModel),
@@ -101,7 +101,7 @@ describe("SetDurationModelOp", () => {
         assert.equal(
           (plan.chart.Vertices[1].durationModel as JacobianDuration)
             .uncertainty,
-          Uncertainty.extreme,
+          Uncertainty.extreme
         );
       }),
     ]);
@@ -181,7 +181,7 @@ describe("SplitTaskOp", () => {
             "Start->B",
             "Start->C",
           ],
-          `Direction: ${forward ? "forward" : "backward"}`,
+          `Direction: ${forward ? "forward" : "backward"}`
         );
         assert.equal(plan.chart.Vertices.length, 5);
       }),
@@ -276,7 +276,7 @@ describe("DupTaskOp", () => {
             "Start->B",
             "Start->C",
           ],
-          `Direction: ${forward ? "forward" : "backward"}`,
+          `Direction: ${forward ? "forward" : "backward"}`
         );
         assert.equal(plan.chart.Vertices.length, 5);
       }),

@@ -1,4 +1,4 @@
-import { Triangular } from "./triangular";
+import { Triangular } from "./triangular.ts";
 
 export type Uncertainty = "low" | "moderate" | "high" | "extreme";
 

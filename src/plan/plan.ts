@@ -1,11 +1,11 @@
-import { Chart, Task } from "../chart/chart";
-import { MetricDefinition, MetricDefinitions } from "../metrics/metrics";
-import { MetricRange } from "../metrics/range";
+import { Chart, Task } from "../chart/chart.ts";
+import { MetricDefinition, MetricDefinitions } from "../metrics/metrics.ts";
+import { MetricRange } from "../metrics/range.ts";
 import {
   ResourceDefinition,
   ResourceDefinitions,
-} from "../resources/resources";
-import { UncertaintyToNum } from "../stats/cdf/triangular/jacobian";
+} from "../resources/resources.ts";
+import { UncertaintyToNum } from "../stats/cdf/triangular/jacobian.ts";
 
 export type StaticMetricKeys = "Duration" | "Percent Complete";
 

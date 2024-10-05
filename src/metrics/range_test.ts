@@ -1,4 +1,4 @@
-import { MetricRange, clamp } from "./range";
+import { MetricRange, clamp } from "./range.ts";
 import { assert } from "@esm-bundle/chai";
 
 describe("clamp", () => {

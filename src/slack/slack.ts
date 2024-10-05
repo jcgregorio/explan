@@ -1,6 +1,6 @@
-import { Result, ok, error } from "../result";
-import { Task, Chart, ChartValidate } from "../chart/chart";
-import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag";
+import { Result, ok, error } from "../result.ts";
+import { Task, Chart, ChartValidate } from "../chart/chart.ts";
+import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
 
 // Span represents when a task will be done, i.e. it contains the time the task
 // is expected to begin and end.
@@ -27,7 +27,7 @@ export type SlackResult = Result<Slack[]>;
 // Calculate the slack for each Task in the Chart.
 export function ComputeSlack(
   c: Chart,
-  taskDuration: TaskDuration = defaultTaskDuration,
+  taskDuration: TaskDuration = defaultTaskDuration
 ): SlackResult {
   // Create a Slack for each Task.
   const slacks: Slack[] = [];
@@ -54,7 +54,7 @@ export function ComputeSlack(
       ...edges.byDst.get(vertexIndex)!.map((e: DirectedEdge): number => {
         const predecessorSlack = slacks[e.i];
         return predecessorSlack.early.finish;
-      }),
+      })
     );
     slack.early.finish = slack.early.start + taskDuration(task);
   });
@@ -76,7 +76,7 @@ export function ComputeSlack(
         ...edges.bySrc.get(vertexIndex)!.map((e: DirectedEdge): number => {
           const successorSlack = slacks[e.j];
           return successorSlack.late.start;
-        }),
+        })
       );
       slack.late.start = slack.late.finish - taskDuration(task);
       slack.slack = slack.late.finish - slack.early.finish;

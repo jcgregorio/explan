@@ -1,7 +1,7 @@
 import { assert } from "@esm-bundle/chai";
-import { Plan } from "../plan/plan";
-import { error, ok, Result } from "../result";
-import { applyAllOpsToPlan, Op, SubOp, SubOpResult } from "./ops";
+import { Plan } from "../plan/plan.ts";
+import { error, ok, Result } from "../result.ts";
+import { applyAllOpsToPlan, Op, SubOp, SubOpResult } from "./ops.ts";
 
 const testErrorMessage = "Forced test failure.";
 
@@ -26,7 +26,7 @@ class TestSubOp implements SubOp {
   constructor(
     name: string,
     fails: FailureType = "None",
-    isInverse: boolean = false,
+    isInverse: boolean = false
   ) {
     this.name = name;
     this.fails = fails;
@@ -41,7 +41,7 @@ class TestSubOp implements SubOp {
       return error(new Error(inverseFailureErrorMessage));
     }
     TestSubOp.subOpApplicationOrder.push(
-      `${this.isInverse ? "-" : ""}${this.name}`,
+      `${this.isInverse ? "-" : ""}${this.name}`
     );
     const ret: SubOpResult = {
       plan: plan,

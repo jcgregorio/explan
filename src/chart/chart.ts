@@ -1,4 +1,4 @@
-import { Result, ok, error } from "../result";
+import { Result, ok, error } from "../result.ts";
 import {
   VertexIndices,
   Edges,
@@ -8,10 +8,10 @@ import {
   DirectedEdge,
 } from "../dag/dag";
 
-import { topologicalSort } from "../dag/algorithms/toposort";
-import { DurationModel } from "../duration/duration";
-import { JacobianDuration, Uncertainty } from "../duration/jacobian";
-import { MetricValues } from "../metrics/metrics";
+import { topologicalSort } from "../dag/algorithms/toposort.ts";
+import { DurationModel } from "../duration/duration.ts";
+import { JacobianDuration, Uncertainty } from "../duration/jacobian.ts";
+import { MetricValues } from "../metrics/metrics.ts";
 
 export type TaskState = "unstarted" | "started" | "complete";
 
@@ -28,7 +28,7 @@ export const DEFAULT_TASK_NAME = "Task Name";
 export class Task {
   constructor(
     name: string = "",
-    durationModel: DurationModel = new JacobianDuration(Uncertainty.moderate),
+    durationModel: DurationModel = new JacobianDuration(Uncertainty.moderate)
   ) {
     this.name = name || DEFAULT_TASK_NAME;
     this.durationModel =
@@ -102,7 +102,7 @@ export type ValidateResult = Result<TopologicalOrder>;
 export function validateChart(g: DirectedGraph): ValidateResult {
   if (g.Vertices.length < 2) {
     return error(
-      "Chart must contain at least two node, the start and finish tasks.",
+      "Chart must contain at least two node, the start and finish tasks."
     );
   }
 
@@ -118,7 +118,7 @@ export function validateChart(g: DirectedGraph): ValidateResult {
   for (let i = 1; i < g.Vertices.length; i++) {
     if (edgesByDst.get(i) === undefined) {
       return error(
-        `Found node that isn't (0) that has no incoming edges: ${i}`,
+        `Found node that isn't (0) that has no incoming edges: ${i}`
       );
     }
   }
@@ -126,7 +126,7 @@ export function validateChart(g: DirectedGraph): ValidateResult {
   // The last Vertex, T_finish, the Finish Milestone, must have 0 outgoing edges.
   if (edgesBySrc.get(g.Vertices.length - 1) !== undefined) {
     return error(
-      "The last node, which should be the Finish Milestone, has an outgoing edge.",
+      "The last node, which should be the Finish Milestone, has an outgoing edge."
     );
   }
 
@@ -134,7 +134,7 @@ export function validateChart(g: DirectedGraph): ValidateResult {
   for (let i = 0; i < g.Vertices.length - 1; i++) {
     if (edgesBySrc.get(i) === undefined) {
       return error(
-        `Found node that isn't T_finish that has no outgoing edges: ${i}`,
+        `Found node that isn't T_finish that has no outgoing edges: ${i}`
       );
     }
   }
@@ -171,14 +171,14 @@ export function ChartValidate(c: Chart): ValidateResult {
   }
   if (c.Vertices[0].duration !== 0) {
     return error(
-      `Start Milestone must have duration of 0, instead got ${c.Vertices[0].duration}`,
+      `Start Milestone must have duration of 0, instead got ${c.Vertices[0].duration}`
     );
   }
   if (c.Vertices[c.Vertices.length - 1].duration !== 0) {
     return error(
       `Finish Milestone must have duration of 0, instead got ${
         c.Vertices[c.Vertices.length - 1].duration
-      }`,
+      }`
     );
   }
   return ret;

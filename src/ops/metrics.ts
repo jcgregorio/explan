@@ -1,10 +1,10 @@
 // ChangeMetricValue
 
-import { Task } from "../chart/chart";
-import { MetricDefinition } from "../metrics/metrics";
-import { Plan } from "../plan/plan";
-import { Result, error, ok } from "../result";
-import { Op, SubOp, SubOpResult } from "./ops";
+import { Task } from "../chart/chart.ts";
+import { MetricDefinition } from "../metrics/metrics.ts";
+import { Plan } from "../plan/plan.ts";
+import { Result, error, ok } from "../result.ts";
+import { Op, SubOp, SubOpResult } from "./ops.ts";
 
 export class AddMetricSubOp implements SubOp {
   name: string;
@@ -16,7 +16,7 @@ export class AddMetricSubOp implements SubOp {
   constructor(
     name: string,
     metricDefinition: MetricDefinition,
-    taskMetricValues: Map<number, number> = new Map(), // Should only be supplied by inverse actions.
+    taskMetricValues: Map<number, number> = new Map() // Should only be supplied by inverse actions.
   ) {
     this.name = name;
     this.metricDefinition = metricDefinition;
@@ -37,7 +37,7 @@ export class AddMetricSubOp implements SubOp {
     plan.chart.Vertices.forEach((task: Task, index: number) => {
       task.metrics.set(
         this.name,
-        this.taskMetricValues.get(index) || this.metricDefinition.default,
+        this.taskMetricValues.get(index) || this.metricDefinition.default
       );
     });
 
@@ -61,7 +61,7 @@ export class DeleteMetricSubOp implements SubOp {
 
     if (metricDefinition === undefined) {
       return error(
-        `The metric with name ${this.name} does not exist and can't be deleted.`,
+        `The metric with name ${this.name} does not exist and can't be deleted.`
       );
     }
 
@@ -92,12 +92,12 @@ export class DeleteMetricSubOp implements SubOp {
 
   private inverse(
     metricDefinition: MetricDefinition,
-    metricValuesForDeletedResourceName: Map<number, number>,
+    metricValuesForDeletedResourceName: Map<number, number>
   ): SubOp {
     return new AddMetricSubOp(
       this.name,
       metricDefinition,
-      metricValuesForDeletedResourceName,
+      metricValuesForDeletedResourceName
     );
   }
 }
@@ -152,7 +152,7 @@ export class UpdateMetricSubOp implements SubOp {
   constructor(
     name: string,
     metricDefinition: MetricDefinition,
-    taskMetricValues: Map<number, number> = new Map(), // Should only be supplied by inverse actions.
+    taskMetricValues: Map<number, number> = new Map() // Should only be supplied by inverse actions.
   ) {
     this.name = name;
     this.metricDefinition = metricDefinition;
@@ -203,12 +203,12 @@ export class UpdateMetricSubOp implements SubOp {
 
   inverse(
     oldMetricDefinition: MetricDefinition,
-    taskMetricValues: Map<number, number>,
+    taskMetricValues: Map<number, number>
   ): SubOp {
     return new UpdateMetricSubOp(
       this.name,
       oldMetricDefinition,
-      taskMetricValues,
+      taskMetricValues
     );
   }
 }
@@ -244,7 +244,7 @@ export class SetMetricValueSubOp implements SubOp {
 
 export function AddMetricOp(
   name: string,
-  metricDefinition: MetricDefinition,
+  metricDefinition: MetricDefinition
 ): Op {
   return new Op([new AddMetricSubOp(name, metricDefinition)]);
 }
@@ -259,7 +259,7 @@ export function RenameMetricOp(oldName: string, newName: string): Op {
 
 export function UpdateMetricOp(
   name: string,
-  metricDefinition: MetricDefinition,
+  metricDefinition: MetricDefinition
 ): Op {
   return new Op([new UpdateMetricSubOp(name, metricDefinition)]);
 }
@@ -267,7 +267,7 @@ export function UpdateMetricOp(
 export function SetMetricValueOp(
   name: string,
   value: number,
-  taskIndex: number,
+  taskIndex: number
 ): Op {
   return new Op([new SetMetricValueSubOp(name, value, taskIndex)]);
 }

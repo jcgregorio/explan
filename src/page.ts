@@ -26,7 +26,7 @@ import {
 } from "./renderer/renderer.ts";
 import { Scale } from "./renderer/scale/scale.ts";
 import { Result } from "./result.ts";
-import { ComputeSlack, Slack, Span } from "./slack/slack";
+import { ComputeSlack, Slack, Span } from "./slack/slack.ts";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
 

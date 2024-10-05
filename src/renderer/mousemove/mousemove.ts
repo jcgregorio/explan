@@ -1,4 +1,4 @@
-import { Point } from "../scale/point";
+import { Point } from "../scale/point.ts";
 
 export interface DragRange {
   begin: Point;
@@ -49,7 +49,7 @@ export class MouseMove {
             begin: this.begin!.dup(),
             end: this.currentMoveLocation.dup(),
           },
-        }),
+        })
       );
       this.lastMoveSent.set(this.currentMoveLocation);
     }

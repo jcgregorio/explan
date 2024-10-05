@@ -1,5 +1,5 @@
 import { assert } from "@esm-bundle/chai";
-import { JacobianDuration, Uncertainty } from "./jacobian";
+import { JacobianDuration, Uncertainty } from "./jacobian.ts";
 
 describe("JacobianDuration", () => {
   it("Uses triangular ", () => {

@@ -1,15 +1,15 @@
-import { Result, ok, error } from "../result";
-import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag";
-import { Plan } from "../plan/plan";
-import { Chart, TaskState } from "../chart/chart";
-import { Op, SubOp, SubOpResult } from "./ops";
-import { DurationModel } from "../duration/duration";
+import { Result, ok, error } from "../result.ts";
+import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
+import { Plan } from "../plan/plan.ts";
+import { Chart, TaskState } from "../chart/chart.ts";
+import { Op, SubOp, SubOpResult } from "./ops.ts";
+import { DurationModel } from "../duration/duration.ts";
 
 /** A value of -1 for j means the Finish Milestone. */
 export function DirectedEdgeForPlan(
   i: number,
   j: number,
-  plan: Plan,
+  plan: Plan
 ): Result<DirectedEdge> {
   const chart = plan.chart;
   if (j === -1) {
@@ -17,12 +17,12 @@ export function DirectedEdgeForPlan(
   }
   if (i < 0 || i >= chart.Vertices.length) {
     return error(
-      `i index out of range: ${i} not in [0, ${chart.Vertices.length - 1}]`,
+      `i index out of range: ${i} not in [0, ${chart.Vertices.length - 1}]`
     );
   }
   if (j < 0 || j >= chart.Vertices.length) {
     return error(
-      `j index out of range: ${j} not in [0, ${chart.Vertices.length - 1}]`,
+      `j index out of range: ${j} not in [0, ${chart.Vertices.length - 1}]`
     );
   }
   if (i === j) {
@@ -91,7 +91,7 @@ export class RemoveEdgeSupOp implements SubOp {
       return e;
     }
     plan.chart.Edges = plan.chart.Edges.filter(
-      (v: DirectedEdge): boolean => !v.equal(e.value),
+      (v: DirectedEdge): boolean => !v.equal(e.value)
     );
 
     return ok({
@@ -114,7 +114,7 @@ function indexInRangeForVertices(index: number, chart: Chart): Result<null> {
 
 function indexInRangeForVerticesExclusive(
   index: number,
-  chart: Chart,
+  chart: Chart
 ): Result<null> {
   if (index < 1 || index > chart.Vertices.length - 2) {
     return error(`${index} is not in range [1, ${chart.Vertices.length - 2}]`);
@@ -201,7 +201,7 @@ export class MoveAllOutgoingEdgesFromToSubOp implements SubOp {
   constructor(
     fromTaskIndex: number,
     toTaskIndex: number,
-    actualMoves: Substitution = new Map(),
+    actualMoves: Substitution = new Map()
   ) {
     this.fromTaskIndex = fromTaskIndex;
     this.toTaskIndex = toTaskIndex;
@@ -232,7 +232,7 @@ export class MoveAllOutgoingEdgesFromToSubOp implements SubOp {
         if (edge.i === this.fromTaskIndex) {
           actualMoves.set(
             new DirectedEdge(this.toTaskIndex, edge.j),
-            new DirectedEdge(edge.i, edge.j),
+            new DirectedEdge(edge.i, edge.j)
           );
           edge.i = this.toTaskIndex;
         }
@@ -242,7 +242,7 @@ export class MoveAllOutgoingEdgesFromToSubOp implements SubOp {
         inverse: this.inverse(
           this.toTaskIndex,
           this.fromTaskIndex,
-          actualMoves,
+          actualMoves
         ),
       });
     } else {
@@ -257,7 +257,7 @@ export class MoveAllOutgoingEdgesFromToSubOp implements SubOp {
         plan: plan,
         inverse: new MoveAllOutgoingEdgesFromToSubOp(
           this.toTaskIndex,
-          this.fromTaskIndex,
+          this.fromTaskIndex
         ),
       });
     }
@@ -266,12 +266,12 @@ export class MoveAllOutgoingEdgesFromToSubOp implements SubOp {
   inverse(
     toTaskIndex: number,
     fromTaskIndex: number,
-    actualMoves: Substitution,
+    actualMoves: Substitution
   ): SubOp {
     return new MoveAllOutgoingEdgesFromToSubOp(
       toTaskIndex,
       fromTaskIndex,
-      actualMoves,
+      actualMoves
     );
   }
 }
@@ -318,8 +318,8 @@ export class RemoveAllEdgesSubOp implements SubOp {
       (edge: DirectedEdge) =>
         -1 ===
         this.edges.findIndex((toBeRemoved: DirectedEdge) =>
-          edge.equal(toBeRemoved),
-        ),
+          edge.equal(toBeRemoved)
+        )
     );
 
     return ok({ plan: plan, inverse: new AddAllEdgesSubOp(this.edges) });
@@ -397,7 +397,7 @@ export class RationalizeEdgesSubOp implements SubOp {
         ) {
           const toBeRemoved = new DirectedEdge(i, Finish);
           plan.chart.Edges = plan.chart.Edges.filter(
-            (value: DirectedEdge) => !toBeRemoved.equal(value),
+            (value: DirectedEdge) => !toBeRemoved.equal(value)
           );
         }
       }
@@ -418,7 +418,7 @@ export class RationalizeEdgesSubOp implements SubOp {
         ) {
           const toBeRemoved = new DirectedEdge(Start, i);
           plan.chart.Edges = plan.chart.Edges.filter(
-            (value: DirectedEdge) => !toBeRemoved.equal(value),
+            (value: DirectedEdge) => !toBeRemoved.equal(value)
           );
         }
       }
@@ -532,7 +532,7 @@ export function SetTaskNameOp(taskIndex: number, name: string): Op {
 
 export function SetTaskDurationModelOp(
   taskIndex: number,
-  durationModel: DurationModel,
+  durationModel: DurationModel
 ): Op {
   return new Op([new SetTaskDurationModelSubOp(taskIndex, durationModel)]);
 }

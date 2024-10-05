@@ -1,7 +1,7 @@
 // These are ops that are useful for testing.
 import { assert } from "@esm-bundle/chai";
-import { Plan } from "../plan/plan";
-import { Result, ok } from "../result";
+import { Plan } from "../plan/plan.ts";
+import { Result, ok } from "../result.ts";
 import {
   Op,
   SubOp,

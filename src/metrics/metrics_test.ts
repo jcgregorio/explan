@@ -1,5 +1,5 @@
-import { MetricDefinition } from "./metrics";
-import { MetricRange } from "./range";
+import { MetricDefinition } from "./metrics.ts";
+import { MetricRange } from "./range.ts";
 import { assert } from "@esm-bundle/chai";
 
 describe("MetricDefinition", () => {

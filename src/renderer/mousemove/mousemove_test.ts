@@ -1,6 +1,6 @@
 import { assert } from "@esm-bundle/chai";
-import { DRAG_RANGE_EVENT, DragRange, MouseMove } from "./mousemove";
-import { Point } from "../scale/point";
+import { DRAG_RANGE_EVENT, DragRange, MouseMove } from "./mousemove.ts";
+import { Point } from "../scale/point.ts";
 
 describe("MouseMove", () => {
   let div: HTMLDivElement;
