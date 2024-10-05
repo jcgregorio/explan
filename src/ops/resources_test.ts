@@ -17,7 +17,7 @@ import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil";
 describe("SetResourceValueOp", () => {
   it("Fails if the key is not a valid resource.", () => {
     const res = SetResourceValueOp("unknown resource", "foo", 1).apply(
-      new Plan(new Chart()),
+      new Plan()
     );
     assert.isFalse(res.ok);
     assert.include(res.error.message, "does not exist as a Resource");
@@ -52,6 +52,10 @@ describe("AddResourceOp/DeleteResourceOp", () => {
       TOp((plan: Plan) => {
         assert.deepEqual(plan.resourceDefinitions, [
           {
+            key: "Uncertainty",
+            values: ["low", "moderate", "high", "extreme"],
+          },
+          {
             key: "Who",
             values: [""],
           },
@@ -66,19 +70,19 @@ describe("AddResourceOp/DeleteResourceOp", () => {
   });
 
   it("DeleteResourceOp fails if the Resource doesn't exist", () => {
-    const plan = new Plan(new Chart());
+    const plan = new Plan();
 
     const res = DeleteResourceOp("Who").apply(plan);
     assert.isFalse(res.ok);
     assert.isTrue(
       res.error.message.includes(
-        "The resource with name Who does not exist and can't be deleted.",
-      ),
+        "The resource with name Who does not exist and can't be deleted."
+      )
     );
   });
 
   it("AddResourceOp fails if the Resource already exists", () => {
-    const plan = new Plan(new Chart());
+    const plan = new Plan();
 
     // First application should succeed.
     let res = AddResourceOp("Who").apply(plan);
@@ -93,7 +97,7 @@ describe("AddResourceOp/DeleteResourceOp", () => {
 
 describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
   const init = (): Plan => {
-    const plan = new Plan(new Chart());
+    const plan = new Plan();
 
     const res = AddResourceOp("Who").apply(plan);
     assert.isTrue(res.ok);
@@ -106,6 +110,10 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
       T2Op((plan: Plan, isForward: boolean) => {
         if (isForward) {
           assert.deepEqual(plan.resourceDefinitions, [
+            {
+              key: "Uncertainty",
+              values: ["low", "moderate", "high", "extreme"],
+            },
             {
               key: "Who",
               values: [""],
@@ -121,6 +129,10 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
       T2Op((plan: Plan, isForward: boolean) => {
         if (isForward) {
           assert.deepEqual(plan.resourceDefinitions, [
+            {
+              key: "Uncertainty",
+              values: ["low", "moderate", "high", "extreme"],
+            },
             {
               key: "Who",
               values: ["", "Fred"],
@@ -145,8 +157,8 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
     assert.isFalse(res.ok);
     assert.isTrue(
       res.error.message.includes(
-        "Unknown Resource Key doesn't exist as a Resource",
-      ),
+        "Unknown Resource Key doesn't exist as a Resource"
+      )
     );
   });
 
@@ -155,20 +167,20 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
     const res = AddResourceOptionOp("Who", "").apply(plan);
     assert.isFalse(res.ok);
     assert.isTrue(
-      res.error.message.includes("already exists as a value in the Resource"),
+      res.error.message.includes("already exists as a value in the Resource")
     );
   });
 
   it("DeleteResourceOptionOp fails if a Resource with the given key doesn't exist.", () => {
     const plan = init();
     const res = DeleteResourceOptionOp("Unknown Resource Key", "Fred").apply(
-      plan,
+      plan
     );
     assert.isFalse(res.ok);
     assert.isTrue(
       res.error.message.includes(
-        "Unknown Resource Key doesn't exist as a Resource",
-      ),
+        "Unknown Resource Key doesn't exist as a Resource"
+      )
     );
   });
 
@@ -177,7 +189,7 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
     const res = DeleteResourceOptionOp("Who", "Unknown Value").apply(plan);
     assert.isFalse(res.ok);
     assert.isTrue(
-      res.error.message.includes("does not exist as a value in the Resource"),
+      res.error.message.includes("does not exist as a value in the Resource")
     );
   });
 
@@ -186,7 +198,7 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
     const res = DeleteResourceOptionOp("Who", "").apply(plan);
     assert.isFalse(res.ok);
     assert.isTrue(
-      res.error.message.includes("Resources must have at least one value."),
+      res.error.message.includes("Resources must have at least one value.")
     );
   });
 
@@ -214,7 +226,7 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
 
 describe("RenameResourceOp", () => {
   const init = (): Plan => {
-    const plan = new Plan(new Chart());
+    const plan = new Plan();
 
     let res = AddResourceOp("Who").apply(plan);
     assert.isTrue(res.ok);
@@ -232,6 +244,10 @@ describe("RenameResourceOp", () => {
       AddResourceOptionOp("Who", "Barney"),
       T2Op((plan: Plan) => {
         assert.deepEqual(plan.resourceDefinitions, [
+          {
+            key: "Uncertainty",
+            values: ["low", "moderate", "high", "extreme"],
+          },
           {
             key: "Who",
             values: ["", "Fred", "Barney"],
@@ -267,7 +283,7 @@ describe("RenameResourceOp", () => {
 
     const res = RenameResourceOp(
       "Unknown Resource Name",
-      "New Unknown Resource Name",
+      "New Unknown Resource Name"
     ).apply(plan);
     assert.isFalse(res.ok);
   });
@@ -275,7 +291,7 @@ describe("RenameResourceOp", () => {
 
 describe("RenameResourceOptionOp", () => {
   const init = (): Plan => {
-    const plan = new Plan(new Chart());
+    const plan = new Plan();
 
     const res = applyAllOpsToPlan(
       [
@@ -283,7 +299,7 @@ describe("RenameResourceOptionOp", () => {
         AddResourceOptionOp("Who", "Fred"),
         AddResourceOptionOp("Who", "Barney"),
       ],
-      plan,
+      plan
     );
 
     assert.isTrue(res.ok);
@@ -297,6 +313,10 @@ describe("RenameResourceOptionOp", () => {
       AddResourceOptionOp("Who", "Barney"),
       T2Op((plan: Plan) => {
         assert.deepEqual(plan.resourceDefinitions, [
+          {
+            key: "Uncertainty",
+            values: ["low", "moderate", "high", "extreme"],
+          },
           {
             key: "Who",
             values: ["", "Fred", "Barney"],
@@ -321,7 +341,7 @@ describe("RenameResourceOptionOp", () => {
   it("Fails if the oldValue doesn't exist.", () => {
     const plan = init();
     const res = RenameResourceOptionOp("Who", "Unknown Value", "Wilma").apply(
-      plan,
+      plan
     );
     assert.isFalse(res.ok);
   });
@@ -338,7 +358,7 @@ describe("RenameResourceOptionOp", () => {
 
 describe("MoveResourceOptionSubOp", () => {
   const init = (): Plan => {
-    const plan = new Plan(new Chart());
+    const plan = new Plan();
 
     const res = applyAllOpsToPlan(
       [
@@ -346,7 +366,7 @@ describe("MoveResourceOptionSubOp", () => {
         AddResourceOptionOp("Who", "Fred"),
         AddResourceOptionOp("Who", "Barney"),
       ],
-      plan,
+      plan
     );
     assert.isTrue(res.ok);
 
@@ -361,6 +381,10 @@ describe("MoveResourceOptionSubOp", () => {
       T2Op((plan: Plan) => {
         assert.deepEqual(plan.resourceDefinitions, [
           {
+            key: "Uncertainty",
+            values: ["low", "moderate", "high", "extreme"],
+          },
+          {
             key: "Who",
             values: ["", "Fred", "Barney"],
           },
@@ -369,6 +393,10 @@ describe("MoveResourceOptionSubOp", () => {
       MoveResourceOptionOp("Who", 1, 2),
       TOp((plan: Plan) => {
         assert.deepEqual(plan.resourceDefinitions, [
+          {
+            key: "Uncertainty",
+            values: ["low", "moderate", "high", "extreme"],
+          },
           {
             key: "Who",
             values: ["", "Barney", "Fred"],

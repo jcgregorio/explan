@@ -129,7 +129,7 @@ document.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
   paintChart();
 });
 
-const groupByOptions: string[] = ["", "Person"];
+const groupByOptions: string[] = ["", "Person", "Uncertainty"];
 let groupByOptionsIndex: number = 1;
 
 const toggleGroupBy = () => {

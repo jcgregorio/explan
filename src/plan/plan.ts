@@ -5,6 +5,7 @@ import {
   ResourceDefinition,
   ResourceDefinitions,
 } from "../resources/resources";
+import { UncertaintyToNum } from "../stats/cdf/triangular/jacobian";
 
 export type StaticMetricKeys = "Duration" | "Percent Complete";
 
@@ -18,17 +19,24 @@ export const StaticMetricDefinitions: MetricDefinitions = new Map<
   ["Percent", new MetricDefinition(0, new MetricRange(0, 100), true)],
 ]);
 
+export const StaticResourceDefinitions: ResourceDefinitions = [
+  {
+    key: "Uncertainty",
+    values: Object.keys(UncertaintyToNum),
+  },
+];
+
 export class Plan {
   chart: Chart;
 
-  resourceDefinitions: ResourceDefinitions = [];
+  resourceDefinitions: ResourceDefinitions = StaticResourceDefinitions.slice();
 
   metricDefinitions: MetricDefinitions;
 
   constructor() {
     this.chart = new Chart();
     this.metricDefinitions = new Map<string, MetricDefinition>(
-      StaticMetricDefinitions,
+      StaticMetricDefinitions
     );
     [...this.metricDefinitions.keys()].forEach((metricName: string) => {
       const md = this.metricDefinitions.get(metricName)!;
@@ -41,7 +49,7 @@ export class Plan {
         this.chart.Vertices.forEach((task: Task) => {
           task.resources[resourceDefinition.key] = resourceDefinition.values[0];
         });
-      },
+      }
     );
   }
 
@@ -56,7 +64,7 @@ export class Plan {
     this.resourceDefinitions.forEach(
       (resourceDefinition: ResourceDefinition) => {
         ret.resources[resourceDefinition.key] = resourceDefinition.values[0];
-      },
+      }
     );
     return ret;
   }
