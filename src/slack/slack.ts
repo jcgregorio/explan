@@ -85,3 +85,16 @@ export function ComputeSlack(
 
   return ok(slacks);
 }
+
+export const CriticalPath = (slacks: Slack[]): number[] => {
+  const ret: number[] = [];
+  slacks.forEach((slack: Slack, index: number) => {
+    if (
+      slack.late.finish - slack.early.finish === 0 &&
+      slack.early.finish - slack.early.start !== 0
+    ) {
+      ret.push(index);
+    }
+  });
+  return ret;
+};

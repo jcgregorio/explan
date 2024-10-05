@@ -26,7 +26,7 @@ import {
 } from "./renderer/renderer.ts";
 import { Scale } from "./renderer/scale/scale.ts";
 import { Result } from "./result.ts";
-import { ComputeSlack, Slack, Span } from "./slack/slack.ts";
+import { ComputeSlack, CriticalPath, Slack, Span } from "./slack/slack.ts";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
 
@@ -87,15 +87,18 @@ if (!res.ok) {
   console.log(res.error);
 }
 
-let slack: Slack[] = [];
+let slacks: Slack[] = [];
 const slackResult = ComputeSlack(plan.chart);
 if (!slackResult.ok) {
   console.error(slackResult);
 } else {
-  slack = slackResult.value;
+  slacks = slackResult.value;
 }
 
-const spans: Span[] = slack.map((value: Slack): Span => {
+document.querySelector<HTMLElement>("critical-path")!.innerText =
+  `${CriticalPath(slacks)}`;
+
+const spans: Span[] = slacks.map((value: Slack): Span => {
   return value.early;
 });
 
