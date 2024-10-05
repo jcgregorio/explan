@@ -1,3 +1,4 @@
+import { Task } from "./chart/chart.ts";
 import {
   DupTaskOp,
   InsertNewEmptyTaskAfterOp,
@@ -27,6 +28,7 @@ import {
 import { Scale } from "./renderer/scale/scale.ts";
 import { Result } from "./result.ts";
 import { ComputeSlack, CriticalPath, Slack, Span } from "./slack/slack.ts";
+import { Jacobian, Uncertainty } from "./stats/cdf/triangular/jacobian.ts";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
 
@@ -94,9 +96,6 @@ if (!slackResult.ok) {
 } else {
   slacks = slackResult.value;
 }
-
-document.querySelector<HTMLElement>("critical-path")!.innerText =
-  `${CriticalPath(slacks)}`;
 
 const spans: Span[] = slacks.map((value: Slack): Span => {
   return value.early;
@@ -234,3 +233,34 @@ const paintOneChart = (
 paintChart();
 
 window.addEventListener("resize", paintChart);
+
+const MAX_RANDOM = 1000;
+
+const allCriticalPaths = new Set<string>();
+
+const jacobians = plan.chart.Vertices.map((t: Task) => {
+  return new Jacobian(t.duration, t.resources["Uncertainty"] as Uncertainty);
+});
+
+for (let i = 0; i < 100; i++) {
+  const randomValues: number[] = [];
+  plan.chart.Vertices.forEach((_, taskIndex: number) => {
+    randomValues[taskIndex] = rndInt(MAX_RANDOM);
+  });
+
+  const slacksRet = ComputeSlack(plan.chart, (t: Task, taskIndex: number) =>
+    jacobians[taskIndex].sample(randomValues[taskIndex])
+  );
+  if (!slacksRet.ok) {
+    throw slacksRet.error;
+  }
+  const criticalPath = CriticalPath(slacksRet.value);
+  allCriticalPaths.add(`${criticalPath}`);
+}
+
+let display = "";
+allCriticalPaths.forEach((value: string) => {
+  display = display + "\n" + value;
+});
+
+document.querySelector<HTMLElement>("critical-path")!.innerText = display;
