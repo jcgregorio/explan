@@ -199,10 +199,12 @@ export function renderTasksToCanvas(
   clipRegion.rect(clipOrigin.x, 0, canvas.width - clipOrigin.x, canvas.height);
 
   // Draw big red rect over where the clip region will be.
-  ctx.strokeStyle = "red";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.stroke(clipRegion);
+  if (0) {
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.stroke(clipRegion);
+  }
 
   ctx.fillStyle = opts.colors.onSurface;
   ctx.strokeStyle = opts.colors.onSurface;

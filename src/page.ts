@@ -133,7 +133,7 @@ document.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
 });
 
 const groupByOptions: string[] = ["", "Person", "Uncertainty"];
-let groupByOptionsIndex: number = 1;
+let groupByOptionsIndex: number = 0;
 
 const toggleGroupBy = () => {
   groupByOptionsIndex = (groupByOptionsIndex + 1) % groupByOptions.length;
