@@ -58,7 +58,7 @@ ops.push(
   InsertNewEmptyTaskAfterOp(0),
   SetMetricValueOp("Duration", rndDuration(), 1),
   SetTaskNameOp(1, rndName()),
-  SetResourceValueOp("Person", people[rndInt(people.length)], 1),
+  SetResourceValueOp("Person", people[rndInt(people.length)], 1)
 );
 
 let numTasks = 1;
@@ -68,7 +68,7 @@ for (let i = 0; i < 20; i++) {
     SplitTaskOp(index),
     SetMetricValueOp("Duration", rndDuration(), index + 1),
     SetTaskNameOp(index + 1, rndName()),
-    SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
+    SetResourceValueOp("Person", people[rndInt(people.length)], index + 1)
   );
   numTasks++;
   index = rndInt(numTasks) + 1;
@@ -76,7 +76,7 @@ for (let i = 0; i < 20; i++) {
     DupTaskOp(index),
     SetMetricValueOp("Duration", rndDuration(), index + 1),
     SetTaskNameOp(index + 1, rndName()),
-    SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
+    SetResourceValueOp("Person", people[rndInt(people.length)], index + 1)
   );
   numTasks++;
 }
@@ -158,6 +158,7 @@ const paintChart = () => {
       groupColor: themeColors.groupColor,
     },
     hasTimeline: false,
+    drawTimeMarkersOnTasks: false,
     taskLabel: taskLabel,
     groupByResource: groupByOptions[groupByOptionsIndex],
   };
@@ -176,6 +177,7 @@ const paintChart = () => {
       groupColor: themeColors.groupColor,
     },
     hasTimeline: true,
+    drawTimeMarkersOnTasks: true,
     taskLabel: taskLabel,
     groupByResource: groupByOptions[groupByOptionsIndex],
   };
@@ -192,7 +194,7 @@ const paintChart = () => {
 
 const paintOneChart = (
   canvasID: string,
-  opts: RenderOptions,
+  opts: RenderOptions
 ): Result<Scale> => {
   const canvas = document.querySelector<HTMLCanvasElement>(canvasID)!;
   const parent = canvas!.parentElement!;
@@ -213,7 +215,7 @@ const paintOneChart = (
       canvas,
       spans,
       opts,
-      plan.chart.Vertices.length + 2, // TODO - Why do we need the +2 here!?
+      plan.chart.Vertices.length + 2 // TODO - Why do we need the +2 here!?
     );
     canvas.height = newHeight;
     canvas.style.height = `${newHeight / ratio}px`;

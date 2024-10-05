@@ -53,6 +53,10 @@ export interface RenderOptions {
   /** If true then display times at the top of the chart. */
   hasTimeline: boolean;
 
+  /** If true then draw vertical lines from the timeline down to task start and
+   * finish points. */
+  drawTimeMarkersOnTasks: boolean;
+
   /** Function that produces display text for a Task and its associated Slack. */
   taskLabel: TaskLabel;
 
@@ -189,12 +193,7 @@ export function renderTasksToCanvas(
 
   const clipRegion = new Path2D();
   const clipOrigin = scale.feature(0, 0, Feature.tasksClipRectOrigin);
-  clipRegion.rect(
-    clipOrigin.x,
-    clipOrigin.y,
-    canvas.width - clipOrigin.x,
-    canvas.height - clipOrigin.y
-  );
+  clipRegion.rect(clipOrigin.x, 0, canvas.width - clipOrigin.x, canvas.height);
 
   // Draw big red rect over where the clip region will be.
   ctx.strokeStyle = "red";
@@ -232,7 +231,7 @@ export function renderTasksToCanvas(
     const taskEnd = scale.feature(row, span.finish, Feature.taskLineStart);
 
     // Draw in time markers if displayed.
-    if (opts.hasTimeline) {
+    if (opts.drawTimeMarkersOnTasks) {
       drawTimeMarkerAtDayToTask(
         ctx,
         row,

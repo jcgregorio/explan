@@ -16,8 +16,8 @@ describe("Scale", () => {
       overlay: "rgba(0,0,0,0.2)",
       groupColor: "rgba(0,0,200rrt,0.2)",
     },
-    marginSizePx: 10,
-    displayTimes: false,
+    hasTimeline: false,
+    drawTimeMarkersOnTasks: false,
     groupByResource: "",
     taskLabel: defaultTaskLabel,
   };
@@ -28,12 +28,14 @@ describe("Scale", () => {
     assert.equal(s.metric(Metric.percentHeight), 1);
     assert.equal(s.metric(Metric.taskLineHeight), 3);
 
-    assert.equal(s["dayWidthPx"], 11);
+    assert.equal(s["dayWidthPx"], 12);
     assert.equal(s["blockSizePx"], 4);
+    assert.equal(s["marginSizePx"], 3);
+    assert.equal(s["groupByColumnWidthPx"], 0);
     assert.deepEqual(
-      s.feature(1, 1, Feature.taskLineStart),
-      // margin + dayWidthPx, margin + rowHeight + 5*blockSize
-      new Point(10 + 11, 10 + 6 * 4 + 5 * 4),
+      // marginWidthPx + dayWidthPx, marginWidthPx + rowHeight + 5*blockSize
+      new Point(3 + 12, 3 + 6 * 4 + 5 * 4),
+      s.feature(1, 1, Feature.taskLineStart)
     );
   });
 
@@ -43,12 +45,14 @@ describe("Scale", () => {
     assert.equal(s.metric(Metric.percentHeight), 3);
     assert.equal(s.metric(Metric.taskLineHeight), 7);
 
-    assert.equal(s["dayWidthPx"], 11);
+    assert.equal(s["dayWidthPx"], 12);
     assert.equal(s["blockSizePx"], 8);
+    assert.equal(s["marginSizePx"], 7);
+    assert.equal(s["groupByColumnWidthPx"], 0);
     assert.deepEqual(
       s.feature(1, 1, Feature.taskLineStart),
       // margin + dayWidthPx, margin + rowHeight + 5*blockSize
-      new Point(10 + 11, 10 + 6 * 8 + 5 * 8),
+      new Point(7 + 12, 7 + 6 * 8 + 5 * 8)
     );
   });
 
@@ -60,26 +64,29 @@ describe("Scale", () => {
     assert.equal(s.metric(Metric.percentHeight), 1);
     assert.equal(s.metric(Metric.taskLineHeight), 3);
 
-    assert.equal(s["dayWidthPx"], 23);
+    assert.equal(s["dayWidthPx"], 25);
     assert.equal(s["blockSizePx"], 4);
+    assert.equal(s["marginSizePx"], 3);
+    assert.equal(s["groupByColumnWidthPx"], 0);
+    assert.deepEqual(s["origin"], new Point(-125, 0));
 
     // Given the subrange, drawing should start to be on the canvas at day 5.
     assert.deepEqual(
       s.feature(1, 5, Feature.taskLineStart),
       // margin + dayWidthPx + origin.x, margin + rowHeight + 5*blockSize + origin.y
-      new Point(10, 10 + 6 * 4 + 5 * 4),
+      new Point(3, 3 + 6 * 4 + 5 * 4)
     );
     // And earlier days will be drawn in the negative range.
     assert.deepEqual(
       s.feature(1, 4, Feature.taskLineStart),
       // margin + dayWidthPx + origin.x, margin + rowHeight + 5*blockSize + origin.y
-      new Point(-13, 10 + 6 * 4 + 5 * 4),
+      new Point(3 - 25, 3 + 6 * 4 + 5 * 4)
     );
     // And tasks to the right will be larger than 236 = 265 - 2*10, the canvas width in pixels.
     assert.deepEqual(
       s.feature(1, 15, Feature.taskLineStart),
       // margin + dayWidthPx + origin.x, margin + rowHeight + 5*blockSize + origin.y
-      new Point(240, 10 + 6 * 4 + 5 * 4),
+      new Point(3 + 15 * 25 - 125, 3 + 6 * 4 + 5 * 4)
     );
   });
 });
