@@ -9,6 +9,7 @@
     "lint": "npx eslint",
     "compile": "npx tsc",
     "build": "npx esbuild ./src/page.ts --bundle --outdir=dst --sourcemap=inline",
+    "build:sim": "npx esbuild ./src/sim.ts --bundle --outdir=dst --sourcemap=inline",
     "watch": "git ls-files | entr npm run build",
     "serve": "npx http-server -c-1 -a localhost",
     "format": "npx prettier -w \"./src/**/*.ts\""
