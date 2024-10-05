@@ -3,7 +3,6 @@ import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
 import { Plan } from "../plan/plan.ts";
 import { Chart, TaskState } from "../chart/chart.ts";
 import { Op, SubOp, SubOpResult } from "./ops.ts";
-import { DurationModel } from "../duration/duration.ts";
 
 /** A value of -1 for j means the Finish Milestone. */
 export function DirectedEdgeForPlan(
@@ -462,33 +461,6 @@ export class SetTaskNameSubOp implements SubOp {
   }
 }
 
-export class SetTaskDurationModelSubOp implements SubOp {
-  taskIndex: number;
-  durationModel: DurationModel;
-
-  constructor(taskIndex: number, durationModel: DurationModel) {
-    this.taskIndex = taskIndex;
-    this.durationModel = durationModel;
-  }
-
-  apply(plan: Plan): Result<SubOpResult> {
-    const ret = indexInRangeForVertices(this.taskIndex, plan.chart);
-    if (!ret.ok) {
-      return ret;
-    }
-    const oldModel = plan.chart.Vertices[this.taskIndex].durationModel;
-    plan.chart.Vertices[this.taskIndex].durationModel = this.durationModel;
-    return ok({
-      plan: plan,
-      inverse: this.inverse(oldModel),
-    });
-  }
-
-  inverse(durationModel: DurationModel): SubOp {
-    return new SetTaskDurationModelSubOp(this.taskIndex, durationModel);
-  }
-}
-
 export class SetTaskStateSubOp implements SubOp {
   taskState: TaskState;
   taskIndex: number;
@@ -528,13 +500,6 @@ export function InsertNewEmptyTaskAfterOp(taskIndex: number): Op {
 
 export function SetTaskNameOp(taskIndex: number, name: string): Op {
   return new Op([new SetTaskNameSubOp(taskIndex, name)]);
-}
-
-export function SetTaskDurationModelOp(
-  taskIndex: number,
-  durationModel: DurationModel
-): Op {
-  return new Op([new SetTaskDurationModelSubOp(taskIndex, durationModel)]);
 }
 
 export function SetTaskStateOp(taskIndex: number, taskState: TaskState): Op {

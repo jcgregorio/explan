@@ -3,6 +3,7 @@ import { DirectedEdge } from "./dag/dag.ts";
 import { InsertNewEmptyTaskAfterOp } from "./ops/chart.ts";
 import { Plan } from "./plan/plan.ts";
 import { ComputeSlack } from "./slack/slack.ts";
+import { Jacobian } from "./stats/cdf/triangular/jacobian.ts";
 
 const taskA = new Task("A");
 taskA.metrics.set("Duration", 10);
@@ -20,10 +21,16 @@ const C: Chart = {
   ],
 };
 
+const jacobians = C.Vertices.map((t: Task) => {
+  return new Jacobian(t.duration, "low");
+});
+
 console.log("Tasks on the critical path:", ComputeSlack(C));
 console.log(
   "Tasks on the critical path for in the first quartile:",
-  ComputeSlack(C, (t: Task) => t.durationModel.sample(t.duration, 0.25)),
+  ComputeSlack(C, (t: Task, taskIndex: number) =>
+    jacobians[taskIndex].sample(0.25)
+  )
 );
 
 const plan = new Plan();

@@ -9,8 +9,6 @@ import {
 } from "../dag/dag";
 
 import { topologicalSort } from "../dag/algorithms/toposort.ts";
-import { DurationModel } from "../duration/duration.ts";
-import { JacobianDuration, Uncertainty } from "../duration/jacobian.ts";
 import { MetricValues } from "../metrics/metrics.ts";
 
 export type TaskState = "unstarted" | "started" | "complete";
@@ -26,28 +24,21 @@ export const DEFAULT_TASK_NAME = "Task Name";
 
 /** Task is a Vertex with details about the Task to complete. */
 export class Task {
-  constructor(
-    name: string = "",
-    durationModel: DurationModel = new JacobianDuration(Uncertainty.moderate)
-  ) {
+  constructor(name: string = "") {
     this.name = name || DEFAULT_TASK_NAME;
-    this.durationModel =
-      durationModel || new JacobianDuration(Uncertainty.moderate);
-
     this.metrics = new Map();
+    this.resources = {};
   }
 
   // Resource keys and values. The parent plan contains all the resource
   // definitions.
 
   // Should resources also have a ResourcesContainer?
-  resources: { [key: string]: string } = {};
+  resources: { [key: string]: string };
 
   metrics: MetricValues;
 
   name: string;
-
-  durationModel: DurationModel;
 
   state: TaskState = "unstarted";
 
@@ -69,7 +60,6 @@ export class Task {
     ret.resources = Object.assign({}, this.resources);
     ret.metrics = new Map(this.metrics);
     ret.name = this.name;
-    ret.durationModel = this.durationModel.dup();
     ret.state = this.state;
     ret.actualFinish = this.actualFinish;
     ret.actualStart = this.actualStart;

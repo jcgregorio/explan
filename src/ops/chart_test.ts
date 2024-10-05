@@ -4,14 +4,12 @@ import {
   AddEdgeOp,
   SplitTaskOp,
   InsertNewEmptyTaskAfterOp,
-  SetTaskDurationModelOp,
   SetTaskNameOp,
   SetTaskStateOp,
   DupTaskOp,
 } from "./chart.ts";
 import { Plan } from "../plan/plan.ts";
 import { DEFAULT_TASK_NAME } from "../chart/chart.ts";
-import { JacobianDuration, Uncertainty } from "../duration/jacobian.ts";
 import { DirectedEdge } from "../dag/dag.ts";
 
 const arrowSummary = (plan: Plan): string[] =>
@@ -79,42 +77,6 @@ describe("SetTaskName", () => {
 
   it("Fails if the taskIndex is out of range", () => {
     const res = SetTaskNameOp(2, "bar").apply(new Plan());
-    assert.isFalse(res.ok);
-    assert.isTrue(res.error.message.includes("is not in range"));
-  });
-});
-
-describe("SetDurationModelOp", () => {
-  const newDurationModel = new JacobianDuration(Uncertainty.extreme);
-  it("Sets a tasks duration model.", () => {
-    TestOpsForwardAndBack([
-      InsertNewEmptyTaskAfterOp(0),
-      T2Op((plan: Plan) => {
-        assert.equal(
-          (plan.chart.Vertices[1].durationModel as JacobianDuration)
-            .uncertainty,
-          Uncertainty.moderate
-        );
-      }),
-      SetTaskDurationModelOp(1, newDurationModel),
-      TOp((plan: Plan) => {
-        assert.equal(
-          (plan.chart.Vertices[1].durationModel as JacobianDuration)
-            .uncertainty,
-          Uncertainty.extreme
-        );
-      }),
-    ]);
-  });
-
-  it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskDurationModelOp(-1, newDurationModel).apply(new Plan());
-    assert.isFalse(res.ok);
-    assert.isTrue(res.error.message.includes("is not in range"));
-  });
-
-  it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskDurationModelOp(2, newDurationModel).apply(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
