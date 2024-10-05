@@ -20,6 +20,6 @@ const Quartiles = (s: Sampler): void => {
   console.log("quartiles: ", s.sample(0.25), s.sample(0.5), s.sample(0.75));
 };
 
-Quartiles(new Jacobian(5, Uncertainty.extreme));
+Quartiles(new Jacobian(5, "extreme"));
 
-Quartiles(new Jacobian(5, Uncertainty.low));
+Quartiles(new Jacobian(5, "low"));

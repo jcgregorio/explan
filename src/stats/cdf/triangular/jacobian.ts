@@ -1,20 +1,19 @@
 import { Triangular } from "./triangular";
 
-export enum Uncertainty {
-  low = 1.1,
-  moderate = 1.5,
-  high = 2.0,
-  extreme = 5.0,
-}
+export type Uncertainty = "low" | "moderate" | "high" | "extreme";
+
+const uncertaintyToNum: Record<Uncertainty, number> = {
+  low: 1.1,
+  moderate: 1.5,
+  high: 2,
+  extreme: 5,
+};
 
 export class Jacobian {
   private triangular: Triangular;
   constructor(expected: number, uncertainty: Uncertainty) {
-    this.triangular = new Triangular(
-      expected / uncertainty,
-      expected * uncertainty,
-      expected,
-    );
+    const mul = uncertaintyToNum[uncertainty];
+    this.triangular = new Triangular(expected / mul, expected * mul, expected);
   }
 
   sample(p: number): number {
