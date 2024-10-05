@@ -57,6 +57,9 @@ export interface RenderOptions {
    * finish points. */
   drawTimeMarkersOnTasks: boolean;
 
+  /** Draw dependency edges between tasks if true. */
+  hasEdges: boolean;
+
   /** Function that produces display text for a Task and its associated Slack. */
   taskLabel: TaskLabel;
 
@@ -267,30 +270,32 @@ export function renderTasksToCanvas(
   ctx.lineWidth = 1;
   ctx.strokeStyle = opts.colors.onSurface;
 
-  // Now draw all the arrows, i.e. edges.
-  plan.chart.Edges.forEach((e: DirectedEdge) => {
-    const srcSlack: Span = spans[e.i];
-    const dstSlack: Span = spans[e.j];
-    const srcTask: Task = plan.chart.Vertices[e.i];
-    const dstTask: Task = plan.chart.Vertices[e.j];
-    const srcRow = taskIndexToRow.get(e.i)!;
-    const dstRow = taskIndexToRow.get(e.j)!;
-    const srcDay = srcSlack.finish;
-    const dstDay = dstSlack.start;
+  if (opts.hasEdges) {
+    // Now draw all the arrows, i.e. edges.
+    plan.chart.Edges.forEach((e: DirectedEdge) => {
+      const srcSlack: Span = spans[e.i];
+      const dstSlack: Span = spans[e.j];
+      const srcTask: Task = plan.chart.Vertices[e.i];
+      const dstTask: Task = plan.chart.Vertices[e.j];
+      const srcRow = taskIndexToRow.get(e.i)!;
+      const dstRow = taskIndexToRow.get(e.j)!;
+      const srcDay = srcSlack.finish;
+      const dstDay = dstSlack.start;
 
-    drawArrowBetweenTasks(
-      ctx,
-      srcDay,
-      dstDay,
-      scale,
-      srcRow,
-      srcTask,
-      dstRow,
-      dstTask,
-      arrowHeadWidth,
-      arrowHeadHeight
-    );
-  });
+      drawArrowBetweenTasks(
+        ctx,
+        srcDay,
+        dstDay,
+        scale,
+        srcRow,
+        srcTask,
+        dstRow,
+        dstTask,
+        arrowHeadWidth,
+        arrowHeadHeight
+      );
+    });
+  }
 
   ctx.restore();
 
