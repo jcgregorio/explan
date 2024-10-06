@@ -29,15 +29,18 @@ export const StaticResourceDefinitions: ResourceDefinitions = [
 export class Plan {
   chart: Chart;
 
-  resourceDefinitions: ResourceDefinitions = StaticResourceDefinitions.slice();
+  resourceDefinitions: ResourceDefinitions;
 
   metricDefinitions: MetricDefinitions;
 
   constructor() {
     this.chart = new Chart();
+
+    this.resourceDefinitions = StaticResourceDefinitions.slice();
     this.metricDefinitions = new Map<string, MetricDefinition>(
       StaticMetricDefinitions
     );
+
     [...this.metricDefinitions.keys()].forEach((metricName: string) => {
       const md = this.metricDefinitions.get(metricName)!;
       this.chart.Vertices.forEach((task: Task) => {
