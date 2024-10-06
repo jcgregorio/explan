@@ -532,3 +532,7 @@ export function AddEdgeOp(fromTaskIndex: number, toTaskIndex: number): Op {
     new RationalizeEdgesSubOp(),
   ]);
 }
+
+export function RationalizeEdgesOp(): Op {
+  return new Op([new RationalizeEdgesSubOp()]);
+}

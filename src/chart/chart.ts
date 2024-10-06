@@ -141,6 +141,19 @@ export class Chart {
       (taskSerialized: TaskSerialized): Task =>
         new Task().fromJSON(taskSerialized)
     );
+
+    // Stuff in the Start and Finish milestones if not present in the serialization.
+    if (this.Vertices[0].name !== "Start" && this.Vertices[0].duration !== 0) {
+      this.Vertices.unshift(new Task("Start"));
+    }
+    const last = this.Vertices.length - 1;
+    if (
+      this.Vertices[last].name !== "Finish" &&
+      this.Vertices[last].duration !== 0
+    ) {
+      this.Vertices.push(new Task("Finish"));
+    }
+
     this.Edges = data.edges.map((edge: DirectedEdgeSerialized) =>
       new DirectedEdge().fromJSON(edge)
     );

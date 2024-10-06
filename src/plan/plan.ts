@@ -1,10 +1,12 @@
 import { Chart, ChartSerialized, Task } from "../chart/chart.ts";
 import { MetricDefinition, MetricDefinitions } from "../metrics/metrics.ts";
 import { MetricRange } from "../metrics/range.ts";
+import { RationalizeEdgesOp } from "../ops/chart.ts";
 import {
   ResourceDefinition,
   ResourceDefinitions,
 } from "../resources/resources.ts";
+import { Result, ok } from "../result.ts";
 import { UncertaintyToNum } from "../stats/cdf/triangular/jacobian.ts";
 
 export type StaticMetricKeys = "Duration" | "Percent Complete";
@@ -111,3 +113,12 @@ export class Plan {
     return ret;
   }
 }
+
+export const FromJSON = (text: string): Result<Plan> => {
+  const plan = new Plan().fromJSON(JSON.parse(text));
+  const ret = RationalizeEdgesOp().apply(plan);
+  if (!ret.ok) {
+    return ret;
+  }
+  return ok(ret.value.plan);
+};
