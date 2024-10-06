@@ -44,9 +44,9 @@ describe("Plan", () => {
     const serialized = JSON.stringify(plan, null, "  ");
 
     // Now reconstitute from that serialization.
-    const deserialized = new Plan().fromJSON(
-      JSON.parse(serialized) as PlanSerialized
-    );
+    const deserializedResult = FromJSON(serialized);
+    assert.isTrue(deserializedResult.ok);
+    const deserialized = deserializedResult.value;
 
     // Confirm they are equivalent.
     assert.equal(serialized, JSON.stringify(deserialized, null, "  "));
