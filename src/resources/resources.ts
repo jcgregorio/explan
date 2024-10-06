@@ -6,9 +6,11 @@ export const DEFAULT_RESOURCE_VALUE = "";
 
 export class ResourceDefinition {
   values: string[];
+  isStatic: boolean;
 
   constructor() {
     this.values = [DEFAULT_RESOURCE_VALUE];
+    this.isStatic = false;
   }
 }
 

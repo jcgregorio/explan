@@ -53,9 +53,11 @@ describe("AddResourceOp/DeleteResourceOp", () => {
         assert.deepEqual(plan.resourceDefinitions, {
           Uncertainty: {
             values: ["low", "moderate", "high", "extreme"],
+            isStatic: true,
           },
           Who: {
             values: [""],
+            isStatic: false,
           },
         });
 
@@ -110,9 +112,11 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
           assert.deepEqual(plan.resourceDefinitions, {
             Uncertainty: {
               values: ["low", "moderate", "high", "extreme"],
+              isStatic: true,
             },
             Who: {
               values: [""],
+              isStatic: false,
             },
           });
 
@@ -127,9 +131,11 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
           assert.deepEqual(plan.resourceDefinitions, {
             Uncertainty: {
               values: ["low", "moderate", "high", "extreme"],
+              isStatic: true,
             },
             Who: {
               values: ["", "Fred"],
+              isStatic: false,
             },
           });
 
@@ -240,9 +246,11 @@ describe("RenameResourceOp", () => {
         assert.deepEqual(plan.resourceDefinitions, {
           Uncertainty: {
             values: ["low", "moderate", "high", "extreme"],
+            isStatic: true,
           },
           Who: {
             values: ["", "Fred", "Barney"],
+            isStatic: false,
           },
         });
 
@@ -307,9 +315,11 @@ describe("RenameResourceOptionOp", () => {
         assert.deepEqual(plan.resourceDefinitions, {
           Uncertainty: {
             values: ["low", "moderate", "high", "extreme"],
+            isStatic: true,
           },
           Who: {
             values: ["", "Fred", "Barney"],
+            isStatic: false,
           },
         });
 
@@ -372,9 +382,11 @@ describe("MoveResourceOptionSubOp", () => {
         assert.deepEqual(plan.resourceDefinitions, {
           Uncertainty: {
             values: ["low", "moderate", "high", "extreme"],
+            isStatic: true,
           },
           Who: {
             values: ["", "Fred", "Barney"],
+            isStatic: false,
           },
         });
       }),
@@ -383,9 +395,11 @@ describe("MoveResourceOptionSubOp", () => {
         assert.deepEqual(plan.resourceDefinitions, {
           Uncertainty: {
             values: ["low", "moderate", "high", "extreme"],
+            isStatic: true,
           },
           Who: {
             values: ["", "Barney", "Fred"],
+            isStatic: false,
           },
         });
       }),

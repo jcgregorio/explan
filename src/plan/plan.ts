@@ -40,6 +40,7 @@ export const StaticMetricDefinitions: MetricDefinitions = {
 export const StaticResourceDefinitions: ResourceDefinitions = {
   Uncertainty: {
     values: Object.keys(UncertaintyToNum),
+    isStatic: true,
   },
 };
 
