@@ -32,11 +32,11 @@ describe("AddMetricOp", () => {
       AddMetricOp("cost", new MetricDefinition(defaultCostValue)),
       TOp((plan: Plan) => {
         assert.deepEqual(
-          plan.metricDefinitions.get("cost"),
+          plan.metricDefinitions["cost"],
           new MetricDefinition(defaultCostValue)
         );
         assert.equal(
-          plan.metricDefinitions.size,
+          Object.keys(plan.metricDefinitions).length,
           3,
           "Because a Plan always starts with two metrics."
         );
@@ -128,8 +128,8 @@ describe("RenameMetricOp", () => {
       AddMetricOp(oldMetricName, new MetricDefinition(defaultCostValue)),
       RenameMetricOp(oldMetricName, newMetricName),
       TOp((plan: Plan) => {
-        assert.isTrue(plan.metricDefinitions.has(newMetricName));
-        assert.isFalse(plan.metricDefinitions.has(oldMetricName));
+        assert.isTrue(plan.metricDefinitions[newMetricName] !== undefined);
+        assert.isTrue(plan.metricDefinitions[oldMetricName] === undefined);
         assert.equal(Object.keys(plan.chart.Vertices[1].metrics).length, 3);
         assert.equal(
           plan.chart.Vertices[1].getMetric(newMetricName),
@@ -147,8 +147,8 @@ describe("RenameMetricOp", () => {
       AddMetricOp(oldMetricName, new MetricDefinition(defaultCostValue)),
       T2Op((plan: Plan, isForward: boolean) => {
         if (!isForward) {
-          assert.isFalse(plan.metricDefinitions.has(newMetricName));
-          assert.isTrue(plan.metricDefinitions.has(oldMetricName));
+          assert.isTrue(plan.metricDefinitions[newMetricName] === undefined);
+          assert.isTrue(plan.metricDefinitions[oldMetricName] !== undefined);
           assert.equal(Object.keys(plan.chart.Vertices[1].metrics).length, 3);
           assert.equal(
             plan.chart.Vertices[1].getMetric(oldMetricName),
@@ -158,8 +158,8 @@ describe("RenameMetricOp", () => {
       }),
       RenameMetricOp(oldMetricName, newMetricName),
       TOp((plan: Plan) => {
-        assert.isTrue(plan.metricDefinitions.has(newMetricName));
-        assert.isFalse(plan.metricDefinitions.has(oldMetricName));
+        assert.isTrue(plan.metricDefinitions[newMetricName] !== undefined);
+        assert.isTrue(plan.metricDefinitions[oldMetricName] === undefined);
         assert.equal(
           plan.chart.Vertices[1].getMetric(newMetricName),
           defaultCostValue
@@ -193,7 +193,7 @@ describe("UpdateMetricSubOp", () => {
       AddMetricOp("cost", new MetricDefinition(defaultCostValue)),
       UpdateMetricOp("cost", new MetricDefinition(newCostValue)),
       TOp((plan: Plan) => {
-        assert.equal(plan.metricDefinitions.get("cost")!.default, newCostValue);
+        assert.equal(plan.metricDefinitions["cost"]!.default, newCostValue);
         plan.chart.Vertices.forEach((task: Task) => {
           assert.equal(task.getMetric("cost"), newCostValue);
         });

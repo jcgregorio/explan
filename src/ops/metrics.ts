@@ -24,11 +24,11 @@ export class AddMetricSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    if (plan.metricDefinitions.has(this.name)) {
+    if (plan.getMetricDefinition(this.name) !== undefined) {
       return error(`${this.name} already exists as a Metric`);
     }
 
-    plan.metricDefinitions.set(this.name, this.metricDefinition);
+    plan.setMetricDefinition(this.name, this.metricDefinition);
 
     // Now loop over every task and add this metric and set it to the default,
     // unless there is matching entry in taskMetricValues, in which case we will
@@ -57,7 +57,7 @@ export class DeleteMetricSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    const metricDefinition = plan.metricDefinitions.get(this.name);
+    const metricDefinition = plan.getMetricDefinition(this.name);
 
     if (metricDefinition === undefined) {
       return error(
@@ -70,7 +70,7 @@ export class DeleteMetricSubOp implements SubOp {
     }
 
     // Remove from resource definitions.
-    plan.metricDefinitions.delete(this.name);
+    plan.deleteMetricDefinition(this.name);
 
     const taskIndexToDeletedMetricValue: Map<number, number> = new Map();
 
@@ -112,11 +112,11 @@ export class RenameMetricSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    if (plan.metricDefinitions.has(this.newName)) {
+    if (plan.getMetricDefinition(this.newName) !== undefined) {
       return error(`${this.newName} already exists as a metric.`);
     }
 
-    const metricDefinition = plan.metricDefinitions.get(this.oldName);
+    const metricDefinition = plan.getMetricDefinition(this.oldName);
     if (metricDefinition === undefined) {
       return error(`${this.oldName} does not exist as a Metric`);
     }
@@ -124,8 +124,8 @@ export class RenameMetricSubOp implements SubOp {
       return error(`Static metric ${this.oldName} can't be renamed.`);
     }
 
-    plan.metricDefinitions.set(this.newName, metricDefinition);
-    plan.metricDefinitions.delete(this.oldName);
+    plan.setMetricDefinition(this.newName, metricDefinition);
+    plan.deleteMetricDefinition(this.oldName);
 
     // Now loop over every task and rename this metric.
     plan.chart.Vertices.forEach((task: Task) => {
@@ -160,7 +160,7 @@ export class UpdateMetricSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    const oldMetricDefinition = plan.metricDefinitions.get(this.name);
+    const oldMetricDefinition = plan.getMetricDefinition(this.name);
     if (oldMetricDefinition === undefined) {
       return error(`${this.name} does not exist as a Metric`);
     }
@@ -168,7 +168,7 @@ export class UpdateMetricSubOp implements SubOp {
       return error(`Static metric ${this.name} can't be updated.`);
     }
 
-    plan.metricDefinitions.set(this.name, this.metricDefinition);
+    plan.setMetricDefinition(this.name, this.metricDefinition);
 
     const taskMetricValues: Map<number, number> = new Map();
     // Now loop over every task and update the metric values to reflect the new
@@ -225,7 +225,7 @@ export class SetMetricValueSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    const metricsDefinition = plan.metricDefinitions.get(this.name);
+    const metricsDefinition = plan.getMetricDefinition(this.name);
     if (metricsDefinition === undefined) {
       return error(`${this.name} does not exist as a Metric`);
     }

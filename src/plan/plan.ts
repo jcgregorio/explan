@@ -9,15 +9,12 @@ import { UncertaintyToNum } from "../stats/cdf/triangular/jacobian.ts";
 
 export type StaticMetricKeys = "Duration" | "Percent Complete";
 
-export const StaticMetricDefinitions: MetricDefinitions = new Map<
-  string,
-  MetricDefinition
->([
+export const StaticMetricDefinitions: MetricDefinitions = {
   // How long a task will take, in days.
-  ["Duration", new MetricDefinition(0, new MetricRange(), true)],
+  Duration: new MetricDefinition(0, new MetricRange(), true),
   // The percent complete for a task.
-  ["Percent", new MetricDefinition(0, new MetricRange(0, 100), true)],
-]);
+  Percent: new MetricDefinition(0, new MetricRange(0, 100), true),
+};
 
 export const StaticResourceDefinitions: ResourceDefinitions = [
   {
@@ -37,12 +34,10 @@ export class Plan {
     this.chart = new Chart();
 
     this.resourceDefinitions = StaticResourceDefinitions.slice();
-    this.metricDefinitions = new Map<string, MetricDefinition>(
-      StaticMetricDefinitions
-    );
+    this.metricDefinitions = Object.assign({}, StaticMetricDefinitions);
 
-    [...this.metricDefinitions.keys()].forEach((metricName: string) => {
-      const md = this.metricDefinitions.get(metricName)!;
+    Object.keys(this.metricDefinitions).forEach((metricName: string) => {
+      const md = this.metricDefinitions[metricName]!;
       this.chart.Vertices.forEach((task: Task) => {
         task.setMetric(metricName, md.default);
       });
@@ -59,11 +54,23 @@ export class Plan {
     );
   }
 
+  getMetricDefinition(key: string): MetricDefinition | undefined {
+    return this.metricDefinitions[key];
+  }
+
+  setMetricDefinition(key: string, metricDefinition: MetricDefinition) {
+    this.metricDefinitions[key] = metricDefinition;
+  }
+
+  deleteMetricDefinition(key: string) {
+    delete this.metricDefinitions[key];
+  }
+
   // Returns a new Task with defaults for all metrics and resources.
   newTask(): Task {
     const ret = new Task();
-    [...this.metricDefinitions.keys()].forEach((metricName: string) => {
-      const md = this.metricDefinitions.get(metricName)!;
+    Object.keys(this.metricDefinitions).forEach((metricName: string) => {
+      const md = this.getMetricDefinition(metricName)!;
 
       ret.setMetric(metricName, md.default);
     });

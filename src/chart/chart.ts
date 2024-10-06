@@ -35,7 +35,7 @@ export class Task {
 
   resources: { [key: string]: string };
 
-  metrics: { [key: string]: number };
+  metrics: MetricValues;
 
   name: string;
 

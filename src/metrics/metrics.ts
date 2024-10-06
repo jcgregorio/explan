@@ -18,6 +18,6 @@ export class MetricDefinition {
   }
 }
 
-export type MetricDefinitions = Map<string, MetricDefinition>;
+export type MetricDefinitions = { [key: string]: MetricDefinition };
 
-export type MetricValues = Map<string, number>;
+export type MetricValues = { [key: string]: number };
