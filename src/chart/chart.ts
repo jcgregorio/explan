@@ -33,18 +33,13 @@ export class Task {
   // Resource keys and values. The parent plan contains all the resource
   // definitions.
 
-  private resources: { [key: string]: string };
+  resources: { [key: string]: string };
 
   metrics: { [key: string]: number };
 
   name: string;
 
   state: TaskState = "unstarted";
-
-  // Recorded as the number of days from the Start Milestone.
-  actualStart: number = 0;
-
-  actualFinish: number = 0;
 
   public get duration(): number {
     return this.getMetric("Duration")!;
@@ -84,8 +79,6 @@ export class Task {
     ret.metrics = Object.assign({}, this.metrics);
     ret.name = this.name;
     ret.state = this.state;
-    ret.actualFinish = this.actualFinish;
-    ret.actualStart = this.actualStart;
     return ret;
   }
 }
