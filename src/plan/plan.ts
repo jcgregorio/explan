@@ -84,8 +84,16 @@ export class Plan {
   toJSON(): PlanSerialized {
     return {
       chart: this.chart.toJSON(),
-      resourceDefinitions: this.resourceDefinitions,
-      metricDefinitions: this.metricDefinitions,
+      resourceDefinitions: Object.fromEntries(
+        Object.entries(this.resourceDefinitions).filter(
+          ([key, resourceDefinition]) => !resourceDefinition.isStatic
+        )
+      ),
+      metricDefinitions: Object.fromEntries(
+        Object.entries(this.metricDefinitions).filter(
+          ([key, metricDefinition]) => !metricDefinition.isStatic
+        )
+      ),
     };
   }
 
@@ -136,8 +144,14 @@ export const FromJSON = (text: string): Result<Plan> => {
 
   let ops: Op[][] = [];
 
-  plan.resourceDefinitions = planSerialized.resourceDefinitions;
-  plan.metricDefinitions = planSerialized.metricDefinitions;
+  plan.resourceDefinitions = Object.assign(
+    plan.resourceDefinitions,
+    planSerialized.resourceDefinitions
+  );
+  plan.metricDefinitions = Object.assign(
+    plan.metricDefinitions,
+    planSerialized.metricDefinitions
+  );
   plan.applyMetricsAndResourcesToVertices();
 
   // Now add in all the Tasks and Edges via Ops, but make sure to skip the Start
