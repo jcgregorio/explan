@@ -243,6 +243,9 @@ export function renderTasksToCanvas(
     const taskStart = scale.feature(row, span.start, Feature.taskLineStart);
     const taskEnd = scale.feature(row, span.finish, Feature.taskLineStart);
 
+    ctx.fillStyle = opts.colors.onSurface;
+    ctx.strokeStyle = opts.colors.onSurface;
+
     // Draw in time markers if displayed.
     if (opts.drawTimeMarkersOnTasks) {
       drawTimeMarkerAtDayToTask(

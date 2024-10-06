@@ -32,7 +32,7 @@ import { Jacobian, Uncertainty } from "./stats/cdf/triangular/jacobian.ts";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
 
-const FONT_SIZE_PX = 32;
+const FONT_SIZE_PX = 16;
 
 const plan = new Plan();
 
@@ -60,7 +60,8 @@ ops.push(
   InsertNewEmptyTaskAfterOp(0),
   SetMetricValueOp("Duration", rndDuration(), 1),
   SetTaskNameOp(1, rndName()),
-  SetResourceValueOp("Person", people[rndInt(people.length)], 1)
+  SetResourceValueOp("Person", people[rndInt(people.length)], 1),
+  SetResourceValueOp("Uncertainty", "moderate", 1)
 );
 
 let numTasks = 1;
@@ -70,7 +71,8 @@ for (let i = 0; i < 20; i++) {
     SplitTaskOp(index),
     SetMetricValueOp("Duration", rndDuration(), index + 1),
     SetTaskNameOp(index + 1, rndName()),
-    SetResourceValueOp("Person", people[rndInt(people.length)], index + 1)
+    SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
+    SetResourceValueOp("Uncertainty", "moderate", index + 1)
   );
   numTasks++;
   index = rndInt(numTasks) + 1;
@@ -78,7 +80,8 @@ for (let i = 0; i < 20; i++) {
     DupTaskOp(index),
     SetMetricValueOp("Duration", rndDuration(), index + 1),
     SetTaskNameOp(index + 1, rndName()),
-    SetResourceValueOp("Person", people[rndInt(people.length)], index + 1)
+    SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
+    SetResourceValueOp("Uncertainty", "moderate", index + 1)
   );
   numTasks++;
 }
