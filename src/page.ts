@@ -101,7 +101,7 @@ const spans: Span[] = slacks.map((value: Slack): Span => {
   return value.early;
 });
 
-const criticalPath = CriticalPath(slacks);
+let criticalPath = CriticalPath(slacks);
 
 const taskLabel: TaskLabel = (taskIndex: number): string =>
   `${plan.chart.Vertices[taskIndex].name}`;
@@ -284,7 +284,16 @@ for (let i = 0; i < 100; i++) {
 let display = "";
 allCriticalPaths.forEach((value: CriticalPathEntry, key: string) => {
   display =
-    display + `\n ${value.count} : ${key} : ${value.durations.join(", ")}`;
+    display +
+    `\n <li data-key=${key}>${value.count} : ${key} : ${value.durations.join(", ")}</li>`;
 });
 
-document.querySelector<HTMLElement>("critical-path")!.innerText = display;
+const critialPaths =
+  document.querySelector<HTMLUListElement>("#criticalPaths")!;
+critialPaths.innerHTML = display;
+critialPaths.addEventListener("click", (e: MouseEvent) => {
+  criticalPath = allCriticalPaths.get(
+    (e.target as HTMLLIElement).dataset.key!
+  )!.tasks;
+  paintChart();
+});

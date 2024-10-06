@@ -20,6 +20,10 @@
             display: flexbox;
         }
 
+        ul li {
+            cursor: pointer;
+        }
+
         @property --groupColor {
             syntax: "<color>";
             inherits: true;
@@ -76,7 +80,7 @@
     <plan-parent>
         <canvas id="zoomed" width=1000 height="1000"></canvas>
     </plan-parent>
-    <critical-path></critical-path>
+    <ul id="criticalPaths"></ul>
     <script type="module" src="./dst/page.js"></script>
 </body>
 
