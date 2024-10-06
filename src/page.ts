@@ -267,7 +267,7 @@ for (let i = 0; i < NUM_SIMULATION_LOOPS; i++) {
     return Math.ceil(
       new Jacobian(
         t.duration,
-        t.resources["Uncertainty"] as Uncertainty
+        t.getResource("Uncertainty") as Uncertainty
       ).sample(rndInt(MAX_RANDOM) / MAX_RANDOM)
     );
   });
@@ -369,3 +369,4 @@ criticalPath = criticalTasksDurationDescending.map(
   (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex
 );
 paintChart();
+console.log(JSON.stringify(plan, null, "  "));

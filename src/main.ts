@@ -8,10 +8,10 @@ import { ComputeSlack, CriticalPath } from "./slack/slack.ts";
 import { Jacobian } from "./stats/cdf/triangular/jacobian.ts";
 
 const taskA = new Task("A");
-taskA.metrics.set("Duration", 10);
+taskA.setMetric("Duration", 10);
 
 const taskB = new Task("B");
-taskB.metrics.set("Duration", 15);
+taskB.setMetric("Duration", 15);
 
 let plan = new Plan();
 

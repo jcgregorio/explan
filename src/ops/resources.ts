@@ -34,8 +34,10 @@ export class AddResourceSubOp implements SubOp {
     // Now loop over every task and add this key and set it to the default, unless
     // there is matching entry in taskResourceValues, in which case we will use that value.
     plan.chart.Vertices.forEach((task: Task, index: number) => {
-      task.resources[this.key] =
-        this.taskResourceValues.get(index) || DEFAULT_RESOURCE_VALUE;
+      task.setResource(
+        this.key,
+        this.taskResourceValues.get(index) || DEFAULT_RESOURCE_VALUE
+      );
     });
 
     return ok({ plan: plan, inverse: this.inverse() });
@@ -71,9 +73,9 @@ export class DeleteResourceSupOp implements SubOp {
     // Now look at all Tasks and remove `this.key` from the resources while also
     // building up the info needed for a revert.
     plan.chart.Vertices.forEach((task: Task, index: number) => {
-      const value = task.resources[this.key];
+      const value = task.getResource(this.key) || DEFAULT_RESOURCE_VALUE;
       taskIndexToDeletedResourceValue.set(index, value);
-      delete task.resources[this.key];
+      task.deleteResource(this.key);
     });
 
     return ok({
@@ -124,7 +126,7 @@ export class AddResourceOptionSubOp implements SubOp {
     // Now look at all Tasks and set the value for the given key for all the
     // tasks listed in `indicesOfTasksToChange`.
     this.indicesOfTasksToChange.forEach((taskIndex: number) => {
-      plan.chart.Vertices[taskIndex].resources[this.key] = this.value;
+      plan.chart.Vertices[taskIndex].setResource(this.key, this.value);
     });
 
     return ok({ plan: plan, inverse: this.inverse() });
@@ -184,13 +186,13 @@ export class DeleteResourceOptionSubOp implements SubOp {
     const indicesOfTasksWithMatchingResourceValues: number[] = [];
 
     plan.chart.Vertices.forEach((task: Task, index: number) => {
-      const resourceValue = task.resources[this.key];
+      const resourceValue = task.getResource(this.key);
       if (resourceValue === undefined) {
         return;
       }
 
       // Since the value is no longer valid we change it back to the default.
-      task.resources[this.key] = definition.values[0];
+      task.setResource(this.key, definition.values[0]);
 
       // Record which task we just changed.
       indicesOfTasksWithMatchingResourceValues.push(index);
@@ -241,9 +243,10 @@ export class RenameResourceSubOp implements SubOp {
 
     // Now loop over every task and change oldKey -> newkey for the given resource key.
     plan.chart.Vertices.forEach((task: Task) => {
-      const currentValue = task.resources[this.oldKey];
-      task.resources[this.newKey] = currentValue;
-      delete task.resources[this.oldKey];
+      const currentValue =
+        task.getResource(this.oldKey) || DEFAULT_RESOURCE_VALUE;
+      task.setResource(this.newKey, currentValue);
+      task.deleteResource(this.oldKey);
     });
 
     return ok({ plan: plan, inverse: this.inverse() });
@@ -291,9 +294,9 @@ export class RenameResourceOptionSubOp implements SubOp {
 
     // Now loop over every task and change oldValue -> newValue for the given resource key.
     plan.chart.Vertices.forEach((task: Task) => {
-      const currentValue = task.resources[this.key];
+      const currentValue = task.getResource(this.key);
       if (currentValue === this.oldValue) {
-        task.resources[this.key] = this.newValue;
+        task.setResource(this.key, this.newValue);
       }
     });
 
@@ -385,8 +388,8 @@ export class SetResourceValueSubOp implements SubOp {
     }
 
     const task = plan.chart.Vertices[this.taskIndex];
-    const oldValue = task.resources[this.key]!;
-    task.resources[this.key] = this.value;
+    const oldValue = task.getResource(this.key)!;
+    task.setResource(this.key, this.value);
 
     return ok({ plan: plan, inverse: this.inverse(oldValue) });
   }

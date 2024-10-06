@@ -26,7 +26,7 @@ describe("AddMetricOp", () => {
       T2Op((plan: Plan) => {
         // cost should be undefined at this point, both forward and inverse.
         plan.chart.Vertices.forEach((task: Task) => {
-          assert.equal(task.metrics.get("cost"), undefined);
+          assert.equal(task.getMetric("cost"), undefined);
         });
       }),
       AddMetricOp("cost", new MetricDefinition(defaultCostValue)),
@@ -42,7 +42,7 @@ describe("AddMetricOp", () => {
         );
         // Confirm each task was updated.
         plan.chart.Vertices.forEach((task: Task) => {
-          assert.equal(task.metrics.get("cost"), defaultCostValue);
+          assert.equal(task.getMetric("cost"), defaultCostValue);
         });
       }),
     ]);
@@ -63,19 +63,16 @@ describe("DeleteMetricOp", () => {
       AddMetricOp("cost", new MetricDefinition(defaultCostValue)),
       T2Op((plan: Plan, isForward: boolean) => {
         if (isForward) {
-          plan.chart.Vertices[1].metrics.set("cost", newCostValue);
+          plan.chart.Vertices[1].setMetric("cost", newCostValue);
         } else {
-          assert.equal(
-            plan.chart.Vertices[1].metrics.get("cost"),
-            newCostValue
-          );
+          assert.equal(plan.chart.Vertices[1].getMetric("cost"), newCostValue);
         }
       }),
       DeleteMetricOp("cost"),
       TOp((plan: Plan) => {
         // Confirm each task was updated.
         plan.chart.Vertices.forEach((task: Task) => {
-          assert.equal(task.metrics.get("cost"), undefined);
+          assert.equal(task.getMetric("cost"), undefined);
         });
       }),
     ]);
@@ -133,9 +130,9 @@ describe("RenameMetricOp", () => {
       TOp((plan: Plan) => {
         assert.isTrue(plan.metricDefinitions.has(newMetricName));
         assert.isFalse(plan.metricDefinitions.has(oldMetricName));
-        assert.equal(plan.chart.Vertices[1].metrics.size, 3);
+        assert.equal(Object.keys(plan.chart.Vertices[1].metrics).length, 3);
         assert.equal(
-          plan.chart.Vertices[1].metrics.get(newMetricName),
+          plan.chart.Vertices[1].getMetric(newMetricName),
           defaultCostValue
         );
       }),
@@ -152,9 +149,9 @@ describe("RenameMetricOp", () => {
         if (!isForward) {
           assert.isFalse(plan.metricDefinitions.has(newMetricName));
           assert.isTrue(plan.metricDefinitions.has(oldMetricName));
-          assert.equal(plan.chart.Vertices[1].metrics.size, 3);
+          assert.equal(Object.keys(plan.chart.Vertices[1].metrics).length, 3);
           assert.equal(
-            plan.chart.Vertices[1].metrics.get(oldMetricName),
+            plan.chart.Vertices[1].getMetric(oldMetricName),
             defaultCostValue
           );
         }
@@ -164,7 +161,7 @@ describe("RenameMetricOp", () => {
         assert.isTrue(plan.metricDefinitions.has(newMetricName));
         assert.isFalse(plan.metricDefinitions.has(oldMetricName));
         assert.equal(
-          plan.chart.Vertices[1].metrics.get(newMetricName),
+          plan.chart.Vertices[1].getMetric(newMetricName),
           defaultCostValue
         );
       }),
@@ -198,7 +195,7 @@ describe("UpdateMetricSubOp", () => {
       TOp((plan: Plan) => {
         assert.equal(plan.metricDefinitions.get("cost")!.default, newCostValue);
         plan.chart.Vertices.forEach((task: Task) => {
-          assert.equal(task.metrics.get("cost"), newCostValue);
+          assert.equal(task.getMetric("cost"), newCostValue);
         });
       }),
     ]);
@@ -214,7 +211,7 @@ describe("UpdateMetricSubOp", () => {
       TOp((plan: Plan) => {
         // Since defaultCostValue < 100 each Task's metric value, it should be clamped to 100.
         plan.chart.Vertices.forEach((task: Task) => {
-          assert.equal(task.metrics.get("cost"), 100);
+          assert.equal(task.getMetric("cost"), 100);
         });
       }),
     ]);
@@ -229,17 +226,14 @@ describe("UpdateMetricSubOp", () => {
       T2Op((plan: Plan) => {
         // Confirm the value for that single task gets restored on revert.
         assert.equal(
-          plan.chart.Vertices[1].metrics.get("cost"),
+          plan.chart.Vertices[1].getMetric("cost"),
           defaultCostValue
         );
       }),
       SetMetricValueOp("cost", newCostForTask, taskIndex),
       T2Op((plan: Plan) => {
         // Confirm the value for that single task gets restored on revert.
-        assert.equal(
-          plan.chart.Vertices[1].metrics.get("cost"),
-          newCostForTask
-        );
+        assert.equal(plan.chart.Vertices[1].getMetric("cost"), newCostForTask);
       }),
       UpdateMetricOp(
         "cost",
@@ -248,7 +242,7 @@ describe("UpdateMetricSubOp", () => {
       TOp((plan: Plan) => {
         // Confirm each Task cost metric got updated.
         plan.chart.Vertices.forEach((task: Task) => {
-          assert.equal(task.metrics.get("cost"), 100);
+          assert.equal(task.getMetric("cost"), 100);
         });
       }),
     ]);
@@ -266,12 +260,12 @@ describe("SetMetricValueOp", () => {
     const taskIndex = 1;
     TestOpsForwardAndBack([
       T2Op((plan: Plan) => {
-        assert.isUndefined(plan.chart.Vertices[taskIndex].metrics.get("cost"));
+        assert.isUndefined(plan.chart.Vertices[taskIndex].getMetric("cost"));
       }),
       AddMetricOp("cost", new MetricDefinition(100)),
       SetMetricValueOp("cost", 200, taskIndex),
       TOp((plan: Plan) => {
-        assert.equal(plan.chart.Vertices[taskIndex].metrics.get("cost"), 200);
+        assert.equal(plan.chart.Vertices[taskIndex].getMetric("cost"), 200);
       }),
     ]);
   });

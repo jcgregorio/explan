@@ -668,7 +668,7 @@ const taskIndexToRowFromGroupBy = (
   const groups = new Map<string, number[]>();
   topologicalOrder.forEach((taskIndex: number) => {
     const resourceValue =
-      plan.chart.Vertices[taskIndex].resources[resource.key] || "";
+      plan.chart.Vertices[taskIndex].getResource(resource.key) || "";
     const groupMembers = groups.get(resourceValue) || [];
     groupMembers.push(taskIndex);
     groups.set(resourceValue, groupMembers);

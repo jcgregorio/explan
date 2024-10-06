@@ -26,17 +26,16 @@ export const DEFAULT_TASK_NAME = "Task Name";
 export class Task {
   constructor(name: string = "") {
     this.name = name || DEFAULT_TASK_NAME;
-    this.metrics = new Map();
+    this.metrics = {};
     this.resources = {};
   }
 
   // Resource keys and values. The parent plan contains all the resource
   // definitions.
 
-  // Should resources also have a ResourcesContainer?
-  resources: { [key: string]: string };
+  private resources: { [key: string]: string };
 
-  metrics: MetricValues;
+  metrics: { [key: string]: number };
 
   name: string;
 
@@ -48,21 +47,41 @@ export class Task {
   actualFinish: number = 0;
 
   public get duration(): number {
-    return this.metrics.get("Duration")!;
+    return this.getMetric("Duration")!;
   }
 
   public set duration(value: number) {
-    this.metrics.set("Duration", value);
+    this.setMetric("Duration", value);
   }
 
-  public get percent(): number {
-    return this.metrics.get("Percent")!;
+  public getMetric(key: string): number | undefined {
+    return this.metrics[key];
+  }
+
+  public setMetric(key: string, value: number) {
+    this.metrics[key] = value;
+  }
+
+  public deleteMetric(key: string) {
+    delete this.metrics[key];
+  }
+
+  public getResource(key: string): string | undefined {
+    return this.resources[key];
+  }
+
+  public setResource(key: string, value: string) {
+    this.resources[key] = value;
+  }
+
+  public deleteResource(key: string) {
+    delete this.resources[key];
   }
 
   public dup(): Task {
     const ret = new Task();
     ret.resources = Object.assign({}, this.resources);
-    ret.metrics = new Map(this.metrics);
+    ret.metrics = Object.assign({}, this.metrics);
     ret.name = this.name;
     ret.state = this.state;
     ret.actualFinish = this.actualFinish;
@@ -80,9 +99,9 @@ export class Chart {
 
   constructor() {
     const start = new Task("Start");
-    start.metrics.set("Duration", 0);
+    start.setMetric("Duration", 0);
     const finish = new Task("Finish");
-    finish.metrics.set("Duration", 0);
+    finish.setMetric("Duration", 0);
     this.Vertices = [start, finish];
     this.Edges = [new DirectedEdge(0, 1)];
   }

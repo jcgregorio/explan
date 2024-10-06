@@ -35,7 +35,7 @@ export class AddMetricSubOp implements SubOp {
     // use that value, i.e. this AddMetricSubOp is actually a revert of a
     // DeleteMetricSubOp.
     plan.chart.Vertices.forEach((task: Task, index: number) => {
-      task.metrics.set(
+      task.setMetric(
         this.name,
         this.taskMetricValues.get(index) || this.metricDefinition.default
       );
@@ -77,11 +77,11 @@ export class DeleteMetricSubOp implements SubOp {
     // Now look at all Tasks and remove `this.name` from the metric while also
     // building up the info needed for a revert.
     plan.chart.Vertices.forEach((task: Task, index: number) => {
-      const value = task.metrics.get(this.name);
+      const value = task.getMetric(this.name);
       if (value !== undefined) {
         taskIndexToDeletedMetricValue.set(index, value);
       }
-      task.metrics.delete(this.name);
+      task.deleteMetric(this.name);
     });
 
     return ok({
@@ -129,9 +129,9 @@ export class RenameMetricSubOp implements SubOp {
 
     // Now loop over every task and rename this metric.
     plan.chart.Vertices.forEach((task: Task) => {
-      const value = task.metrics.get(this.oldName) || metricDefinition.default;
-      task.metrics.set(this.newName, value);
-      task.metrics.delete(this.oldName);
+      const value = task.getMetric(this.oldName) || metricDefinition.default;
+      task.setMetric(this.newName, value);
+      task.deleteMetric(this.oldName);
     });
 
     return ok({ plan: plan, inverse: this.inverse() });
@@ -176,7 +176,7 @@ export class UpdateMetricSubOp implements SubOp {
     // which case we will use that value, i.e. this UpdateMetricSubOp is
     // actually a revert of another UpdateMetricSubOp.
     plan.chart.Vertices.forEach((task: Task, index: number) => {
-      const oldValue = task.metrics.get(this.name)!;
+      const oldValue = task.getMetric(this.name)!;
 
       let newValue: number;
       if (this.taskMetricValues.has(index)) {
@@ -192,7 +192,7 @@ export class UpdateMetricSubOp implements SubOp {
         newValue = this.metricDefinition.range.clamp(oldValue);
         taskMetricValues.set(index, oldValue);
       }
-      task.metrics.set(this.name, newValue);
+      task.setMetric(this.name, newValue);
     });
 
     return ok({
@@ -230,9 +230,9 @@ export class SetMetricValueSubOp implements SubOp {
       return error(`${this.name} does not exist as a Metric`);
     }
 
-    const metricsMap = plan.chart.Vertices[this.taskIndex].metrics;
-    const oldValue = metricsMap.get(this.name) || metricsDefinition.default;
-    metricsMap.set(this.name, this.value);
+    const task = plan.chart.Vertices[this.taskIndex];
+    const oldValue = task.getMetric(this.name) || metricsDefinition.default;
+    task.setMetric(this.name, this.value);
 
     return ok({ plan: plan, inverse: this.inverse(oldValue) });
   }

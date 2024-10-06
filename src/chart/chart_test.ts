@@ -54,7 +54,7 @@ describe("Task", () => {
     assert.deepEqual(t, copy);
 
     // Modify the copy and show they become different.
-    copy.metrics.set("Some new name", 12);
+    copy.setMetric("Some new name", 12);
     assert.notDeepEqual(t, copy);
   });
 
@@ -64,7 +64,7 @@ describe("Task", () => {
     assert.deepEqual(t, copy);
 
     // Modify the copy and show they become different.
-    copy.resources["Some new name"] = "wilma";
+    copy.setResource("Some new name", "wilma");
     assert.notDeepEqual(t, copy);
   });
 });

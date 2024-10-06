@@ -44,13 +44,16 @@ export class Plan {
     [...this.metricDefinitions.keys()].forEach((metricName: string) => {
       const md = this.metricDefinitions.get(metricName)!;
       this.chart.Vertices.forEach((task: Task) => {
-        task.metrics.set(metricName, md.default);
+        task.setMetric(metricName, md.default);
       });
     });
     this.resourceDefinitions.forEach(
       (resourceDefinition: ResourceDefinition) => {
         this.chart.Vertices.forEach((task: Task) => {
-          task.resources[resourceDefinition.key] = resourceDefinition.values[0];
+          task.setResource(
+            resourceDefinition.key,
+            resourceDefinition.values[0]
+          );
         });
       }
     );
@@ -62,11 +65,11 @@ export class Plan {
     [...this.metricDefinitions.keys()].forEach((metricName: string) => {
       const md = this.metricDefinitions.get(metricName)!;
 
-      ret.metrics.set(metricName, md.default);
+      ret.setMetric(metricName, md.default);
     });
     this.resourceDefinitions.forEach(
       (resourceDefinition: ResourceDefinition) => {
-        ret.resources[resourceDefinition.key] = resourceDefinition.values[0];
+        ret.setResource(resourceDefinition.key, resourceDefinition.values[0]);
       }
     );
     return ret;

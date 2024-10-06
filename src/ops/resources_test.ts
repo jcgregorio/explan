@@ -29,11 +29,11 @@ describe("SetResourceValueOp", () => {
       AddResourceOptionOp("Who", "Fred"),
       AddResourceOptionOp("Who", "Barney"),
       T2Op((plan: Plan) => {
-        assert.equal(plan.chart.Vertices[1].resources["Who"], "");
+        assert.equal(plan.chart.Vertices[1].getResource("Who"), "");
       }),
       SetResourceValueOp("Who", "Barney", 1),
       TOp((plan: Plan) => {
-        assert.equal(plan.chart.Vertices[1].resources["Who"], "Barney");
+        assert.equal(plan.chart.Vertices[1].getResource("Who"), "Barney");
       }),
     ]);
   });
@@ -45,7 +45,7 @@ describe("AddResourceOp/DeleteResourceOp", () => {
       T2Op((plan: Plan) => {
         // Confirm "Who" isn't defined as a resource.
         plan.chart.Vertices.forEach((task: Task) => {
-          assert.equal(task.resources["Who"], undefined);
+          assert.equal(task.getResource("Who"), undefined);
         });
       }),
       AddResourceOp("Who"),
@@ -63,7 +63,7 @@ describe("AddResourceOp/DeleteResourceOp", () => {
 
         // Confirm each task was updated.
         plan.chart.Vertices.forEach((task: Task) => {
-          assert.equal(task.resources["Who"], "");
+          assert.equal(task.getResource("Who"), "");
         });
       }),
     ]);
@@ -122,7 +122,7 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
 
           // Confirm that in both forward and back direction the task value for
           // the resource is correct.
-          assert.equal(plan.chart.Vertices[0].resources["Who"], "");
+          assert.equal(plan.chart.Vertices[0].getResource("Who"), "");
         }
       }),
       AddResourceOptionOp("Who", "Fred"),
@@ -141,11 +141,11 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
 
           // Check that the task resource values remain unchanged.
           plan.chart.Vertices.forEach((task: Task) => {
-            assert.equal(task.resources["Who"], "");
+            assert.equal(task.getResource("Who"), "");
           });
 
           // Change the value of one Tasks resources to a non-default value.
-          plan.chart.Vertices[0].resources["Who"] = "Fred";
+          plan.chart.Vertices[0].setResource("Who", "Fred");
         }
       }),
     ]);
@@ -208,17 +208,17 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
       AddResourceOptionOp("Who", "Fred"),
       AddResourceOptionOp("Who", "Barney"),
       T2Op((plan: Plan) => {
-        assert.equal(plan.chart.Vertices[1].resources["Who"], "");
+        assert.equal(plan.chart.Vertices[1].getResource("Who"), "");
       }),
       SetResourceValueOp("Who", "Barney", 1),
       T2Op((plan: Plan) => {
         // Check forward and back have the resource set to "Barney".
-        assert.equal(plan.chart.Vertices[1].resources["Who"], "Barney");
+        assert.equal(plan.chart.Vertices[1].getResource("Who"), "Barney");
       }),
       DeleteResourceOptionOp("Who", "Barney"),
       TOp((plan: Plan) => {
         // Since Barney was deleted it should go back to the default.
-        assert.equal(plan.chart.Vertices[1].resources["Who"], "");
+        assert.equal(plan.chart.Vertices[1].getResource("Who"), "");
       }),
     ]);
   });
@@ -254,17 +254,17 @@ describe("RenameResourceOp", () => {
           },
         ]);
 
-        assert.equal(plan.chart.Vertices[1].resources["Who"], "");
+        assert.equal(plan.chart.Vertices[1].getResource("Who"), "");
       }),
       SetResourceValueOp("Who", "Fred", 1),
       T2Op((plan: Plan) => {
         // Check forward and back have the resource set to "Barney".
-        assert.equal(plan.chart.Vertices[1].resources["Who"], "Fred");
+        assert.equal(plan.chart.Vertices[1].getResource("Who"), "Fred");
       }),
       RenameResourceOp("Who", "Person"),
       TOp((plan: Plan) => {
         // Task resources should be updated to match.
-        assert.equal(plan.chart.Vertices[1].resources["Person"], "Fred");
+        assert.equal(plan.chart.Vertices[1].getResource("Person"), "Fred");
       }),
     ]);
   });
@@ -323,17 +323,17 @@ describe("RenameResourceOptionOp", () => {
           },
         ]);
 
-        assert.equal(plan.chart.Vertices[1].resources["Who"], "");
+        assert.equal(plan.chart.Vertices[1].getResource("Who"), "");
       }),
       SetResourceValueOp("Who", "Fred", 1),
       T2Op((plan: Plan) => {
         // Check forward and back have the resource set to "Barney".
-        assert.equal(plan.chart.Vertices[1].resources["Who"], "Fred");
+        assert.equal(plan.chart.Vertices[1].getResource("Who"), "Fred");
       }),
       RenameResourceOptionOp("Who", "Fred", "Wilma"),
       TOp((plan: Plan) => {
         // Task resources should be updated to match.
-        assert.equal(plan.chart.Vertices[1].resources["Who"], "Wilma");
+        assert.equal(plan.chart.Vertices[1].getResource("Who"), "Wilma");
       }),
     ]);
   });
