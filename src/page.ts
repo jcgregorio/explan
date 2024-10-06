@@ -252,6 +252,7 @@ window.addEventListener("resize", paintChart);
 // Simulate the uncertainty in the plan and generate possible alternate critical
 // paths.
 const MAX_RANDOM = 1000;
+const NUM_SIMULATION_LOOPS = 100;
 
 export interface CriticalPathEntry {
   count: number;
@@ -261,7 +262,7 @@ export interface CriticalPathEntry {
 
 const allCriticalPaths = new Map<string, CriticalPathEntry>();
 
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < NUM_SIMULATION_LOOPS; i++) {
   const durations = plan.chart.Vertices.map((t: Task) => {
     return Math.ceil(
       new Jacobian(
@@ -302,6 +303,8 @@ allCriticalPaths.forEach((value: CriticalPathEntry, key: string) => {
 const critialPaths =
   document.querySelector<HTMLUListElement>("#criticalPaths")!;
 critialPaths.innerHTML = display;
+
+// Enable clicking on alternate critical paths.
 critialPaths.addEventListener("click", (e: MouseEvent) => {
   const criticalPathEntry = allCriticalPaths.get(
     (e.target as HTMLLIElement).dataset.key!
@@ -312,3 +315,49 @@ critialPaths.addEventListener("click", (e: MouseEvent) => {
   recalculateSpan();
   paintChart();
 });
+
+// Generate a table of tasks on the critical path, sorted by duration, along
+// with their percentage chance of appearing on the critical path.
+
+interface CriticalPathTaskEntry {
+  taskIndex: number;
+  duration: number;
+  numTimesAppeared: number;
+}
+
+const critialTasks: Map<number, CriticalPathTaskEntry> = new Map();
+
+allCriticalPaths.forEach((value: CriticalPathEntry, key: string) => {
+  value.tasks.forEach((taskIndex: number) => {
+    let taskEntry = critialTasks.get(taskIndex);
+    if (taskEntry === undefined) {
+      taskEntry = {
+        taskIndex: taskIndex,
+        duration: plan.chart.Vertices[taskIndex].duration,
+        numTimesAppeared: 0,
+      };
+      critialTasks.set(taskIndex, taskEntry);
+    }
+    taskEntry.numTimesAppeared += value.count;
+  });
+});
+
+const criticalTasksDurationDescending = [...critialTasks.values()].sort(
+  (a: CriticalPathTaskEntry, b: CriticalPathTaskEntry): number => {
+    return b.duration - a.duration;
+  }
+);
+
+let critialTasksTable = criticalTasksDurationDescending
+  .map(
+    (taskEntry: CriticalPathTaskEntry) => `<tr>
+  <td>${plan.chart.Vertices[taskEntry.taskIndex].name}</td>
+  <td>${taskEntry.duration}</td>
+  <td>${Math.floor((100 * taskEntry.numTimesAppeared) / NUM_SIMULATION_LOOPS)}</td>
+</tr>`
+  )
+  .join("\n");
+critialTasksTable =
+  `<tr><th>Name</th><th>Duration</th><th>%</th></tr>\n` + critialTasksTable;
+console.log(critialTasksTable);
+document.querySelector("#criticalTasks")!.innerHTML = critialTasksTable;
