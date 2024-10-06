@@ -361,3 +361,11 @@ critialTasksTable =
   `<tr><th>Name</th><th>Duration</th><th>%</th></tr>\n` + critialTasksTable;
 console.log(critialTasksTable);
 document.querySelector("#criticalTasks")!.innerHTML = critialTasksTable;
+
+// Show all tasks that could be on the critical path.
+
+recalculateSpan();
+criticalPath = criticalTasksDurationDescending.map(
+  (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex
+);
+paintChart();
