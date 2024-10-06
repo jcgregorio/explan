@@ -13,6 +13,7 @@ type Direction = "up" | "down";
 export interface Colors {
   surface: string;
   onSurface: string;
+  onSurfaceHighlight: string;
   overlay: string;
   groupColor: string;
 }
@@ -62,6 +63,10 @@ export interface RenderOptions {
 
   /** Function that produces display text for a Task and its associated Slack. */
   taskLabel: TaskLabel;
+
+  /** The indices of tasks that should be highlighted when draw, typically used
+   * to highlight the critical path. */
+  taskHighlights: number[];
 
   /** Group the tasks together vertically based on the given resource. If the
    * empty string is supplied then just display by topological order.
@@ -150,6 +155,9 @@ export function renderTasksToCanvas(
   if (!vret.ok) {
     return vret;
   }
+
+  // Highlighted tasks.
+  const taskHighlights: Set<number> = new Set(opts.taskHighlights);
 
   // Calculate how wide we need to make the groupBy column.
   let maxGroupNameLength = 0;
@@ -257,6 +265,13 @@ export function renderTasksToCanvas(
       );
     }
 
+    if (taskHighlights.has(taskIndex)) {
+      ctx.fillStyle = opts.colors.onSurfaceHighlight;
+      ctx.strokeStyle = opts.colors.onSurfaceHighlight;
+    } else {
+      ctx.fillStyle = opts.colors.onSurface;
+      ctx.strokeStyle = opts.colors.onSurface;
+    }
     if (taskStart.x === taskEnd.x) {
       drawMilestone(ctx, taskStart, diamondDiameter, percentHeight);
     } else {

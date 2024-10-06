@@ -101,6 +101,8 @@ const spans: Span[] = slacks.map((value: Slack): Span => {
   return value.early;
 });
 
+const criticalPath = CriticalPath(slacks);
+
 const taskLabel: TaskLabel = (taskIndex: number): string =>
   `${plan.chart.Vertices[taskIndex].name}`;
 //  `${plan.chart.Vertices[taskIndex].name} (${plan.chart.Vertices[taskIndex].resources["Person"]}) `;
@@ -156,6 +158,7 @@ const paintChart = () => {
     colors: {
       surface: themeColors.surface,
       onSurface: themeColors.onSurface,
+      onSurfaceHighlight: themeColors.onSurfaceSecondary,
       overlay: themeColors.overlay,
       groupColor: themeColors.groupColor,
     },
@@ -163,6 +166,7 @@ const paintChart = () => {
     hasEdges: false,
     drawTimeMarkersOnTasks: false,
     taskLabel: taskLabel,
+    taskHighlights: criticalPath,
     groupByResource: groupByOptions[groupByOptionsIndex],
   };
 
@@ -175,7 +179,8 @@ const paintChart = () => {
     displayRangeUsage: "restrict",
     colors: {
       surface: themeColors.surface,
-      onSurface: themeColors.onSurfaceSecondary,
+      onSurface: themeColors.onSurface,
+      onSurfaceHighlight: themeColors.onSurfaceSecondary,
       overlay: themeColors.overlay,
       groupColor: themeColors.groupColor,
     },
@@ -183,6 +188,7 @@ const paintChart = () => {
     hasEdges: true,
     drawTimeMarkersOnTasks: true,
     taskLabel: taskLabel,
+    taskHighlights: criticalPath,
     groupByResource: groupByOptions[groupByOptionsIndex],
   };
 
