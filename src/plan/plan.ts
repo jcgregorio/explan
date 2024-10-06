@@ -88,13 +88,6 @@ export class Plan {
     };
   }
 
-  fromJSON(data: PlanSerialized): Plan {
-    this.chart = new Chart().fromJSON(data.chart);
-    this.resourceDefinitions = data.resourceDefinitions;
-    this.metricDefinitions = data.metricDefinitions;
-    return this;
-  }
-
   getMetricDefinition(key: string): MetricDefinition | undefined {
     return this.metricDefinitions[key];
   }

@@ -13,9 +13,9 @@ describe("Plan", () => {
   it("Round trips via JSON", () => {
     const plan = new Plan();
     const serialized = JSON.stringify(plan, null, "  ");
-    const deserialized = new Plan().fromJSON(
-      JSON.parse(serialized) as PlanSerialized
-    );
+    const deserializedResult = FromJSON(serialized);
+    assert.isTrue(deserializedResult.ok);
+    const deserialized = deserializedResult.value;
     assert.equal(serialized, JSON.stringify(deserialized, null, "  "));
   });
 

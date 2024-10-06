@@ -58,14 +58,6 @@ export class Task {
     };
   }
 
-  fromJSON(data: TaskSerialized): Task {
-    this.resources = data.resources;
-    this.metrics = data.metrics;
-    this.name = data.name;
-    this.state = data.state;
-    return this;
-  }
-
   public get duration(): number {
     return this.getMetric("Duration")!;
   }
@@ -134,30 +126,6 @@ export class Chart {
       vertices: this.Vertices.map((t: Task) => t.toJSON()),
       edges: this.Edges.map((e: DirectedEdge) => e.toJSON()),
     };
-  }
-
-  fromJSON(data: ChartSerialized): Chart {
-    this.Vertices = data.vertices.map(
-      (taskSerialized: TaskSerialized): Task =>
-        new Task().fromJSON(taskSerialized)
-    );
-
-    // Stuff in the Start and Finish milestones if not present in the serialization.
-    if (this.Vertices[0].name !== "Start" && this.Vertices[0].duration !== 0) {
-      this.Vertices.unshift(new Task("Start"));
-    }
-    const last = this.Vertices.length - 1;
-    if (
-      this.Vertices[last].name !== "Finish" &&
-      this.Vertices[last].duration !== 0
-    ) {
-      this.Vertices.push(new Task("Finish"));
-    }
-
-    this.Edges = data.edges.map((edge: DirectedEdgeSerialized) =>
-      new DirectedEdge().fromJSON(edge)
-    );
-    return this;
   }
 }
 
