@@ -51,6 +51,10 @@ export class Task {
     return this.metrics.get("Duration")!;
   }
 
+  public set duration(value: number) {
+    this.metrics.set("Duration", value);
+  }
+
   public get percent(): number {
     return this.metrics.get("Percent")!;
   }

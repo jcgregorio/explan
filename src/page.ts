@@ -90,18 +90,24 @@ if (!res.ok) {
 }
 
 let slacks: Slack[] = [];
-const slackResult = ComputeSlack(plan.chart);
-if (!slackResult.ok) {
-  console.error(slackResult);
-} else {
-  slacks = slackResult.value;
-}
+let spans: Span[] = [];
+let criticalPath: number[] = [];
 
-const spans: Span[] = slacks.map((value: Slack): Span => {
-  return value.early;
-});
+const recalculateSpan = () => {
+  const slackResult = ComputeSlack(plan.chart);
+  if (!slackResult.ok) {
+    console.error(slackResult);
+  } else {
+    slacks = slackResult.value;
+  }
 
-let criticalPath = CriticalPath(slacks);
+  spans = slacks.map((value: Slack): Span => {
+    return value.early;
+  });
+  criticalPath = CriticalPath(slacks);
+};
+
+recalculateSpan();
 
 const taskLabel: TaskLabel = (taskIndex: number): string =>
   `${plan.chart.Vertices[taskIndex].name}`;
@@ -240,6 +246,8 @@ paintChart();
 
 window.addEventListener("resize", paintChart);
 
+// Simulate the uncertainty in the plan and generate possible alternate critical
+// paths.
 const MAX_RANDOM = 1000;
 
 export interface CriticalPathEntry {
@@ -292,8 +300,12 @@ const critialPaths =
   document.querySelector<HTMLUListElement>("#criticalPaths")!;
 critialPaths.innerHTML = display;
 critialPaths.addEventListener("click", (e: MouseEvent) => {
-  criticalPath = allCriticalPaths.get(
+  const criticalPathEntry = allCriticalPaths.get(
     (e.target as HTMLLIElement).dataset.key!
-  )!.tasks;
+  )!;
+  criticalPathEntry.durations.forEach((duration: number, taskIndex: number) => {
+    plan.chart.Vertices[taskIndex].duration = duration;
+  });
+  recalculateSpan();
   paintChart();
 });
