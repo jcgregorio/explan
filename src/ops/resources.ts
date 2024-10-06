@@ -22,14 +22,12 @@ export class AddResourceSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    const foundMatch = plan.resourceDefinitions.find(
-      (value: ResourceDefinition) => value.key === this.key
-    );
+    const foundMatch = plan.getResourceDefinition(this.key);
     if (foundMatch !== undefined) {
       return error(`${this.key} already exists as a Resource`);
     }
 
-    plan.resourceDefinitions.push(new ResourceDefinition(this.key));
+    plan.setResourceDefinition(this.key, new ResourceDefinition());
 
     // Now loop over every task and add this key and set it to the default, unless
     // there is matching entry in taskResourceValues, in which case we will use that value.
@@ -56,17 +54,15 @@ export class DeleteResourceSupOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    const index = plan.resourceDefinitions.findIndex(
-      (value: ResourceDefinition) => value.key === this.key
-    );
-    if (index === -1) {
+    const resourceDefinition = plan.getResourceDefinition(this.key);
+    if (resourceDefinition === undefined) {
       return error(
         `The resource with name ${this.key} does not exist and can't be deleted.`
       );
     }
 
     // Remove from resource definitions.
-    plan.resourceDefinitions.splice(index, 1);
+    plan.deleteMetricDefinition(this.key);
 
     const taskIndexToDeletedResourceValue: Map<number, string> = new Map();
 
@@ -107,9 +103,7 @@ export class AddResourceOptionSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    const definition = plan.resourceDefinitions.find(
-      (value: ResourceDefinition) => value.key === this.key
-    );
+    const definition = plan.getResourceDefinition(this.key);
     if (definition === undefined) {
       return error(`${this.key} doesn't exist as a Resource`);
     }
@@ -157,9 +151,7 @@ export class DeleteResourceOptionSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    const definition = plan.resourceDefinitions.find(
-      (value: ResourceDefinition) => value.key === this.key
-    );
+    const definition = plan.getResourceDefinition(this.key);
     if (definition === undefined) {
       return error(`${this.key} doesn't exist as a Resource`);
     }
@@ -223,23 +215,19 @@ export class RenameResourceSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    const foundMatch = plan.resourceDefinitions.find(
-      (value: ResourceDefinition) => value.key === this.oldKey
-    );
-    if (foundMatch === undefined) {
+    const oldDefinition = plan.getResourceDefinition(this.oldKey);
+    if (oldDefinition === undefined) {
       return error(`${this.oldKey} does not exist as a Resource`);
     }
 
     // Confirm the newKey is not already used.
-    const indexOfNewKey = plan.resourceDefinitions.findIndex(
-      (value: ResourceDefinition) => value.key === this.newKey
-    );
-
-    if (indexOfNewKey !== -1) {
+    const newKeyDefinition = plan.getResourceDefinition(this.newKey);
+    if (newKeyDefinition !== undefined) {
       return error(`${this.newKey} already exists as a resource name.`);
     }
 
-    foundMatch.key = this.newKey;
+    plan.deleteResourceDefinition(this.oldKey);
+    plan.setResourceDefinition(this.newKey, oldDefinition);
 
     // Now loop over every task and change oldKey -> newkey for the given resource key.
     plan.chart.Vertices.forEach((task: Task) => {
@@ -269,9 +257,7 @@ export class RenameResourceOptionSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    const foundMatch = plan.resourceDefinitions.find(
-      (value: ResourceDefinition) => value.key === this.key
-    );
+    const foundMatch = plan.getResourceDefinition(this.key);
     if (foundMatch === undefined) {
       return error(`${this.key} does not exist as a Resource`);
     }
@@ -324,28 +310,26 @@ export class MoveResourceOptionSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    const foundMatch = plan.resourceDefinitions.find(
-      (value: ResourceDefinition) => value.key === this.key
-    );
-    if (foundMatch === undefined) {
+    const definition = plan.getResourceDefinition(this.key);
+    if (definition === undefined) {
       return error(`${this.key} does not exist as a Resource`);
     }
 
-    if (this.oldIndex > foundMatch.values.length - 1) {
+    if (this.oldIndex > definition.values.length - 1) {
       return error(
         `${this.key} does not have a value at index ${this.oldIndex}`
       );
     }
-    if (this.newIndex > foundMatch.values.length - 1) {
+    if (this.newIndex > definition.values.length - 1) {
       return error(
         `${this.key} does not have a value at index ${this.newIndex}`
       );
     }
 
     // Swap the values.
-    const tmp = foundMatch.values[this.oldIndex];
-    foundMatch.values[this.oldIndex] = foundMatch.values[this.newIndex];
-    foundMatch.values[this.newIndex] = tmp;
+    const tmp = definition.values[this.oldIndex];
+    definition.values[this.oldIndex] = definition.values[this.newIndex];
+    definition.values[this.newIndex] = tmp;
 
     // We don't need to do anything with Tasks because the index of a value is
     // irrelevant since we store the value itself, not the index.
@@ -370,9 +354,7 @@ export class SetResourceValueSubOp implements SubOp {
   }
 
   apply(plan: Plan): Result<SubOpResult> {
-    const foundMatch = plan.resourceDefinitions.find(
-      (value: ResourceDefinition) => value.key === this.key
-    );
+    const foundMatch = plan.getResourceDefinition(this.key);
     if (foundMatch === undefined) {
       return error(`${this.key} does not exist as a Resource`);
     }

@@ -163,11 +163,7 @@ export function renderTasksToCanvas(
   let maxGroupNameLength = 0;
   if (opts.groupByResource !== "" && opts.hasText) {
     maxGroupNameLength = opts.groupByResource.length;
-    const resourceDefinition = plan.resourceDefinitions.find(
-      (rd: ResourceDefinition) => {
-        return rd.key === opts.groupByResource;
-      }
-    );
+    const resourceDefinition = plan.getResourceDefinition(opts.groupByResource);
     if (resourceDefinition !== undefined) {
       resourceDefinition.values.forEach((value: string) => {
         maxGroupNameLength = Math.max(maxGroupNameLength, value.length);
@@ -640,9 +636,7 @@ const taskIndexToRowFromGroupBy = (
   }
   const topologicalOrder = vret.value;
 
-  const resource = plan.resourceDefinitions.find(
-    (r: ResourceDefinition) => r.key === opts.groupByResource
-  );
+  const resource = plan.getResourceDefinition(opts.groupByResource);
 
   // topologicalOrder maps from row to task index, this will produce the inverse mapping.
   const taskIndexToRow = new Map(
@@ -668,7 +662,7 @@ const taskIndexToRowFromGroupBy = (
   const groups = new Map<string, number[]>();
   topologicalOrder.forEach((taskIndex: number) => {
     const resourceValue =
-      plan.chart.Vertices[taskIndex].getResource(resource.key) || "";
+      plan.chart.Vertices[taskIndex].getResource(opts.groupByResource) || "";
     const groupMembers = groups.get(resourceValue) || [];
     groupMembers.push(taskIndex);
     groups.set(resourceValue, groupMembers);
@@ -751,7 +745,7 @@ const drawSwimLaneLabels = (
   ctx.textBaseline = "bottom";
   const groupByOrigin = scale.feature(0, 0, Feature.groupByOrigin);
 
-  ctx.fillText(resourceDefinition.key, groupByOrigin.x, groupByOrigin.y);
+  ctx.fillText(opts.groupByResource, groupByOrigin.x, groupByOrigin.y);
 
   rowRanges.forEach((rowRange: RowRange, resourceIndex: number) => {
     if (rowRange.start === rowRange.finish) {

@@ -5,12 +5,11 @@
 export const DEFAULT_RESOURCE_VALUE = "";
 
 export class ResourceDefinition {
-  key: string;
-  values: string[] = [DEFAULT_RESOURCE_VALUE];
+  values: string[];
 
-  constructor(key: string) {
-    this.key = key;
+  constructor() {
+    this.values = [DEFAULT_RESOURCE_VALUE];
   }
 }
 
-export type ResourceDefinitions = ResourceDefinition[];
+export type ResourceDefinitions = { [key: string]: ResourceDefinition };

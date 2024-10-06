@@ -16,12 +16,11 @@ export const StaticMetricDefinitions: MetricDefinitions = {
   Percent: new MetricDefinition(0, new MetricRange(0, 100), true),
 };
 
-export const StaticResourceDefinitions: ResourceDefinitions = [
-  {
-    key: "Uncertainty",
+export const StaticResourceDefinitions: ResourceDefinitions = {
+  Uncertainty: {
     values: Object.keys(UncertaintyToNum),
   },
-];
+};
 
 export class Plan {
   chart: Chart;
@@ -33,7 +32,7 @@ export class Plan {
   constructor() {
     this.chart = new Chart();
 
-    this.resourceDefinitions = StaticResourceDefinitions.slice();
+    this.resourceDefinitions = Object.assign({}, StaticResourceDefinitions);
     this.metricDefinitions = Object.assign({}, StaticMetricDefinitions);
 
     Object.keys(this.metricDefinitions).forEach((metricName: string) => {
@@ -42,13 +41,10 @@ export class Plan {
         task.setMetric(metricName, md.default);
       });
     });
-    this.resourceDefinitions.forEach(
-      (resourceDefinition: ResourceDefinition) => {
+    Object.entries(this.resourceDefinitions).forEach(
+      ([key, resourceDefinition]) => {
         this.chart.Vertices.forEach((task: Task) => {
-          task.setResource(
-            resourceDefinition.key,
-            resourceDefinition.values[0]
-          );
+          task.setResource(key, resourceDefinition.values[0]);
         });
       }
     );
@@ -66,6 +62,18 @@ export class Plan {
     delete this.metricDefinitions[key];
   }
 
+  getResourceDefinition(key: string): ResourceDefinition | undefined {
+    return this.resourceDefinitions[key];
+  }
+
+  setResourceDefinition(key: string, value: ResourceDefinition) {
+    this.resourceDefinitions[key] = value;
+  }
+
+  deleteResourceDefinition(key: string) {
+    delete this.resourceDefinitions[key];
+  }
+
   // Returns a new Task with defaults for all metrics and resources.
   newTask(): Task {
     const ret = new Task();
@@ -74,9 +82,9 @@ export class Plan {
 
       ret.setMetric(metricName, md.default);
     });
-    this.resourceDefinitions.forEach(
-      (resourceDefinition: ResourceDefinition) => {
-        ret.setResource(resourceDefinition.key, resourceDefinition.values[0]);
+    Object.entries(this.resourceDefinitions).forEach(
+      ([key, resourceDefinition]) => {
+        ret.setResource(key, resourceDefinition.values[0]);
       }
     );
     return ret;

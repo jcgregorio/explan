@@ -50,16 +50,14 @@ describe("AddResourceOp/DeleteResourceOp", () => {
       }),
       AddResourceOp("Who"),
       TOp((plan: Plan) => {
-        assert.deepEqual(plan.resourceDefinitions, [
-          {
-            key: "Uncertainty",
+        assert.deepEqual(plan.resourceDefinitions, {
+          Uncertainty: {
             values: ["low", "moderate", "high", "extreme"],
           },
-          {
-            key: "Who",
+          Who: {
             values: [""],
           },
-        ]);
+        });
 
         // Confirm each task was updated.
         plan.chart.Vertices.forEach((task: Task) => {
@@ -109,16 +107,14 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
       AddResourceOp("Who"),
       T2Op((plan: Plan, isForward: boolean) => {
         if (isForward) {
-          assert.deepEqual(plan.resourceDefinitions, [
-            {
-              key: "Uncertainty",
+          assert.deepEqual(plan.resourceDefinitions, {
+            Uncertainty: {
               values: ["low", "moderate", "high", "extreme"],
             },
-            {
-              key: "Who",
+            Who: {
               values: [""],
             },
-          ]);
+          });
 
           // Confirm that in both forward and back direction the task value for
           // the resource is correct.
@@ -128,16 +124,14 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
       AddResourceOptionOp("Who", "Fred"),
       T2Op((plan: Plan, isForward: boolean) => {
         if (isForward) {
-          assert.deepEqual(plan.resourceDefinitions, [
-            {
-              key: "Uncertainty",
+          assert.deepEqual(plan.resourceDefinitions, {
+            Uncertainty: {
               values: ["low", "moderate", "high", "extreme"],
             },
-            {
-              key: "Who",
+            Who: {
               values: ["", "Fred"],
             },
-          ]);
+          });
 
           // Check that the task resource values remain unchanged.
           plan.chart.Vertices.forEach((task: Task) => {
@@ -243,16 +237,14 @@ describe("RenameResourceOp", () => {
       AddResourceOptionOp("Who", "Fred"),
       AddResourceOptionOp("Who", "Barney"),
       T2Op((plan: Plan) => {
-        assert.deepEqual(plan.resourceDefinitions, [
-          {
-            key: "Uncertainty",
+        assert.deepEqual(plan.resourceDefinitions, {
+          Uncertainty: {
             values: ["low", "moderate", "high", "extreme"],
           },
-          {
-            key: "Who",
+          Who: {
             values: ["", "Fred", "Barney"],
           },
-        ]);
+        });
 
         assert.equal(plan.chart.Vertices[1].getResource("Who"), "");
       }),
@@ -312,16 +304,14 @@ describe("RenameResourceOptionOp", () => {
       AddResourceOptionOp("Who", "Fred"),
       AddResourceOptionOp("Who", "Barney"),
       T2Op((plan: Plan) => {
-        assert.deepEqual(plan.resourceDefinitions, [
-          {
-            key: "Uncertainty",
+        assert.deepEqual(plan.resourceDefinitions, {
+          Uncertainty: {
             values: ["low", "moderate", "high", "extreme"],
           },
-          {
-            key: "Who",
+          Who: {
             values: ["", "Fred", "Barney"],
           },
-        ]);
+        });
 
         assert.equal(plan.chart.Vertices[1].getResource("Who"), "");
       }),
@@ -379,29 +369,25 @@ describe("MoveResourceOptionSubOp", () => {
       AddResourceOptionOp("Who", "Fred"),
       AddResourceOptionOp("Who", "Barney"),
       T2Op((plan: Plan) => {
-        assert.deepEqual(plan.resourceDefinitions, [
-          {
-            key: "Uncertainty",
+        assert.deepEqual(plan.resourceDefinitions, {
+          Uncertainty: {
             values: ["low", "moderate", "high", "extreme"],
           },
-          {
-            key: "Who",
+          Who: {
             values: ["", "Fred", "Barney"],
           },
-        ]);
+        });
       }),
       MoveResourceOptionOp("Who", 1, 2),
       TOp((plan: Plan) => {
-        assert.deepEqual(plan.resourceDefinitions, [
-          {
-            key: "Uncertainty",
+        assert.deepEqual(plan.resourceDefinitions, {
+          Uncertainty: {
             values: ["low", "moderate", "high", "extreme"],
           },
-          {
-            key: "Who",
+          Who: {
             values: ["", "Barney", "Fred"],
           },
-        ]);
+        });
       }),
     ]);
   });
