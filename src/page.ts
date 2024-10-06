@@ -236,31 +236,49 @@ window.addEventListener("resize", paintChart);
 
 const MAX_RANDOM = 1000;
 
-const allCriticalPaths = new Set<string>();
+export interface CriticalPathEntry {
+  count: number;
+  tasks: number[];
+  durations: number[];
+}
 
-const jacobians = plan.chart.Vertices.map((t: Task) => {
-  return new Jacobian(t.duration, t.resources["Uncertainty"] as Uncertainty);
-});
+const allCriticalPaths = new Map<string, CriticalPathEntry>();
 
 for (let i = 0; i < 100; i++) {
-  const randomValues: number[] = [];
-  plan.chart.Vertices.forEach((_, taskIndex: number) => {
-    randomValues[taskIndex] = rndInt(MAX_RANDOM);
+  const durations = plan.chart.Vertices.map((t: Task) => {
+    return Math.ceil(
+      new Jacobian(
+        t.duration,
+        t.resources["Uncertainty"] as Uncertainty
+      ).sample(rndInt(MAX_RANDOM) / MAX_RANDOM)
+    );
   });
 
-  const slacksRet = ComputeSlack(plan.chart, (t: Task, taskIndex: number) =>
-    jacobians[taskIndex].sample(randomValues[taskIndex])
+  const slacksRet = ComputeSlack(
+    plan.chart,
+    (t: Task, taskIndex: number) => durations[taskIndex]
   );
   if (!slacksRet.ok) {
     throw slacksRet.error;
   }
   const criticalPath = CriticalPath(slacksRet.value);
-  allCriticalPaths.add(`${criticalPath}`);
+  const criticalPathAsString = `${criticalPath}`;
+  let pathEntry = allCriticalPaths.get(criticalPathAsString);
+  if (pathEntry === undefined) {
+    pathEntry = {
+      count: 0,
+      tasks: criticalPath,
+      durations: durations,
+    };
+    allCriticalPaths.set(criticalPathAsString, pathEntry);
+  }
+  pathEntry.count++;
 }
 
 let display = "";
-allCriticalPaths.forEach((value: string) => {
-  display = display + "\n" + value;
+allCriticalPaths.forEach((value: CriticalPathEntry, key: string) => {
+  display =
+    display + `\n ${value.count} : ${key} : ${value.durations.join(", ")}`;
 });
 
 document.querySelector<HTMLElement>("critical-path")!.innerText = display;
