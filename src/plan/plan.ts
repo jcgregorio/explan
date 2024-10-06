@@ -1,4 +1,4 @@
-import { Chart, Task } from "../chart/chart.ts";
+import { Chart, ChartSerialized, Task } from "../chart/chart.ts";
 import { MetricDefinition, MetricDefinitions } from "../metrics/metrics.ts";
 import { MetricRange } from "../metrics/range.ts";
 import {
@@ -21,6 +21,12 @@ export const StaticResourceDefinitions: ResourceDefinitions = {
     values: Object.keys(UncertaintyToNum),
   },
 };
+
+export interface PlanSerialized {
+  chart: ChartSerialized;
+  resourceDefinitions: ResourceDefinitions;
+  metricDefinitions: MetricDefinitions;
+}
 
 export class Plan {
   chart: Chart;
@@ -48,6 +54,21 @@ export class Plan {
         });
       }
     );
+  }
+
+  toJSON(): PlanSerialized {
+    return {
+      chart: this.chart.toJSON(),
+      resourceDefinitions: this.resourceDefinitions,
+      metricDefinitions: this.metricDefinitions,
+    };
+  }
+
+  fromJSON(data: PlanSerialized): Plan {
+    this.chart = new Chart().fromJSON(data.chart);
+    this.resourceDefinitions = data.resourceDefinitions;
+    this.metricDefinitions = data.metricDefinitions;
+    return this;
   }
 
   getMetricDefinition(key: string): MetricDefinition | undefined {

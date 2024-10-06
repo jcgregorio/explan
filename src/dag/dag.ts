@@ -7,6 +7,11 @@ export type Vertices = Vertex[];
 /** A subset of Vertices referred to by their index number. */
 export type VertexIndices = number[];
 
+export interface DirectedEdgeSerialized {
+  i: number;
+  j: number;
+}
+
 /** One edge of a graph, which is a directed connection from the i'th Vertex to
 the j'th Vertex, where the Vertex is stored in a Vertices.
  */
@@ -14,13 +19,26 @@ export class DirectedEdge {
   i: number = 0;
   j: number = 0;
 
-  constructor(i: number, j: number) {
+  constructor(i: number = 0, j: number = 0) {
     this.i = i;
     this.j = j;
   }
 
   equal(rhs: DirectedEdge): boolean {
     return rhs.i === this.i && rhs.j === this.j;
+  }
+
+  toJSON(): DirectedEdgeSerialized {
+    return {
+      i: this.i,
+      j: this.j,
+    };
+  }
+
+  fromJSON(data: DirectedEdgeSerialized): DirectedEdge {
+    this.i = data.i;
+    this.j = data.j;
+    return this;
   }
 }
 

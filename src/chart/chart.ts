@@ -6,6 +6,7 @@ import {
   edgesBySrcToMap,
   edgesByDstToMap,
   DirectedEdge,
+  DirectedEdgeSerialized,
 } from "../dag/dag";
 
 import { topologicalSort } from "../dag/algorithms/toposort.ts";
@@ -14,6 +15,13 @@ import { MetricValues } from "../metrics/metrics.ts";
 export type TaskState = "unstarted" | "started" | "complete";
 
 export const DEFAULT_TASK_NAME = "Task Name";
+
+export interface TaskSerialized {
+  resources: { [key: string]: string };
+  metrics: MetricValues;
+  name: string;
+  state: TaskState;
+}
 
 // Do we create sub-classes and then serialize separately? Or do we have a
 // config about which type of DurationSampler is being used?
@@ -40,6 +48,23 @@ export class Task {
   name: string;
 
   state: TaskState = "unstarted";
+
+  toJSON(): TaskSerialized {
+    return {
+      resources: this.resources,
+      metrics: this.metrics,
+      name: this.name,
+      state: this.state,
+    };
+  }
+
+  fromJSON(data: TaskSerialized): Task {
+    this.resources = data.resources;
+    this.metrics = data.metrics;
+    this.name = data.name;
+    this.state = data.state;
+    return this;
+  }
 
   public get duration(): number {
     return this.getMetric("Duration")!;
@@ -85,6 +110,11 @@ export class Task {
 
 export type Tasks = Task[];
 
+export interface ChartSerialized {
+  vertices: TaskSerialized[];
+  edges: DirectedEdgeSerialized[];
+}
+
 /** A Chart is a DirectedGraph, but with Tasks for Vertices. */
 export class Chart {
   Vertices: Tasks;
@@ -97,6 +127,24 @@ export class Chart {
     finish.setMetric("Duration", 0);
     this.Vertices = [start, finish];
     this.Edges = [new DirectedEdge(0, 1)];
+  }
+
+  toJSON(): ChartSerialized {
+    return {
+      vertices: this.Vertices.map((t: Task) => t.toJSON()),
+      edges: this.Edges.map((e: DirectedEdge) => e.toJSON()),
+    };
+  }
+
+  fromJSON(data: ChartSerialized): Chart {
+    this.Vertices = data.vertices.map(
+      (taskSerialized: TaskSerialized): Task =>
+        new Task().fromJSON(taskSerialized)
+    );
+    this.Edges = data.edges.map((edge: DirectedEdgeSerialized) =>
+      new DirectedEdge().fromJSON(edge)
+    );
+    return this;
   }
 }
 
