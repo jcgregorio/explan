@@ -12,7 +12,7 @@ import {
   AddResourceOptionOp,
   SetResourceValueOp,
 } from "./ops/resources.ts";
-import { Plan } from "./plan/plan.ts";
+import { FromJSON, Plan } from "./plan/plan.ts";
 import {
   DRAG_RANGE_EVENT,
   DragRange,
@@ -34,7 +34,7 @@ import { toggleTheme } from "./style/toggler/toggler.ts";
 
 const FONT_SIZE_PX = 16;
 
-const plan = new Plan();
+let plan = new Plan();
 
 const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
@@ -369,9 +369,24 @@ criticalPath = criticalTasksDurationDescending.map(
 );
 paintChart();
 
+// Populate the download link.
+
 const download = document.querySelector<HTMLLinkElement>("#download")!;
 console.log(JSON.stringify(plan, null, "  "));
 const downloadBlob = new Blob([JSON.stringify(plan, null, "  ")], {
   type: "application/json",
 });
 download.href = URL.createObjectURL(downloadBlob);
+
+// React to the upload input.
+const fileUpload = document.querySelector<HTMLInputElement>("#file-upload")!;
+fileUpload.addEventListener("change", async () => {
+  const json = await fileUpload.files![0].text();
+  const ret = FromJSON(json);
+  if (!ret.ok) {
+    throw ret.error;
+  }
+  plan = ret.value;
+  recalculateSpan();
+  paintChart();
+});
