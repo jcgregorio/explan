@@ -164,6 +164,8 @@ export const FromJSON = (text: string): Result<Plan> => {
   ops.push(
     ...planSerialized.chart.vertices.map(
       (taskSerialized: TaskSerialized, taskIndex: number): Op[] => {
+        // Test for both because some imports might be externally generated and
+        // not know about Start and Finish.
         if (
           startAndFinishIndices.includes(taskIndex) &&
           startAndFinishTaskNames.includes(taskSerialized.name)

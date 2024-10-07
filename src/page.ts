@@ -368,4 +368,10 @@ criticalPath = criticalTasksDurationDescending.map(
   (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex
 );
 paintChart();
+
+const download = document.querySelector<HTMLLinkElement>("#download")!;
 console.log(JSON.stringify(plan, null, "  "));
+const downloadBlob = new Blob([JSON.stringify(plan, null, "  ")], {
+  type: "application/json",
+});
+download.href = URL.createObjectURL(downloadBlob);
