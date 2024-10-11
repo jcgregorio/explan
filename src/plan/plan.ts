@@ -143,65 +143,30 @@ export const FromJSON = (text: string): Result<Plan> => {
   const planSerialized: PlanSerialized = JSON.parse(text);
   const plan = new Plan();
 
-  const ops: Op[][] = [];
+  plan.chart.Vertices = planSerialized.chart.vertices.map(
+    (taskSerialized: TaskSerialized, index: number): Task => {
+      const task = new Task(taskSerialized.name);
+      task.state = taskSerialized.state;
+      task.metrics = taskSerialized.metrics;
+      task.resources = taskSerialized.resources;
 
-  plan.resourceDefinitions = Object.assign(
-    plan.resourceDefinitions,
-    planSerialized.resourceDefinitions
+      return task;
+    }
+  );
+  plan.chart.Edges = planSerialized.chart.edges.map(
+    (directedEdgeSerialized: DirectedEdgeSerialized): DirectedEdge =>
+      new DirectedEdge(directedEdgeSerialized.i, directedEdgeSerialized.j)
   );
   plan.metricDefinitions = Object.assign(
     plan.metricDefinitions,
     planSerialized.metricDefinitions
   );
-  plan.applyMetricsAndResourcesToVertices();
-
-  // Now add in all the Tasks and Edges via Ops, but make sure to skip the Start
-  // and Finish tasks.
-  const startAndFinishIndices: number[] = [
-    0,
-    planSerialized.chart.vertices.length - 1,
-  ];
-  const startAndFinishTaskNames: string[] = ["Start", "Finish"];
-  ops.push(
-    ...planSerialized.chart.vertices.map(
-      (taskSerialized: TaskSerialized, taskIndex: number): Op[] => {
-        // Test for both because some imports might be externally generated and
-        // not know about Start and Finish.
-        if (
-          startAndFinishIndices.includes(taskIndex) &&
-          startAndFinishTaskNames.includes(taskSerialized.name)
-        ) {
-          return [];
-        }
-        const ret: Op[] = [
-          InsertNewEmptyTaskAfterOp(0),
-          SetTaskNameOp(1, taskSerialized.name),
-          SetTaskStateOp(1, taskSerialized.state),
-        ];
-
-        const metricOps = Object.entries(taskSerialized.metrics).map(
-          ([metricName, metricValue]): Op[] => {
-            return [SetMetricValueOp(metricName, metricValue, 1)];
-          }
-        );
-        const resourceOps = Object.entries(taskSerialized.resources).map(
-          ([resourceName, resourceValue]): Op[] => {
-            return [SetResourceValueOp(resourceName, resourceValue, 1)];
-          }
-        );
-        return ret.concat(...metricOps, ...resourceOps);
-      }
-    )
+  plan.resourceDefinitions = Object.assign(
+    plan.resourceDefinitions,
+    planSerialized.resourceDefinitions
   );
 
-  // Now add in all the Edges via Ops.
-  ops.push(
-    planSerialized.chart.edges.map((e: DirectedEdgeSerialized): Op => {
-      return AddEdgeOp(e.i, e.j);
-    })
-  );
-
-  const ret = applyAllOpsToPlan(ops.flat(), plan);
+  const ret = RationalizeEdgesOp().apply(plan);
   if (!ret.ok) {
     return ret;
   }
