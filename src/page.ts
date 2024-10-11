@@ -249,135 +249,138 @@ paintChart();
 
 window.addEventListener("resize", paintChart);
 
-// Simulate the uncertainty in the plan and generate possible alternate critical
-// paths.
-const MAX_RANDOM = 1000;
-const NUM_SIMULATION_LOOPS = 100;
-
 export interface CriticalPathEntry {
   count: number;
   tasks: number[];
   durations: number[];
 }
 
-const allCriticalPaths = new Map<string, CriticalPathEntry>();
+const simulate = () => {
+  // Simulate the uncertainty in the plan and generate possible alternate critical
+  // paths.
+  const MAX_RANDOM = 1000;
+  const NUM_SIMULATION_LOOPS = 100;
 
-for (let i = 0; i < NUM_SIMULATION_LOOPS; i++) {
-  const durations = plan.chart.Vertices.map((t: Task) => {
-    return Math.ceil(
-      new Jacobian(
-        t.duration,
-        t.getResource("Uncertainty") as Uncertainty
-      ).sample(rndInt(MAX_RANDOM) / MAX_RANDOM)
+  const allCriticalPaths = new Map<string, CriticalPathEntry>();
+
+  for (let i = 0; i < NUM_SIMULATION_LOOPS; i++) {
+    const durations = plan.chart.Vertices.map((t: Task) => {
+      return Math.ceil(
+        new Jacobian(
+          t.duration,
+          t.getResource("Uncertainty") as Uncertainty
+        ).sample(rndInt(MAX_RANDOM) / MAX_RANDOM)
+      );
+    });
+
+    const slacksRet = ComputeSlack(
+      plan.chart,
+      (t: Task, taskIndex: number) => durations[taskIndex]
     );
-  });
-
-  const slacksRet = ComputeSlack(
-    plan.chart,
-    (t: Task, taskIndex: number) => durations[taskIndex]
-  );
-  if (!slacksRet.ok) {
-    throw slacksRet.error;
-  }
-  const criticalPath = CriticalPath(slacksRet.value);
-  const criticalPathAsString = `${criticalPath}`;
-  let pathEntry = allCriticalPaths.get(criticalPathAsString);
-  if (pathEntry === undefined) {
-    pathEntry = {
-      count: 0,
-      tasks: criticalPath,
-      durations: durations,
-    };
-    allCriticalPaths.set(criticalPathAsString, pathEntry);
-  }
-  pathEntry.count++;
-}
-
-let display = "";
-allCriticalPaths.forEach((value: CriticalPathEntry, key: string) => {
-  display =
-    display +
-    `\n <li data-key=${key}>${value.count} : ${key} : ${value.durations.join(", ")}</li>`;
-});
-
-const critialPaths =
-  document.querySelector<HTMLUListElement>("#criticalPaths")!;
-critialPaths.innerHTML = display;
-
-// Enable clicking on alternate critical paths.
-critialPaths.addEventListener("click", (e: MouseEvent) => {
-  const criticalPathEntry = allCriticalPaths.get(
-    (e.target as HTMLLIElement).dataset.key!
-  )!;
-  criticalPathEntry.durations.forEach((duration: number, taskIndex: number) => {
-    plan.chart.Vertices[taskIndex].duration = duration;
-  });
-  recalculateSpan();
-  paintChart();
-});
-
-// Generate a table of tasks on the critical path, sorted by duration, along
-// with their percentage chance of appearing on the critical path.
-
-interface CriticalPathTaskEntry {
-  taskIndex: number;
-  duration: number;
-  numTimesAppeared: number;
-}
-
-const critialTasks: Map<number, CriticalPathTaskEntry> = new Map();
-
-allCriticalPaths.forEach((value: CriticalPathEntry, key: string) => {
-  value.tasks.forEach((taskIndex: number) => {
-    let taskEntry = critialTasks.get(taskIndex);
-    if (taskEntry === undefined) {
-      taskEntry = {
-        taskIndex: taskIndex,
-        duration: plan.chart.Vertices[taskIndex].duration,
-        numTimesAppeared: 0,
-      };
-      critialTasks.set(taskIndex, taskEntry);
+    if (!slacksRet.ok) {
+      throw slacksRet.error;
     }
-    taskEntry.numTimesAppeared += value.count;
-  });
-});
-
-const criticalTasksDurationDescending = [...critialTasks.values()].sort(
-  (a: CriticalPathTaskEntry, b: CriticalPathTaskEntry): number => {
-    return b.duration - a.duration;
+    const criticalPath = CriticalPath(slacksRet.value);
+    const criticalPathAsString = `${criticalPath}`;
+    let pathEntry = allCriticalPaths.get(criticalPathAsString);
+    if (pathEntry === undefined) {
+      pathEntry = {
+        count: 0,
+        tasks: criticalPath,
+        durations: durations,
+      };
+      allCriticalPaths.set(criticalPathAsString, pathEntry);
+    }
+    pathEntry.count++;
   }
-);
 
-let critialTasksTable = criticalTasksDurationDescending
-  .map(
-    (taskEntry: CriticalPathTaskEntry) => `<tr>
+  let display = "";
+  allCriticalPaths.forEach((value: CriticalPathEntry, key: string) => {
+    display =
+      display +
+      `\n <li data-key=${key}>${value.count} : ${key} : ${value.durations.join(", ")}</li>`;
+  });
+
+  const critialPaths =
+    document.querySelector<HTMLUListElement>("#criticalPaths")!;
+  critialPaths.innerHTML = display;
+
+  // Enable clicking on alternate critical paths.
+  critialPaths.addEventListener("click", (e: MouseEvent) => {
+    const criticalPathEntry = allCriticalPaths.get(
+      (e.target as HTMLLIElement).dataset.key!
+    )!;
+    criticalPathEntry.durations.forEach(
+      (duration: number, taskIndex: number) => {
+        plan.chart.Vertices[taskIndex].duration = duration;
+      }
+    );
+    recalculateSpan();
+    paintChart();
+  });
+
+  // Generate a table of tasks on the critical path, sorted by duration, along
+  // with their percentage chance of appearing on the critical path.
+
+  interface CriticalPathTaskEntry {
+    taskIndex: number;
+    duration: number;
+    numTimesAppeared: number;
+  }
+
+  const critialTasks: Map<number, CriticalPathTaskEntry> = new Map();
+
+  allCriticalPaths.forEach((value: CriticalPathEntry, key: string) => {
+    value.tasks.forEach((taskIndex: number) => {
+      let taskEntry = critialTasks.get(taskIndex);
+      if (taskEntry === undefined) {
+        taskEntry = {
+          taskIndex: taskIndex,
+          duration: plan.chart.Vertices[taskIndex].duration,
+          numTimesAppeared: 0,
+        };
+        critialTasks.set(taskIndex, taskEntry);
+      }
+      taskEntry.numTimesAppeared += value.count;
+    });
+  });
+
+  const criticalTasksDurationDescending = [...critialTasks.values()].sort(
+    (a: CriticalPathTaskEntry, b: CriticalPathTaskEntry): number => {
+      return b.duration - a.duration;
+    }
+  );
+
+  let critialTasksTable = criticalTasksDurationDescending
+    .map(
+      (taskEntry: CriticalPathTaskEntry) => `<tr>
   <td>${plan.chart.Vertices[taskEntry.taskIndex].name}</td>
   <td>${taskEntry.duration}</td>
   <td>${Math.floor((100 * taskEntry.numTimesAppeared) / NUM_SIMULATION_LOOPS)}</td>
 </tr>`
-  )
-  .join("\n");
-critialTasksTable =
-  `<tr><th>Name</th><th>Duration</th><th>%</th></tr>\n` + critialTasksTable;
-document.querySelector("#criticalTasks")!.innerHTML = critialTasksTable;
+    )
+    .join("\n");
+  critialTasksTable =
+    `<tr><th>Name</th><th>Duration</th><th>%</th></tr>\n` + critialTasksTable;
+  document.querySelector("#criticalTasks")!.innerHTML = critialTasksTable;
 
-// Show all tasks that could be on the critical path.
+  // Show all tasks that could be on the critical path.
 
-recalculateSpan();
-criticalPath = criticalTasksDurationDescending.map(
-  (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex
-);
-paintChart();
+  recalculateSpan();
+  criticalPath = criticalTasksDurationDescending.map(
+    (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex
+  );
+  paintChart();
 
-// Populate the download link.
+  // Populate the download link.
 
-const download = document.querySelector<HTMLLinkElement>("#download")!;
-console.log(JSON.stringify(plan, null, "  "));
-const downloadBlob = new Blob([JSON.stringify(plan, null, "  ")], {
-  type: "application/json",
-});
-download.href = URL.createObjectURL(downloadBlob);
-
+  const download = document.querySelector<HTMLLinkElement>("#download")!;
+  console.log(JSON.stringify(plan, null, "  "));
+  const downloadBlob = new Blob([JSON.stringify(plan, null, "  ")], {
+    type: "application/json",
+  });
+  download.href = URL.createObjectURL(downloadBlob);
+};
 // React to the upload input.
 const fileUpload = document.querySelector<HTMLInputElement>("#file-upload")!;
 fileUpload.addEventListener("change", async () => {
@@ -389,5 +392,6 @@ fileUpload.addEventListener("change", async () => {
   }
   plan = ret.value;
   recalculateSpan();
+  simulate();
   paintChart();
 });
