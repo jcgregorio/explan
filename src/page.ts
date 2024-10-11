@@ -142,7 +142,7 @@ document.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
   paintChart();
 });
 
-const groupByOptions: string[] = ["", "Person", "Uncertainty"];
+let groupByOptions: string[] = ["", ...Object.keys(plan.resourceDefinitions)];
 let groupByOptionsIndex: number = 0;
 
 const toggleGroupBy = () => {
@@ -391,6 +391,7 @@ fileUpload.addEventListener("change", async () => {
     throw ret.error;
   }
   plan = ret.value;
+  groupByOptions = ["", ...Object.keys(plan.resourceDefinitions)];
   recalculateSpan();
   simulate();
   paintChart();
