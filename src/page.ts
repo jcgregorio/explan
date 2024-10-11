@@ -32,7 +32,7 @@ import { Jacobian, Uncertainty } from "./stats/cdf/triangular/jacobian.ts";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
 
-const FONT_SIZE_PX = 16;
+const FONT_SIZE_PX = 32;
 
 let plan = new Plan();
 
