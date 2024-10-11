@@ -391,6 +391,7 @@ fileUpload.addEventListener("change", async () => {
   simulate();
   const maps = edgesBySrcAndDstToMap(plan.chart.Edges);
   console.log(maps);
+  console.log(plan);
   paintChart();
 });
 
