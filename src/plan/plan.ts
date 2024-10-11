@@ -3,6 +3,7 @@ import {
   ChartSerialized,
   Task,
   TaskSerialized,
+  validateChart,
 } from "../chart/chart.ts";
 import { DirectedEdge, DirectedEdgeSerialized } from "../dag/dag.ts";
 import { MetricDefinition, MetricDefinitions } from "../metrics/metrics.ts";
@@ -142,7 +143,7 @@ export const FromJSON = (text: string): Result<Plan> => {
   const planSerialized: PlanSerialized = JSON.parse(text);
   const plan = new Plan();
 
-  let ops: Op[][] = [];
+  const ops: Op[][] = [];
 
   plan.resourceDefinitions = Object.assign(
     plan.resourceDefinitions,
@@ -205,5 +206,9 @@ export const FromJSON = (text: string): Result<Plan> => {
     return ret;
   }
 
-  return ok(ret.value.plan);
+  const retVal = validateChart(plan.chart);
+  if (!retVal.ok) {
+    return retVal;
+  }
+  return ok(plan);
 };

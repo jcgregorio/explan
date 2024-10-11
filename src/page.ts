@@ -1,4 +1,5 @@
 import { Task } from "./chart/chart.ts";
+import { edgesBySrcAndDstToMap } from "./dag/dag.ts";
 import {
   DupTaskOp,
   InsertNewEmptyTaskAfterOp,
@@ -388,6 +389,8 @@ fileUpload.addEventListener("change", async () => {
   groupByOptions = ["", ...Object.keys(plan.resourceDefinitions)];
   recalculateSpan();
   simulate();
+  const maps = edgesBySrcAndDstToMap(plan.chart.Edges);
+  console.log(maps);
   paintChart();
 });
 
