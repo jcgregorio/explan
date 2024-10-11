@@ -384,6 +384,7 @@ fileUpload.addEventListener("change", async () => {
   const json = await fileUpload.files![0].text();
   const ret = FromJSON(json);
   if (!ret.ok) {
+    console.log(ret.error);
     throw ret.error;
   }
   plan = ret.value;

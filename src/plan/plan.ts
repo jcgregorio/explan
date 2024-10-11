@@ -200,11 +200,10 @@ export const FromJSON = (text: string): Result<Plan> => {
     })
   );
 
-  applyAllOpsToPlan(ops.flat(), plan);
-
-  const ret = RationalizeEdgesOp().apply(plan);
+  const ret = applyAllOpsToPlan(ops.flat(), plan);
   if (!ret.ok) {
     return ret;
   }
+
   return ok(ret.value.plan);
 };
