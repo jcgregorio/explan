@@ -245,10 +245,6 @@ const paintOneChart = (
   return renderTasksToCanvas(parent, canvas, ctx, plan, spans, opts);
 };
 
-paintChart();
-
-window.addEventListener("resize", paintChart);
-
 export interface CriticalPathEntry {
   count: number;
   tasks: number[];
@@ -265,12 +261,10 @@ const simulate = () => {
 
   for (let i = 0; i < NUM_SIMULATION_LOOPS; i++) {
     const durations = plan.chart.Vertices.map((t: Task) => {
-      return Math.ceil(
-        new Jacobian(
-          t.duration,
-          t.getResource("Uncertainty") as Uncertainty
-        ).sample(rndInt(MAX_RANDOM) / MAX_RANDOM)
-      );
+      return new Jacobian(
+        t.duration,
+        t.getResource("Uncertainty") as Uncertainty
+      ).sample(rndInt(MAX_RANDOM) / MAX_RANDOM);
     });
 
     const slacksRet = ComputeSlack(
@@ -396,3 +390,7 @@ fileUpload.addEventListener("change", async () => {
   simulate();
   paintChart();
 });
+
+simulate();
+paintChart();
+window.addEventListener("resize", paintChart);
