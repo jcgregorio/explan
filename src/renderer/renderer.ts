@@ -200,7 +200,8 @@ export function renderTasksToCanvas(
 
   const clipRegion = new Path2D();
   const clipOrigin = scale.feature(0, 0, Feature.tasksClipRectOrigin);
-  clipRegion.rect(clipOrigin.x, 0, canvas.width - clipOrigin.x, canvas.height);
+  const clipWidth = canvas.width - clipOrigin.x;
+  clipRegion.rect(clipOrigin.x, 0, clipWidth, canvas.height);
 
   // Draw big red rect over where the clip region will be.
   if (0) {
@@ -279,7 +280,7 @@ export function renderTasksToCanvas(
 
     // Skip drawing the test of the Start and Finish tasks.
     if (taskIndex !== 0 && taskIndex !== totalNumberOfRows - 1) {
-      drawTaskText(ctx, opts, scale, row, span, task, taskIndex);
+      drawTaskText(ctx, opts, scale, row, span, task, taskIndex, clipWidth);
     }
   });
 
@@ -530,16 +531,42 @@ function drawTaskText(
   row: number,
   span: Span,
   task: Task,
-  taskIndex: number
+  taskIndex: number,
+  clipWidth: number
 ) {
   if (!opts.hasText) {
     return;
   }
+  const label = opts.taskLabel(taskIndex);
+
+  let xStartInTime = span.start;
+  let xPixelDelta = 0;
+  // Determine where on the x-axis to start drawing the task text.
+  if (opts.displayRange !== null && opts.displayRangeUsage === "restrict") {
+    if (opts.displayRange.in(span.start)) {
+      xStartInTime = span.start;
+      xPixelDelta = 0;
+    } else if (opts.displayRange.in(span.finish)) {
+      xStartInTime = span.finish;
+      const meas = ctx.measureText(label);
+      xPixelDelta = -meas.width - 2 * scale.metric(Metric.textXOffset);
+    } else if (
+      span.start < opts.displayRange.begin &&
+      span.finish > opts.displayRange.end
+    ) {
+      xStartInTime = opts.displayRange.begin;
+      xPixelDelta = clipWidth / 2;
+    }
+  }
   ctx.lineWidth = 1;
   ctx.fillStyle = opts.colors.onSurface;
   ctx.textBaseline = "top";
-  const textStart = scale.feature(row, span.start, Feature.textStart);
-  ctx.fillText(opts.taskLabel(taskIndex), textStart.x, textStart.y);
+  const textStart = scale.feature(row, xStartInTime, Feature.textStart);
+  ctx.fillText(
+    opts.taskLabel(taskIndex),
+    textStart.x + xPixelDelta,
+    textStart.y
+  );
 }
 
 function drawTaskBar(

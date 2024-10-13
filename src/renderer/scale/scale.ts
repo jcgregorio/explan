@@ -51,6 +51,7 @@ export enum Metric {
   milestoneDiameter,
   lineDashLine,
   lineDashGap,
+  textXOffset,
 }
 
 /** Makes a number odd, adds one if even. */
@@ -314,6 +315,8 @@ export class Scale {
       case Metric.lineDashLine:
         return this.blockSizePx;
       case Metric.lineDashGap:
+        return this.blockSizePx;
+      case Metric.textXOffset:
         return this.blockSizePx;
       default:
         // The line below will not compile if you missed an enum in the switch above.

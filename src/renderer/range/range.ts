@@ -18,6 +18,10 @@ export class DisplayRange {
     }
   }
 
+  public in(x: number): boolean {
+    return x >= this._begin && x <= this._end;
+  }
+
   public get begin(): number {
     return this._begin;
   }
