@@ -13,6 +13,7 @@ type Direction = "up" | "down";
 export interface Colors {
   surface: string;
   onSurface: string;
+  onSurfaceMuted: string;
   onSurfaceHighlight: string;
   overlay: string;
   groupColor: string;
@@ -240,8 +241,8 @@ export function renderTasksToCanvas(
     const taskStart = scale.feature(row, span.start, Feature.taskLineStart);
     const taskEnd = scale.feature(row, span.finish, Feature.taskLineStart);
 
-    ctx.fillStyle = opts.colors.onSurface;
-    ctx.strokeStyle = opts.colors.onSurface;
+    ctx.fillStyle = opts.colors.onSurfaceMuted;
+    ctx.strokeStyle = opts.colors.onSurfaceMuted;
 
     // Draw in time markers if displayed.
     if (opts.drawTimeMarkersOnTasks) {
@@ -285,7 +286,7 @@ export function renderTasksToCanvas(
   });
 
   ctx.lineWidth = 1;
-  ctx.strokeStyle = opts.colors.onSurface;
+  ctx.strokeStyle = opts.colors.onSurfaceMuted;
 
   if (opts.hasEdges) {
     // Now draw all the arrows, i.e. edges.

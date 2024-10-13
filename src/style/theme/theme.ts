@@ -6,6 +6,7 @@
 export interface Theme {
   surface: string;
   onSurface: string;
+  onSurfaceMuted: string;
   onSurfaceSecondary: string;
   overlay: string;
   groupColor: string;
@@ -16,6 +17,7 @@ type ThemeProp = keyof Theme;
 const colorThemePrototype: Theme = {
   surface: "",
   onSurface: "",
+  onSurfaceMuted: "",
   onSurfaceSecondary: "",
   overlay: "",
   groupColor: "",

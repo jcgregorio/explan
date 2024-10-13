@@ -168,6 +168,7 @@ const paintChart = () => {
     colors: {
       surface: themeColors.surface,
       onSurface: themeColors.onSurface,
+      onSurfaceMuted: themeColors.onSurfaceMuted,
       onSurfaceHighlight: themeColors.onSurfaceSecondary,
       overlay: themeColors.overlay,
       groupColor: themeColors.groupColor,
@@ -190,6 +191,7 @@ const paintChart = () => {
     colors: {
       surface: themeColors.surface,
       onSurface: themeColors.onSurface,
+      onSurfaceMuted: themeColors.onSurfaceMuted,
       onSurfaceHighlight: themeColors.onSurfaceSecondary,
       overlay: themeColors.overlay,
       groupColor: themeColors.groupColor,

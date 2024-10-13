@@ -39,13 +39,19 @@
         @property --onSurface {
             syntax: "<color>";
             inherits: true;
-            initial-value: #222;
+            initial-value: rgb(34, 34, 34);
         }
 
         @property --onSurfaceSecondary {
             syntax: "<color>";
             inherits: true;
             initial-value: #2072c3;
+        }
+
+        @property --onSurfaceMuted {
+            syntax: "<color>";
+            inherits: true;
+            initial-value: rgba(34, 34, 34, 0.50);
         }
 
         @property --overlay {
@@ -56,7 +62,8 @@
 
         :root {
             --surface: #fff;
-            --onSurface: #222;
+            --onSurface: hsl(0, 0%, 13%);
+            --onSurfaceMuted: hsl(0, 0%, 24%);
             --onSurfaceSecondary: #c32020;
             --overlay: rgb(0, 0, 0, 0.25);
             --groupColor: rgba(90, 206, 6, 0.15);
@@ -64,7 +71,8 @@
 
         :root .darkmode {
             --surface: #000;
-            --onSurface: #ddd;
+            --onSurface: hsl(0, 0%, 87%);
+            --onSurfaceMuted: hsl(0, 0%, 74%);
             --onSurfaceSecondary: #2072c3;
             --overlay: rgb(255, 255, 255, 0.1);
             --groupColor: rgba(89, 206, 6, 0.1);
