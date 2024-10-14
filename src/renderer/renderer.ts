@@ -290,31 +290,45 @@ export function renderTasksToCanvas(
   ctx.lineWidth = 1;
   ctx.strokeStyle = opts.colors.onSurfaceMuted;
 
+  // Now draw all the arrows, i.e. edges.
   if (opts.hasEdges && opts.hasTasks) {
-    // Now draw all the arrows, i.e. edges.
+    const highlightedEdges: DirectedEdge[] = [];
+    const normalEdges: DirectedEdge[] = [];
     plan.chart.Edges.forEach((e: DirectedEdge) => {
-      const srcSlack: Span = spans[e.i];
-      const dstSlack: Span = spans[e.j];
-      const srcTask: Task = plan.chart.Vertices[e.i];
-      const dstTask: Task = plan.chart.Vertices[e.j];
-      const srcRow = taskIndexToRow.get(e.i)!;
-      const dstRow = taskIndexToRow.get(e.j)!;
-      const srcDay = srcSlack.finish;
-      const dstDay = dstSlack.start;
-
-      drawArrowBetweenTasks(
-        ctx,
-        srcDay,
-        dstDay,
-        scale,
-        srcRow,
-        srcTask,
-        dstRow,
-        dstTask,
-        arrowHeadWidth,
-        arrowHeadHeight
-      );
+      if (
+        opts.taskHighlights.includes(e.i) &&
+        opts.taskHighlights.includes(e.j)
+      ) {
+        highlightedEdges.push(e);
+      } else {
+        normalEdges.push(e);
+      }
     });
+
+    ctx.strokeStyle = opts.colors.onSurfaceMuted;
+    drawEdges(
+      ctx,
+      opts,
+      normalEdges,
+      spans,
+      plan.chart.Vertices,
+      scale,
+      taskIndexToRow,
+      arrowHeadWidth,
+      arrowHeadHeight
+    );
+    ctx.strokeStyle = opts.colors.onSurfaceHighlight;
+    drawEdges(
+      ctx,
+      opts,
+      highlightedEdges,
+      spans,
+      plan.chart.Vertices,
+      scale,
+      taskIndexToRow,
+      arrowHeadWidth,
+      arrowHeadHeight
+    );
   }
 
   ctx.restore();
@@ -345,6 +359,51 @@ export function renderTasksToCanvas(
   }
 
   return ok(scale);
+}
+
+function drawEdges(
+  ctx: CanvasRenderingContext2D,
+  opts: RenderOptions,
+  edges: DirectedEdge[],
+  spans: Span[],
+  tasks: Task[],
+  scale: Scale,
+  taskIndexToRow: TaskIndexToRow,
+  arrowHeadWidth: number,
+  arrowHeadHeight: number
+) {
+  edges.forEach((e: DirectedEdge) => {
+    const srcSlack: Span = spans[e.i];
+    const dstSlack: Span = spans[e.j];
+    const srcTask: Task = tasks[e.i];
+    const dstTask: Task = tasks[e.j];
+    const srcRow = taskIndexToRow.get(e.i)!;
+    const dstRow = taskIndexToRow.get(e.j)!;
+    const srcDay = srcSlack.finish;
+    const dstDay = dstSlack.start;
+
+    if (
+      opts.taskHighlights.includes(e.i) &&
+      opts.taskHighlights.includes(e.j)
+    ) {
+      ctx.strokeStyle = opts.colors.onSurfaceHighlight;
+    } else {
+      ctx.strokeStyle = opts.colors.onSurfaceMuted;
+    }
+
+    drawArrowBetweenTasks(
+      ctx,
+      srcDay,
+      dstDay,
+      scale,
+      srcRow,
+      srcTask,
+      dstRow,
+      dstTask,
+      arrowHeadWidth,
+      arrowHeadHeight
+    );
+  });
 }
 
 function drawRangeOverlay(
