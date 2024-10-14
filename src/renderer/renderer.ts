@@ -253,6 +253,7 @@ export function renderTasksToCanvas(
     ctx.strokeStyle = opts.colors.onSurfaceMuted;
 
     // Draw in time markers if displayed.
+    // TODO - Make sure they don't overlap.
     if (opts.drawTimeMarkersOnTasks) {
       drawTimeMarkerAtDayToTask(
         ctx,
