@@ -174,6 +174,7 @@ const paintChart = () => {
       groupColor: themeColors.groupColor,
     },
     hasTimeline: false,
+    hasTasks: true,
     hasEdges: false,
     drawTimeMarkersOnTasks: false,
     taskLabel: taskLabel,
@@ -184,9 +185,29 @@ const paintChart = () => {
   const zoomOpts: RenderOptions = {
     fontSizePx: FONT_SIZE_PX,
     hasText: true,
-    // Need a toggle to either use the range to control what is displayed, or to
-    // use it to draw the opaque regions over the radar.
-    displayRange: displayRange, // new DisplayRange(50, 100),
+    displayRange: displayRange,
+    displayRangeUsage: "restrict",
+    colors: {
+      surface: themeColors.surface,
+      onSurface: themeColors.onSurface,
+      onSurfaceMuted: themeColors.onSurfaceMuted,
+      onSurfaceHighlight: themeColors.onSurfaceSecondary,
+      overlay: themeColors.overlay,
+      groupColor: themeColors.groupColor,
+    },
+    hasTimeline: false,
+    hasTasks: true,
+    hasEdges: true,
+    drawTimeMarkersOnTasks: true,
+    taskLabel: taskLabel,
+    taskHighlights: criticalPath,
+    groupByResource: groupByOptions[groupByOptionsIndex],
+  };
+
+  const timelineOpts: RenderOptions = {
+    fontSizePx: FONT_SIZE_PX,
+    hasText: true,
+    displayRange: displayRange,
     displayRangeUsage: "restrict",
     colors: {
       surface: themeColors.surface,
@@ -197,6 +218,7 @@ const paintChart = () => {
       groupColor: themeColors.groupColor,
     },
     hasTimeline: true,
+    hasTasks: false,
     hasEdges: true,
     drawTimeMarkersOnTasks: true,
     taskLabel: taskLabel,
@@ -205,6 +227,7 @@ const paintChart = () => {
   };
 
   paintOneChart("#zoomed", zoomOpts);
+  paintOneChart("#timeline", timelineOpts);
   const ret = paintOneChart("#radar", radarOpts);
 
   if (!ret.ok) {
@@ -255,8 +278,8 @@ export interface CriticalPathEntry {
 }
 
 const simulate = () => {
-  // Simulate the uncertainty in the plan and generate possible alternate critical
-  // paths.
+  // Simulate the uncertainty in the plan and generate possible alternate
+  // critical paths.
   const MAX_RANDOM = 1000;
   const NUM_SIMULATION_LOOPS = 100;
 

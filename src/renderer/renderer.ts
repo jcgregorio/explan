@@ -55,6 +55,9 @@ export interface RenderOptions {
   /** If true then display times at the top of the chart. */
   hasTimeline: boolean;
 
+  /** If true then display the task bars. */
+  hasTasks: boolean;
+
   /** If true then draw vertical lines from the timeline down to task start and
    * finish points. */
   drawTimeMarkersOnTasks: boolean;
@@ -134,6 +137,9 @@ export function suggestedCanvasHeight(
   opts: RenderOptions,
   maxRows: number
 ): number {
+  if (!opts.hasTasks) {
+    maxRows = 0;
+  }
   return new Scale(
     opts,
     canvas.width,
@@ -216,13 +222,15 @@ export function renderTasksToCanvas(
   ctx.strokeStyle = opts.colors.onSurface;
 
   if (rowRanges !== null) {
-    drawSwimLaneHighlights(
-      ctx,
-      scale,
-      rowRanges,
-      totalNumberOfDays,
-      opts.colors.groupColor
-    );
+    if (opts.hasTasks) {
+      drawSwimLaneHighlights(
+        ctx,
+        scale,
+        rowRanges,
+        totalNumberOfDays,
+        opts.colors.groupColor
+      );
+    }
 
     if (resourceDefinition !== null && opts.hasText) {
       drawSwimLaneLabels(ctx, opts, resourceDefinition, scale, rowRanges);
@@ -273,22 +281,24 @@ export function renderTasksToCanvas(
       ctx.fillStyle = opts.colors.onSurface;
       ctx.strokeStyle = opts.colors.onSurface;
     }
-    if (taskStart.x === taskEnd.x) {
-      drawMilestone(ctx, taskStart, diamondDiameter, percentHeight);
-    } else {
-      drawTaskBar(ctx, taskStart, taskEnd, taskLineHeight);
-    }
+    if (opts.hasTasks) {
+      if (taskStart.x === taskEnd.x) {
+        drawMilestone(ctx, taskStart, diamondDiameter, percentHeight);
+      } else {
+        drawTaskBar(ctx, taskStart, taskEnd, taskLineHeight);
+      }
 
-    // Skip drawing the test of the Start and Finish tasks.
-    if (taskIndex !== 0 && taskIndex !== totalNumberOfRows - 1) {
-      drawTaskText(ctx, opts, scale, row, span, task, taskIndex, clipWidth);
+      // Skip drawing the test of the Start and Finish tasks.
+      if (taskIndex !== 0 && taskIndex !== totalNumberOfRows - 1) {
+        drawTaskText(ctx, opts, scale, row, span, task, taskIndex, clipWidth);
+      }
     }
   });
 
   ctx.lineWidth = 1;
   ctx.strokeStyle = opts.colors.onSurfaceMuted;
 
-  if (opts.hasEdges) {
+  if (opts.hasEdges && opts.hasTasks) {
     // Now draw all the arrows, i.e. edges.
     plan.chart.Edges.forEach((e: DirectedEdge) => {
       const srcSlack: Span = spans[e.i];
@@ -634,7 +644,7 @@ const drawTimeMarkerAtDayToTask = (
   ctx.fillStyle = opts.colors.onSurface;
   ctx.textBaseline = "top";
   const textStart = scale.feature(row, day, Feature.timeTextStart);
-  if (opts.hasText) {
+  if (opts.hasText && opts.hasTimeline) {
     ctx.fillText(`${day}`, textStart.x, textStart.y);
   }
 };
@@ -773,19 +783,23 @@ const drawSwimLaneLabels = (
   ctx.textBaseline = "bottom";
   const groupByOrigin = scale.feature(0, 0, Feature.groupByOrigin);
 
-  ctx.fillText(opts.groupByResource, groupByOrigin.x, groupByOrigin.y);
+  if (opts.hasTimeline) {
+    ctx.fillText(opts.groupByResource, groupByOrigin.x, groupByOrigin.y);
+  }
 
-  rowRanges.forEach((rowRange: RowRange, resourceIndex: number) => {
-    if (rowRange.start === rowRange.finish) {
-      return;
-    }
-    const middleRow =
-      rowRange.start + Math.floor((rowRange.finish - rowRange.start) / 2);
-    const textStart = scale.feature(middleRow, 0, Feature.groupTextStart);
-    ctx.fillText(
-      resourceDefinition.values[resourceIndex],
-      textStart.x,
-      textStart.y
-    );
-  });
+  if (opts.hasTasks) {
+    rowRanges.forEach((rowRange: RowRange, resourceIndex: number) => {
+      if (rowRange.start === rowRange.finish) {
+        return;
+      }
+      const middleRow =
+        rowRange.start + Math.floor((rowRange.finish - rowRange.start) / 2);
+      const textStart = scale.feature(middleRow, 0, Feature.groupTextStart);
+      ctx.fillText(
+        resourceDefinition.values[resourceIndex],
+        textStart.x,
+        textStart.y
+      );
+    });
+  }
 };
