@@ -161,7 +161,7 @@ const paintChart = () => {
   const themeColors: Theme = colorThemeFromElement(document.body);
 
   const radarOpts: RenderOptions = {
-    fontSizePx: 12,
+    fontSizePx: 8,
     hasText: false,
     displayRange: displayRange,
     displayRangeUsage: "highlight",
