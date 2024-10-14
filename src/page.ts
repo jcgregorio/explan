@@ -148,6 +148,15 @@ document.querySelector("#radar-toggle")!.addEventListener("click", () => {
   document.querySelector("#radar-parent")!.classList.toggle("hidden");
 });
 
+let topTimeline: boolean = false;
+
+document
+  .querySelector("#top-timeline-toggle")!
+  .addEventListener("click", () => {
+    topTimeline = !topTimeline;
+    paintChart();
+  });
+
 let groupByOptions: string[] = ["", ...Object.keys(plan.resourceDefinitions)];
 let groupByOptionsIndex: number = 0;
 
@@ -200,7 +209,7 @@ const paintChart = () => {
       overlay: themeColors.overlay,
       groupColor: themeColors.groupColor,
     },
-    hasTimeline: false,
+    hasTimeline: topTimeline,
     hasTasks: true,
     hasEdges: true,
     drawTimeMarkersOnTasks: true,
