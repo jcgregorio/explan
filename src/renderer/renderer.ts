@@ -263,15 +263,6 @@ export function renderTasksToCanvas(
         scale,
         daysWithTimeMarkers
       );
-      drawTimeMarkerAtDayToTask(
-        ctx,
-        row,
-        span.finish,
-        task,
-        opts,
-        scale,
-        daysWithTimeMarkers
-      );
     }
 
     if (taskHighlights.has(taskIndex)) {
