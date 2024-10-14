@@ -5,6 +5,7 @@
         body {
             background: var(--surface);
             color: var(--onSurface);
+            margin: 0;
         }
 
         canvas {
@@ -14,6 +15,7 @@
         plan-parent {
             width: 100%;
             display: block;
+            margin: 8px;
         }
 
         nav {
@@ -22,6 +24,13 @@
 
         ul li {
             cursor: pointer;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            padding: 8px;
+            background-color: var(--surface);
         }
 
         @property --groupColor {
@@ -78,15 +87,17 @@
             --groupColor: rgba(89, 206, 6, 0.1);
         }
     </style>
-    <nav>
-        <button id=dark-mode-toggle>Mode</button>
-        <button id=group-by-toggle>GroupBy</button>
-        <a id=download download="plan.json" href="">Download</a>
-        <label> Upload <input type="file" id="file-upload" /></label>
-    </nav>
-    <plan-parent>
-        <canvas id="radar" width=1000 height="1000"></canvas>
-    </plan-parent>
+    <header>
+        <nav>
+            <button id=dark-mode-toggle>Mode</button>
+            <button id=group-by-toggle>GroupBy</button>
+            <a id=download download="plan.json" href="">Download</a>
+            <label> Upload <input type="file" id="file-upload" /></label>
+        </nav>
+        <plan-parent id="radar-parent">
+            <canvas id="radar" width=1000 height="1000"></canvas>
+        </plan-parent>
+    </header>
     <plan-parent>
         <canvas id="zoomed" width=1000 height="1000"></canvas>
     </plan-parent>
