@@ -20,6 +20,7 @@
 
         nav {
             display: flexbox;
+            padding-bottom: 8px;
         }
 
         ul li {
@@ -31,6 +32,10 @@
             top: 0;
             padding-top: 8px;
             background-color: var(--surface);
+        }
+
+        #radar-parent.hidden {
+            display: none;
         }
 
         @property --groupColor {
@@ -91,6 +96,7 @@
         <nav>
             <button id=dark-mode-toggle>Mode</button>
             <button id=group-by-toggle>GroupBy</button>
+            <button id=radar-toggle>Radar</button>
             <a id=download download="plan.json" href="">Download</a>
             <label> Upload <input type="file" id="file-upload" /></label>
         </nav>

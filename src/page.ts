@@ -139,8 +139,13 @@ const dragRangeHandler = (e: CustomEvent<DragRange>) => {
 radar.addEventListener(DRAG_RANGE_EVENT, dragRangeHandler as EventListener);
 
 document.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
+  console.log("click");
   toggleTheme();
   paintChart();
+});
+
+document.querySelector("#radar-toggle")!.addEventListener("click", () => {
+  document.querySelector("#radar-parent")!.classList.toggle("hidden");
 });
 
 let groupByOptions: string[] = ["", ...Object.keys(plan.resourceDefinitions)];
