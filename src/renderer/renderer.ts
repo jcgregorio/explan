@@ -831,21 +831,24 @@ const drawSwimLaneLabels = (
 ) => {
   if (rowRanges) ctx.lineWidth = 1;
   ctx.fillStyle = opts.colors.onSurface;
-  ctx.textBaseline = "bottom";
   const groupByOrigin = scale.feature(0, 0, Feature.groupByOrigin);
 
   if (opts.hasTimeline) {
+    ctx.textBaseline = "bottom";
     ctx.fillText(opts.groupByResource, groupByOrigin.x, groupByOrigin.y);
   }
 
   if (opts.hasTasks) {
+    ctx.textBaseline = "top";
     rowRanges.forEach((rowRange: RowRange, resourceIndex: number) => {
       if (rowRange.start === rowRange.finish) {
         return;
       }
-      const middleRow =
-        rowRange.start + Math.floor((rowRange.finish - rowRange.start) / 2);
-      const textStart = scale.feature(middleRow, 0, Feature.groupTextStart);
+      const textStart = scale.feature(
+        rowRange.start,
+        0,
+        Feature.groupTextStart
+      );
       ctx.fillText(
         resourceDefinition.values[resourceIndex],
         textStart.x,
