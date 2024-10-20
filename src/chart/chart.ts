@@ -59,7 +59,7 @@ export class Task {
   }
 
   public get duration(): number {
-    return this.getMetric("Duration")!;
+    return this.getMetric("Duration") || 0;
   }
 
   public set duration(value: number) {

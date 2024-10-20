@@ -1,5 +1,8 @@
 import { Rounder } from "../types/types";
 
+export interface PrecisionSerialized {
+  precision: number;
+}
 export class Precision {
   private multiplier: number;
   private _precision: number;
@@ -22,5 +25,15 @@ export class Precision {
 
   public get precision(): number {
     return this._precision;
+  }
+
+  toJSON(): PrecisionSerialized {
+    return {
+      precision: this._precision,
+    };
+  }
+
+  static FromJSON(s: PrecisionSerialized): Precision {
+    return new Precision(s.precision);
   }
 }

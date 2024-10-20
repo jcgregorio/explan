@@ -1,12 +1,14 @@
 import { Task } from "./chart/chart.ts";
 import { edgesBySrcAndDstToMap } from "./dag/dag.ts";
+import { MetricDefinition } from "./metrics/metrics.ts";
+import { MetricRange } from "./metrics/range.ts";
 import {
   DupTaskOp,
   InsertNewEmptyTaskAfterOp,
   SetTaskNameOp,
   SplitTaskOp,
 } from "./ops/chart.ts";
-import { SetMetricValueOp } from "./ops/metrics.ts";
+import { AddMetricOp, SetMetricValueOp } from "./ops/metrics.ts";
 import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
 import {
   AddResourceOp,
@@ -43,17 +45,23 @@ const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
 };
 
-const DURATION = 100;
+const DURATION = 1000;
 
 const rndDuration = (): number => {
-  return rndInt(DURATION);
+  return rndInt(DURATION) / 3;
 };
 
 const people: string[] = ["Fred", "Barney", "Wilma", "Betty"];
 
 const rndName = (): string => `${String.fromCharCode(65 + rndInt(26))}`;
 
-const ops: Op[] = [AddResourceOp("Person")];
+const ops: Op[] = [
+  AddResourceOp("Person"),
+  AddMetricOp(
+    "Foo",
+    new MetricDefinition(0.1, new MetricRange(0, 100), false, new Precision(1))
+  ),
+];
 
 people.forEach((person: string) => {
   ops.push(AddResourceOptionOp("Person", person));

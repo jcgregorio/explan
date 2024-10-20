@@ -1,5 +1,10 @@
 // Utilities for dealing with a range of numbers.
 
+export interface MetricRangeSerialized {
+  min: number;
+  max: number;
+}
+
 export const clamp = (x: number, min: number, max: number): number => {
   if (x > max) {
     return max;
@@ -33,5 +38,16 @@ export class MetricRange {
 
   public get max(): number {
     return this._max;
+  }
+
+  toJSON(): MetricRangeSerialized {
+    return {
+      min: this._min,
+      max: this._max,
+    };
+  }
+
+  static FromJSON(s: MetricRangeSerialized): MetricRange {
+    return new MetricRange(s.min, s.max);
   }
 }

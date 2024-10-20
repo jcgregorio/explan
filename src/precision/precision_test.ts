@@ -34,4 +34,9 @@ describe("Precision", () => {
     assert.equal(12, p.round(12.3567));
     assert.equal(0, p.precision);
   });
+  it("handles bad values handed to the constructor", () => {
+    const p = new Precision(undefined as unknown as number);
+    assert.equal(12, p.round(12.3567));
+    assert.equal(0, p.precision);
+  });
 });

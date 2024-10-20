@@ -6,22 +6,15 @@ import {
   validateChart,
 } from "../chart/chart.ts";
 import { DirectedEdge, DirectedEdgeSerialized } from "../dag/dag.ts";
-import { MetricDefinition, MetricDefinitions } from "../metrics/metrics.ts";
+import {
+  MetricDefinition,
+  MetricDefinitionSerialized,
+  MetricDefinitions,
+  MetricDefinitionsSerialized,
+} from "../metrics/metrics.ts";
 import { MetricRange } from "../metrics/range.ts";
-import {
-  AddEdgeOp,
-  InsertNewEmptyTaskAfterOp,
-  RationalizeEdgesOp,
-  SetTaskNameOp,
-  SetTaskStateOp,
-} from "../ops/chart.ts";
-import { AddMetricOp, SetMetricValueOp } from "../ops/metrics.ts";
-import { Op, applyAllOpsToPlan } from "../ops/ops.ts";
-import {
-  AddResourceOp,
-  AddResourceOptionOp,
-  SetResourceValueOp,
-} from "../ops/resources.ts";
+import { RationalizeEdgesOp } from "../ops/chart.ts";
+import { Precision } from "../precision/precision.ts";
 import {
   ResourceDefinition,
   ResourceDefinitions,
@@ -48,7 +41,7 @@ export const StaticResourceDefinitions: ResourceDefinitions = {
 export interface PlanSerialized {
   chart: ChartSerialized;
   resourceDefinitions: ResourceDefinitions;
-  metricDefinitions: MetricDefinitions;
+  metricDefinitions: MetricDefinitionsSerialized;
 }
 
 export class Plan {
@@ -91,9 +84,9 @@ export class Plan {
         )
       ),
       metricDefinitions: Object.fromEntries(
-        Object.entries(this.metricDefinitions).filter(
-          ([key, metricDefinition]) => !metricDefinition.isStatic
-        )
+        Object.entries(this.metricDefinitions)
+          .filter(([key, metricDefinition]) => !metricDefinition.isStatic)
+          .map(([key, metricDefinition]) => [key, metricDefinition.toJSON()])
       ),
     };
   }
@@ -144,7 +137,7 @@ export const FromJSON = (text: string): Result<Plan> => {
   const plan = new Plan();
 
   plan.chart.Vertices = planSerialized.chart.vertices.map(
-    (taskSerialized: TaskSerialized, index: number): Task => {
+    (taskSerialized: TaskSerialized): Task => {
       const task = new Task(taskSerialized.name);
       task.state = taskSerialized.state;
       task.metrics = taskSerialized.metrics;
@@ -157,9 +150,13 @@ export const FromJSON = (text: string): Result<Plan> => {
     (directedEdgeSerialized: DirectedEdgeSerialized): DirectedEdge =>
       new DirectedEdge(directedEdgeSerialized.i, directedEdgeSerialized.j)
   );
-  plan.metricDefinitions = Object.assign(
-    plan.metricDefinitions,
-    planSerialized.metricDefinitions
+  plan.metricDefinitions = Object.fromEntries(
+    Object.entries(planSerialized.metricDefinitions).map(
+      ([key, serializedMetricDefinition]) => [
+        key,
+        MetricDefinition.FromJSON(serializedMetricDefinition),
+      ]
+    )
   );
   plan.resourceDefinitions = Object.assign(
     plan.resourceDefinitions,
