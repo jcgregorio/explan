@@ -32,14 +32,10 @@ export function ComputeSlack(
   round: Rounder
 ): SlackResult {
   // Create a Slack for each Task.
-  //  const slacks: Slack[] = new Array(c.Vertices.length);
-  //  for (let i = 0; i < c.Vertices.length; i++) {
-  //    slacks[i] = new Slack();
-  //  }
-  const slacks: Slack[] = Array.from(
-    { length: c.Vertices.length },
-    () => new Slack()
-  );
+  const slacks: Slack[] = new Array(c.Vertices.length);
+  for (let i = 0; i < c.Vertices.length; i++) {
+    slacks[i] = new Slack();
+  }
 
   const r = ChartValidate(c);
   if (!r.ok) {
