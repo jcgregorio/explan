@@ -17,17 +17,6 @@ export class Slack {
   slack: number = 0;
 }
 
-const roundSpan = (span: Span, round: Rounder) => {
-  span.start = round(span.start);
-  span.finish = round(span.finish);
-};
-
-const roundSlack = (slack: Slack, round: Rounder) => {
-  slack.slack = round(slack.slack);
-  roundSpan(slack.early, round);
-  roundSpan(slack.late, round);
-};
-
 export type TaskDuration = (t: Task, taskIndex: number) => number;
 
 export const defaultTaskDuration = (t: Task): number => {
@@ -43,10 +32,14 @@ export function ComputeSlack(
   round: Rounder
 ): SlackResult {
   // Create a Slack for each Task.
-  const slacks: Slack[] = [];
-  for (let i = 0; i < c.Vertices.length; i++) {
-    slacks.push(new Slack());
-  }
+  //  const slacks: Slack[] = new Array(c.Vertices.length);
+  //  for (let i = 0; i < c.Vertices.length; i++) {
+  //    slacks[i] = new Slack();
+  //  }
+  const slacks: Slack[] = Array.from(
+    { length: c.Vertices.length },
+    () => new Slack()
+  );
 
   const r = ChartValidate(c);
   if (!r.ok) {
@@ -96,8 +89,6 @@ export function ComputeSlack(
       slack.late.start = round(
         slack.late.finish - taskDuration(task, vertexIndex)
       );
-      roundSpan(slack.late, round);
-      roundSpan(slack.early, round);
       slack.slack = round(slack.late.finish - slack.early.finish);
     }
   });
