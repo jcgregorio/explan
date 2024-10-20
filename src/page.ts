@@ -311,7 +311,7 @@ const simulate = () => {
         t.duration,
         t.getResource("Uncertainty") as Uncertainty
       ).sample(rndInt(MAX_RANDOM) / MAX_RANDOM);
-      return Math.trunc(rawDuration * 100) / 100;
+      return precision.round(rawDuration);
     });
 
     const slacksRet = ComputeSlack(

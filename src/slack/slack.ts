@@ -71,7 +71,9 @@ export function ComputeSlack(
         return predecessorSlack.early.finish;
       })
     );
-    slack.early.finish = slack.early.start + taskDuration(task, vertexIndex);
+    slack.early.finish = round(
+      slack.early.start + taskDuration(task, vertexIndex)
+    );
   });
 
   // Now backwards through the topological sort and find the late finish of each
@@ -93,13 +95,14 @@ export function ComputeSlack(
           return successorSlack.late.start;
         })
       );
-      slack.late.start = slack.late.finish - taskDuration(task, vertexIndex);
-      slack.slack = slack.late.finish - slack.early.finish;
+      slack.late.start = round(
+        slack.late.finish - taskDuration(task, vertexIndex)
+      );
+      roundSpan(slack.late, round);
+      roundSpan(slack.early, round);
+      slack.slack = round(slack.late.finish - slack.early.finish);
     }
   });
-
-  // Now round all the slack values.
-  slacks.forEach((slack: Slack) => roundSlack(slack, round));
 
   return ok(slacks);
 }
