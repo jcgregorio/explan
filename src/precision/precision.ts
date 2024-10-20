@@ -7,7 +7,7 @@ export class Precision {
   private multiplier: number;
   private _precision: number;
 
-  constructor(precision: number) {
+  constructor(precision: number = 0) {
     if (!Number.isFinite(precision)) {
       precision = 0;
     }

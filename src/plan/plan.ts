@@ -150,7 +150,8 @@ export const FromJSON = (text: string): Result<Plan> => {
     (directedEdgeSerialized: DirectedEdgeSerialized): DirectedEdge =>
       new DirectedEdge(directedEdgeSerialized.i, directedEdgeSerialized.j)
   );
-  plan.metricDefinitions = Object.fromEntries(
+
+  const deserializedMetricDefinitions = Object.fromEntries(
     Object.entries(planSerialized.metricDefinitions).map(
       ([key, serializedMetricDefinition]) => [
         key,
@@ -158,6 +159,14 @@ export const FromJSON = (text: string): Result<Plan> => {
       ]
     )
   );
+
+  plan.metricDefinitions = Object.assign(
+    {},
+    StaticMetricDefinitions,
+    deserializedMetricDefinitions
+  );
+
+  // TODO!! Add in static resource definitions!!!
   plan.resourceDefinitions = Object.assign(
     plan.resourceDefinitions,
     planSerialized.resourceDefinitions

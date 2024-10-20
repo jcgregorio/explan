@@ -39,9 +39,9 @@ export class MetricDefinition {
 
   static FromJSON(s: MetricDefinitionSerialized): MetricDefinition {
     return new MetricDefinition(
-      s.default,
+      s.default || 0,
       MetricRange.FromJSON(s.range),
-      s.isStatic,
+      s.isStatic || false,
       Precision.FromJSON(s.precision)
     );
   }
