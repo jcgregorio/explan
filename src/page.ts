@@ -14,6 +14,7 @@ import {
   SetResourceValueOp,
 } from "./ops/resources.ts";
 import { FromJSON, Plan } from "./plan/plan.ts";
+import { Precision } from "./precision/precision.ts";
 import {
   DRAG_RANGE_EVENT,
   DragRange,
@@ -36,6 +37,7 @@ import { toggleTheme } from "./style/toggler/toggler.ts";
 const FONT_SIZE_PX = 32;
 
 let plan = new Plan();
+const precision = new Precision(2);
 
 const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
@@ -98,7 +100,11 @@ let spans: Span[] = [];
 let criticalPath: number[] = [];
 
 const recalculateSpan = () => {
-  const slackResult = ComputeSlack(plan.chart);
+  const slackResult = ComputeSlack(
+    plan.chart,
+    undefined,
+    precision.round.bind(precision)
+  );
   if (!slackResult.ok) {
     console.error(slackResult);
   } else {
@@ -108,7 +114,7 @@ const recalculateSpan = () => {
   spans = slacks.map((value: Slack): Span => {
     return value.early;
   });
-  criticalPath = CriticalPath(slacks);
+  criticalPath = CriticalPath(slacks, precision.round.bind(precision));
 };
 
 recalculateSpan();
@@ -301,20 +307,25 @@ const simulate = () => {
 
   for (let i = 0; i < NUM_SIMULATION_LOOPS; i++) {
     const durations = plan.chart.Vertices.map((t: Task) => {
-      return new Jacobian(
+      const rawDuration = new Jacobian(
         t.duration,
         t.getResource("Uncertainty") as Uncertainty
       ).sample(rndInt(MAX_RANDOM) / MAX_RANDOM);
+      return Math.trunc(rawDuration * 100) / 100;
     });
 
     const slacksRet = ComputeSlack(
       plan.chart,
-      (t: Task, taskIndex: number) => durations[taskIndex]
+      (t: Task, taskIndex: number) => durations[taskIndex],
+      precision.round.bind(precision)
     );
     if (!slacksRet.ok) {
       throw slacksRet.error;
     }
-    const criticalPath = CriticalPath(slacksRet.value);
+    const criticalPath = CriticalPath(
+      slacksRet.value,
+      precision.round.bind(precision)
+    );
     const criticalPathAsString = `${criticalPath}`;
     let pathEntry = allCriticalPaths.get(criticalPathAsString);
     if (pathEntry === undefined) {
@@ -415,6 +426,7 @@ const simulate = () => {
   });
   download.href = URL.createObjectURL(downloadBlob);
 };
+
 // React to the upload input.
 const fileUpload = document.querySelector<HTMLInputElement>("#file-upload")!;
 fileUpload.addEventListener("change", async () => {

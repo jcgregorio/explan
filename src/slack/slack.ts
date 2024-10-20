@@ -2,6 +2,9 @@ import { Result, ok, error } from "../result.ts";
 import { Task, Chart, ChartValidate } from "../chart/chart.ts";
 import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
 
+/** Type for a function that does rounding. */
+export type Rounder = (x: number) => number;
+
 /** Span represents when a task will be done, i.e. it contains the time the task
  * is expected to begin and end. */
 export class Span {
@@ -16,6 +19,17 @@ export class Slack {
   slack: number = 0;
 }
 
+const roundSpan = (span: Span, round: Rounder) => {
+  span.start = round(span.start);
+  span.finish = round(span.finish);
+};
+
+const roundSlack = (slack: Slack, round: Rounder) => {
+  slack.slack = round(slack.slack);
+  roundSpan(slack.early, round);
+  roundSpan(slack.late, round);
+};
+
 export type TaskDuration = (t: Task, taskIndex: number) => number;
 
 export const defaultTaskDuration = (t: Task): number => {
@@ -27,7 +41,8 @@ export type SlackResult = Result<Slack[]>;
 // Calculate the slack for each Task in the Chart.
 export function ComputeSlack(
   c: Chart,
-  taskDuration: TaskDuration = defaultTaskDuration
+  taskDuration: TaskDuration = defaultTaskDuration,
+  round: Rounder
 ): SlackResult {
   // Create a Slack for each Task.
   const slacks: Slack[] = [];
@@ -83,15 +98,18 @@ export function ComputeSlack(
     }
   });
 
+  // Now round all the slack values.
+  slacks.forEach((slack: Slack) => roundSlack(slack, round));
+
   return ok(slacks);
 }
 
-export const CriticalPath = (slacks: Slack[]): number[] => {
+export const CriticalPath = (slacks: Slack[], round: Rounder): number[] => {
   const ret: number[] = [];
   slacks.forEach((slack: Slack, index: number) => {
     if (
-      slack.late.finish - slack.early.finish === 0 &&
-      slack.early.finish - slack.early.start !== 0
+      round(slack.late.finish - slack.early.finish) < Number.EPSILON &&
+      round(slack.early.finish - slack.early.start) > Number.EPSILON
     ) {
       ret.push(index);
     }
