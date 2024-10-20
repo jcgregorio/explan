@@ -1,3 +1,5 @@
+import { Rounder } from "../types/types";
+
 export class Precision {
   private multiplier: number;
   private _precision: number;
@@ -12,6 +14,10 @@ export class Precision {
 
   round(x: number): number {
     return Math.trunc(x * this.multiplier) / this.multiplier;
+  }
+
+  rounder(): Rounder {
+    return (x: number): number => this.round(x);
   }
 
   public get precision(): number {

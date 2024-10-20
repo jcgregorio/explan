@@ -100,11 +100,7 @@ let spans: Span[] = [];
 let criticalPath: number[] = [];
 
 const recalculateSpan = () => {
-  const slackResult = ComputeSlack(
-    plan.chart,
-    undefined,
-    precision.round.bind(precision)
-  );
+  const slackResult = ComputeSlack(plan.chart, undefined, precision.rounder());
   if (!slackResult.ok) {
     console.error(slackResult);
   } else {
@@ -114,7 +110,7 @@ const recalculateSpan = () => {
   spans = slacks.map((value: Slack): Span => {
     return value.early;
   });
-  criticalPath = CriticalPath(slacks, precision.round.bind(precision));
+  criticalPath = CriticalPath(slacks, precision.rounder());
 };
 
 recalculateSpan();
@@ -317,15 +313,12 @@ const simulate = () => {
     const slacksRet = ComputeSlack(
       plan.chart,
       (t: Task, taskIndex: number) => durations[taskIndex],
-      precision.round.bind(precision)
+      precision.rounder()
     );
     if (!slacksRet.ok) {
       throw slacksRet.error;
     }
-    const criticalPath = CriticalPath(
-      slacksRet.value,
-      precision.round.bind(precision)
-    );
+    const criticalPath = CriticalPath(slacksRet.value, precision.rounder());
     const criticalPathAsString = `${criticalPath}`;
     let pathEntry = allCriticalPaths.get(criticalPathAsString);
     if (pathEntry === undefined) {

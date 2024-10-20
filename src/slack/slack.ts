@@ -1,9 +1,7 @@
 import { Result, ok, error } from "../result.ts";
 import { Task, Chart, ChartValidate } from "../chart/chart.ts";
 import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
-
-/** Type for a function that does rounding. */
-export type Rounder = (x: number) => number;
+import { Rounder } from "../types/types.ts";
 
 /** Span represents when a task will be done, i.e. it contains the time the task
  * is expected to begin and end. */
