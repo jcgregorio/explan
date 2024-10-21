@@ -35,7 +35,10 @@ export class MetricDefinition {
     };
   }
 
-  static FromJSON(s: MetricDefinitionSerialized): MetricDefinition {
+  static FromJSON(s: MetricDefinitionSerialized | undefined): MetricDefinition {
+    if (s === undefined) {
+      return new MetricDefinition(0);
+    }
     return new MetricDefinition(
       s.default || 0,
       MetricRange.FromJSON(s.range),

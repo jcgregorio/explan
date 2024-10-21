@@ -47,7 +47,10 @@ export class MetricRange {
     };
   }
 
-  static FromJSON(s: MetricRangeSerialized): MetricRange {
+  static FromJSON(s: MetricRangeSerialized | undefined): MetricRange {
+    if (s === undefined) {
+      return new MetricRange();
+    }
     return new MetricRange(s.min, s.max);
   }
 }
