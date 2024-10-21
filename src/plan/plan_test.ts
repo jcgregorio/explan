@@ -1,5 +1,5 @@
 import { assert } from "@esm-bundle/chai";
-import { FromJSON, Plan, PlanSerialized } from "./plan";
+import { FromJSON, Plan } from "./plan";
 import {
   AddResourceOp,
   AddResourceOptionOp,

@@ -24,5 +24,6 @@ describe("MetricDefinition", () => {
     const reconstituted = MetricDefinition.FromJSON(
       {} as unknown as MetricDefinitionSerialized
     );
+    assert.equal(reconstituted.range.max, Number.MAX_VALUE);
   });
 });
