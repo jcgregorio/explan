@@ -388,7 +388,6 @@ export class RationalizeEdgesSubOp implements SubOp {
       const destinations = srcAndDst.bySrc.get(i);
       if (destinations === undefined) {
         const toBeAdded = new DirectedEdge(i, Finish);
-        console.log(`dest Adding edge ${toBeAdded}`);
         plan.chart.Edges.push(toBeAdded);
       } else {
         // Are there any uneeded Egdes to Finish? If so filter them out.
@@ -397,7 +396,6 @@ export class RationalizeEdgesSubOp implements SubOp {
           destinations.find((value: DirectedEdge) => value.j === Finish)
         ) {
           const toBeRemoved = new DirectedEdge(i, Finish);
-          console.log(`dest Removing edge ${toBeRemoved}`);
           plan.chart.Edges = plan.chart.Edges.filter(
             (value: DirectedEdge) => !toBeRemoved.equal(value)
           );
@@ -412,7 +410,6 @@ export class RationalizeEdgesSubOp implements SubOp {
       const destinations = srcAndDst.byDst.get(i);
       if (destinations === undefined) {
         const toBeAdded = new DirectedEdge(Start, i);
-        console.log(`src Adding edge ${toBeAdded}`);
         plan.chart.Edges.push(toBeAdded);
       } else {
         // Are there any un-needed Egdes from Start? If so filter them out.
@@ -421,7 +418,6 @@ export class RationalizeEdgesSubOp implements SubOp {
           destinations.find((value: DirectedEdge) => value.i === Start)
         ) {
           const toBeRemoved = new DirectedEdge(Start, i);
-          console.log(`src Removing edge ${toBeRemoved}`);
           plan.chart.Edges = plan.chart.Edges.filter(
             (value: DirectedEdge) => !toBeRemoved.equal(value)
           );

@@ -190,6 +190,7 @@ export class UpdateMetricSubOp implements SubOp {
       } else {
         // Clamp.
         newValue = this.metricDefinition.range.clamp(oldValue);
+        newValue = this.metricDefinition.precision.round(newValue);
         taskMetricValues.set(index, oldValue);
       }
       task.setMetric(this.name, newValue);
@@ -232,7 +233,7 @@ export class SetMetricValueSubOp implements SubOp {
 
     const task = plan.chart.Vertices[this.taskIndex];
     const oldValue = task.getMetric(this.name) || metricsDefinition.default;
-    task.setMetric(this.name, this.value);
+    task.setMetric(this.name, metricsDefinition.precision.round(this.value));
 
     return ok({ plan: plan, inverse: this.inverse(oldValue) });
   }
