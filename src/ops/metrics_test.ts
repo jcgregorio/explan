@@ -16,6 +16,7 @@ import {
   TestOpsForward,
   TestOpsForwardAndBack,
 } from "../ops/opstestutil.ts";
+import { Precision } from "../precision/precision.ts";
 
 const defaultCostValue = 12;
 const newCostValue = 15;
@@ -266,6 +267,28 @@ describe("SetMetricValueOp", () => {
       SetMetricValueOp("cost", 200, taskIndex),
       TOp((plan: Plan) => {
         assert.equal(plan.chart.Vertices[taskIndex].getMetric("cost"), 200);
+      }),
+    ]);
+  });
+
+  it("Sets a metric value and is rounded to the right precision, and the inverse unsets it.", () => {
+    const taskIndex = 1;
+    TestOpsForwardAndBack([
+      T2Op((plan: Plan) => {
+        assert.isUndefined(plan.chart.Vertices[taskIndex].getMetric("cost"));
+      }),
+      AddMetricOp(
+        "cost",
+        new MetricDefinition(
+          100,
+          new MetricRange(0, 100),
+          false,
+          new Precision(1)
+        )
+      ),
+      SetMetricValueOp("cost", 99.999, taskIndex),
+      TOp((plan: Plan) => {
+        assert.equal(plan.chart.Vertices[taskIndex].getMetric("cost"), 99.9);
       }),
     ]);
   });
