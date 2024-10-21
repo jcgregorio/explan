@@ -6,7 +6,6 @@ import { clamp, MetricRange, MetricRangeSerialized } from "./range.ts";
 export interface MetricDefinitionSerialized {
   range: MetricRangeSerialized;
   default: number;
-  isStatic: boolean;
   precision: PrecisionSerialized;
 }
 
@@ -32,7 +31,6 @@ export class MetricDefinition {
     return {
       range: this.range.toJSON(),
       default: this.default,
-      isStatic: this.isStatic,
       precision: this.precision.toJSON(),
     };
   }
@@ -41,7 +39,7 @@ export class MetricDefinition {
     return new MetricDefinition(
       s.default || 0,
       MetricRange.FromJSON(s.range),
-      s.isStatic || false,
+      false,
       Precision.FromJSON(s.precision)
     );
   }

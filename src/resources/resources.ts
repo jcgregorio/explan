@@ -4,14 +4,34 @@
 
 export const DEFAULT_RESOURCE_VALUE = "";
 
+export interface ResourceDefinitionSerialized {
+  values: string[];
+}
+
 export class ResourceDefinition {
   values: string[];
   isStatic: boolean;
 
-  constructor() {
-    this.values = [DEFAULT_RESOURCE_VALUE];
-    this.isStatic = false;
+  constructor(
+    values: string[] = [DEFAULT_RESOURCE_VALUE],
+    isStatic: boolean = false
+  ) {
+    this.values = values;
+    this.isStatic = isStatic;
+  }
+
+  toJSON(): ResourceDefinitionSerialized {
+    return {
+      values: this.values,
+    };
+  }
+
+  static FromJSON(s: ResourceDefinitionSerialized): ResourceDefinition {
+    return new ResourceDefinition(s.values);
   }
 }
 
 export type ResourceDefinitions = { [key: string]: ResourceDefinition };
+export type ResourceDefinitionsSerialized = {
+  [key: string]: ResourceDefinitionSerialized;
+};

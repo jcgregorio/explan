@@ -18,6 +18,7 @@ import { Precision } from "../precision/precision.ts";
 import {
   ResourceDefinition,
   ResourceDefinitions,
+  ResourceDefinitionsSerialized,
 } from "../resources/resources.ts";
 import { Result, ok } from "../result.ts";
 import { UncertaintyToNum } from "../stats/cdf/triangular/jacobian.ts";
@@ -32,15 +33,12 @@ export const StaticMetricDefinitions: MetricDefinitions = {
 };
 
 export const StaticResourceDefinitions: ResourceDefinitions = {
-  Uncertainty: {
-    values: Object.keys(UncertaintyToNum),
-    isStatic: true,
-  },
+  Uncertainty: new ResourceDefinition(Object.keys(UncertaintyToNum), true),
 };
 
 export interface PlanSerialized {
   chart: ChartSerialized;
-  resourceDefinitions: ResourceDefinitions;
+  resourceDefinitions: ResourceDefinitionsSerialized;
   metricDefinitions: MetricDefinitionsSerialized;
 }
 
@@ -166,10 +164,19 @@ export const FromJSON = (text: string): Result<Plan> => {
     deserializedMetricDefinitions
   );
 
-  // TODO!! Add in static resource definitions!!!
+  const deserializedResourceDefinitions = Object.fromEntries(
+    Object.entries(planSerialized.resourceDefinitions).map(
+      ([key, serializedResourceDefinition]) => [
+        key,
+        ResourceDefinition.FromJSON(serializedResourceDefinition),
+      ]
+    )
+  );
+
   plan.resourceDefinitions = Object.assign(
-    plan.resourceDefinitions,
-    planSerialized.resourceDefinitions
+    {},
+    StaticResourceDefinitions,
+    deserializedResourceDefinitions
   );
 
   const ret = RationalizeEdgesOp().apply(plan);
