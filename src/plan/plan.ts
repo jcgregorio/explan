@@ -8,13 +8,11 @@ import {
 import { DirectedEdge, DirectedEdgeSerialized } from "../dag/dag.ts";
 import {
   MetricDefinition,
-  MetricDefinitionSerialized,
   MetricDefinitions,
   MetricDefinitionsSerialized,
 } from "../metrics/metrics.ts";
 import { MetricRange } from "../metrics/range.ts";
 import { RationalizeEdgesOp } from "../ops/chart.ts";
-import { Precision } from "../precision/precision.ts";
 import {
   ResourceDefinition,
   ResourceDefinitions,
