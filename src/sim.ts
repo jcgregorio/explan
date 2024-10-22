@@ -1,5 +1,5 @@
 import { Triangular } from "./stats/cdf/triangular/triangular.ts";
-import { Jacobian, Uncertainty } from "./stats/cdf/triangular/jacobian.ts";
+import { Jacobian } from "./stats/cdf/triangular/jacobian.ts";
 const t = new Triangular(1, 10, 3);
 
 const histogram: number[] = new Array(10);

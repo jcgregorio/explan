@@ -1,5 +1,4 @@
 import { Chart, Task, validateChart } from "./chart/chart.ts";
-import { DirectedEdge } from "./dag/dag.ts";
 import { InsertNewEmptyTaskAfterOp, SetTaskNameOp } from "./ops/chart.ts";
 import { SetMetricValueOp } from "./ops/metrics.ts";
 import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
