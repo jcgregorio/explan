@@ -3,6 +3,7 @@ import { InsertNewEmptyTaskAfterOp, SetTaskNameOp } from "./ops/chart.ts";
 import { SetMetricValueOp } from "./ops/metrics.ts";
 import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
 import { Plan } from "./plan/plan.ts";
+import { Precision } from "./precision/precision.ts";
 import { ComputeSlack, CriticalPath } from "./slack/slack.ts";
 import { Jacobian } from "./stats/cdf/triangular/jacobian.ts";
 
@@ -35,15 +36,22 @@ const jacobians = C.Vertices.map((t: Task) => {
   return new Jacobian(t.duration, "low");
 });
 
-const slacksRet = ComputeSlack(C);
+const precision = new Precision(0);
+
+const slacksRet = ComputeSlack(C, undefined, precision.rounder());
 if (!slacksRet.ok) {
   throw new Error(`Error computing slack: ${slacksRet.error}`);
 }
-console.log("Tasks on the critical path:", CriticalPath(slacksRet.value));
+console.log(
+  "Tasks on the critical path:",
+  CriticalPath(slacksRet.value, precision.rounder())
+);
 console.log(
   "Tasks on the critical path for in the first quartile:",
-  ComputeSlack(C, (t: Task, taskIndex: number) =>
-    jacobians[taskIndex].sample(0.25)
+  ComputeSlack(
+    C,
+    (t: Task, taskIndex: number) => jacobians[taskIndex].sample(0.25),
+    precision.rounder()
   )
 );
 

@@ -74,7 +74,7 @@ export interface RenderOptions {
   taskHighlights: number[];
 
   /** Filter the Tasks to be displayed. */
-  filterFunc: FilterFunc;
+  filterFunc: FilterFunc | null;
 
   /** Group the tasks together vertically based on the given resource. If the
    * empty string is supplied then just display by topological order.

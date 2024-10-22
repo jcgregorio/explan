@@ -8,11 +8,17 @@ describe("Scale", () => {
   const optsForTest: RenderOptions = {
     fontSizePx: 12,
     hasText: true,
+    hasTasks: false,
+    hasEdges: false,
+    taskHighlights: [],
+    filterFunc: null,
     displayRange: null,
     displayRangeUsage: "restrict",
     colors: {
       surface: "#000",
       onSurface: "#222",
+      onSurfaceHighlight: "#333",
+      onSurfaceMuted: "#111",
       overlay: "rgba(0,0,0,0.2)",
       groupColor: "rgba(0,0,200rrt,0.2)",
     },

@@ -195,6 +195,7 @@ const paintChart = () => {
     drawTimeMarkersOnTasks: false,
     taskLabel: taskLabel,
     taskHighlights: criticalPath,
+    filterFunc: null,
     groupByResource: groupByOptions[groupByOptionsIndex],
   };
 
@@ -217,6 +218,7 @@ const paintChart = () => {
     drawTimeMarkersOnTasks: true,
     taskLabel: taskLabel,
     taskHighlights: criticalPath,
+    filterFunc: null,
     groupByResource: groupByOptions[groupByOptionsIndex],
   };
 
@@ -239,6 +241,7 @@ const paintChart = () => {
     drawTimeMarkersOnTasks: true,
     taskLabel: taskLabel,
     taskHighlights: criticalPath,
+    filterFunc: null,
     groupByResource: groupByOptions[groupByOptionsIndex],
   };
 
