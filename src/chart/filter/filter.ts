@@ -10,13 +10,15 @@ export interface ChartLike {
 export interface FilterResult {
   chartLike: ChartLike;
   displayOrder: number[];
+  highlightedTasks: number[];
 }
 
 export type FilterFunc = (task: Task, index: number) => boolean;
 
 export const filter = (
   chart: Chart,
-  filterFunc: FilterFunc | null
+  filterFunc: FilterFunc | null,
+  highlightedTasks: number[]
 ): Result<FilterResult> => {
   const vret = validateChart(chart);
   if (!vret.ok) {
@@ -27,6 +29,7 @@ export const filter = (
     return ok({
       chartLike: chart,
       displayOrder: vret.value,
+      highlightedTasks: highlightedTasks,
     });
   }
   const tasks: Tasks = [];
@@ -68,11 +71,17 @@ export const filter = (
     displayOrder.push(fromOriginalToNewIndex.get(originalTaskIndex)!);
   });
 
+  const updatedHighlightedTasks = highlightedTasks.map(
+    (originalTaskIndex: number): number =>
+      fromOriginalToNewIndex.get(originalTaskIndex)!
+  );
+
   return ok({
     chartLike: {
       Edges: edges,
       Vertices: tasks,
     },
     displayOrder: displayOrder,
+    highlightedTasks: updatedHighlightedTasks,
   });
 };

@@ -1,4 +1,5 @@
 import { Task, validateChart } from "../chart/chart.ts";
+import { FilterFunc } from "../chart/filter/filter.ts";
 import { DirectedEdge } from "../dag/dag.ts";
 import { Plan } from "../plan/plan.ts";
 import { ResourceDefinition } from "../resources/resources.ts";
@@ -71,6 +72,9 @@ export interface RenderOptions {
   /** The indices of tasks that should be highlighted when draw, typically used
    * to highlight the critical path. */
   taskHighlights: number[];
+
+  /** Filter the Tasks to be displayed. */
+  filterFunc: FilterFunc;
 
   /** Group the tasks together vertically based on the given resource. If the
    * empty string is supplied then just display by topological order.

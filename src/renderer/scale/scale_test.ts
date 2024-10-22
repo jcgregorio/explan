@@ -28,7 +28,7 @@ describe("Scale", () => {
     assert.equal(s.metric(Metric.percentHeight), 1);
     assert.equal(s.metric(Metric.taskLineHeight), 3);
 
-    assert.equal(s["dayWidthPx"], 12);
+    assert.equal(s["dayWidthPx"], 12.5);
     assert.equal(s["blockSizePx"], 4);
     assert.equal(s["marginSizePx"], 3);
     assert.equal(s["groupByColumnWidthPx"], 0);
@@ -45,7 +45,7 @@ describe("Scale", () => {
     assert.equal(s.metric(Metric.percentHeight), 3);
     assert.equal(s.metric(Metric.taskLineHeight), 7);
 
-    assert.equal(s["dayWidthPx"], 12);
+    assert.equal(s["dayWidthPx"], 12.1);
     assert.equal(s["blockSizePx"], 8);
     assert.equal(s["marginSizePx"], 7);
     assert.equal(s["groupByColumnWidthPx"], 0);
