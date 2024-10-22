@@ -1,23 +1,37 @@
-import { DirectedEdge, Edges, Vertices } from "../../dag/dag";
+import { DirectedEdge, Edges } from "../../dag/dag";
 import { ok, Result } from "../../result";
-import { Chart, Task, Tasks } from "../chart";
+import { Chart, Task, Tasks, validateChart } from "../chart";
 
 export interface ChartLike {
   Vertices: Tasks;
   Edges: Edges;
 }
 
+export interface FilterResult {
+  chartLike: ChartLike;
+  displayOrder: number[];
+}
+
 export type FilterFunc = (task: Task, index: number) => boolean;
 
 export const filter = (
-  chart: ChartLike,
+  chart: Chart,
   filterFunc: FilterFunc | null
-): Result<ChartLike> => {
+): Result<FilterResult> => {
+  const vret = validateChart(chart);
+  if (!vret.ok) {
+    return vret;
+  }
+  const topologicalOrder = vret.value;
   if (filterFunc === null) {
-    return ok(chart);
+    return ok({
+      chartLike: chart,
+      displayOrder: vret.value,
+    });
   }
   const tasks: Tasks = [];
   const edges: Edges = [];
+  const displayOrder: number[] = [];
 
   const fromOriginalToNewIndex: Map<number, number> = new Map();
 
@@ -46,8 +60,19 @@ export const filter = (
     );
   });
 
+  topologicalOrder.forEach((originalTaskIndex: number) => {
+    const task: Task = chart.Vertices[originalTaskIndex];
+    if (!filterFunc(task, originalTaskIndex)) {
+      return;
+    }
+    displayOrder.push(fromOriginalToNewIndex.get(originalTaskIndex)!);
+  });
+
   return ok({
-    Edges: edges,
-    Vertices: tasks,
+    chartLike: {
+      Edges: edges,
+      Vertices: tasks,
+    },
+    displayOrder: displayOrder,
   });
 };
