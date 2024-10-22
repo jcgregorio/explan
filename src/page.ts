@@ -376,7 +376,7 @@ const simulate = () => {
 
   const critialTasks: Map<number, CriticalPathTaskEntry> = new Map();
 
-  allCriticalPaths.forEach((value: CriticalPathEntry, key: string) => {
+  allCriticalPaths.forEach((value: CriticalPathEntry) => {
     value.tasks.forEach((taskIndex: number) => {
       let taskEntry = critialTasks.get(taskIndex);
       if (taskEntry === undefined) {

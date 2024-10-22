@@ -1,6 +1,6 @@
 import { assert } from "@esm-bundle/chai";
 import { Task } from "../chart/chart.ts";
-import { Plan } from "../plan/plan.ts";
+import { Plan, StaticResourceDefinitions } from "../plan/plan.ts";
 import {
   AddResourceOp,
   AddResourceOptionOp,
@@ -13,6 +13,7 @@ import {
 } from "../ops/resources.ts";
 import { applyAllOpsToPlan } from "./ops.ts";
 import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil.ts";
+import { ResourceDefinition } from "../resources/resources.ts";
 
 describe("SetResourceValueOp", () => {
   it("Fails if the key is not a valid resource.", () => {
@@ -51,14 +52,11 @@ describe("AddResourceOp/DeleteResourceOp", () => {
       AddResourceOp("Who"),
       TOp((plan: Plan) => {
         assert.deepEqual(plan.resourceDefinitions, {
-          Uncertainty: {
-            values: ["low", "moderate", "high", "extreme"],
-            isStatic: true,
-          },
+          Uncertainty: StaticResourceDefinitions.Uncertainty,
           Who: {
             values: [""],
             isStatic: false,
-          },
+          } as ResourceDefinition,
         });
 
         // Confirm each task was updated.
@@ -110,14 +108,11 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
       T2Op((plan: Plan, isForward: boolean) => {
         if (isForward) {
           assert.deepEqual(plan.resourceDefinitions, {
-            Uncertainty: {
-              values: ["low", "moderate", "high", "extreme"],
-              isStatic: true,
-            },
+            Uncertainty: StaticResourceDefinitions.Uncertainty,
             Who: {
               values: [""],
               isStatic: false,
-            },
+            } as ResourceDefinition,
           });
 
           // Confirm that in both forward and back direction the task value for
@@ -129,14 +124,11 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
       T2Op((plan: Plan, isForward: boolean) => {
         if (isForward) {
           assert.deepEqual(plan.resourceDefinitions, {
-            Uncertainty: {
-              values: ["low", "moderate", "high", "extreme"],
-              isStatic: true,
-            },
+            Uncertainty: StaticResourceDefinitions.Uncertainty,
             Who: {
               values: ["", "Fred"],
               isStatic: false,
-            },
+            } as ResourceDefinition,
           });
 
           // Check that the task resource values remain unchanged.
@@ -244,14 +236,11 @@ describe("RenameResourceOp", () => {
       AddResourceOptionOp("Who", "Barney"),
       T2Op((plan: Plan) => {
         assert.deepEqual(plan.resourceDefinitions, {
-          Uncertainty: {
-            values: ["low", "moderate", "high", "extreme"],
-            isStatic: true,
-          },
+          Uncertainty: StaticResourceDefinitions.Uncertainty,
           Who: {
             values: ["", "Fred", "Barney"],
             isStatic: false,
-          },
+          } as ResourceDefinition,
         });
 
         assert.equal(plan.chart.Vertices[1].getResource("Who"), "");
@@ -313,14 +302,11 @@ describe("RenameResourceOptionOp", () => {
       AddResourceOptionOp("Who", "Barney"),
       T2Op((plan: Plan) => {
         assert.deepEqual(plan.resourceDefinitions, {
-          Uncertainty: {
-            values: ["low", "moderate", "high", "extreme"],
-            isStatic: true,
-          },
+          Uncertainty: StaticResourceDefinitions.Uncertainty,
           Who: {
             values: ["", "Fred", "Barney"],
             isStatic: false,
-          },
+          } as ResourceDefinition,
         });
 
         assert.equal(plan.chart.Vertices[1].getResource("Who"), "");
@@ -380,27 +366,21 @@ describe("MoveResourceOptionSubOp", () => {
       AddResourceOptionOp("Who", "Barney"),
       T2Op((plan: Plan) => {
         assert.deepEqual(plan.resourceDefinitions, {
-          Uncertainty: {
-            values: ["low", "moderate", "high", "extreme"],
-            isStatic: true,
-          },
+          Uncertainty: StaticResourceDefinitions.Uncertainty,
           Who: {
             values: ["", "Fred", "Barney"],
             isStatic: false,
-          },
+          } as ResourceDefinition,
         });
       }),
       MoveResourceOptionOp("Who", 1, 2),
       TOp((plan: Plan) => {
         assert.deepEqual(plan.resourceDefinitions, {
-          Uncertainty: {
-            values: ["low", "moderate", "high", "extreme"],
-            isStatic: true,
-          },
+          Uncertainty: StaticResourceDefinitions.Uncertainty,
           Who: {
             values: ["", "Barney", "Fred"],
             isStatic: false,
-          },
+          } as ResourceDefinition,
         });
       }),
     ]);
