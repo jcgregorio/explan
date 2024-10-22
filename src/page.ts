@@ -45,23 +45,17 @@ const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
 };
 
-const DURATION = 1000;
+const DURATION = 100;
 
 const rndDuration = (): number => {
-  return rndInt(DURATION) / 3;
+  return rndInt(DURATION);
 };
 
 const people: string[] = ["Fred", "Barney", "Wilma", "Betty"];
 
 const rndName = (): string => `${String.fromCharCode(65 + rndInt(26))}`;
 
-const ops: Op[] = [
-  AddResourceOp("Person"),
-  AddMetricOp(
-    "Foo",
-    new MetricDefinition(0.1, new MetricRange(0, 100), false, new Precision(1))
-  ),
-];
+const ops: Op[] = [AddResourceOp("Person")];
 
 people.forEach((person: string) => {
   ops.push(AddResourceOptionOp("Person", person));
