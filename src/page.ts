@@ -1,14 +1,12 @@
 import { Task } from "./chart/chart.ts";
 import { edgesBySrcAndDstToMap } from "./dag/dag.ts";
-import { MetricDefinition } from "./metrics/metrics.ts";
-import { MetricRange } from "./metrics/range.ts";
 import {
   DupTaskOp,
   InsertNewEmptyTaskAfterOp,
   SetTaskNameOp,
   SplitTaskOp,
 } from "./ops/chart.ts";
-import { AddMetricOp, SetMetricValueOp } from "./ops/metrics.ts";
+import { SetMetricValueOp } from "./ops/metrics.ts";
 import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
 import {
   AddResourceOp,
