@@ -26,6 +26,8 @@ describe("filter", () => {
 
   it("returns a chart unchanged if the filterFunc is null", () => {
     const plan = newPlan();
+
+    // Supply a null filter.
     const ret = filter(plan.chart, null);
     assert.isTrue(ret.ok);
     assert.deepEqual(plan.chart, ret.value.chartLike);
@@ -36,6 +38,8 @@ describe("filter", () => {
 
   it("returns a chart with no tasks, even start and finish are filtered out", () => {
     const plan = newPlan();
+
+    // Filter out all tasks.
     const ret = filter(plan.chart, () => false);
     assert.isTrue(ret.ok);
     assert.equal(ret.value.chartLike.Vertices.length, 0);
