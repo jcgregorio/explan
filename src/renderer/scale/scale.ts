@@ -107,6 +107,10 @@ export class Scale {
       // choppy when large ranges of the chart are selected. One way to fix this
       // might be to let this.dayWidthPx be a floating point value and then
       // apply Math.floor() calls to feature() results.
+
+      // FIXME - It's possible dayWidthPx comes out to 0, which causes the
+      // rendering to be all sqished into a single vertical line. Fix could be
+      // same as above, i.e. allow dayWidthPx to be a float.
       this.dayWidthPx = Math.floor(
         (canvasWidthPx - this.groupByColumnWidthPx - 2 * this.marginSizePx) /
           totalNumberOfDays
