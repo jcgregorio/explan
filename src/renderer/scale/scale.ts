@@ -103,27 +103,19 @@ export class Scale {
 
     let beginOffset = 0;
     if (opts.displayRange === null || opts.displayRangeUsage === "highlight") {
-      // TODO - The Math.floor() call here causes zooming to start to look
-      // choppy when large ranges of the chart are selected. One way to fix this
-      // might be to let this.dayWidthPx be a floating point value and then
-      // apply Math.floor() calls to feature() results.
-
-      // FIXME - It's possible dayWidthPx comes out to 0, which causes the
-      // rendering to be all sqished into a single vertical line. Fix could be
-      // same as above, i.e. allow dayWidthPx to be a float.
-      this.dayWidthPx = Math.floor(
+      // Do not force dayWidthPx to an integer, it could go to 0 and cause all
+      // tasks to be rendered at 0 width.
+      this.dayWidthPx =
         (canvasWidthPx - this.groupByColumnWidthPx - 2 * this.marginSizePx) /
-          totalNumberOfDays
-      );
+        totalNumberOfDays;
       this.origin = new Point(0, 0);
     } else {
       // Should we set x-margins to 0 if a SubRange is requested?
       // Or should we totally drop all margins from here and just use
       // CSS margins on the canvas element?
-      this.dayWidthPx = Math.floor(
+      this.dayWidthPx =
         (canvasWidthPx - this.groupByColumnWidthPx - 2 * this.marginSizePx) /
-          opts.displayRange.rangeInDays
-      );
+        opts.displayRange.rangeInDays;
       beginOffset = Math.floor(
         this.dayWidthPx * opts.displayRange.begin + this.marginSizePx
       );
@@ -182,8 +174,12 @@ export class Scale {
   private taskRowEnvelopeStart(row: number, day: number): Point {
     return this.origin.sum(
       new Point(
-        day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx,
-        row * this.rowHeightPx + this.marginSizePx + this.timelineHeightPx
+        Math.floor(
+          day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx
+        ),
+        Math.floor(
+          row * this.rowHeightPx + this.marginSizePx + this.timelineHeightPx
+        )
       )
     );
   }

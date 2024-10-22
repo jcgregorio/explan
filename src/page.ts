@@ -45,7 +45,7 @@ const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
 };
 
-const DURATION = 100;
+const DURATION = 1000;
 
 const rndDuration = (): number => {
   return rndInt(DURATION);
