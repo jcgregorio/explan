@@ -337,9 +337,7 @@ const simulate = () => {
 
   let display = "";
   allCriticalPaths.forEach((value: CriticalPathEntry, key: string) => {
-    display =
-      display +
-      `\n <li data-key=${key}>${value.count} : ${key} : ${value.durations.join(", ")}</li>`;
+    display = display + `\n <li data-key=${key}>${value.count} : ${key}</li>`;
   });
 
   const critialPaths =
