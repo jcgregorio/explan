@@ -28,7 +28,7 @@ describe("filter", () => {
     const plan = newPlan();
 
     // Supply a null filter.
-    const ret = filter(plan.chart, null, []);
+    const ret = filter(plan.chart, null, [], []);
     assert.isTrue(ret.ok);
     assert.deepEqual(plan.chart, ret.value.chartLike);
     const vret = validateChart(plan.chart);
@@ -40,7 +40,7 @@ describe("filter", () => {
     const plan = newPlan();
 
     // Filter out all tasks.
-    const ret = filter(plan.chart, () => false, []);
+    const ret = filter(plan.chart, () => false, [], []);
     assert.isTrue(ret.ok);
     assert.equal(ret.value.chartLike.Vertices.length, 0);
   });
@@ -56,6 +56,7 @@ describe("filter", () => {
       (task: Task): boolean => {
         return task.name !== "Fred";
       },
+      [],
       []
     );
     assert.isTrue(ret.ok);
