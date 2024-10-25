@@ -296,20 +296,6 @@ const paintOneChart = (
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
 
-  // Now update the canvas height so that it fits the chart being drawn.
-  // TODO Turn this into an option since we won't always want this.
-
-  if (1) {
-    // TODO - This should be done after filtering.
-    const newHeight = suggestedCanvasHeight(
-      canvas,
-      spans,
-      opts,
-      plan.chart.Vertices.length + 2 // TODO - Why do we need the +2 here!?
-    );
-    canvas.height = newHeight;
-    canvas.style.height = `${newHeight / ratio}px`;
-  }
   const ctx = canvas.getContext("2d")!;
   ctx.imageSmoothingEnabled = false;
 
