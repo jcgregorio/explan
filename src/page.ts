@@ -189,6 +189,18 @@ const paintChart = () => {
 
   const themeColors: Theme = colorThemeFromElement(document.body);
 
+  let filterFunc: FilterFunc | null = null;
+  if (criticalPathsOnly) {
+    const highlightSet = new Set(criticalPath);
+    const startAndFinish = [0, plan.chart.Vertices.length - 1];
+    filterFunc = (task: Task, taskIndex: number): boolean => {
+      if (startAndFinish.includes(taskIndex)) {
+        return true;
+      }
+      return highlightSet.has(taskIndex);
+    };
+  }
+
   const radarOpts: RenderOptions = {
     fontSizePx: 6,
     hasText: false,
@@ -211,18 +223,6 @@ const paintChart = () => {
     filterFunc: null,
     groupByResource: groupByOptions[groupByOptionsIndex],
   };
-
-  let filterFunc: FilterFunc | null = null;
-  if (criticalPathsOnly) {
-    const highlightSet = new Set(criticalPath);
-    const startAndFinish = [0, plan.chart.Vertices.length - 1];
-    filterFunc = (task: Task, taskIndex: number): boolean => {
-      if (startAndFinish.includes(taskIndex)) {
-        return true;
-      }
-      return highlightSet.has(taskIndex);
-    };
-  }
 
   const zoomOpts: RenderOptions = {
     fontSizePx: FONT_SIZE_PX,
@@ -266,7 +266,7 @@ const paintChart = () => {
     drawTimeMarkersOnTasks: true,
     taskLabel: taskLabel,
     taskHighlights: criticalPath,
-    filterFunc: null,
+    filterFunc: filterFunc,
     groupByResource: groupByOptions[groupByOptionsIndex],
   };
 
