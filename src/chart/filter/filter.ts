@@ -1,5 +1,6 @@
 import { DirectedEdge, Edges } from "../../dag/dag";
 import { ok, Result } from "../../result";
+import { Span } from "../../slack/slack";
 import { Chart, Task, Tasks, validateChart } from "../chart";
 
 export interface ChartLike {
@@ -11,6 +12,7 @@ export interface FilterResult {
   chartLike: ChartLike;
   displayOrder: number[];
   highlightedTasks: number[];
+  spans: Span[];
 }
 
 export type FilterFunc = (task: Task, index: number) => boolean;
@@ -18,7 +20,8 @@ export type FilterFunc = (task: Task, index: number) => boolean;
 export const filter = (
   chart: Chart,
   filterFunc: FilterFunc | null,
-  highlightedTasks: number[]
+  highlightedTasks: number[],
+  spans: Span[]
 ): Result<FilterResult> => {
   const vret = validateChart(chart);
   if (!vret.ok) {
@@ -30,11 +33,13 @@ export const filter = (
       chartLike: chart,
       displayOrder: vret.value,
       highlightedTasks: highlightedTasks,
+      spans,
     });
   }
   const tasks: Tasks = [];
   const edges: Edges = [];
   const displayOrder: number[] = [];
+  const filteredSpans: Span[] = [];
 
   const fromOriginalToNewIndex: Map<number, number> = new Map();
 
@@ -42,6 +47,7 @@ export const filter = (
   chart.Vertices.forEach((task: Task, originalIndex: number) => {
     if (filterFunc(task, originalIndex)) {
       tasks.push(task);
+      filteredSpans.push(spans[originalIndex]);
       const newIndex = tasks.length - 1;
       fromOriginalToNewIndex.set(originalIndex, newIndex);
     }
@@ -83,5 +89,6 @@ export const filter = (
     },
     displayOrder: displayOrder,
     highlightedTasks: updatedHighlightedTasks,
+    spans: filteredSpans,
   });
 };

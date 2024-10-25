@@ -168,7 +168,8 @@ export function renderTasksToCanvas(
   }
 
   // Apply the filter and work with the ChartLike return from this point on.
-  const fret = filter(plan.chart, opts.filterFunc, opts.taskHighlights);
+  // Fitler also needs to be applied to spans.
+  const fret = filter(plan.chart, opts.filterFunc, opts.taskHighlights, spans);
   if (!fret.ok) {
     return fret;
   }
@@ -177,6 +178,7 @@ export function renderTasksToCanvas(
 
   // Highlighted tasks.
   const taskHighlights: Set<number> = new Set(fret.value.highlightedTasks);
+  spans = fret.value.spans;
 
   // Calculate how wide we need to make the groupBy column.
   let maxGroupNameLength = 0;

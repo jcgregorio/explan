@@ -1,4 +1,5 @@
 import { Task } from "./chart/chart.ts";
+import { FilterFunc } from "./chart/filter/filter.ts";
 import { edgesBySrcAndDstToMap } from "./dag/dag.ts";
 import {
   DupTaskOp,
@@ -171,6 +172,18 @@ document.querySelector("#group-by-toggle")!.addEventListener("click", () => {
   paintChart();
 });
 
+let criticalPathsOnly = false;
+const toggleCriticalPathsOnly = () => {
+  criticalPathsOnly = !criticalPathsOnly;
+};
+
+document
+  .querySelector("#critical-paths-toggle")!
+  .addEventListener("click", () => {
+    toggleCriticalPathsOnly();
+    paintChart();
+  });
+
 const paintChart = () => {
   console.time("paintChart");
 
@@ -199,6 +212,18 @@ const paintChart = () => {
     groupByResource: groupByOptions[groupByOptionsIndex],
   };
 
+  let filterFunc: FilterFunc | null = null;
+  if (criticalPathsOnly) {
+    const highlightSet = new Set(criticalPath);
+    const startAndFinish = [0, plan.chart.Vertices.length - 1];
+    filterFunc = (task: Task, taskIndex: number): boolean => {
+      if (startAndFinish.includes(taskIndex)) {
+        return true;
+      }
+      return highlightSet.has(taskIndex);
+    };
+  }
+
   const zoomOpts: RenderOptions = {
     fontSizePx: FONT_SIZE_PX,
     hasText: true,
@@ -218,7 +243,7 @@ const paintChart = () => {
     drawTimeMarkersOnTasks: true,
     taskLabel: taskLabel,
     taskHighlights: criticalPath,
-    filterFunc: null,
+    filterFunc: filterFunc,
     groupByResource: groupByOptions[groupByOptionsIndex],
   };
 
