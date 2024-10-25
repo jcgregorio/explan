@@ -300,6 +300,7 @@ const paintOneChart = (
   // TODO Turn this into an option since we won't always want this.
 
   if (1) {
+    // TODO - This should be done after filtering.
     const newHeight = suggestedCanvasHeight(
       canvas,
       spans,
