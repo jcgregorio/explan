@@ -1,6 +1,6 @@
 import { Task, validateChart } from "../chart/chart.ts";
-import { FilterFunc } from "../chart/filter/filter.ts";
-import { DirectedEdge } from "../dag/dag.ts";
+import { ChartLike, filter, FilterFunc } from "../chart/filter/filter.ts";
+import { DirectedEdge, VertexIndices } from "../dag/dag.ts";
 import { Plan } from "../plan/plan.ts";
 import { ResourceDefinition } from "../resources/resources.ts";
 import { Result, ok } from "../result.ts";
@@ -167,14 +167,21 @@ export function renderTasksToCanvas(
     return vret;
   }
 
+  // Apply the filter and work with the ChartLike return from this point on.
+  const fret = filter(plan.chart, opts.filterFunc, opts.taskHighlights);
+  if (!fret.ok) {
+    return fret;
+  }
+  const chartLike = fret.value.chartLike;
+  const resourceDefinition = plan.getResourceDefinition(opts.groupByResource);
+
   // Highlighted tasks.
-  const taskHighlights: Set<number> = new Set(opts.taskHighlights);
+  const taskHighlights: Set<number> = new Set(fret.value.highlightedTasks);
 
   // Calculate how wide we need to make the groupBy column.
   let maxGroupNameLength = 0;
   if (opts.groupByResource !== "" && opts.hasText) {
     maxGroupNameLength = opts.groupByResource.length;
-    const resourceDefinition = plan.getResourceDefinition(opts.groupByResource);
     if (resourceDefinition !== undefined) {
       resourceDefinition.values.forEach((value: string) => {
         maxGroupNameLength = Math.max(maxGroupNameLength, value.length);
@@ -197,13 +204,17 @@ export function renderTasksToCanvas(
   const arrowHeadHeight = scale.metric(Metric.arrowHeadHeight);
   const arrowHeadWidth = scale.metric(Metric.arrowHeadWidth);
   const daysWithTimeMarkers: Set<number> = new Set();
-  const tiret = taskIndexToRowFromGroupBy(opts, plan);
+  const tiret = taskIndexToRowFromGroupBy(
+    opts,
+    resourceDefinition,
+    chartLike,
+    fret.value.displayOrder
+  );
   if (!tiret.ok) {
     return tiret;
   }
   const taskIndexToRow = tiret.value.taskIndexToRow;
   const rowRanges = tiret.value.rowRanges;
-  const resourceDefinition = tiret.value.resourceDefinition;
 
   // Set up canvas basics.
   clearCanvas(ctx, opts, canvas);
@@ -236,7 +247,7 @@ export function renderTasksToCanvas(
       );
     }
 
-    if (resourceDefinition !== null && opts.hasText) {
+    if (resourceDefinition !== undefined && opts.hasText) {
       drawSwimLaneLabels(ctx, opts, resourceDefinition, scale, rowRanges);
     }
   }
@@ -247,7 +258,7 @@ export function renderTasksToCanvas(
   ctx.save();
   ctx.clip(clipRegion);
   // Draw tasks in their rows.
-  plan.chart.Vertices.forEach((task: Task, taskIndex: number) => {
+  chartLike.Vertices.forEach((task: Task, taskIndex: number) => {
     const row = taskIndexToRow.get(taskIndex)!;
     const span = spans[taskIndex];
     const taskStart = scale.feature(row, span.start, Feature.taskLineStart);
@@ -298,7 +309,7 @@ export function renderTasksToCanvas(
   if (opts.hasEdges && opts.hasTasks) {
     const highlightedEdges: DirectedEdge[] = [];
     const normalEdges: DirectedEdge[] = [];
-    plan.chart.Edges.forEach((e: DirectedEdge) => {
+    chartLike.Edges.forEach((e: DirectedEdge) => {
       if (
         opts.taskHighlights.includes(e.i) &&
         opts.taskHighlights.includes(e.j)
@@ -315,7 +326,7 @@ export function renderTasksToCanvas(
       opts,
       normalEdges,
       spans,
-      plan.chart.Vertices,
+      chartLike.Vertices,
       scale,
       taskIndexToRow,
       arrowHeadWidth,
@@ -327,7 +338,7 @@ export function renderTasksToCanvas(
       opts,
       highlightedEdges,
       spans,
-      plan.chart.Vertices,
+      chartLike.Vertices,
       scale,
       taskIndexToRow,
       arrowHeadWidth,
@@ -721,16 +732,10 @@ interface TaskIndexToRowReturn {
 
 const taskIndexToRowFromGroupBy = (
   opts: RenderOptions,
-  plan: Plan
+  resourceDefinition: ResourceDefinition | undefined,
+  chartLike: ChartLike,
+  topologicalOrder: VertexIndices
 ): Result<TaskIndexToRowReturn> => {
-  const vret = validateChart(plan.chart);
-  if (!vret.ok) {
-    return vret;
-  }
-  const topologicalOrder = vret.value;
-
-  const resource = plan.getResourceDefinition(opts.groupByResource);
-
   // topologicalOrder maps from row to task index, this will produce the inverse mapping.
   const taskIndexToRow = new Map(
     // This looks backwards, but it isn't. Remember that the map callback takes
@@ -738,7 +743,7 @@ const taskIndexToRowFromGroupBy = (
     topologicalOrder.map((taskIndex: number, row: number) => [taskIndex, row])
   );
 
-  if (resource === undefined) {
+  if (resourceDefinition === undefined) {
     return ok({
       taskIndexToRow: taskIndexToRow,
       rowRanges: null,
@@ -747,7 +752,7 @@ const taskIndexToRowFromGroupBy = (
   }
 
   const startTaskIndex = 0;
-  const finishTaskIndex = plan.chart.Vertices.length - 1;
+  const finishTaskIndex = chartLike.Vertices.length - 1;
   const ignorable = [startTaskIndex, finishTaskIndex];
 
   // Group all tasks by their resource value, while preserving topological
@@ -755,7 +760,7 @@ const taskIndexToRowFromGroupBy = (
   const groups = new Map<string, number[]>();
   topologicalOrder.forEach((taskIndex: number) => {
     const resourceValue =
-      plan.chart.Vertices[taskIndex].getResource(opts.groupByResource) || "";
+      chartLike.Vertices[taskIndex].getResource(opts.groupByResource) || "";
     const groupMembers = groups.get(resourceValue) || [];
     groupMembers.push(taskIndex);
     groups.set(resourceValue, groupMembers);
@@ -771,23 +776,25 @@ const taskIndexToRowFromGroupBy = (
   let row = 1;
   // And track how many rows are in each group.
   const rowRanges: Map<number, RowRange> = new Map();
-  resource.values.forEach((resourceValue: string, resourceIndex: number) => {
-    const startOfRow = row;
-    (groups.get(resourceValue) || []).forEach((taskIndex: number) => {
-      if (ignorable.includes(taskIndex)) {
-        return;
-      }
-      ret.set(taskIndex, row);
-      row++;
-    });
-    rowRanges.set(resourceIndex, { start: startOfRow, finish: row });
-  });
+  resourceDefinition.values.forEach(
+    (resourceValue: string, resourceIndex: number) => {
+      const startOfRow = row;
+      (groups.get(resourceValue) || []).forEach((taskIndex: number) => {
+        if (ignorable.includes(taskIndex)) {
+          return;
+        }
+        ret.set(taskIndex, row);
+        row++;
+      });
+      rowRanges.set(resourceIndex, { start: startOfRow, finish: row });
+    }
+  );
   ret.set(finishTaskIndex, row);
 
   return ok({
     taskIndexToRow: ret,
     rowRanges: rowRanges,
-    resourceDefinition: resource,
+    resourceDefinition: resourceDefinition,
   });
 };
 
