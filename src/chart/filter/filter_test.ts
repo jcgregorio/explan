@@ -5,11 +5,17 @@ import { InsertNewEmptyTaskAfterOp, SetTaskNameOp } from "../../ops/chart";
 import { filter } from "./filter";
 import { Task, validateChart } from "../chart";
 import { DirectedEdge } from "../../dag/dag";
+import { Span } from "../../slack/slack";
 
 describe("filter", () => {
   const newPlan = (): Plan => {
     const plan = new Plan();
 
+    // Create a simple chart of:
+    //   0 -> Barney -> 3
+    //   0 -> Fred -> 3
+    //
+    // In the order: Start, Barney, Fred, Finish.
     const res = applyAllOpsToPlan(
       [
         InsertNewEmptyTaskAfterOp(0),
@@ -54,9 +60,9 @@ describe("filter", () => {
     const ret = filter(
       plan.chart,
       (task: Task): boolean => {
-        return task.name !== "Fred";
+        return task.name !== "Barney";
       },
-      [],
+      [2],
       []
     );
     assert.isTrue(ret.ok);
@@ -64,5 +70,6 @@ describe("filter", () => {
       new DirectedEdge(0, 1),
       new DirectedEdge(1, 2),
     ]);
+    assert.deepEqual(ret.value.highlightedTasks, [1]);
   });
 });
