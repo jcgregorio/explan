@@ -6,8 +6,13 @@ import { Rounder } from "../types/types.ts";
 /** Span represents when a task will be done, i.e. it contains the time the task
  * is expected to begin and end. */
 export class Span {
-  start: number = 0;
-  finish: number = 0;
+  start: number;
+  finish: number;
+
+  constructor(start: number = 0, finish: number = 0) {
+    this.start = start;
+    this.finish = finish;
+  }
 }
 
 /** The standard slack calculation values. */

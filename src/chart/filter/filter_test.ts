@@ -54,16 +54,16 @@ describe("filter", () => {
   it("returns edges that are updated to point to the new Task locations", () => {
     const plan = newPlan();
 
-    // Filter out only the Task named "Fred", which is task #1, which means that
-    // the "Barney" task will bump down to spot #1, ensure that the edges
+    // Filter out only the Task named "Barney", which is task #1, which means
+    // that the "Fred" task will bump down to spot #1, ensure that the edges
     // returned also reflect that.
     const ret = filter(
       plan.chart,
       (task: Task): boolean => {
         return task.name !== "Barney";
       },
-      [2],
-      []
+      [2], // Fred is highlighted, test that this moves to [1] after filtering.
+      [new Span(0, 0), new Span(0, 7), new Span(5, 9), new Span(9, 9)] // Confirm the (0,7) for Fred gets removed.
     );
     assert.isTrue(ret.ok);
     assert.deepEqual(ret.value.chartLike.Edges, [
@@ -71,5 +71,10 @@ describe("filter", () => {
       new DirectedEdge(1, 2),
     ]);
     assert.deepEqual(ret.value.highlightedTasks, [1]);
+    assert.deepEqual(ret.value.spans, [
+      new Span(0, 0),
+      new Span(5, 9),
+      new Span(9, 9),
+    ]);
   });
 });
