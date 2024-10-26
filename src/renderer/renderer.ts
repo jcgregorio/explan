@@ -470,10 +470,6 @@ function drawArrowBetweenTasks(
   arrowHeadHeight: number
 ) {
   if (srcDay === dstDay) {
-    // TODO - Once we can present things in an order besides topological sort,
-    // e.g. allow grouping into swimlanes by resource, then these arrows might
-    // start pointing up, so both the arrow start and arrow head direction
-    // might change and need to depend on the direction from srcRow to dstRow.
     drawVerticalArrowToTask(
       ctx,
       scale,

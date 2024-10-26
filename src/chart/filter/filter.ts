@@ -69,6 +69,7 @@ export const filter = (
     );
   });
 
+  // Now filter and reindex the topological/display order.
   topologicalOrder.forEach((originalTaskIndex: number) => {
     const task: Task = chart.Vertices[originalTaskIndex];
     if (!filterFunc(task, originalTaskIndex)) {
@@ -77,6 +78,7 @@ export const filter = (
     displayOrder.push(fromOriginalToNewIndex.get(originalTaskIndex)!);
   });
 
+  // Re-index highlighted tasks.
   const updatedHighlightedTasks = highlightedTasks.map(
     (originalTaskIndex: number): number =>
       fromOriginalToNewIndex.get(originalTaskIndex)!
