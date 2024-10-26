@@ -525,12 +525,6 @@ function drawLShapedArrowToTask(
   arrowHeadHeight: number,
   arrowHeadWidth: number
 ) {
-  // TODO - Once we can present things in an order besides topological sort,
-  // e.g. allow grouping into swimlanes by resource, then the vertical
-  // section of the "L" might start pointing up, so both the
-  // verticalArrowStart and verticalArrowDest locations might change and
-  // need to depend on the direction from srcRow to dstRow.
-
   // Draw vertical part of the "L".
   ctx.beginPath();
   const direction: Direction = srcRow < dstRow ? "down" : "up";
