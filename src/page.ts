@@ -455,6 +455,11 @@ fileUpload.addEventListener("change", async () => {
   paintChart();
 });
 
+document.querySelector("#simulate")!.addEventListener("click", () => {
+  simulate();
+  paintChart();
+});
+
 simulate();
 paintChart();
 window.addEventListener("resize", paintChart);
