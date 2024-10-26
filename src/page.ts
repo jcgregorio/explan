@@ -26,7 +26,6 @@ import {
   RenderOptions,
   TaskLabel,
   renderTasksToCanvas,
-  suggestedCanvasHeight,
 } from "./renderer/renderer.ts";
 import { Scale } from "./renderer/scale/scale.ts";
 import { Result } from "./result.ts";
@@ -140,6 +139,10 @@ const dragRangeHandler = (e: CustomEvent<DragRange>) => {
 };
 
 radar.addEventListener(DRAG_RANGE_EVENT, dragRangeHandler as EventListener);
+document.querySelector("#reset-zoom")!.addEventListener("click", () => {
+  displayRange = null;
+  paintChart();
+});
 
 document.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
   console.log("click");
