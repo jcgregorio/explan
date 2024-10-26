@@ -419,7 +419,6 @@ const simulate = () => {
   document.querySelector("#criticalTasks")!.innerHTML = critialTasksTable;
 
   // Show all tasks that could be on the critical path.
-
   recalculateSpan();
   criticalPath = criticalTasksDurationDescending.map(
     (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex
@@ -427,7 +426,6 @@ const simulate = () => {
   paintChart();
 
   // Populate the download link.
-
   const download = document.querySelector<HTMLLinkElement>("#download")!;
   console.log(JSON.stringify(plan, null, "  "));
   const downloadBlob = new Blob([JSON.stringify(plan, null, "  ")], {
