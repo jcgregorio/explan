@@ -736,13 +736,13 @@ const taskIndexToRowFromGroupBy = (
   opts: RenderOptions,
   resourceDefinition: ResourceDefinition | undefined,
   chartLike: ChartLike,
-  topologicalOrder: VertexIndices
+  displayOrder: VertexIndices
 ): Result<TaskIndexToRowReturn> => {
-  // topologicalOrder maps from row to task index, this will produce the inverse mapping.
+  // displayOrder maps from row to task index, this will produce the inverse mapping.
   const taskIndexToRow = new Map(
     // This looks backwards, but it isn't. Remember that the map callback takes
     // (value, index) as its arguments.
-    topologicalOrder.map((taskIndex: number, row: number) => [taskIndex, row])
+    displayOrder.map((taskIndex: number, row: number) => [taskIndex, row])
   );
 
   if (resourceDefinition === undefined) {
@@ -757,10 +757,10 @@ const taskIndexToRowFromGroupBy = (
   const finishTaskIndex = chartLike.Vertices.length - 1;
   const ignorable = [startTaskIndex, finishTaskIndex];
 
-  // Group all tasks by their resource value, while preserving topological
+  // Group all tasks by their resource value, while preserving displayOrder
   // order with the groups.
   const groups = new Map<string, number[]>();
-  topologicalOrder.forEach((taskIndex: number) => {
+  displayOrder.forEach((taskIndex: number) => {
     const resourceValue =
       chartLike.Vertices[taskIndex].getResource(opts.groupByResource) || "";
     const groupMembers = groups.get(resourceValue) || [];
