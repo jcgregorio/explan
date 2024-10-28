@@ -9,17 +9,19 @@
 
       .panels {
         grid-area: panels;
+
+        ul li {
+          cursor: pointer;
+        }
       }
 
       .chart {
         grid-area: chart;
-
         overflow-y: scroll;
-        scrollbar-gutter: stable;
 
         .timeline {
-            position: sticky;
-            top: 0;
+          position: sticky;
+          top: 0;
         }
       }
 
@@ -56,11 +58,7 @@
         padding: 8px;
       }
 
-      ul li {
-        cursor: pointer;
-      }
-
-      #radar-parent.hidden {
+      .hidden {
         display: none;
       }
 
@@ -137,7 +135,7 @@
         </chart-parent>
       </header>
       <div class="chart">
-        <chart-parent class=timeline>
+        <chart-parent class="timeline">
           <canvas id="timeline" width="1000" height="1000"></canvas>
         </chart-parent>
         <chart-parent>
