@@ -47,7 +47,7 @@
         position: absolute;
       }
 
-      plan-parent {
+      chart-parent {
         display: block;
       }
 
@@ -132,17 +132,17 @@
           <a id="download" download="plan.json" href="">Download</a>
           <label> Upload <input type="file" id="file-upload" /></label>
         </nav>
-        <plan-parent id="radar-parent">
+        <chart-parent id="radar-parent">
           <canvas id="radar" width="1000" height="1000"></canvas>
-        </plan-parent>
+        </chart-parent>
       </header>
       <div class="chart">
-        <plan-parent class=timeline>
+        <chart-parent class=timeline>
           <canvas id="timeline" width="1000" height="1000"></canvas>
-        </plan-parent>
-        <plan-parent>
+        </chart-parent>
+        <chart-parent>
           <canvas id="zoomed" width="1000" height="1000"></canvas>
-        </plan-parent>
+        </chart-parent>
       </div>
       <div class="panels">
         <ul id="criticalPaths"></ul>
