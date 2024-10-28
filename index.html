@@ -1,123 +1,167 @@
 <html>
-
-<body class="darkmode">
+  <body class="darkmode">
     <style>
-        body {
-            background: var(--surface);
-            color: var(--onSurface);
-            margin: 0;
-        }
+      body {
+        background: var(--surface);
+        color: var(--onSurface);
+        margin: 0;
+      }
 
-        canvas {
-            font-size: 24px;
-        }
+      .panels {
+        grid-area: panels;
+      }
 
-        plan-parent {
-            width: 100%;
-            display: block;
-            margin-left: 8px;
-        }
+      .chart {
+        grid-area: chart;
 
-        nav {
-            display: flexbox;
-            padding-bottom: 8px;
-        }
+        overflow-y: scroll;
 
-        ul li {
-            cursor: pointer;
-        }
-
-        header {
+        #timeline {
             position: sticky;
             top: 0;
-            padding-top: 8px;
-            background-color: var(--surface);
         }
+      }
 
-        #radar-parent.hidden {
-            display: none;
-        }
+      header {
+        grid-area: header;
+      }
 
-        @property --groupColor {
-            syntax: "<color>";
-            inherits: true;
-            initial-value: rgb(0, 0, 0, 0);
-        }
+      footer {
+        grid-area: footer;
+      }
 
-        @property --surface {
-            syntax: "<color>";
-            inherits: true;
-            initial-value: #ddd;
-        }
+      .wrapper {
+        display: grid;
+        grid-gap: 10px;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-areas:
+          "header header header"
+          "chart chart panels"
+          "footer  footer  footer";
 
-        @property --onSurface {
-            syntax: "<color>";
-            inherits: true;
-            initial-value: rgb(34, 34, 34);
-        }
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        position: absolute;
+      }
 
-        @property --onSurfaceSecondary {
-            syntax: "<color>";
-            inherits: true;
-            initial-value: #2072c3;
-        }
+      canvas {
+        font-size: 24px;
+      }
 
-        @property --onSurfaceMuted {
-            syntax: "<color>";
-            inherits: true;
-            initial-value: rgba(34, 34, 34, 0.50);
-        }
+      plan-parent {
+        width: 100%;
+        display: block;
+        margin-left: 8px;
+      }
 
-        @property --overlay {
-            syntax: "<color>";
-            inherits: true;
-            initial-value: rgb(0, 0, 0, 0.25);
-        }
+      nav {
+        display: flexbox;
+        padding-bottom: 8px;
+      }
 
-        :root {
-            --surface: #fff;
-            --onSurface: hsl(0, 0%, 13%);
-            --onSurfaceMuted: hsl(0, 0%, 24%);
-            --onSurfaceSecondary: #c32020;
-            --overlay: rgb(0, 0, 0, 0.25);
-            --groupColor: rgba(90, 206, 6, 0.15);
-        }
+      ul li {
+        cursor: pointer;
+      }
 
-        :root .darkmode {
-            --surface: #000;
-            --onSurface: hsl(0, 0%, 87%);
-            --onSurfaceMuted: hsl(0, 0%, 74%);
-            --onSurfaceSecondary: #2072c3;
-            --overlay: rgb(255, 255, 255, 0.1);
-            --groupColor: rgba(89, 206, 6, 0.1);
-        }
+      header {
+        position: sticky;
+        top: 0;
+        padding-top: 8px;
+        background-color: var(--surface);
+      }
+
+      #radar-parent.hidden {
+        display: none;
+      }
+
+      @property --groupColor {
+        syntax: "<color>";
+        inherits: true;
+        initial-value: rgb(0, 0, 0, 0);
+      }
+
+      @property --surface {
+        syntax: "<color>";
+        inherits: true;
+        initial-value: #ddd;
+      }
+
+      @property --onSurface {
+        syntax: "<color>";
+        inherits: true;
+        initial-value: rgb(34, 34, 34);
+      }
+
+      @property --onSurfaceSecondary {
+        syntax: "<color>";
+        inherits: true;
+        initial-value: #2072c3;
+      }
+
+      @property --onSurfaceMuted {
+        syntax: "<color>";
+        inherits: true;
+        initial-value: rgba(34, 34, 34, 0.5);
+      }
+
+      @property --overlay {
+        syntax: "<color>";
+        inherits: true;
+        initial-value: rgb(0, 0, 0, 0.25);
+      }
+
+      :root {
+        --surface: #fff;
+        --onSurface: hsl(0, 0%, 13%);
+        --onSurfaceMuted: hsl(0, 0%, 24%);
+        --onSurfaceSecondary: #c32020;
+        --overlay: rgb(0, 0, 0, 0.25);
+        --groupColor: rgba(90, 206, 6, 0.15);
+      }
+
+      :root .darkmode {
+        --surface: #000;
+        --onSurface: hsl(0, 0%, 87%);
+        --onSurfaceMuted: hsl(0, 0%, 74%);
+        --onSurfaceSecondary: #2072c3;
+        --overlay: rgb(255, 255, 255, 0.1);
+        --groupColor: rgba(89, 206, 6, 0.1);
+      }
     </style>
-    <header>
+
+    <div class="wrapper">
+      <header>
         <nav>
-            <button id=dark-mode-toggle>Mode</button>
-            <button id=group-by-toggle>GroupBy</button>
-            <button id=radar-toggle>Radar</button>
-            <button id=top-timeline-toggle>Top Timeline</button>
-            <button id=critical-paths-toggle>Critical Paths</button>
-            <button id=reset-zoom>Reset Zoom</button>
-            <button id=simulate>Simulate</button>
-            <a id=download download="plan.json" href="">Download</a>
-            <label> Upload <input type="file" id="file-upload" /></label>
+          <button id="dark-mode-toggle">Mode</button>
+          <button id="group-by-toggle">GroupBy</button>
+          <button id="radar-toggle">Radar</button>
+          <button id="top-timeline-toggle">Top Timeline</button>
+          <button id="critical-paths-toggle">Critical Paths</button>
+          <button id="reset-zoom">Reset Zoom</button>
+          <button id="simulate">Simulate</button>
+          <a id="download" download="plan.json" href="">Download</a>
+          <label> Upload <input type="file" id="file-upload" /></label>
         </nav>
         <plan-parent id="radar-parent">
-            <canvas id="radar" width=1000 height="1000"></canvas>
+          <canvas id="radar" width="1000" height="1000"></canvas>
+        </plan-parent>
+      </header>
+      <div class="chart">
+        <plan-parent>
+          <canvas id="timeline" width="1000" height="1000"></canvas>
         </plan-parent>
         <plan-parent>
-            <canvas id="timeline" width=1000 height="1000"></canvas>
+          <canvas id="zoomed" width="1000" height="1000"></canvas>
         </plan-parent>
-    </header>
-    <plan-parent>
-        <canvas id="zoomed" width=1000 height="1000"></canvas>
-    </plan-parent>
-    <ul id="criticalPaths"></ul>
-    <table id="criticalTasks">
-    </table>
+      </div>
+      <div class="panels">
+        <ul id="criticalPaths"></ul>
+        <table id="criticalTasks"></table>
+      </div>
+      <footer>Footer</footer>
+    </div>
     <script type="module" src="./dst/page.js"></script>
-</body>
-
+  </body>
 </html>
