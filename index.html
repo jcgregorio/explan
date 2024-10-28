@@ -17,7 +17,7 @@
         overflow-y: scroll;
         scrollbar-gutter: stable;
 
-        #timeline {
+        .timeline {
             position: sticky;
             top: 0;
         }
@@ -47,29 +47,17 @@
         position: absolute;
       }
 
-      canvas {
-        font-size: 24px;
-      }
-
       plan-parent {
-        width: 100%;
         display: block;
       }
 
       nav {
-        display: flexbox;
-        padding-bottom: 8px;
+        display: flex;
+        padding: 8px;
       }
 
       ul li {
         cursor: pointer;
-      }
-
-      header {
-        position: sticky;
-        top: 0;
-        padding-top: 8px;
-        background-color: var(--surface);
       }
 
       #radar-parent.hidden {
@@ -149,7 +137,7 @@
         </plan-parent>
       </header>
       <div class="chart">
-        <plan-parent>
+        <plan-parent class=timeline>
           <canvas id="timeline" width="1000" height="1000"></canvas>
         </plan-parent>
         <plan-parent>
