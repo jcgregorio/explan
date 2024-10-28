@@ -51,7 +51,8 @@ const rndDuration = (): number => {
 
 const people: string[] = ["Fred", "Barney", "Wilma", "Betty"];
 
-const rndName = (): string => `${String.fromCharCode(65 + rndInt(26))}`;
+let taskID = 0;
+const rndName = (): string => `T ${taskID++}`;
 
 const ops: Op[] = [AddResourceOp("Person")];
 
