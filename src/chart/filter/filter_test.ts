@@ -34,7 +34,7 @@ describe("filter", () => {
     const plan = newPlan();
 
     // Supply a null filter.
-    const ret = filter(plan.chart, null, [], []);
+    const ret = filter(plan.chart, null, [], [], []);
     assert.isTrue(ret.ok);
     assert.deepEqual(plan.chart, ret.value.chartLike);
     const vret = validateChart(plan.chart);
@@ -46,7 +46,7 @@ describe("filter", () => {
     const plan = newPlan();
 
     // Filter out all tasks.
-    const ret = filter(plan.chart, () => false, [], []);
+    const ret = filter(plan.chart, () => false, [], [], []);
     assert.isTrue(ret.ok);
     assert.equal(ret.value.chartLike.Vertices.length, 0);
   });
@@ -63,7 +63,8 @@ describe("filter", () => {
         return task.name !== "Barney";
       },
       [2], // Fred is highlighted, test that this moves to [1] after filtering.
-      [new Span(0, 0), new Span(0, 7), new Span(5, 9), new Span(9, 9)] // Confirm the (0,7) for Fred gets removed.
+      [new Span(0, 0), new Span(0, 7), new Span(5, 9), new Span(9, 9)], // Confirm the (0,7) for Fred gets removed.
+      ["Start", "Barney", "Fred", "Finish"]
     );
     assert.isTrue(ret.ok);
     assert.deepEqual(ret.value.chartLike.Edges, [
@@ -76,5 +77,6 @@ describe("filter", () => {
       new Span(5, 9),
       new Span(9, 9),
     ]);
+    assert.deepEqual(ret.value.labels, ["Start", "Fred", "Finish"]);
   });
 });
