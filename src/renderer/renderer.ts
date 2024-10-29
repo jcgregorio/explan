@@ -167,13 +167,24 @@ export function renderTasksToCanvas(
     return vret;
   }
 
+  const originalLabels = plan.chart.Vertices.map(
+    (task: Task, taskIndex: number) => opts.taskLabel(taskIndex)
+  );
+
   // Apply the filter and work with the ChartLike return from this point on.
   // Fitler also needs to be applied to spans.
-  const fret = filter(plan.chart, opts.filterFunc, opts.taskHighlights, spans);
+  const fret = filter(
+    plan.chart,
+    opts.filterFunc,
+    opts.taskHighlights,
+    spans,
+    originalLabels
+  );
   if (!fret.ok) {
     return fret;
   }
   const chartLike = fret.value.chartLike;
+  const labels = fret.value.labels;
   const resourceDefinition = plan.getResourceDefinition(opts.groupByResource);
 
   // Highlighted tasks.
@@ -309,7 +320,17 @@ export function renderTasksToCanvas(
 
       // Skip drawing the text of the Start and Finish tasks.
       if (taskIndex !== 0 && taskIndex !== totalNumberOfRows - 1) {
-        drawTaskText(ctx, opts, scale, row, span, task, taskIndex, clipWidth);
+        drawTaskText(
+          ctx,
+          opts,
+          scale,
+          row,
+          span,
+          task,
+          taskIndex,
+          clipWidth,
+          labels
+        );
       }
     }
   });
@@ -608,12 +629,13 @@ function drawTaskText(
   span: Span,
   task: Task,
   taskIndex: number,
-  clipWidth: number
+  clipWidth: number,
+  labels: string[]
 ) {
   if (!opts.hasText) {
     return;
   }
-  const label = opts.taskLabel(taskIndex);
+  const label = labels[taskIndex];
 
   let xStartInTime = span.start;
   let xPixelDelta = 0;
@@ -638,11 +660,7 @@ function drawTaskText(
   ctx.fillStyle = opts.colors.onSurface;
   ctx.textBaseline = "top";
   const textStart = scale.feature(row, xStartInTime, Feature.textStart);
-  ctx.fillText(
-    opts.taskLabel(taskIndex),
-    textStart.x + xPixelDelta,
-    textStart.y
-  );
+  ctx.fillText(label, textStart.x + xPixelDelta, textStart.y);
 }
 
 function drawTaskBar(

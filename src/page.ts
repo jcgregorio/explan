@@ -69,7 +69,7 @@ ops.push(
 );
 
 let numTasks = 1;
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < 15; i++) {
   let index = rndInt(numTasks) + 1;
   ops.push(
     SplitTaskOp(index),

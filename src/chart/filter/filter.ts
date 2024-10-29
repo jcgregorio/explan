@@ -13,6 +13,7 @@ export interface FilterResult {
   displayOrder: number[];
   highlightedTasks: number[];
   spans: Span[];
+  labels: string[];
 }
 
 export type FilterFunc = (task: Task, index: number) => boolean;
@@ -21,7 +22,8 @@ export const filter = (
   chart: Chart,
   filterFunc: FilterFunc | null,
   highlightedTasks: number[],
-  spans: Span[]
+  spans: Span[],
+  labels: string[]
 ): Result<FilterResult> => {
   const vret = validateChart(chart);
   if (!vret.ok) {
@@ -34,12 +36,14 @@ export const filter = (
       displayOrder: vret.value,
       highlightedTasks: highlightedTasks,
       spans,
+      labels,
     });
   }
   const tasks: Tasks = [];
   const edges: Edges = [];
   const displayOrder: number[] = [];
   const filteredSpans: Span[] = [];
+  const filteredLabels: string[] = [];
 
   const fromOriginalToNewIndex: Map<number, number> = new Map();
 
@@ -48,6 +52,7 @@ export const filter = (
     if (filterFunc(task, originalIndex)) {
       tasks.push(task);
       filteredSpans.push(spans[originalIndex]);
+      filteredLabels.push(labels[originalIndex]);
       const newIndex = tasks.length - 1;
       fromOriginalToNewIndex.set(originalIndex, newIndex);
     }
@@ -92,5 +97,6 @@ export const filter = (
     displayOrder: displayOrder,
     highlightedTasks: updatedHighlightedTasks,
     spans: filteredSpans,
+    labels: filteredLabels,
   });
 };
