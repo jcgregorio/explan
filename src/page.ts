@@ -43,7 +43,7 @@ const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
 };
 
-const DURATION = 1000;
+const DURATION = 100;
 
 const rndDuration = (): number => {
   return rndInt(DURATION);
@@ -69,7 +69,7 @@ ops.push(
 );
 
 let numTasks = 1;
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 5; i++) {
   let index = rndInt(numTasks) + 1;
   ops.push(
     SplitTaskOp(index),

@@ -322,10 +322,7 @@ export function renderTasksToCanvas(
     const highlightedEdges: DirectedEdge[] = [];
     const normalEdges: DirectedEdge[] = [];
     chartLike.Edges.forEach((e: DirectedEdge) => {
-      if (
-        opts.taskHighlights.includes(e.i) &&
-        opts.taskHighlights.includes(e.j)
-      ) {
+      if (taskHighlights.has(e.i) && taskHighlights.has(e.j)) {
         highlightedEdges.push(e);
       } else {
         normalEdges.push(e);
@@ -342,7 +339,8 @@ export function renderTasksToCanvas(
       scale,
       taskIndexToRow,
       arrowHeadWidth,
-      arrowHeadHeight
+      arrowHeadHeight,
+      taskHighlights
     );
     ctx.strokeStyle = opts.colors.onSurfaceHighlight;
     drawEdges(
@@ -354,7 +352,8 @@ export function renderTasksToCanvas(
       scale,
       taskIndexToRow,
       arrowHeadWidth,
-      arrowHeadHeight
+      arrowHeadHeight,
+      taskHighlights
     );
   }
 
@@ -397,7 +396,8 @@ function drawEdges(
   scale: Scale,
   taskIndexToRow: TaskIndexToRow,
   arrowHeadWidth: number,
-  arrowHeadHeight: number
+  arrowHeadHeight: number,
+  taskHighlights: Set<number>
 ) {
   edges.forEach((e: DirectedEdge) => {
     const srcSlack: Span = spans[e.i];
@@ -409,10 +409,7 @@ function drawEdges(
     const srcDay = srcSlack.finish;
     const dstDay = dstSlack.start;
 
-    if (
-      opts.taskHighlights.includes(e.i) &&
-      opts.taskHighlights.includes(e.j)
-    ) {
+    if (taskHighlights.has(e.i) && taskHighlights.has(e.j)) {
       ctx.strokeStyle = opts.colors.onSurfaceHighlight;
     } else {
       ctx.strokeStyle = opts.colors.onSurfaceMuted;
