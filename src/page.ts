@@ -17,6 +17,10 @@ import {
 import { FromJSON, Plan } from "./plan/plan.ts";
 import { Precision } from "./precision/precision.ts";
 import {
+  DIVIDER_MOVE_EVENT,
+  DividerMove,
+} from "./renderer/dividermove/dividermove.ts";
+import {
   DRAG_RANGE_EVENT,
   DragRange,
   MouseMove,
@@ -120,6 +124,8 @@ const taskLabel: TaskLabel = (taskIndex: number): string =>
   `${plan.chart.Vertices[taskIndex].name}`;
 //  `${plan.chart.Vertices[taskIndex].name} (${plan.chart.Vertices[taskIndex].resources["Person"]}) `;
 
+// Dragging on the radar.
+
 // TODO Extract this as a helper for the radar view.
 let displayRange: DisplayRange | null = null;
 let scale: Scale | null = null;
@@ -140,6 +146,26 @@ const dragRangeHandler = (e: CustomEvent<DragRange>) => {
 };
 
 radar.addEventListener(DRAG_RANGE_EVENT, dragRangeHandler as EventListener);
+
+// Divider dragging.
+const divider = document.querySelector<HTMLElement>("#divider")!;
+new DividerMove(document.body, divider);
+
+const dividerDragRangeHandler = (e: CustomEvent<DragRange>) => {
+  console.log(
+    "mouse",
+    e.detail.begin.x,
+    e.detail.begin.y,
+    e.detail.end.x,
+    e.detail.end.y
+  );
+};
+
+document.body.addEventListener(
+  DIVIDER_MOVE_EVENT,
+  dividerDragRangeHandler as EventListener
+);
+
 document.querySelector("#reset-zoom")!.addEventListener("click", () => {
   displayRange = null;
   paintChart();
