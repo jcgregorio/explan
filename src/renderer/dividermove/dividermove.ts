@@ -6,6 +6,8 @@ export interface DividerMoveResult {
   after: number;
 }
 
+export type DividerType = "column" | "row";
+
 export const DIVIDER_MOVE_EVENT = "divider_move";
 export const RESIZING_CLASS = "resizing";
 
@@ -48,10 +50,16 @@ export class DividerMove {
   parent: HTMLElement;
   divider: HTMLElement;
   internvalHandle: number = 0;
+  dividerType: DividerType;
 
-  constructor(parent: HTMLElement, divider: HTMLElement) {
+  constructor(
+    parent: HTMLElement,
+    divider: HTMLElement,
+    dividerType: DividerType = "column"
+  ) {
     this.parent = parent;
     this.divider = divider;
+    this.dividerType = dividerType;
     this.divider.addEventListener("mousedown", this.mousedown.bind(this));
   }
 
@@ -65,19 +73,23 @@ export class DividerMove {
 
   onTimeout() {
     if (!this.currentMoveLocation.equal(this.lastMoveSent)) {
+      let diffPercent: number = 0;
+      if (this.dividerType === "column") {
+        diffPercent =
+          (100 * (this.currentMoveLocation.x - this.parentRect!.left)) /
+          this.parentRect!.width;
+      } else {
+        diffPercent =
+          (100 * (this.currentMoveLocation.y - this.parentRect!.top)) /
+          this.parentRect!.height;
+      }
+      // TODO clamp results to [5, 95]%.
+
       this.parent.dispatchEvent(
-        // TODO clamp results to [5, 95]%.
         new CustomEvent<DividerMoveResult>(DIVIDER_MOVE_EVENT, {
           detail: {
-            before:
-              (100 * (this.currentMoveLocation.x - this.parentRect!.left)) /
-              this.parentRect!.width,
-            after:
-              (100 *
-                (this.parentRect!.left +
-                  this.parentRect!.width -
-                  this.currentMoveLocation.x)) /
-              this.parentRect!.width,
+            before: diffPercent,
+            after: 100 - diffPercent,
           },
         })
       );

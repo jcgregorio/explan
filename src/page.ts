@@ -151,7 +151,7 @@ radar.addEventListener(DRAG_RANGE_EVENT, dragRangeHandler as EventListener);
 // Divider dragging.
 const wrapper = document.querySelector<HTMLElement>(".wrapper")!;
 const divider = document.querySelector<HTMLElement>("#divider")!;
-new DividerMove(document.body, divider);
+new DividerMove(document.body, divider, "column");
 
 const dividerDragRangeHandler = (e: CustomEvent<DividerMoveResult>) => {
   wrapper.style.setProperty(
