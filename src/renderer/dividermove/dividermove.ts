@@ -1,11 +1,29 @@
 import { Point } from "../scale/point.ts";
 
-export interface DragRange {
-  begin: Point;
-  end: Point;
+// Values are returned as percentages.
+export interface DividerMoveResult {
+  before: number;
+  after: number;
 }
 
 export const DIVIDER_MOVE_EVENT = "divider_move";
+
+export interface Rect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
+
+export const getPageRect = (ele: HTMLElement): Rect => {
+  const viewportRect = ele.getBoundingClientRect();
+  return {
+    top: viewportRect.top + window.scrollY,
+    left: viewportRect.left + window.scrollX,
+    width: viewportRect.width,
+    height: viewportRect.height,
+  };
+};
 
 /** MouseMove watches mouse events for a given HTMLElement and emits
  * events around dragging.
@@ -20,6 +38,7 @@ export const DIVIDER_MOVE_EVENT = "divider_move";
  */
 export class DividerMove {
   begin: Point | null = null;
+  parentRect: Rect | null = null;
   currentMoveLocation: Point = new Point(0, 0);
   lastMoveSent: Point = new Point(0, 0);
   parent: HTMLElement;
@@ -29,12 +48,12 @@ export class DividerMove {
   constructor(parent: HTMLElement, divider: HTMLElement) {
     this.parent = parent;
     this.divider = divider;
-    divider.addEventListener("mousedown", this.mousedown.bind(this));
+    this.divider.addEventListener("mousedown", this.mousedown.bind(this));
   }
 
   detach() {
     this.parent.removeEventListener("mousemove", this.mousemove.bind(this));
-    this.parent.removeEventListener("mousedown", this.mousedown.bind(this));
+    this.divider.removeEventListener("mousedown", this.mousedown.bind(this));
     this.parent.removeEventListener("mouseup", this.mouseup.bind(this));
     this.parent.removeEventListener("mouseleave", this.mouseleave.bind(this));
     window.clearInterval(this.internvalHandle);
@@ -43,10 +62,18 @@ export class DividerMove {
   onTimeout() {
     if (!this.currentMoveLocation.equal(this.lastMoveSent)) {
       this.parent.dispatchEvent(
-        new CustomEvent<DragRange>(DIVIDER_MOVE_EVENT, {
+        // TODO clamp results to [5, 95]%.
+        new CustomEvent<DividerMoveResult>(DIVIDER_MOVE_EVENT, {
           detail: {
-            begin: this.begin!.dup(),
-            end: this.currentMoveLocation.dup(),
+            before:
+              (100 * (this.currentMoveLocation.x - this.parentRect!.left)) /
+              this.parentRect!.width,
+            after:
+              (100 *
+                (this.parentRect!.left +
+                  this.parentRect!.width -
+                  this.currentMoveLocation.x)) /
+              this.parentRect!.width,
           },
         })
       );
@@ -64,17 +91,19 @@ export class DividerMove {
 
   mousedown(e: MouseEvent) {
     this.internvalHandle = window.setInterval(this.onTimeout.bind(this), 16);
+    this.parentRect = getPageRect(this.parent);
 
     this.parent.addEventListener("mousemove", this.mousemove.bind(this));
     this.parent.addEventListener("mouseup", this.mouseup.bind(this));
     this.parent.addEventListener("mouseleave", this.mouseleave.bind(this));
 
-    const mouseDownOnPage = new Point(e.pageX, e.pageY);
-
-    this.begin = new Point(mouseDownOnPage.x, mouseDownOnPage.y);
+    this.begin = new Point(e.pageX, e.pageY);
   }
 
   mouseup(e: MouseEvent) {
+    if (this.begin === null) {
+      return;
+    }
     this.finished(new Point(e.pageX, e.pageY));
   }
 

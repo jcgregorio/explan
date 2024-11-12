@@ -19,6 +19,7 @@ import { Precision } from "./precision/precision.ts";
 import {
   DIVIDER_MOVE_EVENT,
   DividerMove,
+  DividerMoveResult,
 } from "./renderer/dividermove/dividermove.ts";
 import {
   DRAG_RANGE_EVENT,
@@ -148,17 +149,17 @@ const dragRangeHandler = (e: CustomEvent<DragRange>) => {
 radar.addEventListener(DRAG_RANGE_EVENT, dragRangeHandler as EventListener);
 
 // Divider dragging.
+const wrapper = document.querySelector<HTMLElement>(".wrapper")!;
 const divider = document.querySelector<HTMLElement>("#divider")!;
 new DividerMove(document.body, divider);
 
-const dividerDragRangeHandler = (e: CustomEvent<DragRange>) => {
-  console.log(
-    "mouse",
-    e.detail.begin.x,
-    e.detail.begin.y,
-    e.detail.end.x,
-    e.detail.end.y
+const dividerDragRangeHandler = (e: CustomEvent<DividerMoveResult>) => {
+  wrapper.style.setProperty(
+    "grid-template-columns",
+    `${e.detail.before}% 10px auto`
   );
+  paintChart();
+  console.log("mouse", e.detail.before, e.detail.after);
 };
 
 document.body.addEventListener(
