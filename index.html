@@ -8,9 +8,14 @@
       margin: 0;
     }
 
+    body.resizing {
+      user-select: none;
+    }
+
     .chart {
       grid-area: chart;
-      overflow-y: scroll;
+      overflow-y: auto;
+      scrollbar-color: var(--onSurface) rgb(0, 0, 0, 0);
 
       .timeline {
         position: sticky;
@@ -20,8 +25,19 @@
 
     #divider {
       grid-area: divider;
-      display: inline-block;
-      background: #c32020;
+      display: flex;
+      flex-direction: column;
+      cursor: col-resize;
+      justify-content: center;
+
+      .thumb {
+        background: linear-gradient(315deg, transparent 75%, #414141 0)-10px 0,
+          linear-gradient(45deg, transparent 75%, #d1d1d1 0)-10px 0,
+          linear-gradient(135deg, #b1b1b1 50%, transparent 0) 0 0,
+          linear-gradient(45deg, #515050 50%, #2d2d2d 0) 0 0 #313030;
+        background-size: 4px 4px;
+        height: 40px;
+      }
     }
 
     .panels {
@@ -149,7 +165,9 @@
         <canvas id="zoomed" width="1000" height="1000"></canvas>
       </chart-parent>
     </div>
-    <div id="divider"></div>
+    <div id="divider">
+      <div class="thumb"></div>
+    </div>
     <div class="panels">
       <ul id="criticalPaths"></ul>
       <table id="criticalTasks"></table>

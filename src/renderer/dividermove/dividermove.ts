@@ -7,8 +7,9 @@ export interface DividerMoveResult {
 }
 
 export const DIVIDER_MOVE_EVENT = "divider_move";
+export const RESIZING_CLASS = "resizing";
 
-export interface Rect {
+interface Rect {
   top: number;
   left: number;
   width: number;
@@ -25,16 +26,19 @@ export const getPageRect = (ele: HTMLElement): Rect => {
   };
 };
 
-/** MouseMove watches mouse events for a given HTMLElement and emits
- * events around dragging.
+/** DividerMove waits for a mousedown event on `divider` and then watches mouse
+ *  events for the given parent HTMLElement and emits events around dragging.
  *
- * The emitted event is "dragrange" and is a CustomEvent<DragRange>.
+ * The emitted event is "divider_move" and is a CustomEvent<DividerMoveResult>.
  *
- * Once the mouse is pressed down in the HTMLElement an event will be
- * emitted periodically as the mouse moves.
+ * Once the mouse is pressed down in the HTMLElement an event will be emitted
+ * periodically as the mouse moves.
  *
- * Once the mouse is released, or exits the HTMLElement one last event
- * is emitted.
+ * Once the mouse is released, or exits the HTMLElement one last event is
+ * emitted.
+ *
+ * While dragging the divider, the "resizing" class will be added to the parent
+ * element. This can be used to set a style, e.g. 'user-select: none'.
  */
 export class DividerMove {
   begin: Point | null = null;
@@ -93,6 +97,8 @@ export class DividerMove {
     this.internvalHandle = window.setInterval(this.onTimeout.bind(this), 16);
     this.parentRect = getPageRect(this.parent);
 
+    this.parent.classList.add(RESIZING_CLASS);
+
     this.parent.addEventListener("mousemove", this.mousemove.bind(this));
     this.parent.addEventListener("mouseup", this.mouseup.bind(this));
     this.parent.addEventListener("mouseleave", this.mouseleave.bind(this));
@@ -116,6 +122,8 @@ export class DividerMove {
 
   finished(end: Point) {
     window.clearInterval(this.internvalHandle);
+
+    this.parent.classList.remove(RESIZING_CLASS);
 
     this.parent.removeEventListener("mousemove", this.mousemove.bind(this));
     this.parent.removeEventListener("mouseup", this.mouseup.bind(this));
