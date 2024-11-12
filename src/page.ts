@@ -156,10 +156,9 @@ new DividerMove(document.body, divider);
 const dividerDragRangeHandler = (e: CustomEvent<DividerMoveResult>) => {
   wrapper.style.setProperty(
     "grid-template-columns",
-    `${e.detail.before}% 10px auto`
+    `calc(${e.detail.before}% - 10px) 10px auto`
   );
   paintChart();
-  console.log("mouse", e.detail.before, e.detail.after);
 };
 
 document.body.addEventListener(
