@@ -156,7 +156,7 @@ new DividerMove(document.body, divider);
 const dividerDragRangeHandler = (e: CustomEvent<DividerMoveResult>) => {
   wrapper.style.setProperty(
     "grid-template-columns",
-    `calc(${e.detail.before}% - 10px) 10px auto`
+    `calc(${e.detail.before}% - 15px) 10px auto`
   );
   paintChart();
 };
