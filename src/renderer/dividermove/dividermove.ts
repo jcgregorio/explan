@@ -1,6 +1,13 @@
+/**
+ * Functionality for creating draggable dividers between elements on a page.
+ */
+import { clamp } from "../../metrics/range.ts";
 import { Point } from "../scale/point.ts";
 
-// Values are returned as percentages.
+// Values are returned as percentages around the current mouse location. That
+// is, if we are in "column" mode then `before` would equal the mouse position
+// as a % of the width of the parent element from the left hand side of the
+// parent element. The `after` value is just 100-before.
 export interface DividerMoveResult {
   before: number;
   after: number;
@@ -18,6 +25,9 @@ interface Rect {
   height: number;
 }
 
+/** Returns a bounding rectangle for an element in Page coordinates, as opposed
+ * to ViewPort coordinates, which is what getBoundingClientRect() returns.
+ */
 export const getPageRect = (ele: HTMLElement): Rect => {
   const viewportRect = ele.getBoundingClientRect();
   return {
@@ -28,28 +38,61 @@ export const getPageRect = (ele: HTMLElement): Rect => {
   };
 };
 
-/** DividerMove waits for a mousedown event on `divider` and then watches mouse
- *  events for the given parent HTMLElement and emits events around dragging.
+/** DividerMove is core functionality for creating draggable dividers between
+ * elements on a page.
+ *
+ * Construct a DividerMode with a parent element and a divider element, where
+ * the divider element is the element between other page elements that is
+ * expected to be dragged. For example, in the following example #container
+ * would be the `parent`, and #divider would be the `divider` element.
+ *
+ *  <div id=container>
+ *    <div id=left></div>  <div id=divider></div> <div id=right></div?
+ *  </div>
+ *
+ * DividerMode waits for a mousedown event on the `divider` element and then
+ * watches mouse events for the given parent HTMLElement and emits events around
+ * dragging.
  *
  * The emitted event is "divider_move" and is a CustomEvent<DividerMoveResult>.
  *
- * Once the mouse is pressed down in the HTMLElement an event will be emitted
- * periodically as the mouse moves.
+ * It is up to the user of DividerMove to listen for the "divider_move" events
+ * and update the CSS of the page appropriately to reflect the position of the
+ * divider.
  *
- * Once the mouse is released, or exits the HTMLElement one last event is
- * emitted.
+ * Once the mouse is down an event will be emitted periodically as the mouse
+ * moves.
+ *
+ * Once the mouse is released, or if the mouse exits the parent HTMLElement, one
+ * last event is emitted.
  *
  * While dragging the divider, the "resizing" class will be added to the parent
  * element. This can be used to set a style, e.g. 'user-select: none'.
  */
 export class DividerMove {
+  /** The point where dragging started, in Page coordinates. */
   begin: Point | null = null;
+
+  /** The dimensions of the parent element in Page coordinates as of mousedown
+   * on the divider.. */
   parentRect: Rect | null = null;
+
+  /** The current mouse position in Page coordinates. */
   currentMoveLocation: Point = new Point(0, 0);
+
+  /** The last mouse position in Page coordinates reported via CustomEvent. */
   lastMoveSent: Point = new Point(0, 0);
+
+  /** The parent element that contains the divider. */
   parent: HTMLElement;
+
+  /** The divider element to be dragged across the parent element. */
   divider: HTMLElement;
+
+  /** The handle of the window.setInterval(). */
   internvalHandle: number = 0;
+
+  /** The type of divider, either vertical ("column"), or horizontal ("row"). */
   dividerType: DividerType;
 
   constructor(
@@ -83,7 +126,7 @@ export class DividerMove {
           (100 * (this.currentMoveLocation.y - this.parentRect!.top)) /
           this.parentRect!.height;
       }
-      // TODO clamp results to [5, 95]%.
+      diffPercent = clamp(diffPercent, 5, 95);
 
       this.parent.dispatchEvent(
         new CustomEvent<DividerMoveResult>(DIVIDER_MOVE_EVENT, {
