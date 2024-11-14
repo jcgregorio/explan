@@ -81,6 +81,9 @@ export interface RenderOptions {
    * empty string is supplied then just display by topological order.
    */
   groupByResource: string;
+
+  /** Task to highlight. */
+  highlightedTask: null | number;
 }
 
 const verticalArrowStartFeatureFromTaskDuration = (
@@ -313,6 +316,23 @@ export function renderTasksToCanvas(
       ctx.strokeStyle = opts.colors.onSurface;
     }
     if (opts.hasTasks) {
+      if (opts.highlightedTask !== null && taskIndex === opts.highlightedTask) {
+        const oldFillStyle = ctx.fillStyle;
+        const highlightStart = scale.feature(
+          row,
+          span.start,
+          Feature.taskEnvelopeTop
+        );
+        const highlightEnd = scale.feature(
+          row + 1,
+          span.finish,
+          Feature.taskEnvelopeTop
+        );
+        ctx.fillStyle = opts.colors.highlight;
+        drawTaskHighlight(ctx, highlightStart, highlightEnd);
+        ctx.fillStyle = oldFillStyle;
+      }
+
       if (taskStart.x === taskEnd.x) {
         drawMilestone(ctx, taskStart, diamondDiameter, percentHeight);
       } else {
@@ -675,6 +695,19 @@ function drawTaskBar(
     taskStart.y,
     taskEnd.x - taskStart.x,
     taskLineHeight
+  );
+}
+
+function drawTaskHighlight(
+  ctx: CanvasRenderingContext2D,
+  highlightStart: Point,
+  highlightEnd: Point
+) {
+  ctx.fillRect(
+    highlightStart.x,
+    highlightStart.y,
+    highlightEnd.x - highlightStart.x,
+    highlightEnd.y - highlightStart.y
   );
 }
 

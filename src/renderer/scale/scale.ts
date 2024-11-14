@@ -52,6 +52,7 @@ export enum Metric {
   lineDashLine,
   lineDashGap,
   textXOffset,
+  rowHeight,
 }
 
 /** Makes a number odd, adds one if even. */
@@ -318,6 +319,8 @@ export class Scale {
         return this.blockSizePx;
       case Metric.textXOffset:
         return this.blockSizePx;
+      case Metric.rowHeight:
+        return this.rowHeightPx;
       default:
         // The line below will not compile if you missed an enum in the switch above.
         feature satisfies never;

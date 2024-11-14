@@ -253,6 +253,7 @@ const paintChart = () => {
     taskEmphasize: criticalPath,
     filterFunc: null,
     groupByResource: groupByOptions[groupByOptionsIndex],
+    highlightedTask: null,
   };
 
   const zoomOpts: RenderOptions = {
@@ -277,6 +278,7 @@ const paintChart = () => {
     taskEmphasize: criticalPath,
     filterFunc: filterFunc,
     groupByResource: groupByOptions[groupByOptionsIndex],
+    highlightedTask: 1,
   };
 
   const timelineOpts: RenderOptions = {
@@ -301,6 +303,7 @@ const paintChart = () => {
     taskEmphasize: criticalPath,
     filterFunc: filterFunc,
     groupByResource: groupByOptions[groupByOptionsIndex],
+    highlightedTask: null,
   };
 
   paintOneChart("#zoomed", zoomOpts);
