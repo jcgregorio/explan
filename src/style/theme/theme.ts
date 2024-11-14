@@ -10,6 +10,7 @@ export interface Theme {
   onSurfaceSecondary: string;
   overlay: string;
   groupColor: string;
+  highlight: string;
 }
 
 type ThemeProp = keyof Theme;
@@ -21,6 +22,7 @@ const colorThemePrototype: Theme = {
   onSurfaceSecondary: "",
   overlay: "",
   groupColor: "",
+  highlight: "",
 };
 
 export const colorThemeFromElement = (ele: HTMLElement): Theme => {

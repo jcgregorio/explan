@@ -18,6 +18,7 @@ export interface Colors {
   onSurfaceHighlight: string;
   overlay: string;
   groupColor: string;
+  highlight: string;
 }
 
 export type TaskIndexToRow = Map<number, number>;
@@ -69,9 +70,9 @@ export interface RenderOptions {
   /** Function that produces display text for a Task and its associated Slack. */
   taskLabel: TaskLabel;
 
-  /** The indices of tasks that should be highlighted when draw, typically used
-   * to highlight the critical path. */
-  taskHighlights: number[];
+  /** The indices of tasks that should be emphasized when draw, typically used
+   * to denote the critical path. */
+  taskEmphasize: number[];
 
   /** Filter the Tasks to be displayed. */
   filterFunc: FilterFunc | null;
@@ -176,7 +177,7 @@ export function renderTasksToCanvas(
   const fret = filter(
     plan.chart,
     opts.filterFunc,
-    opts.taskHighlights,
+    opts.taskEmphasize,
     spans,
     originalLabels
   );

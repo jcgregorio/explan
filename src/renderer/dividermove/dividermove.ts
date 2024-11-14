@@ -16,6 +16,7 @@ export interface DividerMoveResult {
 export type DividerType = "column" | "row";
 
 export const DIVIDER_MOVE_EVENT = "divider_move";
+
 export const RESIZING_CLASS = "resizing";
 
 interface Rect {
@@ -126,6 +127,7 @@ export class DividerMove {
           (100 * (this.currentMoveLocation.y - this.parentRect!.top)) /
           this.parentRect!.height;
       }
+      // TODO - Should clamp be settable in the constructor?
       diffPercent = clamp(diffPercent, 5, 95);
 
       this.parent.dispatchEvent(
