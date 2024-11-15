@@ -155,6 +155,20 @@ export function suggestedCanvasHeight(
   ).height(maxRows);
 }
 
+// The location, in canvas pixel coordinates, of each task bar. Should use the
+// text of the task label as the location, since that's always drawn in the view
+// if possible.
+interface TaskLocation {
+  x: number;
+  y: number;
+  taskIndex: number;
+}
+
+export interface RenderResult {
+  scale: Scale;
+  taskLocations: TaskLocation[];
+}
+
 // TODO - Pass in max rows, and a mapping that maps from taskIndex to row,
 // because two different tasks might be placed on the same row. Also we should
 // pass in max rows? Or should that come from the above mapping?
@@ -165,11 +179,13 @@ export function renderTasksToCanvas(
   plan: Plan,
   spans: Span[],
   opts: RenderOptions
-): Result<Scale> {
+): Result<RenderResult> {
   const vret = validateChart(plan.chart);
   if (!vret.ok) {
     return vret;
   }
+
+  const taskLocations: TaskLocation[] = [];
 
   const originalLabels = plan.chart.Vertices.map(
     (task: Task, taskIndex: number) => opts.taskLabel(taskIndex)
@@ -350,7 +366,8 @@ export function renderTasksToCanvas(
           task,
           taskIndex,
           clipWidth,
-          labels
+          labels,
+          taskLocations
         );
       }
     }
@@ -426,7 +443,10 @@ export function renderTasksToCanvas(
     }
   }
 
-  return ok(scale);
+  return ok({
+    scale: scale,
+    taskLocations: taskLocations,
+  });
 }
 
 function drawEdges(
@@ -651,7 +671,8 @@ function drawTaskText(
   task: Task,
   taskIndex: number,
   clipWidth: number,
-  labels: string[]
+  labels: string[],
+  taskLocations: TaskLocation[]
 ) {
   if (!opts.hasText) {
     return;
@@ -681,7 +702,14 @@ function drawTaskText(
   ctx.fillStyle = opts.colors.onSurface;
   ctx.textBaseline = "top";
   const textStart = scale.feature(row, xStartInTime, Feature.textStart);
+  const textX = textStart.x + xPixelDelta;
+  const textY = textStart.y;
   ctx.fillText(label, textStart.x + xPixelDelta, textStart.y);
+  taskLocations.push({
+    x: textX,
+    y: textY,
+    taskIndex: taskIndex,
+  });
 }
 
 function drawTaskBar(

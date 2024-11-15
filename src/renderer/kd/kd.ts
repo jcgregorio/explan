@@ -23,26 +23,31 @@ export interface KDPoint {
   y: number;
 }
 
+type Dimensions = keyof KDPoint;
+
+const defaultMetric = (a: KDPoint, b: KDPoint): number =>
+  (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+
+const defaultDimensions: Dimensions[] = ["x", "y"];
+
 /** @class A single node in the k-d Tree. */
-class Node<Point extends KDPoint> {
-  obj: Point;
+class Node<Item extends KDPoint> {
+  obj: Item;
 
-  left: Node<Point> | null = null;
+  left: Node<Item> | null = null;
 
-  right: Node<Point> | null = null;
+  right: Node<Item> | null = null;
 
-  parent: Node<Point> | null;
+  parent: Node<Item> | null;
 
   dimension: number;
 
-  constructor(obj: Point, dimension: number, parent: Node<Point> | null) {
+  constructor(obj: Item, dimension: number, parent: Node<Item> | null) {
     this.obj = obj;
     this.parent = parent;
     this.dimension = dimension;
   }
 }
-
-type Dimensions = keyof KDPoint;
 
 /**
  * @class The k-d tree.
@@ -59,18 +64,14 @@ export class KDTree<Point extends KDPoint> {
    *
    * @param {Array} points - An array of points, something with the shape
    *     {x:x, y:y}.
-   * @param {function} metric - A function that calculates the distance
-   *     between two points.
    * @param {Array} dimensions - The dimensions to use in our points, for
    *     example ['x', 'y'].
+   * @param {function} metric - A function that calculates the distance
+   *     between two points.
    */
-  constructor(
-    points: Point[],
-    metric: (a: KDPoint, b: KDPoint) => number,
-    dimensions: Dimensions[]
-  ) {
-    this.dimensions = dimensions;
-    this.metric = metric;
+  constructor(points: Point[]) {
+    this.dimensions = defaultDimensions;
+    this.metric = defaultMetric;
     this.root = this._buildTree(points, 0, null);
   }
 

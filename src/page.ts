@@ -21,6 +21,7 @@ import {
   DividerMove,
   DividerMoveResult,
 } from "./renderer/dividermove/dividermove.ts";
+import { KDTree } from "./renderer/kd/kd.ts";
 import {
   DRAG_RANGE_EVENT,
   DragRange,
@@ -29,9 +30,11 @@ import {
 import { DisplayRange } from "./renderer/range/range.ts";
 import {
   RenderOptions,
+  RenderResult,
   TaskLabel,
   renderTasksToCanvas,
 } from "./renderer/renderer.ts";
+import { Point } from "./renderer/scale/point.ts";
 import { Scale } from "./renderer/scale/scale.ts";
 import { Result } from "./result.ts";
 import { ComputeSlack, CriticalPath, Slack, Span } from "./slack/slack.ts";
@@ -104,6 +107,7 @@ if (!res.ok) {
 let slacks: Slack[] = [];
 let spans: Span[] = [];
 let criticalPath: number[] = [];
+let taskLocationKDTree: KDTree | null = null;
 
 const recalculateSpan = () => {
   const slackResult = ComputeSlack(plan.chart, undefined, precision.rounder());
@@ -306,21 +310,22 @@ const paintChart = () => {
     highlightedTask: null,
   };
 
-  paintOneChart("#zoomed", zoomOpts);
+  paintOneChart("#radar", radarOpts);
   paintOneChart("#timeline", timelineOpts);
-  const ret = paintOneChart("#radar", radarOpts);
+  const ret = paintOneChart("#zoomed", zoomOpts);
 
   if (!ret.ok) {
     return;
   }
-  scale = ret.value;
+  scale = ret.value.scale;
+  taskLocationKDTree = new KDTree(ret.value.taskLocations);
   console.timeEnd("paintChart");
 };
 
 const paintOneChart = (
   canvasID: string,
   opts: RenderOptions
-): Result<Scale> => {
+): Result<RenderResult> => {
   const canvas = document.querySelector<HTMLCanvasElement>(canvasID)!;
   const parent = canvas!.parentElement!;
   const ratio = window.devicePixelRatio;
