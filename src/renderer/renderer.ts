@@ -208,7 +208,7 @@ export function renderTasksToCanvas(
   const resourceDefinition = plan.getResourceDefinition(opts.groupByResource);
 
   // Highlighted tasks.
-  const taskHighlights: Set<number> = new Set(fret.value.highlightedTasks);
+  const emphasizedTasks: Set<number> = new Set(fret.value.emphasizedTasks);
   spans = fret.value.spans;
 
   // TODO Turn this into an option since we won't always want this.
@@ -324,7 +324,7 @@ export function renderTasksToCanvas(
       );
     }
 
-    if (taskHighlights.has(taskIndex)) {
+    if (emphasizedTasks.has(taskIndex)) {
       ctx.fillStyle = opts.colors.onSurfaceHighlight;
       ctx.strokeStyle = opts.colors.onSurfaceHighlight;
     } else {
@@ -381,7 +381,7 @@ export function renderTasksToCanvas(
     const highlightedEdges: DirectedEdge[] = [];
     const normalEdges: DirectedEdge[] = [];
     chartLike.Edges.forEach((e: DirectedEdge) => {
-      if (taskHighlights.has(e.i) && taskHighlights.has(e.j)) {
+      if (emphasizedTasks.has(e.i) && emphasizedTasks.has(e.j)) {
         highlightedEdges.push(e);
       } else {
         normalEdges.push(e);
@@ -399,7 +399,7 @@ export function renderTasksToCanvas(
       taskIndexToRow,
       arrowHeadWidth,
       arrowHeadHeight,
-      taskHighlights
+      emphasizedTasks
     );
     ctx.strokeStyle = opts.colors.onSurfaceHighlight;
     drawEdges(
@@ -412,7 +412,7 @@ export function renderTasksToCanvas(
       taskIndexToRow,
       arrowHeadWidth,
       arrowHeadHeight,
-      taskHighlights
+      emphasizedTasks
     );
   }
 

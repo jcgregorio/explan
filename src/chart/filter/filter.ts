@@ -11,7 +11,7 @@ export interface ChartLike {
 export interface FilterResult {
   chartLike: ChartLike;
   displayOrder: number[];
-  highlightedTasks: number[];
+  emphasizedTasks: number[];
   spans: Span[];
   labels: string[];
 }
@@ -21,7 +21,7 @@ export type FilterFunc = (task: Task, index: number) => boolean;
 export const filter = (
   chart: Chart,
   filterFunc: FilterFunc | null,
-  highlightedTasks: number[],
+  emphasizedTasks: number[],
   spans: Span[],
   labels: string[]
 ): Result<FilterResult> => {
@@ -34,7 +34,7 @@ export const filter = (
     return ok({
       chartLike: chart,
       displayOrder: vret.value,
-      highlightedTasks: highlightedTasks,
+      emphasizedTasks: emphasizedTasks,
       spans,
       labels,
     });
@@ -84,7 +84,7 @@ export const filter = (
   });
 
   // Re-index highlighted tasks.
-  const updatedHighlightedTasks = highlightedTasks.map(
+  const updatedEmphasizedTasks = emphasizedTasks.map(
     (originalTaskIndex: number): number =>
       fromOriginalToNewIndex.get(originalTaskIndex)!
   );
@@ -95,7 +95,7 @@ export const filter = (
       Vertices: tasks,
     },
     displayOrder: displayOrder,
-    highlightedTasks: updatedHighlightedTasks,
+    emphasizedTasks: updatedEmphasizedTasks,
     spans: filteredSpans,
     labels: filteredLabels,
   });

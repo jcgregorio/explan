@@ -71,7 +71,7 @@ describe("filter", () => {
       new DirectedEdge(0, 1),
       new DirectedEdge(1, 2),
     ]);
-    assert.deepEqual(ret.value.highlightedTasks, [1]);
+    assert.deepEqual(ret.value.emphasizedTasks, [1]);
     assert.deepEqual(ret.value.spans, [
       new Span(0, 0),
       new Span(5, 9),
