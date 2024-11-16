@@ -27,6 +27,7 @@ import {
   DragRange,
   MouseDrag,
 } from "./renderer/mousedrag/mousedrag.ts";
+import { MouseMove } from "./renderer/mousemove/mousemove.ts";
 import { DisplayRange } from "./renderer/range/range.ts";
 import {
   RenderOptions,
@@ -218,6 +219,16 @@ document
     toggleCriticalPathsOnly();
     paintChart();
   });
+
+// TODO - Should really be a canvas that overlays the #zoomed canvas.
+const mm = new MouseMove(document.querySelector("#zoomed")!);
+
+window.setInterval(() => {
+  const location = mm.readLocation();
+  if (location !== null) {
+    console.log(location);
+  }
+}, 100);
 
 const paintChart = () => {
   console.time("paintChart");
