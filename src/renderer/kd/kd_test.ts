@@ -22,7 +22,7 @@ describe("KDTree search", () => {
     { x: 6, y: 6 },
   ];
 
-  const tree = new KDTree(points, ["x", "y"]);
+  const tree = new KDTree(points);
 
   it("finds the closest point", () => {
     // Nearby

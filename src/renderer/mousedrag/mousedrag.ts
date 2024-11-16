@@ -18,7 +18,7 @@ export const DRAG_RANGE_EVENT = "dragrange";
  * Once the mouse is released, or exits the HTMLElement one last event
  * is emitted.
  */
-export class MouseMove {
+export class MouseDrag {
   begin: Point | null = null;
   currentMoveLocation: Point = new Point(0, 0);
   lastMoveSent: Point = new Point(0, 0);

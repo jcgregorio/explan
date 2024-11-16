@@ -158,7 +158,7 @@ export function suggestedCanvasHeight(
 // The location, in canvas pixel coordinates, of each task bar. Should use the
 // text of the task label as the location, since that's always drawn in the view
 // if possible.
-interface TaskLocation {
+export interface TaskLocation {
   x: number;
   y: number;
   taskIndex: number;

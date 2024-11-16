@@ -25,13 +25,14 @@ import { KDTree } from "./renderer/kd/kd.ts";
 import {
   DRAG_RANGE_EVENT,
   DragRange,
-  MouseMove,
-} from "./renderer/mousemove/mousemove.ts";
+  MouseDrag,
+} from "./renderer/mousedrag/mousedrag.ts";
 import { DisplayRange } from "./renderer/range/range.ts";
 import {
   RenderOptions,
   RenderResult,
   TaskLabel,
+  TaskLocation,
   renderTasksToCanvas,
 } from "./renderer/renderer.ts";
 import { Point } from "./renderer/scale/point.ts";
@@ -107,7 +108,7 @@ if (!res.ok) {
 let slacks: Slack[] = [];
 let spans: Span[] = [];
 let criticalPath: number[] = [];
-let taskLocationKDTree: KDTree | null = null;
+let taskLocationKDTree: KDTree<TaskLocation> | null = null;
 
 const recalculateSpan = () => {
   const slackResult = ComputeSlack(plan.chart, undefined, precision.rounder());
@@ -136,7 +137,7 @@ let displayRange: DisplayRange | null = null;
 let scale: Scale | null = null;
 
 const radar = document.querySelector<HTMLElement>("#radar")!;
-new MouseMove(radar);
+new MouseDrag(radar);
 
 const dragRangeHandler = (e: CustomEvent<DragRange>) => {
   if (scale === null) {

@@ -1,15 +1,15 @@
 import { assert } from "@esm-bundle/chai";
-import { DRAG_RANGE_EVENT, DragRange, MouseMove } from "./mousemove.ts";
+import { DRAG_RANGE_EVENT, DragRange, MouseDrag } from "./mousedrag.ts";
 import { Point } from "../scale/point.ts";
 
 describe("MouseMove", () => {
   let div: HTMLDivElement;
-  let mm: MouseMove;
+  let mm: MouseDrag;
 
   beforeEach(() => {
     div = document.createElement("div");
     document.body.appendChild(div);
-    mm = new MouseMove(div);
+    mm = new MouseDrag(div);
   });
 
   afterEach(() => {
