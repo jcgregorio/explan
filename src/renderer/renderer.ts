@@ -211,16 +211,6 @@ export function renderTasksToCanvas(
   const emphasizedTasks: Set<number> = new Set(fret.value.emphasizedTasks);
   spans = fret.value.spans;
 
-  // TODO Turn this into an option since we won't always want this.
-  const newHeight = suggestedCanvasHeight(
-    canvas,
-    spans,
-    opts,
-    chartLike.Vertices.length + 2 // TODO - Why do we need the +2 here!?
-  );
-  canvas.height = newHeight;
-  canvas.style.height = `${newHeight / window.devicePixelRatio}px`;
-
   // Calculate how wide we need to make the groupBy column.
   let maxGroupNameLength = 0;
   if (opts.groupByResource !== "" && opts.hasText) {

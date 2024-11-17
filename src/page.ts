@@ -35,6 +35,7 @@ import {
   TaskLabel,
   TaskLocation,
   renderTasksToCanvas,
+  suggestedCanvasHeight,
 } from "./renderer/renderer.ts";
 import { Point } from "./renderer/scale/point.ts";
 import { Scale } from "./renderer/scale/scale.ts";
@@ -323,28 +324,25 @@ const paintChart = () => {
   };
 
   const ret = paintOneChart("#radar", radarOpts);
-  paintOneChart("#timeline", timelineOpts);
-  paintOneChart("#zoomed", zoomOpts);
-
   if (!ret.ok) {
     return;
   }
   radarScale = ret.value.scale;
+
+  paintOneChart("#timeline", timelineOpts);
+  paintOneChart("#zoomed", zoomOpts, "#overlay");
+
   taskLocationKDTree = new KDTree(ret.value.taskLocations);
   console.timeEnd("paintChart");
 };
 
-const paintOneChart = (
-  canvasID: string,
-  opts: RenderOptions
-): Result<RenderResult> => {
-  const canvas = document.querySelector<HTMLCanvasElement>(canvasID)!;
-  const parent = canvas!.parentElement!;
-  const ratio = window.devicePixelRatio;
-  const width = parent.clientWidth - FONT_SIZE_PX;
-  const height = parent.clientHeight;
-  const canvasWidth = Math.ceil(width * ratio);
-  const canvasHeight = Math.ceil(height * ratio);
+const prepareCanvas = (
+  canvas: HTMLCanvasElement,
+  canvasWidth: number,
+  canvasHeight: number,
+  width: number,
+  height: number
+): CanvasRenderingContext2D => {
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
   canvas.style.width = `${width}px`;
@@ -352,6 +350,37 @@ const paintOneChart = (
 
   const ctx = canvas.getContext("2d")!;
   ctx.imageSmoothingEnabled = false;
+
+  return ctx;
+};
+
+const paintOneChart = (
+  canvasID: string,
+  opts: RenderOptions,
+  overlayID: string = ""
+): Result<RenderResult> => {
+  const canvas = document.querySelector<HTMLCanvasElement>(canvasID)!;
+  const parent = canvas!.parentElement!;
+  const ratio = window.devicePixelRatio;
+  const width = parent.clientWidth - FONT_SIZE_PX;
+  let height = parent.clientHeight;
+  const canvasWidth = Math.ceil(width * ratio);
+  let canvasHeight = Math.ceil(height * ratio);
+
+  const newHeight = suggestedCanvasHeight(
+    canvas,
+    spans,
+    opts,
+    plan.chart.Vertices.length + 2 // TODO - Why do we need the +2 here!?
+  );
+  canvasHeight = newHeight;
+  height = newHeight / window.devicePixelRatio;
+
+  if (overlayID) {
+    const overlay = document.querySelector<HTMLCanvasElement>(overlayID)!;
+    prepareCanvas(overlay, canvasWidth, canvasHeight, width, height);
+  }
+  const ctx = prepareCanvas(canvas, canvasWidth, canvasHeight, width, height);
 
   return renderTasksToCanvas(parent, canvas, ctx, plan, spans, opts);
 };
