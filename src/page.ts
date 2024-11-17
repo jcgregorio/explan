@@ -135,18 +135,18 @@ const taskLabel: TaskLabel = (taskIndex: number): string =>
 
 // TODO Extract this as a helper for the radar view.
 let displayRange: DisplayRange | null = null;
-let scale: Scale | null = null;
+let radarScale: Scale | null = null;
 
 const radar = document.querySelector<HTMLElement>("#radar")!;
 new MouseDrag(radar);
 
 const dragRangeHandler = (e: CustomEvent<DragRange>) => {
-  if (scale === null) {
+  if (radarScale === null) {
     return;
   }
   console.log("mouse", e.detail);
-  const begin = scale.dayRowFromPoint(e.detail.begin);
-  const end = scale.dayRowFromPoint(e.detail.end);
+  const begin = radarScale.dayRowFromPoint(e.detail.begin);
+  const end = radarScale.dayRowFromPoint(e.detail.end);
   displayRange = new DisplayRange(begin.day, end.day);
   console.log(displayRange);
   paintChart();
@@ -322,14 +322,14 @@ const paintChart = () => {
     highlightedTask: null,
   };
 
-  paintOneChart("#radar", radarOpts);
+  const ret = paintOneChart("#radar", radarOpts);
   paintOneChart("#timeline", timelineOpts);
-  const ret = paintOneChart("#zoomed", zoomOpts);
+  paintOneChart("#zoomed", zoomOpts);
 
   if (!ret.ok) {
     return;
   }
-  scale = ret.value.scale;
+  radarScale = ret.value.scale;
   taskLocationKDTree = new KDTree(ret.value.taskLocations);
   console.timeEnd("paintChart");
 };

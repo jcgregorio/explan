@@ -300,6 +300,7 @@ export function renderTasksToCanvas(
 
   ctx.save();
   ctx.clip(clipRegion);
+
   // Draw tasks in their rows.
   chartLike.Vertices.forEach((task: Task, taskIndex: number) => {
     const row = taskIndexToRow.get(taskIndex)!;
@@ -332,7 +333,7 @@ export function renderTasksToCanvas(
       ctx.strokeStyle = opts.colors.onSurface;
     }
     if (opts.hasTasks) {
-      if (opts.highlightedTask !== null && taskIndex === opts.highlightedTask) {
+      if (taskIndex === opts.highlightedTask) {
         const oldFillStyle = ctx.fillStyle;
         const highlightStart = scale.feature(
           row,
@@ -416,6 +417,7 @@ export function renderTasksToCanvas(
     );
   }
 
+  // Remove the clip region.
   ctx.restore();
 
   // Now draw the range highlights if required.
