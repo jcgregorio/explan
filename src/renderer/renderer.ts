@@ -166,7 +166,7 @@ export interface TaskLocation {
 }
 
 // A func that takes a Point and redraws the highlighted task if needed.
-export type UpdateHighlightFromMousePos = (point: Point) => number;
+export type UpdateHighlightFromMousePos = (point: Point) => number | null;
 
 export interface RenderResult {
   scale: Scale;
