@@ -5,6 +5,7 @@ import { Plan } from "../plan/plan.ts";
 import { ResourceDefinition } from "../resources/resources.ts";
 import { Result, ok } from "../result.ts";
 import { Span } from "../slack/slack.ts";
+import { KDTree } from "./kd/kd.ts";
 import { DisplayRange } from "./range/range.ts";
 import { Point } from "./scale/point.ts";
 import { Feature, Metric, Scale } from "./scale/scale.ts";
@@ -164,9 +165,12 @@ export interface TaskLocation {
   taskIndex: number;
 }
 
+// A func that takes a Point and redraws the highlighted task if needed.
+export type UpdateHighlightFromMousePos = (point: Point) => void;
+
 export interface RenderResult {
   scale: Scale;
-  taskLocations: TaskLocation[];
+  updateHighlightFromMousePos: UpdateHighlightFromMousePos | null;
 }
 
 // TODO - Pass in max rows, and a mapping that maps from taskIndex to row,
@@ -178,7 +182,8 @@ export function renderTasksToCanvas(
   ctx: CanvasRenderingContext2D,
   plan: Plan,
   spans: Span[],
-  opts: RenderOptions
+  opts: RenderOptions,
+  overlay: HTMLCanvasElement | null = null
 ): Result<RenderResult> {
   const vret = validateChart(plan.chart);
   if (!vret.ok) {
@@ -291,6 +296,12 @@ export function renderTasksToCanvas(
   ctx.save();
   ctx.clip(clipRegion);
 
+  interface RectCorners {
+    topLeft: Point;
+    bottomRight: Point;
+  }
+  const taskIndexToTaskHighlightCorners: Map<number, RectCorners> = new Map();
+
   // Draw tasks in their rows.
   chartLike.Vertices.forEach((task: Task, taskIndex: number) => {
     const row = taskIndexToRow.get(taskIndex)!;
@@ -322,24 +333,22 @@ export function renderTasksToCanvas(
       ctx.fillStyle = opts.colors.onSurface;
       ctx.strokeStyle = opts.colors.onSurface;
     }
-    if (opts.hasTasks) {
-      if (taskIndex === opts.highlightedTask) {
-        const oldFillStyle = ctx.fillStyle;
-        const highlightStart = scale.feature(
-          row,
-          span.start,
-          Feature.taskEnvelopeTop
-        );
-        const highlightEnd = scale.feature(
-          row + 1,
-          span.finish,
-          Feature.taskEnvelopeTop
-        );
-        ctx.fillStyle = opts.colors.highlight;
-        drawTaskHighlight(ctx, highlightStart, highlightEnd);
-        ctx.fillStyle = oldFillStyle;
-      }
+    const highlightTopLeft = scale.feature(
+      row,
+      span.start,
+      Feature.taskEnvelopeTop
+    );
+    const highlightBottomRight = scale.feature(
+      row + 1,
+      span.finish,
+      Feature.taskEnvelopeTop
+    );
 
+    taskIndexToTaskHighlightCorners.set(taskIndex, {
+      topLeft: highlightTopLeft,
+      bottomRight: highlightBottomRight,
+    });
+    if (opts.hasTasks) {
       if (taskStart.x === taskEnd.x) {
         drawMilestone(ctx, taskStart, diamondDiameter, percentHeight);
       } else {
@@ -435,9 +444,39 @@ export function renderTasksToCanvas(
     }
   }
 
+  let updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
+
+  if (overlay !== null) {
+    const overlayCtx = overlay.getContext("2d")!;
+    const taskLocationKDTree = new KDTree(taskLocations);
+    let lastHighlightedTaskIndex = -1;
+
+    updateHighlightFromMousePos = (point: Point): void => {
+      // First convert point in offset coords into canvas coords.
+      point.x = point.x * window.devicePixelRatio;
+      point.y = point.y * window.devicePixelRatio;
+      const taskLocation = taskLocationKDTree.nearest(point);
+      if (taskLocation.taskIndex === lastHighlightedTaskIndex) {
+        return;
+      }
+      overlayCtx.fillStyle = "rgb(0,0,0,0)";
+      overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+
+      lastHighlightedTaskIndex = taskLocation.taskIndex;
+      const corners = taskIndexToTaskHighlightCorners.get(
+        taskLocation.taskIndex
+      );
+      if (corners === undefined) {
+        return;
+      }
+      overlayCtx.fillStyle = opts.colors.highlight;
+      drawTaskHighlight(overlayCtx, corners.topLeft, corners.bottomRight);
+    };
+  }
+
   return ok({
     scale: scale,
-    taskLocations: taskLocations,
+    updateHighlightFromMousePos: updateHighlightFromMousePos,
   });
 }
 

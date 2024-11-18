@@ -34,6 +34,7 @@ import {
   RenderResult,
   TaskLabel,
   TaskLocation,
+  UpdateHighlightFromMousePos,
   renderTasksToCanvas,
   suggestedCanvasHeight,
 } from "./renderer/renderer.ts";
@@ -221,15 +222,21 @@ document
     paintChart();
   });
 
-// TODO - Should really be a canvas that overlays the #zoomed canvas.
-const mm = new MouseMove(document.querySelector("#zoomed")!);
+const mm = new MouseMove(document.querySelector("#overlay")!);
 
-window.setInterval(() => {
+let updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
+
+const onMouseMove = () => {
   const location = mm.readLocation();
   if (location !== null) {
     console.log(location);
   }
-}, 100);
+  if (location !== null && updateHighlightFromMousePos !== null) {
+    updateHighlightFromMousePos(location);
+  }
+  window.requestAnimationFrame(onMouseMove);
+};
+window.requestAnimationFrame(onMouseMove);
 
 const paintChart = () => {
   console.time("paintChart");
@@ -330,9 +337,11 @@ const paintChart = () => {
   radarScale = ret.value.scale;
 
   paintOneChart("#timeline", timelineOpts);
-  paintOneChart("#zoomed", zoomOpts, "#overlay");
+  const zoomRet = paintOneChart("#zoomed", zoomOpts, "#overlay");
+  if (zoomRet.ok) {
+    updateHighlightFromMousePos = zoomRet.value.updateHighlightFromMousePos;
+  }
 
-  taskLocationKDTree = new KDTree(ret.value.taskLocations);
   console.timeEnd("paintChart");
 };
 
@@ -376,13 +385,14 @@ const paintOneChart = (
   canvasHeight = newHeight;
   height = newHeight / window.devicePixelRatio;
 
+  let overlay: HTMLCanvasElement | null = null;
   if (overlayID) {
-    const overlay = document.querySelector<HTMLCanvasElement>(overlayID)!;
+    overlay = document.querySelector<HTMLCanvasElement>(overlayID)!;
     prepareCanvas(overlay, canvasWidth, canvasHeight, width, height);
   }
   const ctx = prepareCanvas(canvas, canvasWidth, canvasHeight, width, height);
 
-  return renderTasksToCanvas(parent, canvas, ctx, plan, spans, opts);
+  return renderTasksToCanvas(parent, canvas, ctx, plan, spans, opts, overlay);
 };
 
 export interface CriticalPathEntry {
