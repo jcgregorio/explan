@@ -165,7 +165,9 @@ export interface TaskLocation {
   taskIndex: number;
 }
 
-// A func that takes a Point and redraws the highlighted task if needed.
+// A func that takes a Point and redraws the highlighted task if needed, returns
+// the index of the task that is highlighted, but only if the highlighted task
+// index has changed.
 export type UpdateHighlightFromMousePos = (point: Point) => number | null;
 
 export interface RenderResult {
@@ -459,7 +461,6 @@ export function renderTasksToCanvas(
       if (taskLocation.taskIndex === lastHighlightedTaskIndex) {
         return null;
       }
-      overlayCtx.fillStyle = "rgb(0,0,0,0)";
       overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
 
       lastHighlightedTaskIndex = taskLocation.taskIndex;
