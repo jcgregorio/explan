@@ -226,13 +226,16 @@ const mm = new MouseMove(document.querySelector("#overlay")!);
 
 let updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
 
+let highlightedTask: number | null = null;
+
 const onMouseMove = () => {
   const location = mm.readLocation();
-  if (location !== null) {
-    console.log(location);
-  }
   if (location !== null && updateHighlightFromMousePos !== null) {
-    updateHighlightFromMousePos(location);
+    const newTask = updateHighlightFromMousePos(location);
+    if (newTask !== null) {
+      highlightedTask = newTask;
+      console.log(`highlighted task: ${highlightedTask}`);
+    }
   }
   window.requestAnimationFrame(onMouseMove);
 };

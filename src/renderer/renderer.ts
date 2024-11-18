@@ -166,7 +166,7 @@ export interface TaskLocation {
 }
 
 // A func that takes a Point and redraws the highlighted task if needed.
-export type UpdateHighlightFromMousePos = (point: Point) => void;
+export type UpdateHighlightFromMousePos = (point: Point) => number;
 
 export interface RenderResult {
   scale: Scale;
@@ -451,13 +451,13 @@ export function renderTasksToCanvas(
     const taskLocationKDTree = new KDTree(taskLocations);
     let lastHighlightedTaskIndex = -1;
 
-    updateHighlightFromMousePos = (point: Point): void => {
+    updateHighlightFromMousePos = (point: Point): number | null => {
       // First convert point in offset coords into canvas coords.
       point.x = point.x * window.devicePixelRatio;
       point.y = point.y * window.devicePixelRatio;
       const taskLocation = taskLocationKDTree.nearest(point);
       if (taskLocation.taskIndex === lastHighlightedTaskIndex) {
-        return;
+        return null;
       }
       overlayCtx.fillStyle = "rgb(0,0,0,0)";
       overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
@@ -467,10 +467,11 @@ export function renderTasksToCanvas(
         taskLocation.taskIndex
       );
       if (corners === undefined) {
-        return;
+        return null;
       }
       overlayCtx.fillStyle = opts.colors.highlight;
       drawTaskHighlight(overlayCtx, corners.topLeft, corners.bottomRight);
+      return taskLocation.taskIndex;
     };
   }
 
