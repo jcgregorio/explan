@@ -222,7 +222,8 @@ document
     paintChart();
   });
 
-const mm = new MouseMove(document.querySelector("#overlay")!);
+const overlayCanvas = document.querySelector<HTMLCanvasElement>("#overlay")!;
+const mm = new MouseMove(overlayCanvas);
 
 let updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
 
@@ -231,7 +232,7 @@ let highlightedTask: number | null = null;
 const onMouseMove = () => {
   const location = mm.readLocation();
   if (location !== null && updateHighlightFromMousePos !== null) {
-    const newTask = updateHighlightFromMousePos(location);
+    const newTask = updateHighlightFromMousePos(location, "mousemove");
     if (newTask !== null) {
       highlightedTask = newTask;
       console.log(`highlighted task: ${highlightedTask}`);
@@ -240,6 +241,13 @@ const onMouseMove = () => {
   window.requestAnimationFrame(onMouseMove);
 };
 window.requestAnimationFrame(onMouseMove);
+
+overlayCanvas.addEventListener("mousedown", (e: MouseEvent) => {
+  const p = new Point(e.offsetX, e.offsetY);
+  if (updateHighlightFromMousePos !== null) {
+    updateHighlightFromMousePos(p, "mousedown");
+  }
+});
 
 const paintChart = () => {
   console.time("paintChart");

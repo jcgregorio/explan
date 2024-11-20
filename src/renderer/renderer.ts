@@ -165,10 +165,14 @@ export interface TaskLocation {
   taskIndex: number;
 }
 
+type UpdateType = "mousemove" | "mousedown";
+
 // A func that takes a Point and redraws the highlighted task if needed, returns
-// the index of the task that is highlighted, but only if the highlighted task
-// index has changed.
-export type UpdateHighlightFromMousePos = (point: Point) => number | null;
+// the index of the task that is highlighted.
+export type UpdateHighlightFromMousePos = (
+  point: Point,
+  updateType: UpdateType
+) => number | null;
 
 export interface RenderResult {
   scale: Scale;
@@ -452,27 +456,62 @@ export function renderTasksToCanvas(
     const overlayCtx = overlay.getContext("2d")!;
     const taskLocationKDTree = new KDTree(taskLocations);
     let lastHighlightedTaskIndex = -1;
+    let lastSelectedTaskIndex = -1;
 
-    updateHighlightFromMousePos = (point: Point): number | null => {
+    updateHighlightFromMousePos = (
+      point: Point,
+      updateType: UpdateType
+    ): number | null => {
       // First convert point in offset coords into canvas coords.
       point.x = point.x * window.devicePixelRatio;
       point.y = point.y * window.devicePixelRatio;
       const taskLocation = taskLocationKDTree.nearest(point);
-      if (taskLocation.taskIndex === lastHighlightedTaskIndex) {
-        return null;
+      const taskIndex = taskLocation.taskIndex;
+      if (updateType === "mousemove") {
+        if (taskIndex === lastHighlightedTaskIndex) {
+          return taskIndex;
+        }
+      } else {
+        if (taskIndex === lastSelectedTaskIndex) {
+          return taskIndex;
+        }
       }
+
+      if (updateType === "mousemove") {
+        lastHighlightedTaskIndex = taskIndex;
+      } else {
+        lastSelectedTaskIndex = taskIndex;
+      }
+
       overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
 
-      lastHighlightedTaskIndex = taskLocation.taskIndex;
-      const corners = taskIndexToTaskHighlightCorners.get(
-        taskLocation.taskIndex
+      // Draw both highlight and selection.
+
+      // Draw highlight.
+      let corners = taskIndexToTaskHighlightCorners.get(
+        lastHighlightedTaskIndex
       );
-      if (corners === undefined) {
-        return null;
+      if (corners !== undefined) {
+        drawTaskHighlight(
+          overlayCtx,
+          corners.topLeft,
+          corners.bottomRight,
+          opts.colors.highlight
+        );
       }
-      overlayCtx.fillStyle = opts.colors.highlight;
-      drawTaskHighlight(overlayCtx, corners.topLeft, corners.bottomRight);
-      return taskLocation.taskIndex;
+
+      // Draw selection.
+      corners = taskIndexToTaskHighlightCorners.get(lastSelectedTaskIndex);
+      if (corners !== undefined) {
+        drawTaskHighlight(
+          overlayCtx,
+          corners.topLeft,
+          corners.bottomRight,
+          opts.colors.highlight
+        );
+      }
+
+      return taskIndex;
     };
   }
 
@@ -762,8 +801,10 @@ function drawTaskBar(
 function drawTaskHighlight(
   ctx: CanvasRenderingContext2D,
   highlightStart: Point,
-  highlightEnd: Point
+  highlightEnd: Point,
+  color: string
 ) {
+  ctx.fillStyle = color;
   ctx.fillRect(
     highlightStart.x,
     highlightStart.y,
