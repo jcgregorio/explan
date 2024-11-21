@@ -20,6 +20,7 @@ export interface Colors {
   overlay: string;
   groupColor: string;
   highlight: string;
+  selection: string;
 }
 
 export type TaskIndexToRow = Map<number, number>;
@@ -496,14 +497,15 @@ export function renderTasksToCanvas(
           overlayCtx,
           corners.topLeft,
           corners.bottomRight,
-          opts.colors.highlight
+          opts.colors.highlight,
+          scale.metric(taskLineHeight)
         );
       }
 
       // Draw selection.
       corners = taskIndexToTaskHighlightCorners.get(lastSelectedTaskIndex);
       if (corners !== undefined) {
-        drawTaskHighlight(
+        drawSelectionHighlight(
           overlayCtx,
           corners.topLeft,
           corners.bottomRight,
@@ -799,6 +801,23 @@ function drawTaskBar(
 }
 
 function drawTaskHighlight(
+  ctx: CanvasRenderingContext2D,
+  highlightStart: Point,
+  highlightEnd: Point,
+  color: string,
+  borderWidth: number
+) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = borderWidth;
+  ctx.strokeRect(
+    highlightStart.x,
+    highlightStart.y,
+    highlightEnd.x - highlightStart.x,
+    highlightEnd.y - highlightStart.y
+  );
+}
+
+function drawSelectionHighlight(
   ctx: CanvasRenderingContext2D,
   highlightStart: Point,
   highlightEnd: Point,
