@@ -40,6 +40,11 @@ describe("filter", () => {
     const vret = validateChart(plan.chart);
     assert.isTrue(vret.ok);
     assert.deepEqual(vret.value, ret.value.displayOrder);
+
+    // Even if no filtering occurred, we still return a working
+    // fromFilteredIndexToOriginalIndex.
+    assert.equal(ret.value.fromFilteredIndexToOriginalIndex.get(0), 0);
+    assert.equal(ret.value.fromFilteredIndexToOriginalIndex.get(1), 1);
   });
 
   it("returns a chart with no tasks, even start and finish are filtered out", () => {

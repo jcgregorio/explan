@@ -19,6 +19,7 @@ export interface FilterResult {
 
 export type FilterFunc = (task: Task, index: number) => boolean;
 
+/** Filters the contents of the Chart based on the filterFunc. */
 export const filter = (
   chart: Chart,
   filterFunc: FilterFunc | null,
@@ -32,12 +33,17 @@ export const filter = (
   }
   const topologicalOrder = vret.value;
   if (filterFunc === null) {
+    const fromFilteredIndexToOriginalIndex: Map<number, number> = new Map();
+    for (let index = 0; index < chart.Vertices.length; index++) {
+      fromFilteredIndexToOriginalIndex.set(index, index);
+    }
     return ok({
       chartLike: chart,
       displayOrder: vret.value,
       emphasizedTasks: emphasizedTasks,
       spans,
       labels,
+      fromFilteredIndexToOriginalIndex,
     });
   }
   const tasks: Tasks = [];
