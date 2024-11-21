@@ -289,6 +289,7 @@ const paintChart = () => {
     filterFunc: null,
     groupByResource: groupByOptions[groupByOptionsIndex],
     highlightedTask: null,
+    selectedTaskIndex: -1,
   };
 
   const zoomOpts: RenderOptions = {
@@ -314,6 +315,7 @@ const paintChart = () => {
     filterFunc: filterFunc,
     groupByResource: groupByOptions[groupByOptionsIndex],
     highlightedTask: 1,
+    selectedTaskIndex: -1,
   };
 
   const timelineOpts: RenderOptions = {
@@ -339,6 +341,7 @@ const paintChart = () => {
     filterFunc: filterFunc,
     groupByResource: groupByOptions[groupByOptionsIndex],
     highlightedTask: null,
+    selectedTaskIndex: -1,
   };
 
   const ret = paintOneChart("#radar", radarOpts);

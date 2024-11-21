@@ -85,6 +85,9 @@ export interface RenderOptions {
 
   /** Task to highlight. */
   highlightedTask: null | number;
+
+  /** The index of the selected task, or -1 if no task is selected. */
+  selectedTaskIndex: number;
 }
 
 const verticalArrowStartFeatureFromTaskDuration = (
@@ -209,7 +212,8 @@ export function renderTasksToCanvas(
     opts.filterFunc,
     opts.taskEmphasize,
     spans,
-    originalLabels
+    originalLabels,
+    opts.selectedTaskIndex
   );
   if (!fret.ok) {
     return fret;
@@ -217,6 +221,9 @@ export function renderTasksToCanvas(
   const chartLike = fret.value.chartLike;
   const labels = fret.value.labels;
   const resourceDefinition = plan.getResourceDefinition(opts.groupByResource);
+
+  // Selected task.
+  let lastSelectedTaskIndex = fret.value.selectedTaskIndex;
 
   // Highlighted tasks.
   const emphasizedTasks: Set<number> = new Set(fret.value.emphasizedTasks);
@@ -456,7 +463,6 @@ export function renderTasksToCanvas(
     const overlayCtx = overlay.getContext("2d")!;
     const taskLocationKDTree = new KDTree(taskLocations);
     let lastHighlightedTaskIndex = -1;
-    let lastSelectedTaskIndex = -1;
 
     updateHighlightFromMousePos = (
       point: Point,
