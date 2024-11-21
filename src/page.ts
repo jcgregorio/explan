@@ -228,6 +228,7 @@ const mm = new MouseMove(overlayCanvas);
 let updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
 
 let highlightedTask: number | null = null;
+let selectedTask: number = -1;
 
 const onMouseMove = () => {
   const location = mm.readLocation();
@@ -245,7 +246,7 @@ window.requestAnimationFrame(onMouseMove);
 overlayCanvas.addEventListener("mousedown", (e: MouseEvent) => {
   const p = new Point(e.offsetX, e.offsetY);
   if (updateHighlightFromMousePos !== null) {
-    updateHighlightFromMousePos(p, "mousedown");
+    selectedTask = updateHighlightFromMousePos(p, "mousedown") || -1;
   }
 });
 
@@ -289,7 +290,7 @@ const paintChart = () => {
     filterFunc: null,
     groupByResource: groupByOptions[groupByOptionsIndex],
     highlightedTask: null,
-    selectedTaskIndex: -1,
+    selectedTaskIndex: selectedTask,
   };
 
   const zoomOpts: RenderOptions = {
@@ -315,7 +316,7 @@ const paintChart = () => {
     filterFunc: filterFunc,
     groupByResource: groupByOptions[groupByOptionsIndex],
     highlightedTask: 1,
-    selectedTaskIndex: -1,
+    selectedTaskIndex: selectedTask,
   };
 
   const timelineOpts: RenderOptions = {
@@ -341,7 +342,7 @@ const paintChart = () => {
     filterFunc: filterFunc,
     groupByResource: groupByOptions[groupByOptionsIndex],
     highlightedTask: null,
-    selectedTaskIndex: -1,
+    selectedTaskIndex: selectedTask,
   };
 
   const ret = paintOneChart("#radar", radarOpts);

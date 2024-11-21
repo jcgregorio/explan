@@ -520,6 +520,17 @@ export function renderTasksToCanvas(
 
       return taskIndex;
     };
+
+    // Draw selection.
+    const corners = taskIndexToTaskHighlightCorners.get(lastSelectedTaskIndex);
+    if (corners !== undefined) {
+      drawSelectionHighlight(
+        overlayCtx,
+        corners.topLeft,
+        corners.bottomRight,
+        opts.colors.highlight
+      );
+    }
   }
 
   return ok({
