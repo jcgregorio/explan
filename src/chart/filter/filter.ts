@@ -15,17 +15,25 @@ export interface FilterResult {
   spans: Span[];
   labels: string[];
   fromFilteredIndexToOriginalIndex: Map<number, number>;
+  selectedTaskIndex: number;
 }
 
+/** Used for filtering tasks, returns True if the task is to be included in the
+ * filtered results. */
 export type FilterFunc = (task: Task, index: number) => boolean;
 
-/** Filters the contents of the Chart based on the filterFunc. */
+/** Filters the contents of the Chart based on the filterFunc.
+ *
+ * selectedTaskIndex will be returned as -1 if the selected task gets filtered
+ * out.
+ */
 export const filter = (
   chart: Chart,
   filterFunc: FilterFunc | null,
   emphasizedTasks: number[],
   spans: Span[],
-  labels: string[]
+  labels: string[],
+  selectedTaskIndex: number
 ): Result<FilterResult> => {
   const vret = validateChart(chart);
   if (!vret.ok) {
@@ -44,6 +52,7 @@ export const filter = (
       spans,
       labels,
       fromFilteredIndexToOriginalIndex,
+      selectedTaskIndex,
     });
   }
   const tasks: Tasks = [];
@@ -52,7 +61,6 @@ export const filter = (
   const filteredSpans: Span[] = [];
   const filteredLabels: string[] = [];
   const fromFilteredIndexToOriginalIndex: Map<number, number> = new Map();
-
   const fromOriginalToNewIndex: Map<number, number> = new Map();
 
   // First filter the tasks.
@@ -108,5 +116,6 @@ export const filter = (
     spans: filteredSpans,
     labels: filteredLabels,
     fromFilteredIndexToOriginalIndex: fromFilteredIndexToOriginalIndex,
+    selectedTaskIndex: fromOriginalToNewIndex.get(selectedTaskIndex) || -1,
   });
 };

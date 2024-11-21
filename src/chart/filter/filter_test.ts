@@ -34,7 +34,7 @@ describe("filter", () => {
     const plan = newPlan();
 
     // Supply a null filter.
-    const ret = filter(plan.chart, null, [], [], []);
+    const ret = filter(plan.chart, null, [], [], [], -1);
     assert.isTrue(ret.ok);
     assert.deepEqual(plan.chart, ret.value.chartLike);
     const vret = validateChart(plan.chart);
@@ -45,15 +45,18 @@ describe("filter", () => {
     // fromFilteredIndexToOriginalIndex.
     assert.equal(ret.value.fromFilteredIndexToOriginalIndex.get(0), 0);
     assert.equal(ret.value.fromFilteredIndexToOriginalIndex.get(1), 1);
+
+    assert.equal(ret.value.selectedTaskIndex, -1);
   });
 
   it("returns a chart with no tasks, even start and finish are filtered out", () => {
     const plan = newPlan();
 
     // Filter out all tasks.
-    const ret = filter(plan.chart, () => false, [], [], []);
+    const ret = filter(plan.chart, () => false, [], [], [], -1);
     assert.isTrue(ret.ok);
     assert.equal(ret.value.chartLike.Vertices.length, 0);
+    assert.equal(ret.value.selectedTaskIndex, -1);
   });
 
   it("returns edges that are updated to point to the new Task locations", () => {
@@ -69,7 +72,8 @@ describe("filter", () => {
       },
       [2], // Fred is highlighted, test that this moves to [1] after filtering.
       [new Span(0, 0), new Span(0, 7), new Span(5, 9), new Span(9, 9)], // Confirm the (0,7) for Fred gets removed.
-      ["Start", "Barney", "Fred", "Finish"]
+      ["Start", "Barney", "Fred", "Finish"],
+      2
     );
     assert.isTrue(ret.ok);
     assert.deepEqual(ret.value.chartLike.Edges, [
@@ -88,5 +92,8 @@ describe("filter", () => {
     assert.equal(ret.value.fromFilteredIndexToOriginalIndex.get(1), 2);
     assert.equal(ret.value.fromFilteredIndexToOriginalIndex.get(0), 0);
     assert.equal(ret.value.fromFilteredIndexToOriginalIndex.get(2), 3);
+
+    // The selected task gets updated to its new location.
+    assert.equal(ret.value.selectedTaskIndex, 1);
   });
 });
