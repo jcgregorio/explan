@@ -20,7 +20,6 @@ export interface Colors {
   overlay: string;
   groupColor: string;
   highlight: string;
-  selection: string;
 }
 
 export type TaskIndexToRow = Map<number, number>;
