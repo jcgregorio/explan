@@ -78,5 +78,10 @@ describe("filter", () => {
       new Span(9, 9),
     ]);
     assert.deepEqual(ret.value.labels, ["Start", "Fred", "Finish"]);
+
+    // Confirm the we can map back to the original task indices.
+    assert.equal(ret.value.fromFilteredIndexToOriginalIndex.get(1), 2);
+    assert.equal(ret.value.fromFilteredIndexToOriginalIndex.get(0), 0);
+    assert.equal(ret.value.fromFilteredIndexToOriginalIndex.get(2), 3);
   });
 });

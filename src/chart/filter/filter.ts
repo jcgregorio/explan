@@ -14,6 +14,7 @@ export interface FilterResult {
   emphasizedTasks: number[];
   spans: Span[];
   labels: string[];
+  fromFilteredIndexToOriginalIndex: Map<number, number>;
 }
 
 export type FilterFunc = (task: Task, index: number) => boolean;
@@ -44,6 +45,7 @@ export const filter = (
   const displayOrder: number[] = [];
   const filteredSpans: Span[] = [];
   const filteredLabels: string[] = [];
+  const fromFilteredIndexToOriginalIndex: Map<number, number> = new Map();
 
   const fromOriginalToNewIndex: Map<number, number> = new Map();
 
@@ -55,6 +57,7 @@ export const filter = (
       filteredLabels.push(labels[originalIndex]);
       const newIndex = tasks.length - 1;
       fromOriginalToNewIndex.set(originalIndex, newIndex);
+      fromFilteredIndexToOriginalIndex.set(newIndex, originalIndex);
     }
   });
 
@@ -98,5 +101,6 @@ export const filter = (
     emphasizedTasks: updatedEmphasizedTasks,
     spans: filteredSpans,
     labels: filteredLabels,
+    fromFilteredIndexToOriginalIndex: fromFilteredIndexToOriginalIndex,
   });
 };
