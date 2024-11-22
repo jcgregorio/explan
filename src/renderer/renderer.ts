@@ -168,7 +168,9 @@ export function suggestedCanvasHeight(
 export interface TaskLocation {
   x: number;
   y: number;
-  taskIndex: number;
+
+  // That index of the task in the unfiltered Chart.
+  originalTaskIndex: number;
 }
 
 type UpdateType = "mousemove" | "mousedown";
@@ -385,6 +387,7 @@ export function renderTasksToCanvas(
           span,
           task,
           taskIndex,
+          fromFilteredIndexToOriginalIndex.get(taskIndex)!,
           clipWidth,
           labels,
           taskLocations
@@ -481,23 +484,21 @@ export function renderTasksToCanvas(
       point.x = point.x * window.devicePixelRatio;
       point.y = point.y * window.devicePixelRatio;
       const taskLocation = taskLocationKDTree.nearest(point);
-      const filteredTaskIndex = taskLocation.taskIndex;
-      const taskIndex =
-        fromFilteredIndexToOriginalIndex.get(filteredTaskIndex)!;
+      const originalTaskIndex = taskLocation.originalTaskIndex;
       if (updateType === "mousemove") {
-        if (taskIndex === lastHighlightedTaskIndex) {
-          return taskIndex;
+        if (originalTaskIndex === lastHighlightedTaskIndex) {
+          return originalTaskIndex;
         }
       } else {
-        if (taskIndex === lastSelectedTaskIndex) {
-          return taskIndex;
+        if (originalTaskIndex === lastSelectedTaskIndex) {
+          return originalTaskIndex;
         }
       }
 
       if (updateType === "mousemove") {
-        lastHighlightedTaskIndex = taskIndex;
+        lastHighlightedTaskIndex = originalTaskIndex;
       } else {
-        lastSelectedTaskIndex = taskIndex;
+        lastSelectedTaskIndex = originalTaskIndex;
       }
 
       overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
@@ -531,7 +532,7 @@ export function renderTasksToCanvas(
         );
       }
 
-      return taskIndex;
+      return originalTaskIndex;
     };
 
     // Draw selection.
@@ -775,6 +776,7 @@ function drawTaskText(
   span: Span,
   task: Task,
   taskIndex: number,
+  originalTaskIndex: number,
   clipWidth: number,
   labels: string[],
   taskLocations: TaskLocation[]
@@ -813,7 +815,7 @@ function drawTaskText(
   taskLocations.push({
     x: textX,
     y: textY,
-    taskIndex: taskIndex,
+    originalTaskIndex: originalTaskIndex,
   });
 }
 
