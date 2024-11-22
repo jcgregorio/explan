@@ -15,6 +15,7 @@ export interface FilterResult {
   spans: Span[];
   labels: string[];
   fromFilteredIndexToOriginalIndex: Map<number, number>;
+  fromOriginalIndexToFilteredIndex: Map<number, number>;
   selectedTaskIndex: number;
 }
 
@@ -49,9 +50,10 @@ export const filter = (
       chartLike: chart,
       displayOrder: vret.value,
       emphasizedTasks: emphasizedTasks,
-      spans,
-      labels,
-      fromFilteredIndexToOriginalIndex,
+      spans: spans,
+      labels: labels,
+      fromFilteredIndexToOriginalIndex: fromFilteredIndexToOriginalIndex,
+      fromOriginalIndexToFilteredIndex: fromFilteredIndexToOriginalIndex,
       selectedTaskIndex,
     });
   }
@@ -61,7 +63,7 @@ export const filter = (
   const filteredSpans: Span[] = [];
   const filteredLabels: string[] = [];
   const fromFilteredIndexToOriginalIndex: Map<number, number> = new Map();
-  const fromOriginalToNewIndex: Map<number, number> = new Map();
+  const fromOriginalToFilteredIndex: Map<number, number> = new Map();
 
   // First filter the tasks.
   chart.Vertices.forEach((task: Task, originalIndex: number) => {
@@ -70,7 +72,7 @@ export const filter = (
       filteredSpans.push(spans[originalIndex]);
       filteredLabels.push(labels[originalIndex]);
       const newIndex = tasks.length - 1;
-      fromOriginalToNewIndex.set(originalIndex, newIndex);
+      fromOriginalToFilteredIndex.set(originalIndex, newIndex);
       fromFilteredIndexToOriginalIndex.set(newIndex, originalIndex);
     }
   });
@@ -78,15 +80,15 @@ export const filter = (
   // Now filter the edges while also rewriting them.
   chart.Edges.forEach((directedEdge: DirectedEdge) => {
     if (
-      !fromOriginalToNewIndex.has(directedEdge.i) ||
-      !fromOriginalToNewIndex.has(directedEdge.j)
+      !fromOriginalToFilteredIndex.has(directedEdge.i) ||
+      !fromOriginalToFilteredIndex.has(directedEdge.j)
     ) {
       return;
     }
     edges.push(
       new DirectedEdge(
-        fromOriginalToNewIndex.get(directedEdge.i),
-        fromOriginalToNewIndex.get(directedEdge.j)
+        fromOriginalToFilteredIndex.get(directedEdge.i),
+        fromOriginalToFilteredIndex.get(directedEdge.j)
       )
     );
   });
@@ -97,13 +99,13 @@ export const filter = (
     if (!filterFunc(task, originalTaskIndex)) {
       return;
     }
-    displayOrder.push(fromOriginalToNewIndex.get(originalTaskIndex)!);
+    displayOrder.push(fromOriginalToFilteredIndex.get(originalTaskIndex)!);
   });
 
   // Re-index highlighted tasks.
   const updatedEmphasizedTasks = emphasizedTasks.map(
     (originalTaskIndex: number): number =>
-      fromOriginalToNewIndex.get(originalTaskIndex)!
+      fromOriginalToFilteredIndex.get(originalTaskIndex)!
   );
 
   return ok({
@@ -116,6 +118,7 @@ export const filter = (
     spans: filteredSpans,
     labels: filteredLabels,
     fromFilteredIndexToOriginalIndex: fromFilteredIndexToOriginalIndex,
-    selectedTaskIndex: fromOriginalToNewIndex.get(selectedTaskIndex) || -1,
+    fromOriginalIndexToFilteredIndex: fromOriginalToFilteredIndex,
+    selectedTaskIndex: fromOriginalToFilteredIndex.get(selectedTaskIndex) || -1,
   });
 };

@@ -86,7 +86,10 @@ export interface RenderOptions {
   /** Task to highlight. */
   highlightedTask: null | number;
 
-  /** The index of the selected task, or -1 if no task is selected. */
+  /** The index of the selected task, or -1 if no task is selected. This is
+   * always an index into the original chart, and not an index into a filtered
+   * chart.
+   */
   selectedTaskIndex: number;
 }
 
@@ -221,9 +224,13 @@ export function renderTasksToCanvas(
   const chartLike = fret.value.chartLike;
   const labels = fret.value.labels;
   const resourceDefinition = plan.getResourceDefinition(opts.groupByResource);
+  const fromFilteredIndexToOriginalIndex =
+    fret.value.fromFilteredIndexToOriginalIndex;
+  const fromOriginalIndexToFilteredIndex =
+    fret.value.fromOriginalIndexToFilteredIndex;
 
-  // Selected task.
-  let lastSelectedTaskIndex = fret.value.selectedTaskIndex;
+  // Selected task, as an index into the unfiltered Chart.
+  let lastSelectedTaskIndex = opts.selectedTaskIndex;
 
   // Highlighted tasks.
   const emphasizedTasks: Set<number> = new Set(fret.value.emphasizedTasks);
@@ -462,6 +469,8 @@ export function renderTasksToCanvas(
   if (overlay !== null) {
     const overlayCtx = overlay.getContext("2d")!;
     const taskLocationKDTree = new KDTree(taskLocations);
+
+    // Always recored in the original unfiltered task index.
     let lastHighlightedTaskIndex = -1;
 
     updateHighlightFromMousePos = (
@@ -472,7 +481,9 @@ export function renderTasksToCanvas(
       point.x = point.x * window.devicePixelRatio;
       point.y = point.y * window.devicePixelRatio;
       const taskLocation = taskLocationKDTree.nearest(point);
-      const taskIndex = taskLocation.taskIndex;
+      const filteredTaskIndex = taskLocation.taskIndex;
+      const taskIndex =
+        fromFilteredIndexToOriginalIndex.get(filteredTaskIndex)!;
       if (updateType === "mousemove") {
         if (taskIndex === lastHighlightedTaskIndex) {
           return taskIndex;
@@ -495,7 +506,7 @@ export function renderTasksToCanvas(
 
       // Draw highlight.
       let corners = taskIndexToTaskHighlightCorners.get(
-        lastHighlightedTaskIndex
+        fromOriginalIndexToFilteredIndex.get(lastHighlightedTaskIndex)!
       );
       if (corners !== undefined) {
         drawTaskHighlight(
@@ -508,7 +519,9 @@ export function renderTasksToCanvas(
       }
 
       // Draw selection.
-      corners = taskIndexToTaskHighlightCorners.get(lastSelectedTaskIndex);
+      corners = taskIndexToTaskHighlightCorners.get(
+        fromOriginalIndexToFilteredIndex.get(lastSelectedTaskIndex)!
+      );
       if (corners !== undefined) {
         drawSelectionHighlight(
           overlayCtx,
@@ -522,7 +535,9 @@ export function renderTasksToCanvas(
     };
 
     // Draw selection.
-    const corners = taskIndexToTaskHighlightCorners.get(lastSelectedTaskIndex);
+    const corners = taskIndexToTaskHighlightCorners.get(
+      fromOriginalIndexToFilteredIndex.get(lastSelectedTaskIndex)!
+    );
     if (corners !== undefined) {
       drawSelectionHighlight(
         overlayCtx,
