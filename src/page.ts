@@ -1,6 +1,6 @@
 import { Task } from "./chart/chart.ts";
 import { FilterFunc } from "./chart/filter/filter.ts";
-import { edgesBySrcAndDstToMap } from "./dag/dag.ts";
+import { DirectedEdge, edgesBySrcAndDstToMap } from "./dag/dag.ts";
 import {
   DupTaskOp,
   InsertNewEmptyTaskAfterOp,
@@ -215,6 +215,11 @@ const toggleCriticalPathsOnly = () => {
   criticalPathsOnly = !criticalPathsOnly;
 };
 
+let focusOnTask = false;
+const toggleFocusOnTask = () => {
+  focusOnTask = !focusOnTask;
+};
+
 document
   .querySelector("#critical-paths-toggle")!
   .addEventListener("click", () => {
@@ -251,15 +256,34 @@ const paintChart = () => {
   const themeColors: Theme = colorThemeFromElement(document.body);
 
   let filterFunc: FilterFunc | null = null;
+  const startAndFinish = [0, plan.chart.Vertices.length - 1];
   if (criticalPathsOnly) {
     const highlightSet = new Set(criticalPath);
-    const startAndFinish = [0, plan.chart.Vertices.length - 1];
     filterFunc = (task: Task, taskIndex: number): boolean => {
       if (startAndFinish.includes(taskIndex)) {
         return true;
       }
       return highlightSet.has(taskIndex);
     };
+  } else if (focusOnTask && selectedTask != -1) {
+    // Find all predecessor and successors of the given task.
+    const neighborSet = new Set();
+    neighborSet.add(selectedTask);
+    plan.chart.Edges.forEach((edge: DirectedEdge) => {
+      if (edge.i === selectedTask) {
+        neighborSet.add(edge.j);
+      }
+      if (edge.j === selectedTask) {
+        neighborSet.add(edge.i);
+      }
+      filterFunc = (task: Task, taskIndex: number): boolean => {
+        if (startAndFinish.includes(taskIndex)) {
+          return true;
+        }
+
+        return neighborSet.has(taskIndex);
+      };
+    });
   }
 
   const radarOpts: RenderOptions = {
@@ -561,3 +585,10 @@ document.querySelector("#simulate")!.addEventListener("click", () => {
 simulate();
 paintChart();
 window.addEventListener("resize", paintChart);
+
+const focusButton = document
+  .querySelector("#focus-on-selected-task")!
+  .addEventListener("click", () => {
+    toggleFocusOnTask();
+    paintChart();
+  });
