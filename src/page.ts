@@ -383,6 +383,12 @@ const paintChart = () => {
   const zoomRet = paintOneChart("#zoomed", zoomOpts, "#overlay");
   if (zoomRet.ok) {
     updateHighlightFromMousePos = zoomRet.value.updateHighlightFromMousePos;
+    if (zoomRet.value.selectedTaskLocation !== null) {
+      document.querySelector(".chart")!.scroll({
+        top: zoomRet.value.selectedTaskLocation.y,
+        behavior: "smooth",
+      });
+    }
   }
 
   console.timeEnd("paintChart");

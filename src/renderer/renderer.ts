@@ -185,6 +185,7 @@ export type UpdateHighlightFromMousePos = (
 export interface RenderResult {
   scale: Scale;
   updateHighlightFromMousePos: UpdateHighlightFromMousePos | null;
+  selectedTaskLocation: Point | null;
 }
 
 // TODO - Pass in max rows, and a mapping that maps from taskIndex to row,
@@ -468,6 +469,7 @@ export function renderTasksToCanvas(
   }
 
   let updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
+  let selectedTaskLocation: Point | null = null;
 
   if (overlay !== null) {
     const overlayCtx = overlay.getContext("2d")!;
@@ -549,9 +551,21 @@ export function renderTasksToCanvas(
     }
   }
 
+  // Find the highest task of all the tasks displayed.
+  taskIndexToTaskHighlightCorners.forEach((rc: RectCorners) => {
+    if (selectedTaskLocation === null) {
+      selectedTaskLocation = rc.topLeft;
+      return;
+    }
+    if (rc.topLeft.y < selectedTaskLocation.y) {
+      selectedTaskLocation = rc.topLeft;
+    }
+  });
+
   return ok({
     scale: scale,
     updateHighlightFromMousePos: updateHighlightFromMousePos,
+    selectedTaskLocation: selectedTaskLocation,
   });
 }
 
