@@ -250,6 +250,15 @@ overlayCanvas.addEventListener("mousedown", (e: MouseEvent) => {
   }
 });
 
+overlayCanvas.addEventListener("dblclick", (e: MouseEvent) => {
+  const p = new Point(e.offsetX, e.offsetY);
+  if (updateHighlightFromMousePos !== null) {
+    selectedTask = updateHighlightFromMousePos(p, "mousedown") || -1;
+    focusOnTask = true;
+    paintChart();
+  }
+});
+
 const paintChart = () => {
   console.time("paintChart");
 
