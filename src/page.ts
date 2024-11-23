@@ -218,6 +218,9 @@ const toggleCriticalPathsOnly = () => {
 let focusOnTask = false;
 const toggleFocusOnTask = () => {
   focusOnTask = !focusOnTask;
+  if (!focusOnTask) {
+    displayRange = null;
+  }
 };
 
 document
@@ -278,21 +281,31 @@ const paintChart = () => {
     // Find all predecessor and successors of the given task.
     const neighborSet = new Set();
     neighborSet.add(selectedTask);
+    let earliestStart = spans[selectedTask].start;
+    let latestFinish = spans[selectedTask].finish;
     plan.chart.Edges.forEach((edge: DirectedEdge) => {
       if (edge.i === selectedTask) {
         neighborSet.add(edge.j);
+        if (latestFinish < spans[edge.j].finish) {
+          latestFinish = spans[edge.j].finish;
+        }
       }
       if (edge.j === selectedTask) {
         neighborSet.add(edge.i);
-      }
-      filterFunc = (task: Task, taskIndex: number): boolean => {
-        if (startAndFinish.includes(taskIndex)) {
-          return true;
+        if (earliestStart > spans[edge.i].start) {
+          earliestStart = spans[edge.i].start;
         }
-
-        return neighborSet.has(taskIndex);
-      };
+      }
     });
+    displayRange = new DisplayRange(earliestStart - 1, latestFinish + 1);
+
+    filterFunc = (task: Task, taskIndex: number): boolean => {
+      if (startAndFinish.includes(taskIndex)) {
+        return true;
+      }
+
+      return neighborSet.has(taskIndex);
+    };
   }
 
   const radarOpts: RenderOptions = {
