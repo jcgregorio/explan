@@ -14,13 +14,14 @@
 
     .chart {
       grid-area: chart;
-      overflow-y: auto;
+      overflow-y: scroll;
       scrollbar-color: var(--onSurface) rgb(0, 0, 0, 0);
+    }
 
-      .timeline {
-        position: sticky;
-        top: 0;
-      }
+    .timeline {
+      grid-area: timeline;
+      overflow-y: scroll;
+      scrollbar-color: rgb(0, 0, 0, 0) rgb(0, 0, 0, 0);
     }
 
     #overlay {
@@ -64,12 +65,13 @@
 
     .wrapper {
       display: grid;
-      grid-gap: 10px;
+      grid-gap: 0px;
       grid-template-columns: 70% 10px auto;
       grid-template-areas:
-        "header header header"
-        "chart divider panels"
-        "footer footer footer";
+        "header   header  header"
+        "timeline divider panels"
+        "chart    divider panels"
+        "footer   footer  footer";
 
       width: 100vw;
       height: 100vh;
@@ -174,10 +176,10 @@
         <canvas id="radar" width="1000" height="1000"></canvas>
       </chart-parent>
     </header>
+    <chart-parent class="timeline">
+      <canvas id="timeline" width="1000" height="1000"></canvas>
+    </chart-parent>
     <div class="chart">
-      <chart-parent class="timeline">
-        <canvas id="timeline" width="1000" height="1000"></canvas>
-      </chart-parent>
       <chart-parent>
         <canvas id="zoomed" width="1000" height="1000"></canvas>
         <canvas id="overlay" width="1000" height="1000"></canvas>
