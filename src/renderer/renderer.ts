@@ -914,12 +914,9 @@ const drawTimeMarkerAtDayToTask = (
     day,
     verticalArrowDestFeatureFromTaskDuration(task, "down")
   );
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 0.5;
+  ctx.strokeStyle = opts.colors.overlay;
 
-  ctx.setLineDash([
-    scale.metric(Metric.lineDashLine),
-    scale.metric(Metric.lineDashGap),
-  ]);
   ctx.moveTo(timeMarkStart.x + 0.5, timeMarkStart.y);
   ctx.lineTo(timeMarkStart.x + 0.5, timeMarkEnd.y);
   ctx.stroke();
