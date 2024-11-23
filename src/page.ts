@@ -297,6 +297,8 @@ const paintChart = () => {
         }
       }
     });
+    // TODO - Since we overwrite displayRange that means dragging on the radar
+    // will not work when focusing on a selected task. Bug or feature?
     displayRange = new DisplayRange(earliestStart - 1, latestFinish + 1);
 
     filterFunc = (task: Task, taskIndex: number): boolean => {
