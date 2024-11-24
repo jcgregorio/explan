@@ -158,7 +158,7 @@ radar.addEventListener(DRAG_RANGE_EVENT, dragRangeHandler as EventListener);
 
 // Divider dragging.
 const wrapper = document.querySelector<HTMLElement>(".wrapper")!;
-const divider = document.querySelector<HTMLElement>("#divider")!;
+const divider = document.querySelector<HTMLElement>("vertical-divider")!;
 new DividerMove(document.body, divider, "column");
 
 const dividerDragRangeHandler = (e: CustomEvent<DividerMoveResult>) => {
@@ -186,7 +186,7 @@ document.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
 });
 
 document.querySelector("#radar-toggle")!.addEventListener("click", () => {
-  document.querySelector("#radar-parent")!.classList.toggle("hidden");
+  document.querySelector("radar-parent")!.classList.toggle("hidden");
 });
 
 let topTimeline: boolean = false;
@@ -399,7 +399,7 @@ const paintChart = () => {
   if (zoomRet.ok) {
     updateHighlightFromMousePos = zoomRet.value.updateHighlightFromMousePos;
     if (zoomRet.value.selectedTaskLocation !== null) {
-      document.querySelector(".chart")!.scroll({
+      document.querySelector("chart-parent")!.scroll({
         top: zoomRet.value.selectedTaskLocation.y,
         behavior: "smooth",
       });

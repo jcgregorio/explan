@@ -12,13 +12,13 @@
       user-select: none;
     }
 
-    .chart {
+    chart-parent {
       grid-area: chart;
       overflow-y: scroll;
       scrollbar-color: var(--onSurface) rgb(0, 0, 0, 0);
     }
 
-    .timeline {
+    timeline-parent {
       grid-area: timeline;
       overflow-y: scroll;
       scrollbar-color: rgb(0, 0, 0, 0) rgb(0, 0, 0, 0);
@@ -30,14 +30,15 @@
       left: 0;
     }
 
-    #divider {
-      grid-area: divider;
+    vertical-divider {
+      grid-area: vertical-divider;
       display: flex;
       flex-direction: column;
       cursor: col-resize;
       justify-content: center;
 
-      .thumb {
+      divider-thumb {
+        display: inline-block;
         background: linear-gradient(315deg, transparent 75%, #414141 0)-10px 0,
           linear-gradient(45deg, transparent 75%, #d1d1d1 0)-10px 0,
           linear-gradient(135deg, #b1b1b1 50%, transparent 0) 0 0,
@@ -47,7 +48,7 @@
       }
     }
 
-    .panels {
+    panels-parent {
       grid-area: panels;
 
       ul li {
@@ -65,13 +66,13 @@
 
     .wrapper {
       display: grid;
-      grid-gap: 0px;
+      grid-gap: 0;
       grid-template-columns: 70% 10px auto;
       grid-template-areas:
-        "header   header  header"
-        "timeline divider panels"
-        "chart    divider panels"
-        "footer   footer  footer";
+        "header   header           header"
+        "timeline vertical-divider panels"
+        "chart    vertical-divider panels"
+        "footer   footer           footer";
 
       width: 100vw;
       height: 100vh;
@@ -80,6 +81,9 @@
       position: absolute;
     }
 
+    chart-parent,
+    timeline-parent,
+    radar-parent,
     chart-parent {
       display: block;
       position: relative;
@@ -172,26 +176,24 @@
         <a id="download" download="plan.json" href="">Download</a>
         <label> Upload <input type="file" id="file-upload" /></label>
       </nav>
-      <chart-parent id="radar-parent">
+      <radar-parent>
         <canvas id="radar" width="1000" height="1000"></canvas>
-      </chart-parent>
+      </radar-parent>
     </header>
-    <chart-parent class="timeline">
+    <timeline-parent>
       <canvas id="timeline" width="1000" height="1000"></canvas>
+    </timeline-parent>
+    <chart-parent>
+      <canvas id="zoomed" width="1000" height="1000"></canvas>
+      <canvas id="overlay" width="1000" height="1000"></canvas>
     </chart-parent>
-    <div class="chart">
-      <chart-parent>
-        <canvas id="zoomed" width="1000" height="1000"></canvas>
-        <canvas id="overlay" width="1000" height="1000"></canvas>
-      </chart-parent>
-    </div>
-    <div id="divider">
-      <div class="thumb"></div>
-    </div>
-    <div class="panels">
+    <vertical-divider>
+      <divider-thumb></divider-thumb>
+    </vertical-divider>
+    <panels-parent>
       <ul id="criticalPaths"></ul>
       <table id="criticalTasks"></table>
-    </div>
+    </panels-parent>
     <footer>Footer</footer>
   </div>
   <script type="module" src="./dst/page.js"></script>
