@@ -223,6 +223,10 @@ const toggleFocusOnTask = () => {
   }
 };
 
+const forceFocusOnTask = () => {
+  focusOnTask = true;
+};
+
 document
   .querySelector("#critical-paths-toggle")!
   .addEventListener("click", () => {
@@ -237,6 +241,35 @@ let updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
 
 let selectedTask: number = -1;
 
+const selectedTaskPanel: HTMLElement = document.querySelector(
+  "selected-task-panel"
+)!;
+
+const updateSelectedTaskPanel = () => {
+  if (selectedTask === -1) {
+    selectedTaskPanel.innerHTML = ``;
+  }
+  const task = plan.chart.Vertices[selectedTask];
+
+  selectedTaskPanel.innerHTML = `
+  <h2>${task.name}</h2>
+  ${Object.keys(task.resources)
+    .map(
+      (resourceKey: string) => `
+    <div>${resourceKey}: ${task.resources[resourceKey]}</div>
+  `
+    )
+    .join("\n")}
+  
+  ${Object.keys(task.metrics)
+    .map(
+      (key: string) => `
+      <div>${key}: ${task.metrics[key]}</div>`
+    )
+    .join("\n")}
+  `;
+};
+
 const onMouseMove = () => {
   const location = mm.readLocation();
   if (location !== null && updateHighlightFromMousePos !== null) {
@@ -250,6 +283,7 @@ overlayCanvas.addEventListener("mousedown", (e: MouseEvent) => {
   const p = new Point(e.offsetX, e.offsetY);
   if (updateHighlightFromMousePos !== null) {
     selectedTask = updateHighlightFromMousePos(p, "mousedown") || -1;
+    updateSelectedTaskPanel();
   }
 });
 
@@ -257,8 +291,9 @@ overlayCanvas.addEventListener("dblclick", (e: MouseEvent) => {
   const p = new Point(e.offsetX, e.offsetY);
   if (updateHighlightFromMousePos !== null) {
     selectedTask = updateHighlightFromMousePos(p, "mousedown") || -1;
-    focusOnTask = true;
+    forceFocusOnTask();
     paintChart();
+    updateSelectedTaskPanel();
   }
 });
 
