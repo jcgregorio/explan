@@ -157,12 +157,12 @@ const dragRangeHandler = (e: CustomEvent<DragRange>) => {
 radar.addEventListener(DRAG_RANGE_EVENT, dragRangeHandler as EventListener);
 
 // Divider dragging.
-const wrapper = document.querySelector<HTMLElement>(".wrapper")!;
+const explanMain = document.querySelector<HTMLElement>("explan-main")!;
 const divider = document.querySelector<HTMLElement>("vertical-divider")!;
 new DividerMove(document.body, divider, "column");
 
 const dividerDragRangeHandler = (e: CustomEvent<DividerMoveResult>) => {
-  wrapper.style.setProperty(
+  explanMain.style.setProperty(
     "grid-template-columns",
     `calc(${e.detail.before}% - 15px) 10px auto`
   );

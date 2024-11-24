@@ -64,7 +64,7 @@
       grid-area: footer;
     }
 
-    .wrapper {
+    explan-main {
       display: grid;
       grid-gap: 0;
       grid-template-columns: 70% 10px auto;
@@ -162,7 +162,7 @@
     }
   </style>
 
-  <div class="wrapper">
+  <explan-main>
     <header>
       <nav>
         <button id="dark-mode-toggle">Mode</button>
@@ -191,11 +191,13 @@
       <divider-thumb></divider-thumb>
     </vertical-divider>
     <panels-parent>
-      <ul id="criticalPaths"></ul>
-      <table id="criticalTasks"></table>
+      <simulation-panel>
+        <ul id="criticalPaths"></ul>
+        <table id="criticalTasks"></table>
+      </simulation-panel>
     </panels-parent>
     <footer>Footer</footer>
-  </div>
+  </explan-main>
   <script type="module" src="./dst/page.js"></script>
 </body>
 
