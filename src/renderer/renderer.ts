@@ -473,6 +473,36 @@ export function renderTasksToCanvas(
 
   if (overlay !== null) {
     const overlayCtx = overlay.getContext("2d")!;
+
+    // Add in all four corners of every Task to taskLocations.
+    taskIndexToTaskHighlightCorners.forEach(
+      (rc: RectCorners, filteredTaskIndex: number) => {
+        const originalTaskIndex =
+          fromFilteredIndexToOriginalIndex.get(filteredTaskIndex)!;
+        taskLocations.push(
+          {
+            x: rc.bottomRight.x,
+            y: rc.bottomRight.y,
+            originalTaskIndex: originalTaskIndex,
+          },
+          {
+            x: rc.topLeft.x,
+            y: rc.topLeft.y,
+            originalTaskIndex: originalTaskIndex,
+          },
+          {
+            x: rc.bottomRight.x,
+            y: rc.topLeft.y,
+            originalTaskIndex: originalTaskIndex,
+          },
+          {
+            x: rc.topLeft.x,
+            y: rc.bottomRight.y,
+            originalTaskIndex: originalTaskIndex,
+          }
+        );
+      }
+    );
     const taskLocationKDTree = new KDTree(taskLocations);
 
     // Always recored in the original unfiltered task index.
