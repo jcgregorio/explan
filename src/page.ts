@@ -256,7 +256,18 @@ const updateSelectedTaskPanel = () => {
   ${Object.keys(task.resources)
     .map(
       (resourceKey: string) => `
-    <div>${resourceKey}: ${task.resources[resourceKey]}</div>
+    <div>${resourceKey}:
+    <select>
+      ${plan.resourceDefinitions[resourceKey].values
+        .map(
+          (resourceValue: string) =>
+            `<option ${resourceValue === task.resources[resourceKey] ? `selected` : ``}>${resourceValue}</option>`
+        )
+        .join("\n")}
+      ${task.resources[resourceKey]}
+    </select>
+    
+    </div>
   `
     )
     .join("\n")}
@@ -264,7 +275,7 @@ const updateSelectedTaskPanel = () => {
   ${Object.keys(task.metrics)
     .map(
       (key: string) => `
-      <div>${key}: ${task.metrics[key]}</div>`
+      <div>${key}: <input type=number value=${task.metrics[key]} /></div>`
     )
     .join("\n")}
   `;
