@@ -1,6 +1,7 @@
 import { Task } from "./chart/chart.ts";
 import { FilterFunc } from "./chart/filter/filter.ts";
 import { DirectedEdge, edgesBySrcAndDstToMap } from "./dag/dag.ts";
+import { MetricDefinition } from "./metrics/metrics.ts";
 import {
   DupTaskOp,
   InsertNewEmptyTaskAfterOp,
@@ -245,41 +246,78 @@ const selectedTaskPanel: HTMLElement = document.querySelector(
   "selected-task-panel"
 )!;
 
-const updateSelectedTaskPanel = () => {
-  if (selectedTask === -1) {
-    selectedTaskPanel.innerHTML = ``;
-  }
-  const task = plan.chart.Vertices[selectedTask];
+type UpdateSelectedTaskPanel = (taskIndex: number) => void;
 
+// Builds the task panel which then returns a closure used to update the panel
+// with info from a specific Task.
+const buildSelectedTaskPanel = (): UpdateSelectedTaskPanel => {
   selectedTaskPanel.innerHTML = `
-  <h2>${task.name}</h2>
-  ${Object.keys(task.resources)
-    .map(
-      (resourceKey: string) => `
-    <div>${resourceKey}:
-    <select>
-      ${plan.resourceDefinitions[resourceKey].values
-        .map(
-          (resourceValue: string) =>
-            `<option ${resourceValue === task.resources[resourceKey] ? `selected` : ``}>${resourceValue}</option>`
-        )
-        .join("\n")}
-      ${task.resources[resourceKey]}
-    </select>
-    
-    </div>
-  `
-    )
-    .join("\n")}
+  <task-name></task-name>
+  <table>
+    ${Object.entries(plan.resourceDefinitions)
+      .map(
+        ([resourceKey, defn]) => `
+      <tr>
+        <td><label for=resource-${resourceKey}>${resourceKey}</label></td>
+        <td>
+          <select id=resource-${resourceKey}>
+            ${defn.values
+              .map(
+                (resourceValue: string) =>
+                  `<option name=${resourceValue}>${resourceValue}</option>`
+              )
+              .join("\n")}
+          </select>    
+        </td>
+      </tr>`
+      )
+      .join("\n")}
   
-  ${Object.keys(task.metrics)
-    .map(
-      (key: string) => `
-      <div>${key}: <input type=number value=${task.metrics[key]} /></div>`
-    )
-    .join("\n")}
+  
+    ${Object.keys(plan.metricDefinitions)
+      .map(
+        (key: string) => `
+        <tr>
+          <td><label for=metric-${key}>${key}</label></td>
+          <td><input id=metric-${key} type=number } /></td>
+        </tr>`
+      )
+      .join("\n")}
+  </table>
   `;
+
+  const taskName = selectedTaskPanel.querySelector<HTMLElement>("task-name")!;
+
+  const updateSelectedTaskPanel = (taskIndex: number) => {
+    selectedTaskPanel.classList.toggle("hidden", taskIndex === -1);
+    if (taskIndex === -1) {
+      return;
+    }
+    const task = plan.chart.Vertices[taskIndex];
+
+    taskName.innerText = task.name;
+
+    Object.entries(task.metrics).forEach(([metricKey, metricValue]) => {
+      selectedTaskPanel.querySelector<HTMLInputElement>(
+        `#metric-${metricKey}`
+      )!.value = metricValue.toString();
+    });
+
+    Object.entries(task.resources).forEach(([resourceKey, resourceValue]) => {
+      const selectControl = selectedTaskPanel.querySelector<HTMLSelectElement>(
+        `#resource-${resourceKey}`
+      )!;
+
+      selectControl.options.namedItem(resourceValue)!.selected = true;
+    });
+  };
+
+  return updateSelectedTaskPanel;
 };
+
+const updateSelectedTaskPanel = buildSelectedTaskPanel();
+
+updateSelectedTaskPanel(selectedTask);
 
 const onMouseMove = () => {
   const location = mm.readLocation();
@@ -294,7 +332,7 @@ overlayCanvas.addEventListener("mousedown", (e: MouseEvent) => {
   const p = new Point(e.offsetX, e.offsetY);
   if (updateHighlightFromMousePos !== null) {
     selectedTask = updateHighlightFromMousePos(p, "mousedown") || -1;
-    updateSelectedTaskPanel();
+    updateSelectedTaskPanel(selectedTask);
   }
 });
 
@@ -304,7 +342,7 @@ overlayCanvas.addEventListener("dblclick", (e: MouseEvent) => {
     selectedTask = updateHighlightFromMousePos(p, "mousedown") || -1;
     forceFocusOnTask();
     paintChart();
-    updateSelectedTaskPanel();
+    updateSelectedTaskPanel(selectedTask);
   }
 });
 
