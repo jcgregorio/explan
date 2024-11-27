@@ -92,7 +92,6 @@ export class Plan {
   }
 
   setMetricDefinition(key: string, metricDefinition: MetricDefinition) {
-    // TODO - Sanitize key so it is HTML safe.
     this.metricDefinitions[key] = metricDefinition;
   }
 
@@ -105,7 +104,6 @@ export class Plan {
   }
 
   setResourceDefinition(key: string, value: ResourceDefinition) {
-    // TODO - Sanitize key so it is HTML safe.
     this.resourceDefinitions[key] = value;
   }
 
@@ -149,7 +147,6 @@ export const FromJSON = (text: string): Result<Plan> => {
       new DirectedEdge(directedEdgeSerialized.i, directedEdgeSerialized.j)
   );
 
-  // TODO - Sanitize metric keys for use in HTML.
   const deserializedMetricDefinitions = Object.fromEntries(
     Object.entries(planSerialized.metricDefinitions).map(
       ([key, serializedMetricDefinition]) => [
@@ -165,7 +162,6 @@ export const FromJSON = (text: string): Result<Plan> => {
     deserializedMetricDefinitions
   );
 
-  // TODO - Sanitize resource keys for use in HTML.
   const deserializedResourceDefinitions = Object.fromEntries(
     Object.entries(planSerialized.resourceDefinitions).map(
       ([key, serializedResourceDefinition]) => [
