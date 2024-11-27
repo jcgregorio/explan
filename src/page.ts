@@ -256,52 +256,51 @@ const buildSelectedTaskPanel = (): UpdateSelectedTaskPanel => {
     task: Task,
     plan: Plan
   ): TemplateResult => html`
-    <details open>
-      <summary>Task</summary>
-      <task-name>${task.name}</task-name>
-      <table>
-        ${Object.entries(plan.resourceDefinitions).map(
-          ([resourceKey, defn]) =>
-            html` <tr>
-              <td>
-                <label for="resource-${resourceKey}">${resourceKey}</label>
-              </td>
-              <td>
-                <select id="resource-${resourceKey}">
-                  ${defn.values.map(
-                    (resourceValue: string) =>
-                      html`<option
-                        name=${resourceValue}
-                        ?selected=${task.resources[resourceKey] ===
-                        resourceValue}
-                      >
-                        ${resourceValue}
-                      </option>`
-                  )}
-                </select>
-              </td>
-            </tr>`
-        )}
-        ${Object.keys(plan.metricDefinitions).map(
-          (key: string) =>
-            html` <tr>
-              <td><label for="metric-${key}">${key}</label></td>
-              <td>
-                <input
-                  id="metric-${key}"
-                  type="number"
-                  value="${task.metrics[key]}"
-                />
-              </td>
-            </tr>`
-        )}
-      </table>
-    </details>
+    <table>
+      <tr>
+        <td>Name</td>
+        <td>${task.name}</td>
+      </tr>
+      ${Object.entries(plan.resourceDefinitions).map(
+        ([resourceKey, defn]) =>
+          html` <tr>
+            <td>
+              <label for="resource-${resourceKey}">${resourceKey}</label>
+            </td>
+            <td>
+              <select id="resource-${resourceKey}">
+                ${defn.values.map(
+                  (resourceValue: string) =>
+                    html`<option
+                      name=${resourceValue}
+                      ?selected=${task.resources[resourceKey] === resourceValue}
+                    >
+                      ${resourceValue}
+                    </option>`
+                )}
+              </select>
+            </td>
+          </tr>`
+      )}
+      ${Object.keys(plan.metricDefinitions).map(
+        (key: string) =>
+          html` <tr>
+            <td><label for="metric-${key}">${key}</label></td>
+            <td>
+              <input
+                id="metric-${key}"
+                type="number"
+                value="${task.metrics[key]}"
+              />
+            </td>
+          </tr>`
+      )}
+    </table>
   `;
 
   const updateSelectedTaskPanel = (taskIndex: number) => {
-    selectedTaskPanel.classList.toggle("hidden", taskIndex === -1);
     if (taskIndex === -1) {
+      render(html`No task selected.`, selectedTaskPanel);
       return;
     }
     const task = plan.chart.Vertices[taskIndex];

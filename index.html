@@ -89,6 +89,15 @@
       position: relative;
     }
 
+    details {
+
+      selected-task-panel,
+      simulation-panel {
+        display: block;
+        padding: 8px;
+      }
+    }
+
     nav {
       display: flex;
       padding: 8px;
@@ -191,15 +200,18 @@
       <divider-thumb></divider-thumb>
     </vertical-divider>
     <panels-parent>
-      <selected-task-panel>
-      </selected-task-panel>
-      <simulation-panel>
-        <details>
-          <summary>Simulation</summary>
+      <details open>
+        <summary>Task</summary>
+        <selected-task-panel>
+        </selected-task-panel>
+      </details>
+      <details>
+        <summary>Simulation</summary>
+        <simulation-panel>
           <ul id="criticalPaths"></ul>
           <table id="criticalTasks"></table>
-        </details>
-      </simulation-panel>
+        </simulation-panel>
+      </details>
     </panels-parent>
     <footer>Footer</footer>
   </explan-main>
