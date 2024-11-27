@@ -46,6 +46,7 @@ import { ComputeSlack, CriticalPath, Slack, Span } from "./slack/slack.ts";
 import { Jacobian, Uncertainty } from "./stats/cdf/triangular/jacobian.ts";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
+import { TemplateResult, html, render } from "lit-html";
 
 const FONT_SIZE_PX = 32;
 
@@ -251,42 +252,46 @@ type UpdateSelectedTaskPanel = (taskIndex: number) => void;
 // Builds the task panel which then returns a closure used to update the panel
 // with info from a specific Task.
 const buildSelectedTaskPanel = (): UpdateSelectedTaskPanel => {
-  selectedTaskPanel.innerHTML = `
-  <task-name></task-name>
-  <table>
-    ${Object.entries(plan.resourceDefinitions)
-      .map(
-        ([resourceKey, defn]) => `
-      <tr>
-        <td><label for=resource-${resourceKey}>${resourceKey}</label></td>
-        <td>
-          <select id=resource-${resourceKey}>
-            ${defn.values
-              .map(
-                (resourceValue: string) =>
-                  `<option name=${resourceValue}>${resourceValue}</option>`
-              )
-              .join("\n")}
-          </select>    
-        </td>
-      </tr>`
-      )
-      .join("\n")}
-  
-  
-    ${Object.keys(plan.metricDefinitions)
-      .map(
-        (key: string) => `
-        <tr>
-          <td><label for=metric-${key}>${key}</label></td>
-          <td><input id=metric-${key} type=number } /></td>
-        </tr>`
-      )
-      .join("\n")}
-  </table>
+  const selectedTaskPanelTemplate = (
+    task: Task,
+    plan: Plan
+  ): TemplateResult => html`
+    <task-name>${task.name}</task-name>
+    <table>
+      ${Object.entries(plan.resourceDefinitions).map(
+        ([resourceKey, defn]) =>
+          html` <tr>
+            <td><label for="resource-${resourceKey}">${resourceKey}</label></td>
+            <td>
+              <select id="resource-${resourceKey}">
+                ${defn.values.map(
+                  (resourceValue: string) =>
+                    html`<option
+                      name=${resourceValue}
+                      ?selected=${task.resources[resourceKey] === resourceValue}
+                    >
+                      ${resourceValue}
+                    </option>`
+                )}
+              </select>
+            </td>
+          </tr>`
+      )}
+      ${Object.keys(plan.metricDefinitions).map(
+        (key: string) =>
+          html` <tr>
+            <td><label for="metric-${key}">${key}</label></td>
+            <td>
+              <input
+                id="metric-${key}"
+                type="number"
+                value="${task.metrics[key]}"
+              />
+            </td>
+          </tr>`
+      )}
+    </table>
   `;
-
-  const taskName = selectedTaskPanel.querySelector<HTMLElement>("task-name")!;
 
   const updateSelectedTaskPanel = (taskIndex: number) => {
     selectedTaskPanel.classList.toggle("hidden", taskIndex === -1);
@@ -294,22 +299,7 @@ const buildSelectedTaskPanel = (): UpdateSelectedTaskPanel => {
       return;
     }
     const task = plan.chart.Vertices[taskIndex];
-
-    taskName.innerText = task.name;
-
-    Object.entries(task.metrics).forEach(([metricKey, metricValue]) => {
-      selectedTaskPanel.querySelector<HTMLInputElement>(
-        `#metric-${metricKey}`
-      )!.value = metricValue.toString();
-    });
-
-    Object.entries(task.resources).forEach(([resourceKey, resourceValue]) => {
-      const selectControl = selectedTaskPanel.querySelector<HTMLSelectElement>(
-        `#resource-${resourceKey}`
-      )!;
-
-      selectControl.options.namedItem(resourceValue)!.selected = true;
-    });
+    render(selectedTaskPanelTemplate(task, plan), selectedTaskPanel);
   };
 
   return updateSelectedTaskPanel;
