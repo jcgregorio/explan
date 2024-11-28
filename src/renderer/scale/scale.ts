@@ -203,7 +203,7 @@ export class Scale {
     return this.origin.sum(
       new Point(
         day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx,
-        this.marginSizePx
+        0
       )
     );
   }
