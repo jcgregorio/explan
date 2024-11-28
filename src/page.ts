@@ -679,7 +679,6 @@ fileUpload.addEventListener("change", async () => {
   plan = ret.value;
   groupByOptions = ["", ...Object.keys(plan.resourceDefinitions)];
   recalculateSpan();
-  simulate();
   const maps = edgesBySrcAndDstToMap(plan.chart.Edges);
   console.log(maps);
   console.log(plan);
@@ -691,7 +690,6 @@ document.querySelector("#simulate")!.addEventListener("click", () => {
   paintChart();
 });
 
-simulate();
 paintChart();
 window.addEventListener("resize", paintChart);
 
