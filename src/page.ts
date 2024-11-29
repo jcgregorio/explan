@@ -540,31 +540,38 @@ export interface CriticalPathEntry {
   durations: number[];
 }
 
+const onPotentialCriticialPathClick = (
+  key: string,
+  allCriticalPaths: Map<string, CriticalPathEntry>
+) => {
+  const criticalPathEntry = allCriticalPaths.get(key)!;
+  criticalPathEntry.durations.forEach((duration: number, taskIndex: number) => {
+    plan.chart.Vertices[taskIndex].duration = duration;
+  });
+  recalculateSpan();
+  paintChart();
+};
+
 const simulate = () => {
   const { allCriticalPaths } = simulation(plan, NUM_SIMULATION_LOOPS);
 
   let display = "";
-  allCriticalPaths.forEach((value: CriticalPathEntry, key: string) => {
-    display = display + `\n <li data-key=${key}>${value.count} : ${key}</li>`;
-  });
+  const criticalPathsTemplate = html`
+    <ul>
+      ${Array.from(allCriticalPaths.entries()).map(
+        ([key, value]) =>
+          html`<li
+            @click=${() => onPotentialCriticialPathClick(key, allCriticalPaths)}
+          >
+            ${value.count} : ${key}
+          </li>`
+      )}
+    </ul>
+  `;
 
   const critialPaths =
     document.querySelector<HTMLUListElement>("#criticalPaths")!;
-  critialPaths.innerHTML = display;
-
-  // Enable clicking on alternate critical paths.
-  critialPaths.addEventListener("click", (e: MouseEvent) => {
-    const criticalPathEntry = allCriticalPaths.get(
-      (e.target as HTMLLIElement).dataset.key!
-    )!;
-    criticalPathEntry.durations.forEach(
-      (duration: number, taskIndex: number) => {
-        plan.chart.Vertices[taskIndex].duration = duration;
-      }
-    );
-    recalculateSpan();
-    paintChart();
-  });
+  render(criticalPathsTemplate, critialPaths);
 
   // Generate a table of tasks on the critical path, sorted by duration, along
   // with their percentage chance of appearing on the critical path.
@@ -617,15 +624,15 @@ const simulate = () => {
     (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex
   );
   paintChart();
-
-  // Populate the download link.
-  const download = document.querySelector<HTMLLinkElement>("#download")!;
-  console.log(JSON.stringify(plan, null, "  "));
-  const downloadBlob = new Blob([JSON.stringify(plan, null, "  ")], {
-    type: "application/json",
-  });
-  download.href = URL.createObjectURL(downloadBlob);
 };
+
+// Populate the download link.
+const download = document.querySelector<HTMLLinkElement>("#download")!;
+console.log(JSON.stringify(plan, null, "  "));
+const downloadBlob = new Blob([JSON.stringify(plan, null, "  ")], {
+  type: "application/json",
+});
+download.href = URL.createObjectURL(downloadBlob);
 
 // React to the upload input.
 const fileUpload = document.querySelector<HTMLInputElement>("#file-upload")!;
