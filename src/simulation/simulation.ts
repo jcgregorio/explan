@@ -18,6 +18,10 @@ export interface CriticalPathEntry {
   durations: number[];
 }
 
+/**
+ * Simulate the uncertainty in the plan and generate possible alternate critical
+ * paths.
+ */
 export const simulation = (
   plan: Plan,
   numSimulationLoops: number
@@ -28,6 +32,7 @@ export const simulation = (
   const allCriticalPaths = new Map<string, CriticalPathEntry>();
 
   for (let i = 0; i < numSimulationLoops; i++) {
+    // Generate random durations based on each Tasks uncertainty.
     const durations = plan.chart.Vertices.map((t: Task) => {
       const rawDuration = new Jacobian(
         t.duration,
@@ -36,6 +41,7 @@ export const simulation = (
       return precision.round(rawDuration);
     });
 
+    // Compute the slack based on those random durations.
     const slacksRet = ComputeSlack(
       plan.chart,
       (t: Task, taskIndex: number) => durations[taskIndex],
@@ -44,6 +50,7 @@ export const simulation = (
     if (!slacksRet.ok) {
       throw slacksRet.error;
     }
+
     const criticalPath = CriticalPath(slacksRet.value, precision.rounder());
     const criticalPathAsString = `${criticalPath}`;
     let pathEntry = allCriticalPaths.get(criticalPathAsString);
@@ -57,6 +64,7 @@ export const simulation = (
     }
     pathEntry.count++;
   }
+
   return allCriticalPaths;
 };
 
