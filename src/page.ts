@@ -538,7 +538,7 @@ const paintOneChart = (
   return renderTasksToCanvas(parent, canvas, ctx, plan, spans, opts, overlay);
 };
 
-export interface CriticalPathEntry {
+interface CriticalPathEntry {
   count: number;
   tasks: number[];
   durations: number[];
@@ -593,22 +593,31 @@ const criticalTaskFrequenciesTemplate = (
     )} `;
 
 const simulate = () => {
+  // Run the simulation.
   const allCriticalPaths = simulation(plan, NUM_SIMULATION_LOOPS);
+
+  // Display all the potential critical paths found.
   render(
     criticalPathsTemplate(allCriticalPaths),
     document.querySelector<HTMLElement>("#criticalPaths")!
   );
 
+  // Find how often each task appears on all the potential critical path.
   const criticalTasksDurationDescending = criticalTaskFrequencies(
     allCriticalPaths,
     plan
   );
+
+  // Display a table of tasks on all potential critical paths.
   render(
     criticalTaskFrequenciesTemplate(criticalTasksDurationDescending),
     document.querySelector<HTMLElement>("#criticalTasks")!
   );
 
+  // Reset the spans using the original durations.
   recalculateSpan();
+
+  // Highlight all the tasks that could appear on the critical path.
   criticalPath = criticalTasksDurationDescending.map(
     (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex
   );
@@ -617,7 +626,6 @@ const simulate = () => {
 
 // Populate the download link.
 const download = document.querySelector<HTMLLinkElement>("#download")!;
-console.log(JSON.stringify(plan, null, "  "));
 const downloadBlob = new Blob([JSON.stringify(plan, null, "  ")], {
   type: "application/json",
 });
@@ -629,7 +637,6 @@ fileUpload.addEventListener("change", async () => {
   const json = await fileUpload.files![0].text();
   const ret = FromJSON(json);
   if (!ret.ok) {
-    console.log(ret.error);
     throw ret.error;
   }
   plan = ret.value;
