@@ -47,8 +47,11 @@ import { Jacobian, Uncertainty } from "./stats/cdf/triangular/jacobian.ts";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
 import { TemplateResult, html, render } from "lit-html";
+import { simulation } from "./simulation/simulation.ts";
 
 const FONT_SIZE_PX = 32;
+
+const NUM_SIMULATION_LOOPS = 100;
 
 let plan = new Plan();
 const precision = new Precision(2);
@@ -113,7 +116,6 @@ if (!res.ok) {
 let slacks: Slack[] = [];
 let spans: Span[] = [];
 let criticalPath: number[] = [];
-let taskLocationKDTree: KDTree<TaskLocation> | null = null;
 
 const recalculateSpan = () => {
   const slackResult = ComputeSlack(plan.chart, undefined, precision.rounder());
@@ -134,8 +136,6 @@ recalculateSpan();
 const taskLabel: TaskLabel = (taskIndex: number): string =>
   `${plan.chart.Vertices[taskIndex].name}`;
 //  `${plan.chart.Vertices[taskIndex].name} (${plan.chart.Vertices[taskIndex].resources["Person"]}) `;
-
-// Dragging on the radar.
 
 // TODO Extract this as a helper for the radar view.
 let displayRange: DisplayRange | null = null;
@@ -265,10 +265,10 @@ const buildSelectedTaskPanel = (): UpdateSelectedTaskPanel => {
         ([resourceKey, defn]) =>
           html` <tr>
             <td>
-              <label for="resource-${resourceKey}">${resourceKey}</label>
+              <label for="${resourceKey}">${resourceKey}</label>
             </td>
             <td>
-              <select id="resource-${resourceKey}">
+              <select id="${resourceKey}">
                 ${defn.values.map(
                   (resourceValue: string) =>
                     html`<option
@@ -285,13 +285,9 @@ const buildSelectedTaskPanel = (): UpdateSelectedTaskPanel => {
       ${Object.keys(plan.metricDefinitions).map(
         (key: string) =>
           html` <tr>
-            <td><label for="metric-${key}">${key}</label></td>
+            <td><label for="${key}">${key}</label></td>
             <td>
-              <input
-                id="metric-${key}"
-                type="number"
-                value="${task.metrics[key]}"
-              />
+              <input id="${key}" type="number" value="${task.metrics[key]}" />
             </td>
           </tr>`
       )}
@@ -545,43 +541,7 @@ export interface CriticalPathEntry {
 }
 
 const simulate = () => {
-  // Simulate the uncertainty in the plan and generate possible alternate
-  // critical paths.
-  const MAX_RANDOM = 1000;
-  const NUM_SIMULATION_LOOPS = 100;
-
-  const allCriticalPaths = new Map<string, CriticalPathEntry>();
-
-  for (let i = 0; i < NUM_SIMULATION_LOOPS; i++) {
-    const durations = plan.chart.Vertices.map((t: Task) => {
-      const rawDuration = new Jacobian(
-        t.duration,
-        t.getResource("Uncertainty") as Uncertainty
-      ).sample(rndInt(MAX_RANDOM) / MAX_RANDOM);
-      return precision.round(rawDuration);
-    });
-
-    const slacksRet = ComputeSlack(
-      plan.chart,
-      (t: Task, taskIndex: number) => durations[taskIndex],
-      precision.rounder()
-    );
-    if (!slacksRet.ok) {
-      throw slacksRet.error;
-    }
-    const criticalPath = CriticalPath(slacksRet.value, precision.rounder());
-    const criticalPathAsString = `${criticalPath}`;
-    let pathEntry = allCriticalPaths.get(criticalPathAsString);
-    if (pathEntry === undefined) {
-      pathEntry = {
-        count: 0,
-        tasks: criticalPath,
-        durations: durations,
-      };
-      allCriticalPaths.set(criticalPathAsString, pathEntry);
-    }
-    pathEntry.count++;
-  }
+  const { allCriticalPaths } = simulation(plan, NUM_SIMULATION_LOOPS);
 
   let display = "";
   allCriticalPaths.forEach((value: CriticalPathEntry, key: string) => {
@@ -679,9 +639,6 @@ fileUpload.addEventListener("change", async () => {
   plan = ret.value;
   groupByOptions = ["", ...Object.keys(plan.resourceDefinitions)];
   recalculateSpan();
-  const maps = edgesBySrcAndDstToMap(plan.chart.Edges);
-  console.log(maps);
-  console.log(plan);
   paintChart();
 });
 
