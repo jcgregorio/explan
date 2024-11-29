@@ -553,9 +553,8 @@ const onPotentialCriticialPathClick = (
 };
 
 const simulate = () => {
-  const { allCriticalPaths } = simulation(plan, NUM_SIMULATION_LOOPS);
+  const allCriticalPaths = simulation(plan, NUM_SIMULATION_LOOPS);
 
-  let display = "";
   const criticalPathsTemplate = html`
     <ul>
       ${Array.from(allCriticalPaths.entries()).map(

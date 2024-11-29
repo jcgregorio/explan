@@ -12,10 +12,6 @@ const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
 };
 
-export interface SimulationResult {
-  allCriticalPaths: Map<string, CriticalPathEntry>;
-}
-
 export interface CriticalPathEntry {
   count: number;
   tasks: number[];
@@ -25,7 +21,7 @@ export interface CriticalPathEntry {
 export const simulation = (
   plan: Plan,
   numSimulationLoops: number
-): SimulationResult => {
+): Map<string, CriticalPathEntry> => {
   // Simulate the uncertainty in the plan and generate possible alternate
   // critical paths.
 
@@ -61,7 +57,5 @@ export const simulation = (
     }
     pathEntry.count++;
   }
-  return {
-    allCriticalPaths: allCriticalPaths,
-  };
+  return allCriticalPaths;
 };
