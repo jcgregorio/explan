@@ -47,7 +47,11 @@ import { Jacobian, Uncertainty } from "./stats/cdf/triangular/jacobian.ts";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
 import { TemplateResult, html, render } from "lit-html";
-import { simulation } from "./simulation/simulation.ts";
+import {
+  CriticalPathTaskEntry,
+  criticalTaskFrequencies,
+  simulation,
+} from "./simulation/simulation.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -552,72 +556,58 @@ const onPotentialCriticialPathClick = (
   paintChart();
 };
 
+const criticalPathsTemplate = (
+  allCriticalPaths: Map<string, CriticalPathEntry>
+): TemplateResult => html`
+  <ul>
+    ${Array.from(allCriticalPaths.entries()).map(
+      ([key, value]) =>
+        html`<li
+          @click=${() => onPotentialCriticialPathClick(key, allCriticalPaths)}
+        >
+          ${value.count} : ${key}
+        </li>`
+    )}
+  </ul>
+`;
+
+const criticalTaskFrequenciesTemplate = (
+  criticalTasksDurationDescending: CriticalPathTaskEntry[]
+) =>
+  html`<tr>
+      <th>Name</th>
+      <th>Duration</th>
+      <th>Frequency (%)</th>
+    </tr>
+    ${criticalTasksDurationDescending.map(
+      (taskEntry: CriticalPathTaskEntry) =>
+        html`<tr>
+          <td>${plan.chart.Vertices[taskEntry.taskIndex].name}</td>
+          <td>${taskEntry.duration}</td>
+          <td>
+            ${Math.floor(
+              (100 * taskEntry.numTimesAppeared) / NUM_SIMULATION_LOOPS
+            )}
+          </td>
+        </tr>`
+    )} `;
+
 const simulate = () => {
   const allCriticalPaths = simulation(plan, NUM_SIMULATION_LOOPS);
-
-  const criticalPathsTemplate = html`
-    <ul>
-      ${Array.from(allCriticalPaths.entries()).map(
-        ([key, value]) =>
-          html`<li
-            @click=${() => onPotentialCriticialPathClick(key, allCriticalPaths)}
-          >
-            ${value.count} : ${key}
-          </li>`
-      )}
-    </ul>
-  `;
-
-  const critialPaths =
-    document.querySelector<HTMLUListElement>("#criticalPaths")!;
-  render(criticalPathsTemplate, critialPaths);
-
-  // Generate a table of tasks on the critical path, sorted by duration, along
-  // with their percentage chance of appearing on the critical path.
-
-  interface CriticalPathTaskEntry {
-    taskIndex: number;
-    duration: number;
-    numTimesAppeared: number;
-  }
-
-  const critialTasks: Map<number, CriticalPathTaskEntry> = new Map();
-
-  allCriticalPaths.forEach((value: CriticalPathEntry) => {
-    value.tasks.forEach((taskIndex: number) => {
-      let taskEntry = critialTasks.get(taskIndex);
-      if (taskEntry === undefined) {
-        taskEntry = {
-          taskIndex: taskIndex,
-          duration: plan.chart.Vertices[taskIndex].duration,
-          numTimesAppeared: 0,
-        };
-        critialTasks.set(taskIndex, taskEntry);
-      }
-      taskEntry.numTimesAppeared += value.count;
-    });
-  });
-
-  const criticalTasksDurationDescending = [...critialTasks.values()].sort(
-    (a: CriticalPathTaskEntry, b: CriticalPathTaskEntry): number => {
-      return b.duration - a.duration;
-    }
+  render(
+    criticalPathsTemplate(allCriticalPaths),
+    document.querySelector<HTMLElement>("#criticalPaths")!
   );
 
-  let critialTasksTable = criticalTasksDurationDescending
-    .map(
-      (taskEntry: CriticalPathTaskEntry) => `<tr>
-  <td>${plan.chart.Vertices[taskEntry.taskIndex].name}</td>
-  <td>${taskEntry.duration}</td>
-  <td>${Math.floor((100 * taskEntry.numTimesAppeared) / NUM_SIMULATION_LOOPS)}</td>
-</tr>`
-    )
-    .join("\n");
-  critialTasksTable =
-    `<tr><th>Name</th><th>Duration</th><th>%</th></tr>\n` + critialTasksTable;
-  document.querySelector("#criticalTasks")!.innerHTML = critialTasksTable;
+  const criticalTasksDurationDescending = criticalTaskFrequencies(
+    allCriticalPaths,
+    plan
+  );
+  render(
+    criticalTaskFrequenciesTemplate(criticalTasksDurationDescending),
+    document.querySelector<HTMLElement>("#criticalTasks")!
+  );
 
-  // Show all tasks that could be on the critical path.
   recalculateSpan();
   criticalPath = criticalTasksDurationDescending.map(
     (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex

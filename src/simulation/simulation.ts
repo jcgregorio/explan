@@ -59,3 +59,37 @@ export const simulation = (
   }
   return allCriticalPaths;
 };
+
+export interface CriticalPathTaskEntry {
+  taskIndex: number;
+  duration: number;
+  numTimesAppeared: number;
+}
+
+export const criticalTaskFrequencies = (
+  allCriticalPaths: Map<string, CriticalPathEntry>,
+  plan: Plan
+): CriticalPathTaskEntry[] => {
+  const critialTasks: Map<number, CriticalPathTaskEntry> = new Map();
+
+  allCriticalPaths.forEach((value: CriticalPathEntry) => {
+    value.tasks.forEach((taskIndex: number) => {
+      let taskEntry = critialTasks.get(taskIndex);
+      if (taskEntry === undefined) {
+        taskEntry = {
+          taskIndex: taskIndex,
+          duration: plan.chart.Vertices[taskIndex].duration,
+          numTimesAppeared: 0,
+        };
+        critialTasks.set(taskIndex, taskEntry);
+      }
+      taskEntry.numTimesAppeared += value.count;
+    });
+  });
+
+  return [...critialTasks.values()].sort(
+    (a: CriticalPathTaskEntry, b: CriticalPathTaskEntry): number => {
+      return b.duration - a.duration;
+    }
+  );
+};
