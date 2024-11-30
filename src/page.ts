@@ -48,6 +48,7 @@ import {
   criticalTaskFrequencies,
   simulation,
 } from "./simulation/simulation.ts";
+import { generateRandomPlan } from "./generate/generate.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -55,209 +56,20 @@ const NUM_SIMULATION_LOOPS = 100;
 
 const precision = new Precision(2);
 
-const DURATION = 100;
-
-const rndInt = (n: number): number => {
-  return Math.floor(Math.random() * n);
-};
-
-const rndDuration = (): number => {
-  return rndInt(DURATION);
-};
-
-let plan = new Plan();
-
-const people: string[] = ["Fred", "Barney", "Wilma", "Betty"];
-
-const generateRandomPlan = () => {
-  plan = new Plan();
-  let taskID = 0;
-
-  const rndName = (): string => `T ${taskID++}`;
-
-  const ops: Op[] = [AddResourceOp("Person")];
-
-  people.forEach((person: string) => {
-    ops.push(AddResourceOptionOp("Person", person));
-  });
-
-  ops.push(
-    InsertNewEmptyTaskAfterOp(0),
-    SetMetricValueOp("Duration", rndDuration(), 1),
-    SetTaskNameOp(1, rndName()),
-    SetResourceValueOp("Person", people[rndInt(people.length)], 1),
-    SetResourceValueOp("Uncertainty", "moderate", 1)
-  );
-
-  let numTasks = 1;
-  for (let i = 0; i < 15; i++) {
-    let index = rndInt(numTasks) + 1;
-    ops.push(
-      SplitTaskOp(index),
-      SetMetricValueOp("Duration", rndDuration(), index + 1),
-      SetTaskNameOp(index + 1, rndName()),
-      SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
-      SetResourceValueOp("Uncertainty", "moderate", index + 1)
-    );
-    numTasks++;
-    index = rndInt(numTasks) + 1;
-    ops.push(
-      DupTaskOp(index),
-      SetMetricValueOp("Duration", rndDuration(), index + 1),
-      SetTaskNameOp(index + 1, rndName()),
-      SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
-      SetResourceValueOp("Uncertainty", "moderate", index + 1)
-    );
-    numTasks++;
-  }
-
-  const res = applyAllOpsToPlan(ops, plan);
-
-  if (!res.ok) {
-    console.log(res.error);
-  }
-};
-
-generateRandomPlan();
-
-let spans: Span[] = [];
-let criticalPath: number[] = [];
-
-const recalculateSpansAndCriticalPath = () => {
-  let slacks: Slack[] = [];
-
-  const slackResult = ComputeSlack(plan.chart, undefined, precision.rounder());
-  if (!slackResult.ok) {
-    console.error(slackResult);
-  } else {
-    slacks = slackResult.value;
-  }
-
-  spans = slacks.map((value: Slack): Span => {
-    return value.early;
-  });
-  criticalPath = CriticalPath(slacks, precision.rounder());
-};
-
-recalculateSpansAndCriticalPath();
-
-const taskLabel: TaskLabel = (taskIndex: number): string =>
-  `${plan.chart.Vertices[taskIndex].name}`;
-
-// TODO Extract this as a helper for the radar view.
-let displayRange: DisplayRange | null = null;
-let radarScale: Scale | null = null;
-
-const radar = document.querySelector<HTMLElement>("#radar")!;
-new MouseDrag(radar);
-
-const dragRangeHandler = (e: CustomEvent<DragRange>) => {
-  if (radarScale === null) {
-    return;
-  }
-  const begin = radarScale.dayRowFromPoint(e.detail.begin);
-  const end = radarScale.dayRowFromPoint(e.detail.end);
-  displayRange = new DisplayRange(begin.day, end.day);
-  paintChart();
-};
-
-radar.addEventListener(DRAG_RANGE_EVENT, dragRangeHandler as EventListener);
-
-// Divider dragging.
-const explanMain = document.querySelector<HTMLElement>("explan-main")!;
-const divider = document.querySelector<HTMLElement>("vertical-divider")!;
-new DividerMove(document.body, divider, "column");
-
-const dividerDragRangeHandler = (e: CustomEvent<DividerMoveResult>) => {
-  explanMain.style.setProperty(
-    "grid-template-columns",
-    `calc(${e.detail.before}% - 15px) 10px auto`
-  );
-  paintChart();
-};
-
-document.body.addEventListener(
-  DIVIDER_MOVE_EVENT,
-  dividerDragRangeHandler as EventListener
-);
-
-document.querySelector("#reset-zoom")!.addEventListener("click", () => {
-  displayRange = null;
-  paintChart();
-});
-
-document.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
-  console.log("click");
-  toggleTheme();
-  paintChart();
-});
-
-document.querySelector("#radar-toggle")!.addEventListener("click", () => {
-  document.querySelector("radar-parent")!.classList.toggle("hidden");
-});
-
-let topTimeline: boolean = false;
-
-document
-  .querySelector("#top-timeline-toggle")!
-  .addEventListener("click", () => {
-    topTimeline = !topTimeline;
-    paintChart();
-  });
-
-// TODO Needs to be updated when plan resources gets updated.
-let groupByOptions: string[] = ["", ...Object.keys(plan.resourceDefinitions)];
-let groupByOptionsIndex: number = 0;
-
-const toggleGroupBy = () => {
-  groupByOptionsIndex = (groupByOptionsIndex + 1) % groupByOptions.length;
-};
-
-document.querySelector("#group-by-toggle")!.addEventListener("click", () => {
-  toggleGroupBy();
-  paintChart();
-});
-
-let criticalPathsOnly = false;
-const toggleCriticalPathsOnly = () => {
-  criticalPathsOnly = !criticalPathsOnly;
-};
-
-let focusOnTask = false;
-const toggleFocusOnTask = () => {
-  focusOnTask = !focusOnTask;
-  if (!focusOnTask) {
-    displayRange = null;
-  }
-};
-
-const forceFocusOnTask = () => {
-  focusOnTask = true;
-};
-
-document
-  .querySelector("#critical-paths-toggle")!
-  .addEventListener("click", () => {
-    toggleCriticalPathsOnly();
-    paintChart();
-  });
-
-const overlayCanvas = document.querySelector<HTMLCanvasElement>("#overlay")!;
-const mm = new MouseMove(overlayCanvas);
-
-let updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
-
-let selectedTask: number = -1;
-
-const selectedTaskPanel: HTMLElement = document.querySelector(
-  "selected-task-panel"
-)!;
-
 type UpdateSelectedTaskPanel = (taskIndex: number) => void;
+
+interface CriticalPathEntry {
+  count: number;
+  tasks: number[];
+  durations: number[];
+}
 
 // Builds the task panel which then returns a closure used to update the panel
 // with info from a specific Task.
-const buildSelectedTaskPanel = (): UpdateSelectedTaskPanel => {
+const buildSelectedTaskPanel = (
+  plan: Plan,
+  selectedTaskPanel: HTMLElement
+): UpdateSelectedTaskPanel => {
   const selectedTaskPanelTemplate = (
     task: Task,
     plan: Plan
@@ -312,260 +124,16 @@ const buildSelectedTaskPanel = (): UpdateSelectedTaskPanel => {
   return updateSelectedTaskPanel;
 };
 
-const updateSelectedTaskPanel = buildSelectedTaskPanel();
-
-updateSelectedTaskPanel(selectedTask);
-
-const onMouseMove = () => {
-  const location = mm.readLocation();
-  if (location !== null && updateHighlightFromMousePos !== null) {
-    updateHighlightFromMousePos(location, "mousemove");
-  }
-  window.requestAnimationFrame(onMouseMove);
-};
-window.requestAnimationFrame(onMouseMove);
-
-overlayCanvas.addEventListener("mousedown", (e: MouseEvent) => {
-  const p = new Point(e.offsetX, e.offsetY);
-  if (updateHighlightFromMousePos !== null) {
-    selectedTask = updateHighlightFromMousePos(p, "mousedown") || -1;
-    updateSelectedTaskPanel(selectedTask);
-  }
-});
-
-overlayCanvas.addEventListener("dblclick", (e: MouseEvent) => {
-  const p = new Point(e.offsetX, e.offsetY);
-  if (updateHighlightFromMousePos !== null) {
-    selectedTask = updateHighlightFromMousePos(p, "mousedown") || -1;
-    forceFocusOnTask();
-    paintChart();
-    updateSelectedTaskPanel(selectedTask);
-  }
-});
-
-const paintChart = () => {
-  console.time("paintChart");
-
-  const themeColors: Theme = colorThemeFromElement(document.body);
-
-  let filterFunc: FilterFunc | null = null;
-  const startAndFinish = [0, plan.chart.Vertices.length - 1];
-  if (criticalPathsOnly) {
-    const highlightSet = new Set(criticalPath);
-    filterFunc = (task: Task, taskIndex: number): boolean => {
-      if (startAndFinish.includes(taskIndex)) {
-        return true;
-      }
-      return highlightSet.has(taskIndex);
-    };
-  } else if (focusOnTask && selectedTask != -1) {
-    // Find all predecessor and successors of the given task.
-    const neighborSet = new Set();
-    neighborSet.add(selectedTask);
-    let earliestStart = spans[selectedTask].start;
-    let latestFinish = spans[selectedTask].finish;
-    plan.chart.Edges.forEach((edge: DirectedEdge) => {
-      if (edge.i === selectedTask) {
-        neighborSet.add(edge.j);
-        if (latestFinish < spans[edge.j].finish) {
-          latestFinish = spans[edge.j].finish;
-        }
-      }
-      if (edge.j === selectedTask) {
-        neighborSet.add(edge.i);
-        if (earliestStart > spans[edge.i].start) {
-          earliestStart = spans[edge.i].start;
-        }
-      }
-    });
-    // TODO - Since we overwrite displayRange that means dragging on the radar
-    // will not work when focusing on a selected task. Bug or feature?
-    displayRange = new DisplayRange(earliestStart - 1, latestFinish + 1);
-
-    filterFunc = (task: Task, taskIndex: number): boolean => {
-      if (startAndFinish.includes(taskIndex)) {
-        return true;
-      }
-
-      return neighborSet.has(taskIndex);
-    };
-  }
-
-  const radarOpts: RenderOptions = {
-    fontSizePx: 6,
-    hasText: false,
-    displayRange: displayRange,
-    displayRangeUsage: "highlight",
-    colors: {
-      surface: themeColors.surface,
-      onSurface: themeColors.onSurface,
-      onSurfaceMuted: themeColors.onSurfaceMuted,
-      onSurfaceHighlight: themeColors.onSurfaceSecondary,
-      overlay: themeColors.overlay,
-      groupColor: themeColors.groupColor,
-      highlight: themeColors.highlight,
-    },
-    hasTimeline: false,
-    hasTasks: true,
-    hasEdges: false,
-    drawTimeMarkersOnTasks: false,
-    taskLabel: taskLabel,
-    taskEmphasize: criticalPath,
-    filterFunc: null,
-    groupByResource: groupByOptions[groupByOptionsIndex],
-    highlightedTask: null,
-    selectedTaskIndex: selectedTask,
-  };
-
-  const zoomOpts: RenderOptions = {
-    fontSizePx: FONT_SIZE_PX,
-    hasText: true,
-    displayRange: displayRange,
-    displayRangeUsage: "restrict",
-    colors: {
-      surface: themeColors.surface,
-      onSurface: themeColors.onSurface,
-      onSurfaceMuted: themeColors.onSurfaceMuted,
-      onSurfaceHighlight: themeColors.onSurfaceSecondary,
-      overlay: themeColors.overlay,
-      groupColor: themeColors.groupColor,
-      highlight: themeColors.highlight,
-    },
-    hasTimeline: topTimeline,
-    hasTasks: true,
-    hasEdges: true,
-    drawTimeMarkersOnTasks: true,
-    taskLabel: taskLabel,
-    taskEmphasize: criticalPath,
-    filterFunc: filterFunc,
-    groupByResource: groupByOptions[groupByOptionsIndex],
-    highlightedTask: 1,
-    selectedTaskIndex: selectedTask,
-  };
-
-  const timelineOpts: RenderOptions = {
-    fontSizePx: FONT_SIZE_PX,
-    hasText: true,
-    displayRange: displayRange,
-    displayRangeUsage: "restrict",
-    colors: {
-      surface: themeColors.surface,
-      onSurface: themeColors.onSurface,
-      onSurfaceMuted: themeColors.onSurfaceMuted,
-      onSurfaceHighlight: themeColors.onSurfaceSecondary,
-      overlay: themeColors.overlay,
-      groupColor: themeColors.groupColor,
-      highlight: themeColors.highlight,
-    },
-    hasTimeline: true,
-    hasTasks: false,
-    hasEdges: true,
-    drawTimeMarkersOnTasks: true,
-    taskLabel: taskLabel,
-    taskEmphasize: criticalPath,
-    filterFunc: filterFunc,
-    groupByResource: groupByOptions[groupByOptionsIndex],
-    highlightedTask: null,
-    selectedTaskIndex: selectedTask,
-  };
-
-  const ret = paintOneChart("#radar", radarOpts);
-  if (!ret.ok) {
-    return;
-  }
-  radarScale = ret.value.scale;
-
-  paintOneChart("#timeline", timelineOpts);
-  const zoomRet = paintOneChart("#zoomed", zoomOpts, "#overlay");
-  if (zoomRet.ok) {
-    updateHighlightFromMousePos = zoomRet.value.updateHighlightFromMousePos;
-    if (zoomRet.value.selectedTaskLocation !== null) {
-      document.querySelector("chart-parent")!.scroll({
-        top: zoomRet.value.selectedTaskLocation.y,
-        behavior: "smooth",
-      });
-    }
-  }
-
-  console.timeEnd("paintChart");
-};
-
-const prepareCanvas = (
-  canvas: HTMLCanvasElement,
-  canvasWidth: number,
-  canvasHeight: number,
-  width: number,
-  height: number
-): CanvasRenderingContext2D => {
-  canvas.width = canvasWidth;
-  canvas.height = canvasHeight;
-  canvas.style.width = `${width}px`;
-  canvas.style.height = `${height}px`;
-
-  const ctx = canvas.getContext("2d")!;
-  ctx.imageSmoothingEnabled = false;
-
-  return ctx;
-};
-
-const paintOneChart = (
-  canvasID: string,
-  opts: RenderOptions,
-  overlayID: string = ""
-): Result<RenderResult> => {
-  const canvas = document.querySelector<HTMLCanvasElement>(canvasID)!;
-  const parent = canvas!.parentElement!;
-  const ratio = window.devicePixelRatio;
-  const width = parent.clientWidth - FONT_SIZE_PX;
-  let height = parent.clientHeight;
-  const canvasWidth = Math.ceil(width * ratio);
-  let canvasHeight = Math.ceil(height * ratio);
-
-  const newHeight = suggestedCanvasHeight(
-    canvas,
-    spans,
-    opts,
-    plan.chart.Vertices.length + 2 // TODO - Why do we need the +2 here!?
-  );
-  canvasHeight = newHeight;
-  height = newHeight / window.devicePixelRatio;
-
-  let overlay: HTMLCanvasElement | null = null;
-  if (overlayID) {
-    overlay = document.querySelector<HTMLCanvasElement>(overlayID)!;
-    prepareCanvas(overlay, canvasWidth, canvasHeight, width, height);
-  }
-  const ctx = prepareCanvas(canvas, canvasWidth, canvasHeight, width, height);
-
-  return renderTasksToCanvas(parent, canvas, ctx, plan, spans, opts, overlay);
-};
-
-interface CriticalPathEntry {
-  count: number;
-  tasks: number[];
-  durations: number[];
-}
-
-const onPotentialCriticialPathClick = (
-  key: string,
-  allCriticalPaths: Map<string, CriticalPathEntry>
-) => {
-  const criticalPathEntry = allCriticalPaths.get(key)!;
-  criticalPathEntry.durations.forEach((duration: number, taskIndex: number) => {
-    plan.chart.Vertices[taskIndex].duration = duration;
-  });
-  recalculateSpansAndCriticalPath();
-  paintChart();
-};
-
 const criticalPathsTemplate = (
-  allCriticalPaths: Map<string, CriticalPathEntry>
+  allCriticalPaths: Map<string, CriticalPathEntry>,
+  explainMain: ExplanMain
 ): TemplateResult => html`
   <ul>
     ${Array.from(allCriticalPaths.entries()).map(
       ([key, value]) =>
         html`<li
-          @click=${() => onPotentialCriticialPathClick(key, allCriticalPaths)}
+          @click=${() =>
+            explainMain.onPotentialCriticialPathClick(key, allCriticalPaths)}
         >
           ${value.count} : ${key}
         </li>`
@@ -574,6 +142,7 @@ const criticalPathsTemplate = (
 `;
 
 const criticalTaskFrequenciesTemplate = (
+  plan: Plan,
   criticalTasksDurationDescending: CriticalPathTaskEntry[]
 ) =>
   html`<tr>
@@ -594,76 +163,495 @@ const criticalTaskFrequenciesTemplate = (
         </tr>`
     )} `;
 
-const simulate = () => {
-  // Run the simulation.
-  const allCriticalPaths = simulation(plan, NUM_SIMULATION_LOOPS);
+class ExplanMain extends HTMLElement {
+  plan: Plan = new Plan();
+  spans: Span[] = [];
+  criticalPath: number[] = [];
+  displayRange: DisplayRange | null = null;
+  radarScale: Scale | null = null;
+  topTimeline: boolean = false;
+  groupByOptions: string[] = []; // ["", ...Object.keys(plan.resourceDefinitions)];
+  groupByOptionsIndex: number = 0;
+  criticalPathsOnly = false;
+  updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
+  selectedTask: number = -1;
+  focusOnTask: boolean = false;
+  mm: MouseMove | null = null;
+  updateSelectedTaskPanel: UpdateSelectedTaskPanel | null = null;
 
-  // Display all the potential critical paths found.
-  render(
-    criticalPathsTemplate(allCriticalPaths),
-    document.querySelector<HTMLElement>("#criticalPaths")!
-  );
+  connectedCallback() {
+    this.plan = generateRandomPlan();
+    this.planDefinitionHasBeenChanged();
 
-  // Find how often each task appears on all the potential critical path.
-  const criticalTasksDurationDescending = criticalTaskFrequencies(
-    allCriticalPaths,
-    plan
-  );
+    // Dragging on the radar.
+    const radar = this.querySelector<HTMLElement>("#radar")!;
+    new MouseDrag(radar);
+    radar.addEventListener(
+      DRAG_RANGE_EVENT,
+      this.dragRangeHandler.bind(this) as EventListener
+    );
 
-  // Display a table of tasks on all potential critical paths.
-  render(
-    criticalTaskFrequenciesTemplate(criticalTasksDurationDescending),
-    document.querySelector<HTMLElement>("#criticalTasks")!
-  );
+    // Divider dragging.
+    const explanMain = this.querySelector<HTMLElement>("explan-main")!;
+    const divider = this.querySelector<HTMLElement>("vertical-divider")!;
+    new DividerMove(document.body, divider, "column");
 
-  // Reset the spans using the original durations.
-  recalculateSpansAndCriticalPath();
+    document.body.addEventListener(DIVIDER_MOVE_EVENT, ((
+      e: CustomEvent<DividerMoveResult>
+    ) => {
+      explanMain.style.setProperty(
+        "grid-template-columns",
+        `calc(${e.detail.before}% - 15px) 10px auto`
+      );
+      this.paintChart();
+    }) as EventListener);
 
-  // Highlight all the tasks that could appear on the critical path.
-  criticalPath = criticalTasksDurationDescending.map(
-    (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex
-  );
-  paintChart();
-};
+    // Buttons
+    this.querySelector("#reset-zoom")!.addEventListener("click", () => {
+      this.displayRange = null;
+      this.paintChart();
+    });
 
-// Populate the download link.
-const download = document.querySelector<HTMLLinkElement>("#download")!;
-const downloadBlob = new Blob([JSON.stringify(plan, null, "  ")], {
-  type: "application/json",
-});
-download.href = URL.createObjectURL(downloadBlob);
+    this.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
+      toggleTheme();
+      this.paintChart();
+    });
 
-// React to the upload input.
-const fileUpload = document.querySelector<HTMLInputElement>("#file-upload")!;
-fileUpload.addEventListener("change", async () => {
-  const json = await fileUpload.files![0].text();
-  const ret = FromJSON(json);
-  if (!ret.ok) {
-    throw ret.error;
+    this.querySelector("#radar-toggle")!.addEventListener("click", () => {
+      this.querySelector("radar-parent")!.classList.toggle("hidden");
+    });
+
+    this.querySelector("#top-timeline-toggle")!.addEventListener(
+      "click",
+      () => {
+        this.topTimeline = !this.topTimeline;
+        this.paintChart();
+      }
+    );
+
+    this.querySelector("#group-by-toggle")!.addEventListener("click", () => {
+      this.toggleGroupBy();
+      this.paintChart();
+    });
+
+    this.querySelector("#critical-paths-toggle")!.addEventListener(
+      "click",
+      () => {
+        this.toggleCriticalPathsOnly();
+        this.paintChart();
+      }
+    );
+
+    const overlayCanvas = this.querySelector<HTMLCanvasElement>("#overlay")!;
+    this.mm = new MouseMove(overlayCanvas);
+    window.requestAnimationFrame(this.onMouseMove.bind(this));
+
+    overlayCanvas.addEventListener("mousedown", (e: MouseEvent) => {
+      const p = new Point(e.offsetX, e.offsetY);
+      if (this.updateHighlightFromMousePos !== null) {
+        this.selectedTask =
+          this.updateHighlightFromMousePos(p, "mousedown") || -1;
+        this.updateSelectedTaskPanel!(this.selectedTask);
+      }
+    });
+
+    overlayCanvas.addEventListener("dblclick", (e: MouseEvent) => {
+      const p = new Point(e.offsetX, e.offsetY);
+      if (this.updateHighlightFromMousePos !== null) {
+        this.selectedTask =
+          this.updateHighlightFromMousePos(p, "mousedown") || -1;
+        this.forceFocusOnTask();
+        this.paintChart();
+        this.updateSelectedTaskPanel!(this.selectedTask);
+      }
+    });
+
+    this.updateSelectedTaskPanel = buildSelectedTaskPanel(
+      this.plan,
+      this.querySelector("selected-task-panel")!
+    );
+
+    this.updateSelectedTaskPanel(this.selectedTask);
+
+    // React to the upload input.
+    const fileUpload =
+      document.querySelector<HTMLInputElement>("#file-upload")!;
+    fileUpload.addEventListener("change", async () => {
+      const json = await fileUpload.files![0].text();
+      const ret = FromJSON(json);
+      if (!ret.ok) {
+        throw ret.error;
+      }
+      this.plan = ret.value;
+      this.planDefinitionHasBeenChanged();
+      this.paintChart();
+    });
+
+    this.querySelector("#simulate")!.addEventListener("click", () => {
+      this.simulate();
+      this.paintChart();
+    });
+
+    this.querySelector("#focus-on-selected-task")!.addEventListener(
+      "click",
+      () => {
+        this.toggleFocusOnTask();
+        this.paintChart();
+      }
+    );
+
+    this.querySelector("#gen-random-plan")!.addEventListener("click", () => {
+      this.plan = generateRandomPlan();
+      this.planDefinitionHasBeenChanged();
+      this.paintChart();
+    });
+
+    this.paintChart();
+    window.addEventListener("resize", this.paintChart.bind(this));
   }
-  plan = ret.value;
-  groupByOptions = ["", ...Object.keys(plan.resourceDefinitions)];
-  recalculateSpansAndCriticalPath();
-  paintChart();
-});
 
-document.querySelector("#simulate")!.addEventListener("click", () => {
-  simulate();
-  paintChart();
-});
+  // TODO - Turn this on and off based on mouse entering the canvas area.
+  onMouseMove() {
+    const location = this.mm!.readLocation();
+    if (location !== null && this.updateHighlightFromMousePos !== null) {
+      this.updateHighlightFromMousePos(location, "mousemove");
+    }
+    window.requestAnimationFrame(this.onMouseMove.bind(this));
+  }
 
-paintChart();
-window.addEventListener("resize", paintChart);
+  planDefinitionHasBeenChanged() {
+    this.groupByOptions = ["", ...Object.keys(this.plan.resourceDefinitions)];
+    this.groupByOptionsIndex = 0;
+    this.updateSelectedTaskPanel = buildSelectedTaskPanel(
+      this.plan,
+      this.querySelector("selected-task-panel")!
+    );
+    this.recalculateSpansAndCriticalPath();
+  }
 
-const focusButton = document
-  .querySelector("#focus-on-selected-task")!
-  .addEventListener("click", () => {
-    toggleFocusOnTask();
-    paintChart();
-  });
+  recalculateSpansAndCriticalPath() {
+    // Populate the download link.
+    // TODO - Only do this on demand.
+    const download = document.querySelector<HTMLLinkElement>("#download")!;
+    const downloadBlob = new Blob([JSON.stringify(this.plan, null, "  ")], {
+      type: "application/json",
+    });
+    download.href = URL.createObjectURL(downloadBlob);
 
-document.querySelector("#gen-random-plan")!.addEventListener("click", () => {
-  generateRandomPlan();
-  recalculateSpansAndCriticalPath();
-  paintChart();
-});
+    let slacks: Slack[] = [];
+
+    const slackResult = ComputeSlack(
+      this.plan.chart,
+      undefined,
+      precision.rounder()
+    );
+    if (!slackResult.ok) {
+      console.error(slackResult);
+    } else {
+      slacks = slackResult.value;
+    }
+
+    this.spans = slacks.map((value: Slack): Span => {
+      return value.early;
+    });
+    this.criticalPath = CriticalPath(slacks, precision.rounder());
+  }
+
+  getTaskLabeller(): TaskLabel {
+    return (taskIndex: number): string =>
+      `${this.plan.chart.Vertices[taskIndex].name}`;
+  }
+
+  dragRangeHandler(e: CustomEvent<DragRange>) {
+    if (this.radarScale === null) {
+      return;
+    }
+    const begin = this.radarScale.dayRowFromPoint(e.detail.begin);
+    const end = this.radarScale.dayRowFromPoint(e.detail.end);
+    this.displayRange = new DisplayRange(begin.day, end.day);
+    this.paintChart();
+  }
+
+  toggleGroupBy() {
+    this.groupByOptionsIndex =
+      (this.groupByOptionsIndex + 1) % this.groupByOptions.length;
+  }
+
+  toggleCriticalPathsOnly() {
+    this.criticalPathsOnly = !this.criticalPathsOnly;
+  }
+
+  toggleFocusOnTask() {
+    this.focusOnTask = !this.focusOnTask;
+    if (!this.focusOnTask) {
+      this.displayRange = null;
+    }
+  }
+
+  forceFocusOnTask() {
+    this.focusOnTask = true;
+  }
+
+  paintChart() {
+    console.time("paintChart");
+
+    const themeColors: Theme = colorThemeFromElement(document.body);
+
+    let filterFunc: FilterFunc | null = null;
+    const startAndFinish = [0, this.plan.chart.Vertices.length - 1];
+    if (this.criticalPathsOnly) {
+      const highlightSet = new Set(this.criticalPath);
+      filterFunc = (task: Task, taskIndex: number): boolean => {
+        if (startAndFinish.includes(taskIndex)) {
+          return true;
+        }
+        return highlightSet.has(taskIndex);
+      };
+    } else if (this.focusOnTask && this.selectedTask != -1) {
+      // Find all predecessor and successors of the given task.
+      const neighborSet = new Set();
+      neighborSet.add(this.selectedTask);
+      let earliestStart = this.spans[this.selectedTask].start;
+      let latestFinish = this.spans[this.selectedTask].finish;
+      this.plan.chart.Edges.forEach((edge: DirectedEdge) => {
+        if (edge.i === this.selectedTask) {
+          neighborSet.add(edge.j);
+          if (latestFinish < this.spans[edge.j].finish) {
+            latestFinish = this.spans[edge.j].finish;
+          }
+        }
+        if (edge.j === this.selectedTask) {
+          neighborSet.add(edge.i);
+          if (earliestStart > this.spans[edge.i].start) {
+            earliestStart = this.spans[edge.i].start;
+          }
+        }
+      });
+      // TODO - Since we overwrite displayRange that means dragging on the radar
+      // will not work when focusing on a selected task. Bug or feature?
+      this.displayRange = new DisplayRange(earliestStart - 1, latestFinish + 1);
+
+      filterFunc = (task: Task, taskIndex: number): boolean => {
+        if (startAndFinish.includes(taskIndex)) {
+          return true;
+        }
+
+        return neighborSet.has(taskIndex);
+      };
+    }
+
+    const radarOpts: RenderOptions = {
+      fontSizePx: 6,
+      hasText: false,
+      displayRange: this.displayRange,
+      displayRangeUsage: "highlight",
+      colors: {
+        surface: themeColors.surface,
+        onSurface: themeColors.onSurface,
+        onSurfaceMuted: themeColors.onSurfaceMuted,
+        onSurfaceHighlight: themeColors.onSurfaceSecondary,
+        overlay: themeColors.overlay,
+        groupColor: themeColors.groupColor,
+        highlight: themeColors.highlight,
+      },
+      hasTimeline: false,
+      hasTasks: true,
+      hasEdges: false,
+      drawTimeMarkersOnTasks: false,
+      taskLabel: this.getTaskLabeller(),
+      taskEmphasize: this.criticalPath,
+      filterFunc: null,
+      groupByResource: this.groupByOptions[this.groupByOptionsIndex],
+      highlightedTask: null,
+      selectedTaskIndex: this.selectedTask,
+    };
+
+    const zoomOpts: RenderOptions = {
+      fontSizePx: FONT_SIZE_PX,
+      hasText: true,
+      displayRange: this.displayRange,
+      displayRangeUsage: "restrict",
+      colors: {
+        surface: themeColors.surface,
+        onSurface: themeColors.onSurface,
+        onSurfaceMuted: themeColors.onSurfaceMuted,
+        onSurfaceHighlight: themeColors.onSurfaceSecondary,
+        overlay: themeColors.overlay,
+        groupColor: themeColors.groupColor,
+        highlight: themeColors.highlight,
+      },
+      hasTimeline: this.topTimeline,
+      hasTasks: true,
+      hasEdges: true,
+      drawTimeMarkersOnTasks: true,
+      taskLabel: this.getTaskLabeller(),
+      taskEmphasize: this.criticalPath,
+      filterFunc: filterFunc,
+      groupByResource: this.groupByOptions[this.groupByOptionsIndex],
+      highlightedTask: 1,
+      selectedTaskIndex: this.selectedTask,
+    };
+
+    const timelineOpts: RenderOptions = {
+      fontSizePx: FONT_SIZE_PX,
+      hasText: true,
+      displayRange: this.displayRange,
+      displayRangeUsage: "restrict",
+      colors: {
+        surface: themeColors.surface,
+        onSurface: themeColors.onSurface,
+        onSurfaceMuted: themeColors.onSurfaceMuted,
+        onSurfaceHighlight: themeColors.onSurfaceSecondary,
+        overlay: themeColors.overlay,
+        groupColor: themeColors.groupColor,
+        highlight: themeColors.highlight,
+      },
+      hasTimeline: true,
+      hasTasks: false,
+      hasEdges: true,
+      drawTimeMarkersOnTasks: true,
+      taskLabel: this.getTaskLabeller(),
+      taskEmphasize: this.criticalPath,
+      filterFunc: filterFunc,
+      groupByResource: this.groupByOptions[this.groupByOptionsIndex],
+      highlightedTask: null,
+      selectedTaskIndex: this.selectedTask,
+    };
+
+    const ret = this.paintOneChart("#radar", radarOpts);
+    if (!ret.ok) {
+      return;
+    }
+    this.radarScale = ret.value.scale;
+
+    this.paintOneChart("#timeline", timelineOpts);
+    const zoomRet = this.paintOneChart("#zoomed", zoomOpts, "#overlay");
+    if (zoomRet.ok) {
+      this.updateHighlightFromMousePos =
+        zoomRet.value.updateHighlightFromMousePos;
+      if (zoomRet.value.selectedTaskLocation !== null) {
+        document.querySelector("chart-parent")!.scroll({
+          top: zoomRet.value.selectedTaskLocation.y,
+          behavior: "smooth",
+        });
+      }
+    }
+
+    console.timeEnd("paintChart");
+  }
+
+  prepareCanvas(
+    canvas: HTMLCanvasElement,
+    canvasWidth: number,
+    canvasHeight: number,
+    width: number,
+    height: number
+  ): CanvasRenderingContext2D {
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+
+    const ctx = canvas.getContext("2d")!;
+    ctx.imageSmoothingEnabled = false;
+
+    return ctx;
+  }
+
+  paintOneChart(
+    canvasID: string,
+    opts: RenderOptions,
+    overlayID: string = ""
+  ): Result<RenderResult> {
+    const canvas = this.querySelector<HTMLCanvasElement>(canvasID)!;
+    const parent = canvas!.parentElement!;
+    const ratio = window.devicePixelRatio;
+    const width = parent.clientWidth - FONT_SIZE_PX;
+    let height = parent.clientHeight;
+    const canvasWidth = Math.ceil(width * ratio);
+    let canvasHeight = Math.ceil(height * ratio);
+
+    const newHeight = suggestedCanvasHeight(
+      canvas,
+      this.spans,
+      opts,
+      this.plan.chart.Vertices.length + 2 // TODO - Why do we need the +2 here!?
+    );
+    canvasHeight = newHeight;
+    height = newHeight / window.devicePixelRatio;
+
+    let overlay: HTMLCanvasElement | null = null;
+    if (overlayID) {
+      overlay = document.querySelector<HTMLCanvasElement>(overlayID)!;
+      this.prepareCanvas(overlay, canvasWidth, canvasHeight, width, height);
+    }
+    const ctx = this.prepareCanvas(
+      canvas,
+      canvasWidth,
+      canvasHeight,
+      width,
+      height
+    );
+
+    return renderTasksToCanvas(
+      parent,
+      canvas,
+      ctx,
+      this.plan,
+      this.spans,
+      opts,
+      overlay
+    );
+  }
+
+  onPotentialCriticialPathClick(
+    key: string,
+    allCriticalPaths: Map<string, CriticalPathEntry>
+  ) {
+    const criticalPathEntry = allCriticalPaths.get(key)!;
+    criticalPathEntry.durations.forEach(
+      (duration: number, taskIndex: number) => {
+        this.plan.chart.Vertices[taskIndex].duration = duration;
+      }
+    );
+    this.recalculateSpansAndCriticalPath();
+    this.paintChart();
+  }
+
+  simulate() {
+    // Run the simulation.
+    const allCriticalPaths = simulation(this.plan, NUM_SIMULATION_LOOPS);
+
+    // Display all the potential critical paths found.
+    render(
+      criticalPathsTemplate(allCriticalPaths, this),
+      document.querySelector<HTMLElement>("#criticalPaths")!
+    );
+
+    // Find how often each task appears on all the potential critical path.
+    const criticalTasksDurationDescending = criticalTaskFrequencies(
+      allCriticalPaths,
+      this.plan
+    );
+
+    // Display a table of tasks on all potential critical paths.
+    render(
+      criticalTaskFrequenciesTemplate(
+        this.plan,
+        criticalTasksDurationDescending
+      ),
+      document.querySelector<HTMLElement>("#criticalTasks")!
+    );
+
+    // Reset the spans using the original durations.
+    this.recalculateSpansAndCriticalPath();
+
+    // Highlight all the tasks that could appear on the critical path.
+    this.criticalPath = criticalTasksDurationDescending.map(
+      (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex
+    );
+    this.paintChart();
+  }
+}
+
+customElements.define("explan-main", ExplanMain);
