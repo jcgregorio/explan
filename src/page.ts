@@ -1,7 +1,6 @@
 import { Task } from "./chart/chart.ts";
 import { FilterFunc } from "./chart/filter/filter.ts";
-import { DirectedEdge, edgesBySrcAndDstToMap } from "./dag/dag.ts";
-import { MetricDefinition } from "./metrics/metrics.ts";
+import { DirectedEdge } from "./dag/dag.ts";
 import {
   DupTaskOp,
   InsertNewEmptyTaskAfterOp,
@@ -22,7 +21,6 @@ import {
   DividerMove,
   DividerMoveResult,
 } from "./renderer/dividermove/dividermove.ts";
-import { KDTree } from "./renderer/kd/kd.ts";
 import {
   DRAG_RANGE_EVENT,
   DragRange,
@@ -34,7 +32,6 @@ import {
   RenderOptions,
   RenderResult,
   TaskLabel,
-  TaskLocation,
   UpdateHighlightFromMousePos,
   renderTasksToCanvas,
   suggestedCanvasHeight,
@@ -43,7 +40,6 @@ import { Point } from "./renderer/scale/point.ts";
 import { Scale } from "./renderer/scale/scale.ts";
 import { Result } from "./result.ts";
 import { ComputeSlack, CriticalPath, Slack, Span } from "./slack/slack.ts";
-import { Jacobian, Uncertainty } from "./stats/cdf/triangular/jacobian.ts";
 import { Theme, colorThemeFromElement } from "./style/theme/theme.ts";
 import { toggleTheme } from "./style/toggler/toggler.ts";
 import { TemplateResult, html, render } from "lit-html";
