@@ -176,7 +176,7 @@ class ExplanMain extends HTMLElement {
   updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
   selectedTask: number = -1;
   focusOnTask: boolean = false;
-  mm: MouseMove | null = null;
+  mouseMove: MouseMove | null = null;
   updateSelectedTaskPanel: UpdateSelectedTaskPanel | null = null;
 
   connectedCallback() {
@@ -243,7 +243,7 @@ class ExplanMain extends HTMLElement {
     );
 
     const overlayCanvas = this.querySelector<HTMLCanvasElement>("#overlay")!;
-    this.mm = new MouseMove(overlayCanvas);
+    this.mouseMove = new MouseMove(overlayCanvas);
     window.requestAnimationFrame(this.onMouseMove.bind(this));
 
     overlayCanvas.addEventListener("mousedown", (e: MouseEvent) => {
@@ -312,7 +312,7 @@ class ExplanMain extends HTMLElement {
 
   // TODO - Turn this on and off based on mouse entering the canvas area.
   onMouseMove() {
-    const location = this.mm!.readLocation();
+    const location = this.mouseMove!.readLocation();
     if (location !== null && this.updateHighlightFromMousePos !== null) {
       this.updateHighlightFromMousePos(location, "mousemove");
     }
