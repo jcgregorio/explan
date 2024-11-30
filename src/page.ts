@@ -120,11 +120,12 @@ const generateRandomPlan = () => {
 
 generateRandomPlan();
 
-let slacks: Slack[] = [];
 let spans: Span[] = [];
 let criticalPath: number[] = [];
 
-const recalculateSpan = () => {
+const recalculateSpansSlacksAndCriticalPath = () => {
+  let slacks: Slack[] = [];
+
   const slackResult = ComputeSlack(plan.chart, undefined, precision.rounder());
   if (!slackResult.ok) {
     console.error(slackResult);
@@ -138,11 +139,10 @@ const recalculateSpan = () => {
   criticalPath = CriticalPath(slacks, precision.rounder());
 };
 
-recalculateSpan();
+recalculateSpansSlacksAndCriticalPath();
 
 const taskLabel: TaskLabel = (taskIndex: number): string =>
   `${plan.chart.Vertices[taskIndex].name}`;
-//  `${plan.chart.Vertices[taskIndex].name} (${plan.chart.Vertices[taskIndex].resources["Person"]}) `;
 
 // TODO Extract this as a helper for the radar view.
 let displayRange: DisplayRange | null = null;
@@ -207,6 +207,7 @@ document
     paintChart();
   });
 
+// TODO Needs to be updated when plan resources gets updated.
 let groupByOptions: string[] = ["", ...Object.keys(plan.resourceDefinitions)];
 let groupByOptionsIndex: number = 0;
 
@@ -555,7 +556,7 @@ const onPotentialCriticialPathClick = (
   criticalPathEntry.durations.forEach((duration: number, taskIndex: number) => {
     plan.chart.Vertices[taskIndex].duration = duration;
   });
-  recalculateSpan();
+  recalculateSpansSlacksAndCriticalPath();
   paintChart();
 };
 
@@ -618,7 +619,7 @@ const simulate = () => {
   );
 
   // Reset the spans using the original durations.
-  recalculateSpan();
+  recalculateSpansSlacksAndCriticalPath();
 
   // Highlight all the tasks that could appear on the critical path.
   criticalPath = criticalTasksDurationDescending.map(
@@ -644,7 +645,7 @@ fileUpload.addEventListener("change", async () => {
   }
   plan = ret.value;
   groupByOptions = ["", ...Object.keys(plan.resourceDefinitions)];
-  recalculateSpan();
+  recalculateSpansSlacksAndCriticalPath();
   paintChart();
 });
 
