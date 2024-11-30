@@ -56,6 +56,7 @@ const NUM_SIMULATION_LOOPS = 100;
 
 const precision = new Precision(2);
 
+/** Type of function to call when the currently selected task has changed. */
 type UpdateSelectedTaskPanel = (taskIndex: number) => void;
 
 interface CriticalPathEntry {
@@ -164,20 +165,42 @@ const criticalTaskFrequenciesTemplate = (
     )} `;
 
 class ExplanMain extends HTMLElement {
+  /** The Plan being edited. */
   plan: Plan = new Plan();
+
+  /** The start and finish time for each Task in the Plan. */
   spans: Span[] = [];
+
+  /** The task indices of tasks on the critical path. */
   criticalPath: number[] = [];
+
+  /** The selection (in time) of the Plan currently being viewed. */
   displayRange: DisplayRange | null = null;
+
+  /** Scale for the radar view, used for drag selecting a displayRange. */
   radarScale: Scale | null = null;
-  topTimeline: boolean = false;
-  groupByOptions: string[] = []; // ["", ...Object.keys(plan.resourceDefinitions)];
+
+  /** All of the types of resources in the plan. */
+  groupByOptions: string[] = [];
+
+  /** Which of the resources are we currently grouping by, where 0 means no
+   * grouping is done. */
   groupByOptionsIndex: number = 0;
-  criticalPathsOnly = false;
-  updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
+
+  /** The currently selected task, as an index. */
   selectedTask: number = -1;
+
+  // UI features that can be toggled on and off.
+  topTimeline: boolean = false;
+  criticalPathsOnly: boolean = false;
   focusOnTask: boolean = false;
   mouseMove: MouseMove | null = null;
+
+  /** Callback to call when the selected task changes. */
   updateSelectedTaskPanel: UpdateSelectedTaskPanel | null = null;
+
+  /** Callback to call when a mouse moves over the chart. */
+  updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
 
   connectedCallback() {
     this.plan = generateRandomPlan();
@@ -320,6 +343,9 @@ class ExplanMain extends HTMLElement {
   }
 
   planDefinitionHasBeenChanged() {
+    this.selectedTask = -1;
+    this.radarScale = null;
+    this.displayRange = null;
     this.groupByOptions = ["", ...Object.keys(this.plan.resourceDefinitions)];
     this.groupByOptionsIndex = 0;
     this.updateSelectedTaskPanel = buildSelectedTaskPanel(
