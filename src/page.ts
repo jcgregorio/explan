@@ -53,65 +53,72 @@ const FONT_SIZE_PX = 32;
 
 const NUM_SIMULATION_LOOPS = 100;
 
-let plan = new Plan();
 const precision = new Precision(2);
+
+const DURATION = 100;
 
 const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
 };
 
-const DURATION = 100;
-
 const rndDuration = (): number => {
   return rndInt(DURATION);
 };
 
+let plan = new Plan();
+
 const people: string[] = ["Fred", "Barney", "Wilma", "Betty"];
 
-let taskID = 0;
-const rndName = (): string => `T ${taskID++}`;
+const generateRandomPlan = () => {
+  plan = new Plan();
+  let taskID = 0;
 
-const ops: Op[] = [AddResourceOp("Person")];
+  const rndName = (): string => `T ${taskID++}`;
 
-people.forEach((person: string) => {
-  ops.push(AddResourceOptionOp("Person", person));
-});
+  const ops: Op[] = [AddResourceOp("Person")];
 
-ops.push(
-  InsertNewEmptyTaskAfterOp(0),
-  SetMetricValueOp("Duration", rndDuration(), 1),
-  SetTaskNameOp(1, rndName()),
-  SetResourceValueOp("Person", people[rndInt(people.length)], 1),
-  SetResourceValueOp("Uncertainty", "moderate", 1)
-);
+  people.forEach((person: string) => {
+    ops.push(AddResourceOptionOp("Person", person));
+  });
 
-let numTasks = 1;
-for (let i = 0; i < 15; i++) {
-  let index = rndInt(numTasks) + 1;
   ops.push(
-    SplitTaskOp(index),
-    SetMetricValueOp("Duration", rndDuration(), index + 1),
-    SetTaskNameOp(index + 1, rndName()),
-    SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
-    SetResourceValueOp("Uncertainty", "moderate", index + 1)
+    InsertNewEmptyTaskAfterOp(0),
+    SetMetricValueOp("Duration", rndDuration(), 1),
+    SetTaskNameOp(1, rndName()),
+    SetResourceValueOp("Person", people[rndInt(people.length)], 1),
+    SetResourceValueOp("Uncertainty", "moderate", 1)
   );
-  numTasks++;
-  index = rndInt(numTasks) + 1;
-  ops.push(
-    DupTaskOp(index),
-    SetMetricValueOp("Duration", rndDuration(), index + 1),
-    SetTaskNameOp(index + 1, rndName()),
-    SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
-    SetResourceValueOp("Uncertainty", "moderate", index + 1)
-  );
-  numTasks++;
-}
 
-const res = applyAllOpsToPlan(ops, plan);
+  let numTasks = 1;
+  for (let i = 0; i < 15; i++) {
+    let index = rndInt(numTasks) + 1;
+    ops.push(
+      SplitTaskOp(index),
+      SetMetricValueOp("Duration", rndDuration(), index + 1),
+      SetTaskNameOp(index + 1, rndName()),
+      SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
+      SetResourceValueOp("Uncertainty", "moderate", index + 1)
+    );
+    numTasks++;
+    index = rndInt(numTasks) + 1;
+    ops.push(
+      DupTaskOp(index),
+      SetMetricValueOp("Duration", rndDuration(), index + 1),
+      SetTaskNameOp(index + 1, rndName()),
+      SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
+      SetResourceValueOp("Uncertainty", "moderate", index + 1)
+    );
+    numTasks++;
+  }
 
-if (!res.ok) {
-  console.log(res.error);
-}
+  const res = applyAllOpsToPlan(ops, plan);
+
+  if (!res.ok) {
+    console.log(res.error);
+  }
+};
+
+generateRandomPlan();
 
 let slacks: Slack[] = [];
 let spans: Span[] = [];
