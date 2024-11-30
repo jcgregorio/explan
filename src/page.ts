@@ -123,7 +123,7 @@ generateRandomPlan();
 let spans: Span[] = [];
 let criticalPath: number[] = [];
 
-const recalculateSpansSlacksAndCriticalPath = () => {
+const recalculateSpansAndCriticalPath = () => {
   let slacks: Slack[] = [];
 
   const slackResult = ComputeSlack(plan.chart, undefined, precision.rounder());
@@ -139,7 +139,7 @@ const recalculateSpansSlacksAndCriticalPath = () => {
   criticalPath = CriticalPath(slacks, precision.rounder());
 };
 
-recalculateSpansSlacksAndCriticalPath();
+recalculateSpansAndCriticalPath();
 
 const taskLabel: TaskLabel = (taskIndex: number): string =>
   `${plan.chart.Vertices[taskIndex].name}`;
@@ -155,11 +155,9 @@ const dragRangeHandler = (e: CustomEvent<DragRange>) => {
   if (radarScale === null) {
     return;
   }
-  console.log("mouse", e.detail);
   const begin = radarScale.dayRowFromPoint(e.detail.begin);
   const end = radarScale.dayRowFromPoint(e.detail.end);
   displayRange = new DisplayRange(begin.day, end.day);
-  console.log(displayRange);
   paintChart();
 };
 
@@ -556,7 +554,7 @@ const onPotentialCriticialPathClick = (
   criticalPathEntry.durations.forEach((duration: number, taskIndex: number) => {
     plan.chart.Vertices[taskIndex].duration = duration;
   });
-  recalculateSpansSlacksAndCriticalPath();
+  recalculateSpansAndCriticalPath();
   paintChart();
 };
 
@@ -619,7 +617,7 @@ const simulate = () => {
   );
 
   // Reset the spans using the original durations.
-  recalculateSpansSlacksAndCriticalPath();
+  recalculateSpansAndCriticalPath();
 
   // Highlight all the tasks that could appear on the critical path.
   criticalPath = criticalTasksDurationDescending.map(
@@ -645,7 +643,7 @@ fileUpload.addEventListener("change", async () => {
   }
   plan = ret.value;
   groupByOptions = ["", ...Object.keys(plan.resourceDefinitions)];
-  recalculateSpansSlacksAndCriticalPath();
+  recalculateSpansAndCriticalPath();
   paintChart();
 });
 
@@ -663,3 +661,9 @@ const focusButton = document
     toggleFocusOnTask();
     paintChart();
   });
+
+document.querySelector("#gen-random-plan")!.addEventListener("click", () => {
+  generateRandomPlan();
+  recalculateSpansAndCriticalPath();
+  paintChart();
+});
