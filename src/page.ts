@@ -90,12 +90,17 @@ const buildSelectedTaskPanel = (
             <td>
               <select
                 id="${resourceKey}"
-                @change=${(e: Event) =>
-                  explainMain.taskResourceValueChanged(
+                @change=${(e: Event) => {
+                  const ret = explainMain.taskResourceValueChanged(
                     explainMain.selectedTask,
                     resourceKey,
                     (e.target as HTMLInputElement).value
-                  )}
+                  );
+                  if (ret !== null) {
+                    // TODO popup error message.
+                    e.preventDefault();
+                  }
+                }}
               >
                 ${defn.values.map(
                   (resourceValue: string) =>
