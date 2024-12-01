@@ -249,14 +249,13 @@ class ExplanMain extends HTMLElement {
     );
 
     // Divider dragging.
-    const explanMain = this.querySelector<HTMLElement>("explan-main")!;
     const divider = this.querySelector<HTMLElement>("vertical-divider")!;
     new DividerMove(document.body, divider, "column");
 
     document.body.addEventListener(DIVIDER_MOVE_EVENT, ((
       e: CustomEvent<DividerMoveResult>
     ) => {
-      explanMain.style.setProperty(
+      this.style.setProperty(
         "grid-template-columns",
         `calc(${e.detail.before}% - 15px) 10px auto`
       );
