@@ -69,7 +69,8 @@ interface CriticalPathEntry {
 // with info from a specific Task.
 const buildSelectedTaskPanel = (
   plan: Plan,
-  selectedTaskPanel: HTMLElement
+  selectedTaskPanel: HTMLElement,
+  explainMain: ExplanMain
 ): UpdateSelectedTaskPanel => {
   const selectedTaskPanelTemplate = (
     task: Task,
@@ -87,7 +88,15 @@ const buildSelectedTaskPanel = (
               <label for="${resourceKey}">${resourceKey}</label>
             </td>
             <td>
-              <select id="${resourceKey}">
+              <select
+                id="${resourceKey}"
+                @change=${(e: Event) =>
+                  explainMain.taskResourceValueChanged(
+                    explainMain.selectedTask,
+                    resourceKey,
+                    (e.target as HTMLInputElement).value
+                  )}
+              >
                 ${defn.values.map(
                   (resourceValue: string) =>
                     html`<option
@@ -190,6 +199,8 @@ class ExplanMain extends HTMLElement {
   /** The currently selected task, as an index. */
   selectedTask: number = -1;
 
+  inverseOpStack: Op[] = [];
+
   // UI features that can be toggled on and off.
   topTimeline: boolean = false;
   criticalPathsOnly: boolean = false;
@@ -291,7 +302,8 @@ class ExplanMain extends HTMLElement {
 
     this.updateSelectedTaskPanel = buildSelectedTaskPanel(
       this.plan,
-      this.querySelector("selected-task-panel")!
+      this.querySelector("selected-task-panel")!,
+      this
     );
 
     this.updateSelectedTaskPanel(this.selectedTask);
@@ -333,6 +345,23 @@ class ExplanMain extends HTMLElement {
     window.addEventListener("resize", this.paintChart.bind(this));
   }
 
+  taskResourceValueChanged(
+    taskIndex: number,
+    resourceKey: string,
+    resourceValue: string
+  ): Error | null {
+    const ret = SetResourceValueOp(resourceKey, resourceValue, taskIndex).apply(
+      this.plan
+    );
+    if (!ret.ok) {
+      return ret.error;
+    }
+    this.inverseOpStack.push(ret.value.inverse);
+    this.recalculateSpansAndCriticalPath();
+    this.paintChart();
+    return null;
+  }
+
   // TODO - Turn this on and off based on mouse entering the canvas area.
   onMouseMove() {
     const location = this.mouseMove!.readLocation();
@@ -350,7 +379,8 @@ class ExplanMain extends HTMLElement {
     this.groupByOptionsIndex = 0;
     this.updateSelectedTaskPanel = buildSelectedTaskPanel(
       this.plan,
-      this.querySelector("selected-task-panel")!
+      this.querySelector("selected-task-panel")!,
+      this
     );
     this.recalculateSpansAndCriticalPath();
   }
