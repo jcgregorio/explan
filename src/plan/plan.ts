@@ -25,7 +25,7 @@ export type StaticMetricKeys = "Duration" | "Percent Complete";
 
 export const StaticMetricDefinitions: MetricDefinitions = {
   // How long a task will take, in days.
-  Duration: new MetricDefinition(0, new MetricRange(), true),
+  Duration: new MetricDefinition(0, new MetricRange(0), true),
   // The percent complete for a task.
   Percent: new MetricDefinition(0, new MetricRange(0, 100), true),
 };

@@ -98,6 +98,7 @@ const buildSelectedTaskPanel = (
                   );
                   if (ret !== null) {
                     // TODO popup error message.
+                    console.log(ret);
                     e.preventDefault();
                   }
                 }}
@@ -106,7 +107,7 @@ const buildSelectedTaskPanel = (
                   (resourceValue: string) =>
                     html`<option
                       name=${resourceValue}
-                      ?selected=${task.resources[resourceKey] === resourceValue}
+                      .selected=${task.resources[resourceKey] === resourceValue}
                     >
                       ${resourceValue}
                     </option>`
@@ -120,7 +121,23 @@ const buildSelectedTaskPanel = (
           html` <tr>
             <td><label for="${key}">${key}</label></td>
             <td>
-              <input id="${key}" type="number" value="${task.metrics[key]}" />
+              <input
+                id="${key}"
+                type="number"
+                .value="${task.metrics[key]}"
+                @change=${(e: Event) => {
+                  const ret = explainMain.taskMetricValueChanged(
+                    explainMain.selectedTask,
+                    key,
+                    (e.target as HTMLInputElement).value
+                  );
+                  if (ret !== null) {
+                    // TODO popup error message.
+                    console.log(ret);
+                    e.preventDefault();
+                  }
+                }}
+              />
             </td>
           </tr>`
       )}
@@ -133,6 +150,7 @@ const buildSelectedTaskPanel = (
       return;
     }
     const task = plan.chart.Vertices[taskIndex];
+    console.log(task);
     render(selectedTaskPanelTemplate(task, plan), selectedTaskPanel);
   };
 
@@ -367,6 +385,23 @@ class ExplanMain extends HTMLElement {
     return null;
   }
 
+  taskMetricValueChanged(
+    taskIndex: number,
+    metricKey: string,
+    metricValue: string
+  ): Error | null {
+    const ret = SetMetricValueOp(metricKey, +metricValue, taskIndex).apply(
+      this.plan
+    );
+    if (!ret.ok) {
+      return ret.error;
+    }
+    this.inverseOpStack.push(ret.value.inverse);
+    this.recalculateSpansAndCriticalPath();
+    this.paintChart();
+    return null;
+  }
+
   // TODO - Turn this on and off based on mouse entering the canvas area.
   onMouseMove() {
     const location = this.mouseMove!.readLocation();
@@ -416,6 +451,7 @@ class ExplanMain extends HTMLElement {
       return value.early;
     });
     this.criticalPath = CriticalPath(slacks, precision.rounder());
+    this.updateSelectedTaskPanel!(this.selectedTask);
   }
 
   getTaskLabeller(): TaskLabel {
