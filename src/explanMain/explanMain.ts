@@ -263,7 +263,7 @@ export class ExplanMain extends HTMLElement {
     });
 
     this.querySelector("#radar-toggle")!.addEventListener("click", () => {
-      this.querySelector("radar-parent")!.classList.toggle("hidden");
+      execute("ToggleRadarAction", this);
     });
 
     this.querySelector("#top-timeline-toggle")!.addEventListener(
@@ -455,6 +455,10 @@ export class ExplanMain extends HTMLElement {
     const end = this.radarScale.dayRowFromPoint(e.detail.end);
     this.displayRange = new DisplayRange(begin.day, end.day);
     this.paintChart();
+  }
+
+  toggleRadar() {
+    this.querySelector("radar-parent")!.classList.toggle("hidden");
   }
 
   toggleGroupBy() {

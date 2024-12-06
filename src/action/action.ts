@@ -7,5 +7,6 @@ export interface Action {
   name: string;
   description: string;
   postActionWork: PostActonWork;
+  undo: boolean; // If true include in undo/redo actions.
   do(explanMain: ExplanMain): Result<Action>;
 }

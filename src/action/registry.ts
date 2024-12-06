@@ -2,12 +2,17 @@ import { ExplanMain } from "../explanMain/explanMain";
 import { ok, Result } from "../result";
 import { Action } from "./action";
 import { ToggleDarkModeAction } from "./actions/toggleDarkMode";
+import { ToggleRadarAction } from "./actions/toggleRadar";
 
-export type actionNames = "ToggleDarkModeAction";
+export type actionNames = "ToggleDarkModeAction" | "ToggleRadarAction";
 
 export const actionRegistry: Record<actionNames, Action> = {
   ToggleDarkModeAction: new ToggleDarkModeAction(),
+  ToggleRadarAction: new ToggleRadarAction(),
 };
+
+const undoStack: Action[] = [];
+const redoStack: Action[] = [];
 
 export const execute = (
   name: actionNames,
@@ -30,6 +35,9 @@ export const execute = (
 
     default:
       break;
+  }
+  if (action.undo) {
+    undoStack.push(ret.value);
   }
   return ok(null);
 };

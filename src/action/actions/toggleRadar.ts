@@ -4,15 +4,15 @@ import { toggleTheme } from "../../style/toggler/toggler";
 import { Action, PostActonWork } from "../action";
 
 // Action that toggles between light and dark mode.s
-export class ToggleDarkModeAction implements Action {
-  name: string = "ToggleDarkModeAction";
-  description: string = "Toggles dark mode.";
-  postActionWork: PostActonWork = "paintChart";
+export class ToggleRadarAction implements Action {
+  name: string = "ToggleRadarAction";
+  description: string = "Toggles the radar view.";
+  postActionWork: PostActonWork = "";
   undo: boolean = false;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   do(explainMain: ExplanMain): Result<Action> {
-    toggleTheme();
-    // ToggleDarkModeAction is it's own inverse.
+    explainMain.toggleRadar();
+    // ToggleRadarAction is it's own inverse.
     return ok(this);
   }
 }
