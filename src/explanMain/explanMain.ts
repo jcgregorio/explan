@@ -31,7 +31,6 @@ import { Scale } from "../renderer/scale/scale.ts";
 import { Result } from "../result.ts";
 import { ComputeSlack, CriticalPath, Slack, Span } from "../slack/slack.ts";
 import { Theme, colorThemeFromElement } from "../style/theme/theme.ts";
-import { toggleTheme } from "../style/toggler/toggler.ts";
 import { TemplateResult, html, render } from "lit-html";
 import {
   CriticalPathTaskEntry,
@@ -39,6 +38,7 @@ import {
   simulation,
 } from "../simulation/simulation.ts";
 import { generateRandomPlan } from "../generate/generate.ts";
+import { execute } from "../action/registry.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -259,8 +259,7 @@ export class ExplanMain extends HTMLElement {
     });
 
     this.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
-      toggleTheme();
-      this.paintChart();
+      execute("ToggleDarkModeAction", this);
     });
 
     this.querySelector("#radar-toggle")!.addEventListener("click", () => {
