@@ -3,15 +3,14 @@ import { ok, Result } from "../../result";
 import { toggleTheme } from "../../style/toggler/toggler";
 import { Action, PostActonWork } from "../action";
 
-export class ToggleRadarAction implements Action {
-  name: string = "ToggleRadarAction";
-  description: string = "Toggles the radar view.";
-  postActionWork: PostActonWork = "";
+export class ResetZoomAction implements Action {
+  name: string = "ResetZoomAction";
+  description: string = "Undoes the zoom.";
+  postActionWork: PostActonWork = "paintChart";
   undo: boolean = false;
 
   do(explainMain: ExplanMain): Result<Action> {
-    explainMain.toggleRadar();
-    // ToggleRadarAction is its own inverse.
+    explainMain.displayRange = null;
     return ok(this);
   }
 }

@@ -1,14 +1,19 @@
-import { ExplanMain } from "../explanMain/explanMain";
-import { ok, Result } from "../result";
-import { Action } from "./action";
-import { ToggleDarkModeAction } from "./actions/toggleDarkMode";
-import { ToggleRadarAction } from "./actions/toggleRadar";
+import { ExplanMain } from "../explanMain/explanMain.ts";
+import { ok, Result } from "../result.ts";
+import { Action } from "./action.ts";
+import { ResetZoomAction } from "./actions/resetZoom.ts";
+import { ToggleDarkModeAction } from "./actions/toggleDarkMode.ts";
+import { ToggleRadarAction } from "./actions/toggleRadar.ts";
 
-export type actionNames = "ToggleDarkModeAction" | "ToggleRadarAction";
+export type actionNames =
+  | "ToggleDarkModeAction"
+  | "ToggleRadarAction"
+  | "ResetZoomAction";
 
 export const actionRegistry: Record<actionNames, Action> = {
   ToggleDarkModeAction: new ToggleDarkModeAction(),
   ToggleRadarAction: new ToggleRadarAction(),
+  ResetZoomAction: new ResetZoomAction(),
 };
 
 const undoStack: Action[] = [];

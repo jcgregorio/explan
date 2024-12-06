@@ -254,8 +254,7 @@ export class ExplanMain extends HTMLElement {
 
     // Buttons
     this.querySelector("#reset-zoom")!.addEventListener("click", () => {
-      this.displayRange = null;
-      this.paintChart();
+      execute("ResetZoomAction", this);
     });
 
     this.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
