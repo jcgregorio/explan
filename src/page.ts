@@ -1,19 +1,9 @@
 import { Task } from "./chart/chart.ts";
 import { FilterFunc } from "./chart/filter/filter.ts";
 import { DirectedEdge } from "./dag/dag.ts";
-import {
-  DupTaskOp,
-  InsertNewEmptyTaskAfterOp,
-  SetTaskNameOp,
-  SplitTaskOp,
-} from "./ops/chart.ts";
 import { SetMetricValueOp } from "./ops/metrics.ts";
-import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
-import {
-  AddResourceOp,
-  AddResourceOptionOp,
-  SetResourceValueOp,
-} from "./ops/resources.ts";
+import { Op } from "./ops/ops.ts";
+import { SetResourceValueOp } from "./ops/resources.ts";
 import { FromJSON, Plan } from "./plan/plan.ts";
 import { Precision } from "./precision/precision.ts";
 import {
