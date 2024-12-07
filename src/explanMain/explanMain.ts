@@ -38,7 +38,8 @@ import {
   simulation,
 } from "../simulation/simulation.ts";
 import { generateRandomPlan } from "../generate/generate.ts";
-import { execute } from "../action/registry.ts";
+import { execute, executeDirect } from "../action/registry.ts";
+import { ActionFromOp } from "../action/action.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -81,6 +82,19 @@ const buildSelectedTaskPanel = (
               <select
                 id="${resourceKey}"
                 @change=${(e: Event) => {
+                  // Need to pass in explanMain to the template.
+                  executeDirect(
+                    new ActionFromOp(
+                      SetResourceValueOp(
+                        resourceKey,
+                        (e.target as HTMLInputElement).value,
+                        explainMain.selectedTask
+                      ),
+                      "paintChart",
+                      true
+                    ),
+                    explainMain
+                  );
                   const ret = explainMain.taskResourceValueChanged(
                     explainMain.selectedTask,
                     resourceKey,

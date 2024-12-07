@@ -46,3 +46,30 @@ export const execute = (
   }
   return ok(null);
 };
+
+export const executeDirect = (
+  action: Action,
+  explainMain: ExplanMain
+): Result<null> => {
+  const ret = action.do(explainMain);
+  if (!ret.ok) {
+    return ret;
+  }
+  switch (action.postActionWork) {
+    case "":
+      break;
+    case "paintChart":
+      explainMain.paintChart();
+
+    case "planDefinitionChanged":
+      explainMain.planDefinitionHasBeenChanged();
+      explainMain.paintChart();
+
+    default:
+      break;
+  }
+  if (action.undo) {
+    undoStack.push(ret.value);
+  }
+  return ok(null);
+};
