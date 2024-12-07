@@ -32,7 +32,7 @@ export class ActionFromOp {
       return ret;
     }
     return ok(
-      new ActionFromOp(this.postActionWork, this.undo, ret.value.inverse)
+      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo)
     );
   }
 }
