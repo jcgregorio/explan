@@ -1,6 +1,7 @@
 import { ExplanMain } from "../explanMain/explanMain.ts";
+import { Op } from "../ops/ops.ts";
 import { ok, Result } from "../result.ts";
-import { Action } from "./action.ts";
+import { Action, ActionFromOp, PostActonWork } from "./action.ts";
 import { ResetZoomAction } from "./actions/resetZoom.ts";
 import { ToggleDarkModeAction } from "./actions/toggleDarkMode.ts";
 import { ToggleRadarAction } from "./actions/toggleRadar.ts";
@@ -47,10 +48,13 @@ export const execute = (
   return ok(null);
 };
 
-export const executeDirect = (
-  action: Action,
+export const executeOp = (
+  op: Op,
+  postActionWork: PostActonWork,
+  undo: boolean,
   explainMain: ExplanMain
 ): Result<null> => {
+  const action = new ActionFromOp(op, postActionWork, undo);
   const ret = action.do(explainMain);
   if (!ret.ok) {
     return ret;
@@ -58,12 +62,15 @@ export const executeDirect = (
   switch (action.postActionWork) {
     case "":
       break;
+
     case "paintChart":
       explainMain.paintChart();
+      break;
 
     case "planDefinitionChanged":
       explainMain.planDefinitionHasBeenChanged();
       explainMain.paintChart();
+      break;
 
     default:
       break;
