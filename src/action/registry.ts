@@ -22,10 +22,10 @@ const redoStack: Action[] = [];
 
 export const execute = (
   name: actionNames,
-  explainMain: ExplanMain
+  explanMain: ExplanMain
 ): Result<null> => {
   const action = actionRegistry[name];
-  const ret = action.do(explainMain);
+  const ret = action.do(explanMain);
   if (!ret.ok) {
     return ret;
   }
@@ -33,11 +33,11 @@ export const execute = (
     case "":
       break;
     case "paintChart":
-      explainMain.paintChart();
+      explanMain.paintChart();
 
     case "planDefinitionChanged":
-      explainMain.planDefinitionHasBeenChanged();
-      explainMain.paintChart();
+      explanMain.planDefinitionHasBeenChanged();
+      explanMain.paintChart();
 
     default:
       break;
@@ -52,10 +52,10 @@ export const executeOp = (
   op: Op,
   postActionWork: PostActonWork,
   undo: boolean,
-  explainMain: ExplanMain
+  explanMain: ExplanMain
 ): Result<null> => {
   const action = new ActionFromOp(op, postActionWork, undo);
-  const ret = action.do(explainMain);
+  const ret = action.do(explanMain);
   if (!ret.ok) {
     return ret;
   }
@@ -64,12 +64,12 @@ export const executeOp = (
       break;
 
     case "paintChart":
-      explainMain.paintChart();
+      explanMain.paintChart();
       break;
 
     case "planDefinitionChanged":
-      explainMain.planDefinitionHasBeenChanged();
-      explainMain.paintChart();
+      explanMain.planDefinitionHasBeenChanged();
+      explanMain.paintChart();
       break;
 
     default:

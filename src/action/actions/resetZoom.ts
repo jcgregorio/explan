@@ -9,8 +9,8 @@ export class ResetZoomAction implements Action {
   postActionWork: PostActonWork = "paintChart";
   undo: boolean = false;
 
-  do(explainMain: ExplanMain): Result<Action> {
-    explainMain.displayRange = null;
+  do(explanMain: ExplanMain): Result<Action> {
+    explanMain.displayRange = null;
     return ok(this);
   }
 }

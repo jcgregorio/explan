@@ -26,8 +26,8 @@ export class ActionFromOp {
     this.op = op;
   }
 
-  do(explainMain: ExplanMain): Result<Action> {
-    const ret = this.op.apply(explainMain.plan);
+  do(explanMain: ExplanMain): Result<Action> {
+    const ret = this.op.apply(explanMain.plan);
     if (!ret.ok) {
       return ret;
     }

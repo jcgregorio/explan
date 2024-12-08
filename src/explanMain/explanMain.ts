@@ -61,7 +61,7 @@ interface CriticalPathEntry {
 const buildSelectedTaskPanel = (
   plan: Plan,
   selectedTaskPanel: HTMLElement,
-  explainMain: ExplanMain
+  explanMain: ExplanMain
 ): UpdateSelectedTaskPanel => {
   const selectedTaskPanelTemplate = (
     task: Task,
@@ -86,11 +86,11 @@ const buildSelectedTaskPanel = (
                     SetResourceValueOp(
                       resourceKey,
                       (e.target as HTMLInputElement).value,
-                      explainMain.selectedTask
+                      explanMain.selectedTask
                     ),
                     "paintChart",
                     true,
-                    explainMain
+                    explanMain
                   );
                 }}
               >
@@ -117,8 +117,8 @@ const buildSelectedTaskPanel = (
                 type="number"
                 .value="${task.metrics[key]}"
                 @change=${(e: Event) => {
-                  const ret = explainMain.taskMetricValueChanged(
-                    explainMain.selectedTask,
+                  const ret = explanMain.taskMetricValueChanged(
+                    explanMain.selectedTask,
                     key,
                     (e.target as HTMLInputElement).value
                   );
@@ -150,14 +150,14 @@ const buildSelectedTaskPanel = (
 
 const criticalPathsTemplate = (
   allCriticalPaths: Map<string, CriticalPathEntry>,
-  explainMain: ExplanMain
+  explanMain: ExplanMain
 ): TemplateResult => html`
   <ul>
     ${Array.from(allCriticalPaths.entries()).map(
       ([key, value]) =>
         html`<li
           @click=${() =>
-            explainMain.onPotentialCriticialPathClick(key, allCriticalPaths)}
+            explanMain.onPotentialCriticialPathClick(key, allCriticalPaths)}
         >
           ${value.count} : ${key}
         </li>`
