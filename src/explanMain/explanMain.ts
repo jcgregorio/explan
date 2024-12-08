@@ -38,7 +38,7 @@ import {
   simulation,
 } from "../simulation/simulation.ts";
 import { generateRandomPlan } from "../generate/generate.ts";
-import { execute, executeOp } from "../action/registry.ts";
+import { execute, executeOp } from "../action/execute.ts";
 import { ActionFromOp } from "../action/action.ts";
 
 const FONT_SIZE_PX = 32;
