@@ -7,6 +7,20 @@ import { ActionNames, ActionRegistry } from "./registry.ts";
 const undoStack: Action[] = [];
 const redoStack: Action[] = [];
 
+export const undo = (explanMain: ExplanMain): Result<null> => {
+  const action = undoStack.pop()!;
+  if (!action) {
+    return ok(null);
+  }
+
+  const ret = executeDirectly(action, explanMain);
+  if (!ret.ok) {
+    return ret;
+  }
+  redoStack.push(action);
+  return ret;
+};
+
 export const execute = (
   name: ActionNames,
   explanMain: ExplanMain
@@ -42,6 +56,36 @@ export const executeOp = (
   explanMain: ExplanMain
 ): Result<null> => {
   const action = new ActionFromOp(op, postActionWork, undo);
+  const ret = action.do(explanMain);
+  if (!ret.ok) {
+    return ret;
+  }
+  switch (action.postActionWork) {
+    case "":
+      break;
+
+    case "paintChart":
+      explanMain.paintChart();
+      break;
+
+    case "planDefinitionChanged":
+      explanMain.planDefinitionHasBeenChanged();
+      explanMain.paintChart();
+      break;
+
+    default:
+      break;
+  }
+  if (action.undo) {
+    undoStack.push(ret.value);
+  }
+  return ok(null);
+};
+
+export const executeDirectly = (
+  action: Action,
+  explanMain: ExplanMain
+): Result<null> => {
   const ret = action.do(explanMain);
   if (!ret.ok) {
     return ret;

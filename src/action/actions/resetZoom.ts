@@ -1,6 +1,5 @@
 import { ExplanMain } from "../../explanMain/explanMain";
 import { ok, Result } from "../../result";
-import { toggleTheme } from "../../style/toggler/toggler";
 import { Action, PostActonWork } from "../action";
 
 export class ResetZoomAction implements Action {

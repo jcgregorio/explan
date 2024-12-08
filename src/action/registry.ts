@@ -1,18 +1,18 @@
-import { ExplanMain } from "../explanMain/explanMain.ts";
-import { Op } from "../ops/ops.ts";
-import { ok, Result } from "../result.ts";
-import { Action, ActionFromOp, PostActonWork } from "./action.ts";
+import { Action } from "./action.ts";
 import { ResetZoomAction } from "./actions/resetZoom.ts";
 import { ToggleDarkModeAction } from "./actions/toggleDarkMode.ts";
 import { ToggleRadarAction } from "./actions/toggleRadar.ts";
+import { UndoAction } from "./actions/undo.ts";
 
 export type ActionNames =
   | "ToggleDarkModeAction"
   | "ToggleRadarAction"
-  | "ResetZoomAction";
+  | "ResetZoomAction"
+  | "UndoAction";
 
 export const ActionRegistry: Record<ActionNames, Action> = {
   ToggleDarkModeAction: new ToggleDarkModeAction(),
   ToggleRadarAction: new ToggleRadarAction(),
   ResetZoomAction: new ResetZoomAction(),
+  UndoAction: new UndoAction(),
 };

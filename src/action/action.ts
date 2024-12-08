@@ -12,6 +12,17 @@ export interface Action {
   do(explanMain: ExplanMain): Result<Action>;
 }
 
+export class NOOPAction implements Action {
+  name: string = "NOOP";
+  description: string = "Does nothing";
+  postActionWork: PostActonWork = "";
+  undo: boolean = false;
+
+  do(explanMain: ExplanMain): Result<Action> {
+    return ok(new NOOPAction());
+  }
+}
+
 export class ActionFromOp {
   name: string = "ActionFromOp";
   description: string = "Action constructed directly from an Op.";
