@@ -40,6 +40,7 @@ import {
 import { generateRandomPlan } from "../generate/generate.ts";
 import { execute, executeOp } from "../action/execute.ts";
 import { ActionFromOp } from "../action/action.ts";
+import { StartKeyboardHandling } from "../keymap/keymap.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -354,6 +355,7 @@ export class ExplanMain extends HTMLElement {
 
     this.paintChart();
     window.addEventListener("resize", this.paintChart.bind(this));
+    StartKeyboardHandling(this);
   }
 
   taskResourceValueChanged(
