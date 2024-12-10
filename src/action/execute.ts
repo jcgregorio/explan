@@ -35,6 +35,7 @@ export const execute = (
       break;
     case "paintChart":
       explanMain.paintChart();
+      break;
 
     case "planDefinitionChanged":
       explanMain.planDefinitionHasBeenChanged();

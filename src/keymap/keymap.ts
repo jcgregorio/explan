@@ -4,6 +4,8 @@ import { ExplanMain } from "../explanMain/explanMain";
 
 const KeyMap: Map<string, ActionNames> = new Map([
   ["shift-ctrl-R", "ToggleRadarAction"],
+  ["shift-ctrl-M", "ToggleDarkModeAction"],
+  ["shift-ctrl-Z", "ResetZoomAction"],
   ["ctrl-z", "UndoAction"],
 ]);
 
@@ -24,5 +26,6 @@ const onKeyDown = (e: KeyboardEvent) => {
   e.preventDefault();
   const ret = execute(actionName, explanMain);
   if (!ret.ok) {
+    console.log(ret.error);
   }
 };
