@@ -2,11 +2,12 @@ import { execute } from "../action/execute";
 import { ActionNames } from "../action/registry";
 import { ExplanMain } from "../explanMain/explanMain";
 
-const KeyMap: Map<string, ActionNames> = new Map([
+export const KeyMap: Map<string, ActionNames> = new Map([
   ["shift-ctrl-R", "ToggleRadarAction"],
   ["shift-ctrl-M", "ToggleDarkModeAction"],
   ["shift-ctrl-Z", "ResetZoomAction"],
   ["ctrl-z", "UndoAction"],
+  ["shift-ctrl-H", "HelpAction"],
 ]);
 
 let explanMain: ExplanMain;
