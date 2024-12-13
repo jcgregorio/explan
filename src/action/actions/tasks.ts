@@ -4,7 +4,6 @@ import { error, ok, Result } from "../../result";
 import { Action, ActionFromOp, PostActonWork } from "../action";
 
 export class SplitTaskAction implements Action {
-  name: string = "SplitTaskction";
   description: string = "Splits a task.";
   postActionWork: PostActonWork = "planDefinitionChanged";
   undo: boolean = true;

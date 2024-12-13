@@ -3,7 +3,6 @@ import { ok, Result } from "../../result";
 import { Action, PostActonWork } from "../action";
 
 export class ResetZoomAction implements Action {
-  name: string = "ResetZoomAction";
   description: string = "Undoes the zoom.";
   postActionWork: PostActonWork = "paintChart";
   undo: boolean = false;

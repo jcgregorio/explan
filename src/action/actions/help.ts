@@ -3,7 +3,6 @@ import { ok, Result } from "../../result";
 import { Action, PostActonWork } from "../action";
 
 export class HelpAction implements Action {
-  name: string = "HelpAction";
   description: string = "Displays the help dialog.";
   postActionWork: PostActonWork = "";
   undo: boolean = false;

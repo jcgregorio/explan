@@ -4,7 +4,6 @@ import { toggleTheme } from "../../style/toggler/toggler";
 import { Action, PostActonWork } from "../action";
 
 export class ToggleRadarAction implements Action {
-  name: string = "ToggleRadarAction";
   description: string = "Toggles the radar view.";
   postActionWork: PostActonWork = "";
   undo: boolean = false;

@@ -4,7 +4,6 @@ import { Action, NOOPAction, PostActonWork } from "../action";
 import { undo } from "../execute";
 
 export class UndoAction implements Action {
-  name: string = "UndoAction";
   description: string = "Undoes the last action.";
   postActionWork: PostActonWork = "";
   undo: boolean = false;

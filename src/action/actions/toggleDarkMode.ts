@@ -4,7 +4,6 @@ import { toggleTheme } from "../../style/toggler/toggler";
 import { Action, PostActonWork } from "../action";
 
 export class ToggleDarkModeAction implements Action {
-  name: string = "ToggleDarkModeAction";
   description: string = "Toggles dark mode.";
   postActionWork: PostActonWork = "paintChart";
   undo: boolean = false;

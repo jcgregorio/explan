@@ -5,7 +5,6 @@ import { ok, Result } from "../result";
 export type PostActonWork = "" | "paintChart" | "planDefinitionChanged";
 
 export interface Action {
-  name: string;
   description: string;
   postActionWork: PostActonWork;
   undo: boolean; // If true include in undo/redo actions.
@@ -13,7 +12,6 @@ export interface Action {
 }
 
 export class NOOPAction implements Action {
-  name: string = "NOOP";
   description: string = "Does nothing";
   postActionWork: PostActonWork = "";
   undo: boolean = false;
