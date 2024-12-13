@@ -1,6 +1,6 @@
 import { html, render } from "lit-html";
 import { KeyMap } from "../keymap/keymap.ts";
-import { ActionNames, ActionRegistry } from "../action/registry";
+import { ActionRegistry } from "../action/registry";
 
 class KeyboardMapDialog extends HTMLElement {
   connectedCallback(): void {
