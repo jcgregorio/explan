@@ -9,6 +9,7 @@ export const KeyMap: Map<string, ActionNames> = new Map([
   ["ctrl-z", "UndoAction"],
   ["shift-ctrl-H", "HelpAction"],
   ["shift-ctrl-|", "SplitTaskAction"],
+  ["shift-ctrl-_", "DupTaskAction"],
 ]);
 
 let explanMain: ExplanMain;
