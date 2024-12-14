@@ -72,7 +72,18 @@ const buildSelectedTaskPanel = (
     <table>
       <tr>
         <td>Name</td>
-        <td>${task.name}</td>
+        <td>
+          <input
+            type="text"
+            .value="${task.name}"
+            @change=${(e: Event) => {
+              explanMain.taskNameChanged(
+                explanMain.selectedTask,
+                (e.target as HTMLInputElement).value
+              );
+            }}
+          />
+        </td>
       </tr>
       ${Object.entries(plan.resourceDefinitions).map(
         ([resourceKey, defn]) =>
@@ -377,7 +388,7 @@ export class ExplanMain extends HTMLElement {
 
   taskNameChanged(taskIndex: number, name: string): Result<null> {
     const op = SetTaskNameOp(taskIndex, name);
-    return executeOp(op, "planDefinitionChanged", true, this);
+    return executeOp(op, "paintChart", true, this);
   }
 
   // TODO - Turn this on and off based on mouse entering the canvas area.
