@@ -214,8 +214,6 @@ export class ExplanMain extends HTMLElement {
   /** The currently selected task, as an index. */
   selectedTask: number = -1;
 
-  inverseOpStack: Op[] = [];
-
   // UI features that can be toggled on and off.
   topTimeline: boolean = false;
   criticalPathsOnly: boolean = false;
@@ -363,15 +361,11 @@ export class ExplanMain extends HTMLElement {
     resourceKey: string,
     resourceValue: string
   ): Error | null {
-    const ret = SetResourceValueOp(resourceKey, resourceValue, taskIndex).apply(
-      this.plan
-    );
+    const op = SetResourceValueOp(resourceKey, resourceValue, taskIndex);
+    const ret = executeOp(op, "planDefinitionChanged", true, this);
     if (!ret.ok) {
       return ret.error;
     }
-    this.inverseOpStack.push(ret.value.inverse);
-    this.recalculateSpansAndCriticalPath();
-    this.paintChart();
     return null;
   }
 
@@ -380,15 +374,11 @@ export class ExplanMain extends HTMLElement {
     metricKey: string,
     metricValue: string
   ): Error | null {
-    const ret = SetMetricValueOp(metricKey, +metricValue, taskIndex).apply(
-      this.plan
-    );
+    const op = SetMetricValueOp(metricKey, +metricValue, taskIndex);
+    const ret = executeOp(op, "planDefinitionChanged", true, this);
     if (!ret.ok) {
       return ret.error;
     }
-    this.inverseOpStack.push(ret.value.inverse);
-    this.recalculateSpansAndCriticalPath();
-    this.paintChart();
     return null;
   }
 
