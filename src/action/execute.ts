@@ -5,7 +5,6 @@ import { Action, ActionFromOp, PostActonWork } from "./action.ts";
 import { ActionNames, ActionRegistry } from "./registry.ts";
 
 const undoStack: Action[] = [];
-const redoStack: Action[] = [];
 
 export const undo = (explanMain: ExplanMain): Result<null> => {
   const action = undoStack.pop()!;
@@ -20,7 +19,6 @@ export const execute = (
   name: ActionNames,
   explanMain: ExplanMain
 ): Result<null> => {
-  redoStack.length = 0;
   const action = ActionRegistry[name];
   const ret = action.do(explanMain);
   if (!ret.ok) {
@@ -99,9 +97,6 @@ const executeUndo = (action: Action, explanMain: ExplanMain): Result<null> => {
 
     default:
       break;
-  }
-  if (action.undo) {
-    redoStack.push(ret.value);
   }
   return ok(null);
 };
