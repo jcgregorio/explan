@@ -56,11 +56,6 @@ export class NewTaskAction implements Action {
     if (!ret.ok) {
       return ret;
     }
-    ret = SetMetricValueOp("Duration", 10, 1).apply(explanMain.plan);
-    if (!ret.ok) {
-      return ret;
-    }
-    explanMain.selectedTask = 1;
     return ok(
       new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo)
     );

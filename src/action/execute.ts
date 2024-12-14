@@ -13,18 +13,14 @@ export const undo = (explanMain: ExplanMain): Result<null> => {
     return ok(null);
   }
 
-  const ret = executeDirectly(action, explanMain);
-  if (!ret.ok) {
-    return ret;
-  }
-  redoStack.push(action);
-  return ret;
+  return executeUndo(action, explanMain);
 };
 
 export const execute = (
   name: ActionNames,
   explanMain: ExplanMain
 ): Result<null> => {
+  redoStack.length = 0;
   const action = ActionRegistry[name];
   const ret = action.do(explanMain);
   if (!ret.ok) {
@@ -83,10 +79,7 @@ export const executeOp = (
   return ok(null);
 };
 
-export const executeDirectly = (
-  action: Action,
-  explanMain: ExplanMain
-): Result<null> => {
+const executeUndo = (action: Action, explanMain: ExplanMain): Result<null> => {
   const ret = action.do(explanMain);
   if (!ret.ok) {
     return ret;
@@ -108,7 +101,7 @@ export const executeDirectly = (
       break;
   }
   if (action.undo) {
-    undoStack.push(ret.value);
+    redoStack.push(ret.value);
   }
   return ok(null);
 };
