@@ -33,7 +33,7 @@ class TestSubOp implements SubOp {
     this.isInverse = isInverse;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     if (!this.isInverse && this.fails === "FailsOnApply") {
       return error(new Error(testErrorMessage));
     }
@@ -59,9 +59,9 @@ describe("Op", () => {
       new TestSubOp("B"),
       new TestSubOp("C"),
     ]);
-    let res = op.apply(new Plan());
+    let res = op.applyTo(new Plan());
     assert.isTrue(res.ok);
-    res = res.value.inverse.apply(res.value.plan);
+    res = res.value.inverse.applyTo(res.value.plan);
     assert.isTrue(res.ok);
     assert.deepEqual(TestSubOp.subOpApplicationOrder, [
       "A",
@@ -80,7 +80,7 @@ describe("Op", () => {
       new TestSubOp("B"),
       new TestSubOp("C", "FailsOnApply"),
     ]);
-    const res = op.apply(new Plan());
+    const res = op.applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.deepEqual(TestSubOp.subOpApplicationOrder, ["A", "B", "-B", "-A"]);
     assert.isTrue(res.error.message.includes(testErrorMessage));
@@ -93,7 +93,7 @@ describe("Op", () => {
       new TestSubOp("B", "InverseFailsOnApply"),
       new TestSubOp("C", "FailsOnApply"),
     ]);
-    const res = op.apply(new Plan());
+    const res = op.applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.deepEqual(TestSubOp.subOpApplicationOrder, ["A", "B"]);
     assert.isTrue(res.error.message.includes(inverseFailureErrorMessage));

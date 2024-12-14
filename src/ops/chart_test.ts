@@ -42,13 +42,13 @@ describe("InsertNewEmptyTaskAfterOp", () => {
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = InsertNewEmptyTaskAfterOp(2).apply(new Plan());
+    const res = InsertNewEmptyTaskAfterOp(2).applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = InsertNewEmptyTaskAfterOp(-1).apply(new Plan());
+    const res = InsertNewEmptyTaskAfterOp(-1).applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
@@ -70,13 +70,13 @@ describe("SetTaskName", () => {
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskNameOp(-1, "foo").apply(new Plan());
+    const res = SetTaskNameOp(-1, "foo").applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskNameOp(2, "bar").apply(new Plan());
+    const res = SetTaskNameOp(2, "bar").applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
@@ -98,13 +98,13 @@ describe("SetTaskStateOp", () => {
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskStateOp(-1, newTaskState).apply(new Plan());
+    const res = SetTaskStateOp(-1, newTaskState).applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskStateOp(2, newTaskState).apply(new Plan());
+    const res = SetTaskStateOp(2, newTaskState).applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
@@ -177,13 +177,13 @@ describe("SplitTaskOp", () => {
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = InsertNewEmptyTaskAfterOp(2).apply(new Plan());
+    const res = InsertNewEmptyTaskAfterOp(2).applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    const res = InsertNewEmptyTaskAfterOp(-1).apply(new Plan());
+    const res = InsertNewEmptyTaskAfterOp(-1).applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
@@ -191,17 +191,17 @@ describe("SplitTaskOp", () => {
 
 describe("DupTaskOp", () => {
   it("Fails if the taskIndex is out of range", () => {
-    let res = InsertNewEmptyTaskAfterOp(0).apply(new Plan());
+    let res = InsertNewEmptyTaskAfterOp(0).applyTo(new Plan());
     assert.isTrue(res.ok);
-    res = DupTaskOp(-1).apply(res.value.plan);
+    res = DupTaskOp(-1).applyTo(res.value.plan);
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });
 
   it("Fails if the taskIndex is out of range", () => {
-    let res = InsertNewEmptyTaskAfterOp(0).apply(new Plan());
+    let res = InsertNewEmptyTaskAfterOp(0).applyTo(new Plan());
     assert.isTrue(res.ok);
-    res = DupTaskOp(2).apply(res.value.plan);
+    res = DupTaskOp(2).applyTo(res.value.plan);
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });

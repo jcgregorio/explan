@@ -13,7 +13,7 @@ import {
 export class NoOpSubOp implements SubOp {
   constructor() {}
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     return ok({ plan: plan, inverse: this.inverse() });
   }
 
@@ -33,7 +33,7 @@ export class TestingSubOp implements SubOp {
     this.f = f;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     this.f(plan);
 
     return ok({ plan: plan, inverse: this.inverse() });
@@ -59,7 +59,7 @@ export class Testing2SubOp implements SubOp {
     this.isForward = isForward;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     this.f(plan, this.isForward);
 
     return ok({ plan: plan, inverse: this.inverse() });

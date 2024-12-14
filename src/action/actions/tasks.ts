@@ -17,7 +17,7 @@ export class SplitTaskAction implements Action {
     if (explanMain.selectedTask === -1) {
       return error(new Error("A task must be selected first."));
     }
-    const ret = SplitTaskOp(explanMain.selectedTask).apply(explanMain.plan);
+    const ret = SplitTaskOp(explanMain.selectedTask).applyTo(explanMain.plan);
     if (!ret.ok) {
       return ret;
     }
@@ -36,7 +36,7 @@ export class DupTaskAction implements Action {
     if (explanMain.selectedTask === -1) {
       return error(new Error("A task must be selected first."));
     }
-    const ret = DupTaskOp(explanMain.selectedTask).apply(explanMain.plan);
+    const ret = DupTaskOp(explanMain.selectedTask).applyTo(explanMain.plan);
     if (!ret.ok) {
       return ret;
     }
@@ -52,7 +52,7 @@ export class NewTaskAction implements Action {
   undo: boolean = true;
 
   do(explanMain: ExplanMain): Result<Action> {
-    let ret = InsertNewEmptyTaskAfterOp(0).apply(explanMain.plan);
+    let ret = InsertNewEmptyTaskAfterOp(0).applyTo(explanMain.plan);
     if (!ret.ok) {
       return ret;
     }

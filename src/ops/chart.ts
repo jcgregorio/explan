@@ -39,7 +39,7 @@ export class AddEdgeSubOp implements SubOp {
     this.j = j;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     if (this.i === -1) {
       this.i = plan.chart.Vertices.length - 1;
     }
@@ -77,7 +77,7 @@ export class RemoveEdgeSupOp implements SubOp {
     this.j = j;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     if (this.i === -1) {
       this.i = plan.chart.Vertices.length - 1;
     }
@@ -128,7 +128,7 @@ export class AddTaskAfterSubOp implements SubOp {
     this.index = index;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const chart = plan.chart;
     const ret = indexInRangeForVertices(this.index, chart);
     if (!ret.ok) {
@@ -161,7 +161,7 @@ export class DupTaskSubOp implements SubOp {
     this.index = index;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const chart = plan.chart;
     const ret = indexInRangeForVerticesExclusive(this.index, chart);
     if (!ret.ok) {
@@ -207,7 +207,7 @@ export class MoveAllOutgoingEdgesFromToSubOp implements SubOp {
     this.actualMoves = actualMoves;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const chart = plan.chart;
     let ret = indexInRangeForVerticesExclusive(this.fromTaskIndex, chart);
     if (!ret.ok) {
@@ -284,7 +284,7 @@ export class CopyAllEdgesFromToSubOp implements SubOp {
     this.toIndex = toIndex;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const ret = indexInRangeForVertices(this.fromIndex, plan.chart);
     if (!ret.ok) {
       return ret;
@@ -312,7 +312,7 @@ export class RemoveAllEdgesSubOp implements SubOp {
     this.edges = edges;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     plan.chart.Edges = plan.chart.Edges.filter(
       (edge: DirectedEdge) =>
         -1 ===
@@ -332,7 +332,7 @@ export class AddAllEdgesSubOp implements SubOp {
     this.edges = edges;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     plan.chart.Edges.push(...this.edges);
 
     return ok({ plan: plan, inverse: new RemoveAllEdgesSubOp(this.edges) });
@@ -346,7 +346,7 @@ export class DeleteTaskSubOp implements SubOp {
     this.index = index;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const chart = plan.chart;
     const ret = indexInRangeForVertices(this.index, chart);
     if (!ret.ok) {
@@ -376,7 +376,7 @@ export class DeleteTaskSubOp implements SubOp {
 export class RationalizeEdgesSubOp implements SubOp {
   constructor() {}
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const srcAndDst = edgesBySrcAndDstToMap(plan.chart.Edges);
     const Start = 0;
     const Finish = plan.chart.Vertices.length - 1;
@@ -445,7 +445,7 @@ export class SetTaskNameSubOp implements SubOp {
     this.name = name;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const ret = indexInRangeForVertices(this.taskIndex, plan.chart);
     if (!ret.ok) {
       return ret;
@@ -472,7 +472,7 @@ export class SetTaskStateSubOp implements SubOp {
     this.taskState = taskState;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const ret = indexInRangeForVertices(this.taskIndex, plan.chart);
     if (!ret.ok) {
       return ret;

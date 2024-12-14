@@ -17,7 +17,7 @@ import { ResourceDefinition } from "../resources/resources.ts";
 
 describe("SetResourceValueOp", () => {
   it("Fails if the key is not a valid resource.", () => {
-    const res = SetResourceValueOp("unknown resource", "foo", 1).apply(
+    const res = SetResourceValueOp("unknown resource", "foo", 1).applyTo(
       new Plan()
     );
     assert.isFalse(res.ok);
@@ -70,7 +70,7 @@ describe("AddResourceOp/DeleteResourceOp", () => {
   it("DeleteResourceOp fails if the Resource doesn't exist", () => {
     const plan = new Plan();
 
-    const res = DeleteResourceOp("Who").apply(plan);
+    const res = DeleteResourceOp("Who").applyTo(plan);
     assert.isFalse(res.ok);
     assert.isTrue(
       res.error.message.includes(
@@ -83,11 +83,11 @@ describe("AddResourceOp/DeleteResourceOp", () => {
     const plan = new Plan();
 
     // First application should succeed.
-    let res = AddResourceOp("Who").apply(plan);
+    let res = AddResourceOp("Who").applyTo(plan);
     assert.isTrue(res.ok);
 
     // Second addition should fail.
-    res = AddResourceOp("Who").apply(res.value.plan);
+    res = AddResourceOp("Who").applyTo(res.value.plan);
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("Who already exists"));
   });
@@ -97,7 +97,7 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
   const init = (): Plan => {
     const plan = new Plan();
 
-    const res = AddResourceOp("Who").apply(plan);
+    const res = AddResourceOp("Who").applyTo(plan);
     assert.isTrue(res.ok);
     return res.value.plan;
   };
@@ -145,7 +145,9 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
 
   it("AddResourceOptionOp fails if a Resource with the given key doesn't exists.", () => {
     const plan = init();
-    const res = AddResourceOptionOp("Unknown Resource Key", "Fred").apply(plan);
+    const res = AddResourceOptionOp("Unknown Resource Key", "Fred").applyTo(
+      plan
+    );
     assert.isFalse(res.ok);
     assert.isTrue(
       res.error.message.includes(
@@ -156,7 +158,7 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
 
   it("AddResourceOptionOp fails if a Resource with the given key already has the given value.", () => {
     const plan = init();
-    const res = AddResourceOptionOp("Who", "").apply(plan);
+    const res = AddResourceOptionOp("Who", "").applyTo(plan);
     assert.isFalse(res.ok);
     assert.isTrue(
       res.error.message.includes("already exists as a value in the Resource")
@@ -165,7 +167,7 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
 
   it("DeleteResourceOptionOp fails if a Resource with the given key doesn't exist.", () => {
     const plan = init();
-    const res = DeleteResourceOptionOp("Unknown Resource Key", "Fred").apply(
+    const res = DeleteResourceOptionOp("Unknown Resource Key", "Fred").applyTo(
       plan
     );
     assert.isFalse(res.ok);
@@ -178,7 +180,7 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
 
   it("DeleteResourceOptionOp fails if a Resource with the given key doesn't have the value.", () => {
     const plan = init();
-    const res = DeleteResourceOptionOp("Who", "Unknown Value").apply(plan);
+    const res = DeleteResourceOptionOp("Who", "Unknown Value").applyTo(plan);
     assert.isFalse(res.ok);
     assert.isTrue(
       res.error.message.includes("does not exist as a value in the Resource")
@@ -187,7 +189,7 @@ describe("AddResourceOptionOp/DeleteResourceOptionOp", () => {
 
   it("DeleteResourceOptionOp fails if the op would leave the Resource with no values.", () => {
     const plan = init();
-    const res = DeleteResourceOptionOp("Who", "").apply(plan);
+    const res = DeleteResourceOptionOp("Who", "").applyTo(plan);
     assert.isFalse(res.ok);
     assert.isTrue(
       res.error.message.includes("Resources must have at least one value.")
@@ -220,11 +222,11 @@ describe("RenameResourceOp", () => {
   const init = (): Plan => {
     const plan = new Plan();
 
-    let res = AddResourceOp("Who").apply(plan);
+    let res = AddResourceOp("Who").applyTo(plan);
     assert.isTrue(res.ok);
-    res = AddResourceOptionOp("Who", "Fred").apply(res.value.plan);
+    res = AddResourceOptionOp("Who", "Fred").applyTo(res.value.plan);
     assert.isTrue(res.ok);
-    res = AddResourceOptionOp("Who", "Barney").apply(res.value.plan);
+    res = AddResourceOptionOp("Who", "Barney").applyTo(res.value.plan);
     assert.isTrue(res.ok);
     return res.value.plan;
   };
@@ -261,9 +263,9 @@ describe("RenameResourceOp", () => {
   it("Fails if the new resource name already exist.", () => {
     const plan = init();
 
-    let res = AddResourceOp("Person").apply(plan);
+    let res = AddResourceOp("Person").applyTo(plan);
     assert.isTrue(res.ok);
-    res = RenameResourceOp("Who", "Person").apply(res.value.plan);
+    res = RenameResourceOp("Who", "Person").applyTo(res.value.plan);
     assert.isFalse(res.ok);
   });
 
@@ -273,7 +275,7 @@ describe("RenameResourceOp", () => {
     const res = RenameResourceOp(
       "Unknown Resource Name",
       "New Unknown Resource Name"
-    ).apply(plan);
+    ).applyTo(plan);
     assert.isFalse(res.ok);
   });
 });
@@ -326,7 +328,7 @@ describe("RenameResourceOptionOp", () => {
 
   it("Fails if the oldValue doesn't exist.", () => {
     const plan = init();
-    const res = RenameResourceOptionOp("Who", "Unknown Value", "Wilma").apply(
+    const res = RenameResourceOptionOp("Who", "Unknown Value", "Wilma").applyTo(
       plan
     );
     assert.isFalse(res.ok);
@@ -337,7 +339,7 @@ describe("RenameResourceOptionOp", () => {
 
     // This should fail because "Barney" is already a value, and we can't have
     // duplicate values.
-    const res = RenameResourceOptionOp("Who", "Fred", "Barney").apply(plan);
+    const res = RenameResourceOptionOp("Who", "Fred", "Barney").applyTo(plan);
     assert.isFalse(res.ok);
   });
 });
@@ -389,10 +391,10 @@ describe("MoveResourceOptionSubOp", () => {
   it("Fails if either index exceeds the length of the array of resource values.", () => {
     const plan = init();
 
-    let res = MoveResourceOptionOp("Who", 1, 5).apply(plan);
+    let res = MoveResourceOptionOp("Who", 1, 5).applyTo(plan);
     assert.isFalse(res.ok);
     assert.equal("Who does not have a value at index 5", res.error.message);
-    res = MoveResourceOptionOp("Who", 7, 1).apply(plan);
+    res = MoveResourceOptionOp("Who", 7, 1).applyTo(plan);
     assert.isFalse(res.ok);
     assert.equal("Who does not have a value at index 7", res.error.message);
   });

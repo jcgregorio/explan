@@ -50,7 +50,7 @@ describe("AddMetricOp", () => {
   });
 
   it("will fail to add a new metric with the same name as an existing metric", () => {
-    const res = AddMetricOp("Duration", new MetricDefinition(0)).apply(
+    const res = AddMetricOp("Duration", new MetricDefinition(0)).applyTo(
       new Plan()
     );
     assert.isFalse(res.ok);
@@ -80,13 +80,13 @@ describe("DeleteMetricOp", () => {
   });
 
   it("will not delete a static metric", () => {
-    const res = DeleteMetricOp("Percent").apply(new Plan());
+    const res = DeleteMetricOp("Percent").applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("The static Metric"));
   });
 
   it("will not delete a metric that does not exist", () => {
-    const res = DeleteMetricOp("some unknown metric name").apply(new Plan());
+    const res = DeleteMetricOp("some unknown metric name").applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("does not exist"));
   });
@@ -94,7 +94,7 @@ describe("DeleteMetricOp", () => {
 
 describe("RenameMetricOp", () => {
   it("will not rename static Metrics", () => {
-    const res = RenameMetricOp("Duration", "How long this will take").apply(
+    const res = RenameMetricOp("Duration", "How long this will take").applyTo(
       new Plan()
     );
     assert.isFalse(res.ok);
@@ -102,12 +102,13 @@ describe("RenameMetricOp", () => {
   });
 
   it("will not rename a metric to an existing Metric name", () => {
-    let res = AddMetricOp("cost", new MetricDefinition(defaultCostValue)).apply(
-      new Plan()
-    );
+    let res = AddMetricOp(
+      "cost",
+      new MetricDefinition(defaultCostValue)
+    ).applyTo(new Plan());
     assert.isTrue(res.ok);
 
-    res = RenameMetricOp("cost", "Duration").apply(res.value.plan);
+    res = RenameMetricOp("cost", "Duration").applyTo(res.value.plan);
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("already exists as a metric"));
   });
@@ -116,7 +117,7 @@ describe("RenameMetricOp", () => {
     const res = RenameMetricOp(
       "Some unknown metric",
       "another name for that metric"
-    ).apply(new Plan());
+    ).applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("does not exist as a Metric"));
   });
@@ -175,7 +176,7 @@ describe("UpdateMetricSubOp", () => {
     const res = UpdateMetricOp(
       "some unknown metric",
       new MetricDefinition(defaultCostValue)
-    ).apply(new Plan());
+    ).applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("does not exist"));
   });
@@ -184,7 +185,7 @@ describe("UpdateMetricSubOp", () => {
     const res = UpdateMetricOp(
       "Duration",
       new MetricDefinition(defaultCostValue)
-    ).apply(new Plan());
+    ).applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("Static metric"));
   });
@@ -252,7 +253,7 @@ describe("UpdateMetricSubOp", () => {
 
 describe("SetMetricValueOp", () => {
   it("Fails if the metric doesn't exist", () => {
-    const res = SetMetricValueOp("unknown metric", 1, 0).apply(new Plan());
+    const res = SetMetricValueOp("unknown metric", 1, 0).applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("does not exist as a Metric"));
   });

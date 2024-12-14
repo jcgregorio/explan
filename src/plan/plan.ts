@@ -176,7 +176,7 @@ export const FromJSON = (text: string): Result<Plan> => {
     deserializedResourceDefinitions
   );
 
-  const ret = RationalizeEdgesOp().apply(plan);
+  const ret = RationalizeEdgesOp().applyTo(plan);
   if (!ret.ok) {
     return ret;
   }

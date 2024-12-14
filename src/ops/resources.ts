@@ -21,7 +21,7 @@ export class AddResourceSubOp implements SubOp {
     this.taskResourceValues = taskResourceValues;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const foundMatch = plan.getResourceDefinition(this.key);
     if (foundMatch !== undefined) {
       return error(`${this.key} already exists as a Resource`);
@@ -53,7 +53,7 @@ export class DeleteResourceSupOp implements SubOp {
     this.key = name;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const resourceDefinition = plan.getResourceDefinition(this.key);
     if (resourceDefinition === undefined) {
       return error(
@@ -102,7 +102,7 @@ export class AddResourceOptionSubOp implements SubOp {
     this.indicesOfTasksToChange = indicesOfTasksToChange;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const definition = plan.getResourceDefinition(this.key);
     if (definition === undefined) {
       return error(`${this.key} doesn't exist as a Resource`);
@@ -150,7 +150,7 @@ export class DeleteResourceOptionSubOp implements SubOp {
     this.indicesOfTasksToChange = indicesOfTasksToChange;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const definition = plan.getResourceDefinition(this.key);
     if (definition === undefined) {
       return error(`${this.key} doesn't exist as a Resource`);
@@ -214,7 +214,7 @@ export class RenameResourceSubOp implements SubOp {
     this.newKey = newKey;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const oldDefinition = plan.getResourceDefinition(this.oldKey);
     if (oldDefinition === undefined) {
       return error(`${this.oldKey} does not exist as a Resource`);
@@ -256,7 +256,7 @@ export class RenameResourceOptionSubOp implements SubOp {
     this.newValue = newValue;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const foundMatch = plan.getResourceDefinition(this.key);
     if (foundMatch === undefined) {
       return error(`${this.key} does not exist as a Resource`);
@@ -309,7 +309,7 @@ export class MoveResourceOptionSubOp implements SubOp {
     this.newIndex = newValue;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const definition = plan.getResourceDefinition(this.key);
     if (definition === undefined) {
       return error(`${this.key} does not exist as a Resource`);
@@ -353,7 +353,7 @@ export class SetResourceValueSubOp implements SubOp {
     this.taskIndex = taskIndex;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const foundMatch = plan.getResourceDefinition(this.key);
     if (foundMatch === undefined) {
       return error(`${this.key} does not exist as a Resource`);

@@ -23,7 +23,7 @@ export class AddMetricSubOp implements SubOp {
     this.taskMetricValues = taskMetricValues;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     if (plan.getMetricDefinition(this.name) !== undefined) {
       return error(`${this.name} already exists as a Metric`);
     }
@@ -56,7 +56,7 @@ export class DeleteMetricSubOp implements SubOp {
     this.name = name;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const metricDefinition = plan.getMetricDefinition(this.name);
 
     if (metricDefinition === undefined) {
@@ -111,7 +111,7 @@ export class RenameMetricSubOp implements SubOp {
     this.newName = newName;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     if (plan.getMetricDefinition(this.newName) !== undefined) {
       return error(`${this.newName} already exists as a metric.`);
     }
@@ -159,7 +159,7 @@ export class UpdateMetricSubOp implements SubOp {
     this.taskMetricValues = taskMetricValues;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const oldMetricDefinition = plan.getMetricDefinition(this.name);
     if (oldMetricDefinition === undefined) {
       return error(`${this.name} does not exist as a Metric`);
@@ -225,7 +225,7 @@ export class SetMetricValueSubOp implements SubOp {
     this.taskIndex = taskIndex;
   }
 
-  apply(plan: Plan): Result<SubOpResult> {
+  applyTo(plan: Plan): Result<SubOpResult> {
     const metricsDefinition = plan.getMetricDefinition(this.name);
     if (metricsDefinition === undefined) {
       return error(`${this.name} does not exist as a Metric`);

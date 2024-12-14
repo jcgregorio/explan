@@ -41,7 +41,7 @@ export interface SubOpResult {
 export interface SubOp {
   // If the apply returns an error it is guaranteed not to have modified the
   // Plan.
-  apply(plan: Plan): Result<SubOpResult>;
+  applyTo(plan: Plan): Result<SubOpResult>;
 }
 
 export interface OpResult {
@@ -63,7 +63,7 @@ export class Op {
     inverseSubOps: SubOp[]
   ): Result<Plan> {
     for (let i = 0; i < inverseSubOps.length; i++) {
-      const e = inverseSubOps[i].apply(plan);
+      const e = inverseSubOps[i].applyTo(plan);
       if (!e.ok) {
         return e;
       }
@@ -74,10 +74,10 @@ export class Op {
   }
 
   // Applies the Op to a Plan.
-  apply(plan: Plan): Result<OpResult> {
+  applyTo(plan: Plan): Result<OpResult> {
     const inverseSubOps: SubOp[] = [];
     for (let i = 0; i < this.subOps.length; i++) {
-      const e = this.subOps[i].apply(plan);
+      const e = this.subOps[i].applyTo(plan);
       if (!e.ok) {
         // Revert all the SubOps applied up to this point to get the Plan back in a
         // good place.
@@ -105,7 +105,7 @@ export type AllOpsResult = {
 
 const applyAllInverseOpsToPlan = (inverses: Op[], plan: Plan): Result<Plan> => {
   for (let i = 0; i < inverses.length; i++) {
-    const res = inverses[i].apply(plan);
+    const res = inverses[i].applyTo(plan);
     if (!res.ok) {
       return res;
     }
@@ -123,7 +123,7 @@ export const applyAllOpsToPlan = (
 ): Result<AllOpsResult> => {
   const inverses: Op[] = [];
   for (let i = 0; i < ops.length; i++) {
-    const res = ops[i].apply(plan);
+    const res = ops[i].applyTo(plan);
     if (!res.ok) {
       const inverseRes = applyAllInverseOpsToPlan(inverses, plan);
       if (!inverseRes.ok) {
