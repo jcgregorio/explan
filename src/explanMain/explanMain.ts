@@ -401,7 +401,6 @@ export class ExplanMain extends HTMLElement {
   }
 
   planDefinitionHasBeenChanged() {
-    this.selectedTask = -1;
     this.radarScale = null;
     this.displayRange = null;
     this.groupByOptions = ["", ...Object.keys(this.plan.resourceDefinitions)];
