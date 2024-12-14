@@ -1,7 +1,7 @@
 import { Result, ok, error } from "../result.ts";
 import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
 import { Plan } from "../plan/plan.ts";
-import { Chart, TaskState } from "../chart/chart.ts";
+import { Chart, Task, TaskState } from "../chart/chart.ts";
 import { Op, SubOp, SubOpResult } from "./ops.ts";
 
 /** A value of -1 for j means the Finish Milestone. */
@@ -123,9 +123,14 @@ function indexInRangeForVerticesExclusive(
 
 export class AddTaskAfterSubOp implements SubOp {
   index: number = 0;
+  fullTaskToBeRestored: FullTaskToBeRestored | null;
 
-  constructor(index: number) {
+  constructor(
+    index: number,
+    fullTaskToBeRestored: FullTaskToBeRestored | null = null
+  ) {
     this.index = index;
+    this.fullTaskToBeRestored = fullTaskToBeRestored;
   }
 
   applyTo(plan: Plan): Result<SubOpResult> {
@@ -134,7 +139,11 @@ export class AddTaskAfterSubOp implements SubOp {
     if (!ret.ok) {
       return ret;
     }
-    plan.chart.Vertices.splice(this.index + 1, 0, plan.newTask());
+    let task = plan.newTask();
+    if (this.fullTaskToBeRestored !== null) {
+      task = this.fullTaskToBeRestored.task;
+    }
+    plan.chart.Vertices.splice(this.index + 1, 0, task);
 
     // Update Edges.
     for (let i = 0; i < chart.Edges.length; i++) {
@@ -146,6 +155,11 @@ export class AddTaskAfterSubOp implements SubOp {
         edge.j++;
       }
     }
+
+    if (this.fullTaskToBeRestored !== null) {
+      chart.Edges.push(...this.fullTaskToBeRestored.edges);
+    }
+
     return ok({ plan: plan, inverse: this.inverse() });
   }
 
@@ -339,6 +353,11 @@ export class AddAllEdgesSubOp implements SubOp {
   }
 }
 
+interface FullTaskToBeRestored {
+  edges: DirectedEdge[];
+  task: Task;
+}
+
 export class DeleteTaskSubOp implements SubOp {
   index: number = 0;
 
@@ -353,6 +372,13 @@ export class DeleteTaskSubOp implements SubOp {
       return ret;
     }
 
+    const edgesToBeRestored = chart.Edges.filter((de: DirectedEdge) => {
+      if (de.i === this.index || de.j === this.index) {
+        return true;
+      }
+      return false;
+    });
+
     // First remove all edges to and from the task.
     chart.Edges = chart.Edges.filter((de: DirectedEdge) => {
       if (de.i === this.index || de.j === this.index) {
@@ -361,6 +387,7 @@ export class DeleteTaskSubOp implements SubOp {
       return true;
     });
 
+    // Update edges for tasks that will end up at a new index.
     for (let i = 0; i < chart.Edges.length; i++) {
       const edge = chart.Edges[i];
       if (edge.i > this.index) {
@@ -371,25 +398,16 @@ export class DeleteTaskSubOp implements SubOp {
       }
     }
 
-    // TODO - Keep the deleted task and it's edges around for the undo.
-    chart.Vertices.splice(this.index, 1);
-
-    // Update Edges.
-    for (let i = 0; i < chart.Edges.length; i++) {
-      const edge = chart.Edges[i];
-      if (edge.i > this.index) {
-        edge.i--;
-      }
-      if (edge.j > this.index) {
-        edge.j--;
-      }
-    }
-
-    return ok({ plan: plan, inverse: this.inverse() });
+    const taskToBeRestored = chart.Vertices.splice(this.index, 1);
+    const fullTaskToBeRestored = {
+      edges: edgesToBeRestored,
+      task: taskToBeRestored[0],
+    };
+    return ok({ plan: plan, inverse: this.inverse(fullTaskToBeRestored) });
   }
 
-  inverse(): SubOp {
-    return new AddTaskAfterSubOp(this.index - 1);
+  inverse(fullTaskToBeRestored: FullTaskToBeRestored): SubOp {
+    return new AddTaskAfterSubOp(this.index - 1, fullTaskToBeRestored);
   }
 }
 
