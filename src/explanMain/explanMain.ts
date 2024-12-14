@@ -41,6 +41,7 @@ import { generateRandomPlan } from "../generate/generate.ts";
 import { execute, executeOp } from "../action/execute.ts";
 import { ActionFromOp } from "../action/action.ts";
 import { StartKeyboardHandling } from "../keymap/keymap.ts";
+import { SetTaskNameOp } from "../ops/chart.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -83,16 +84,16 @@ const buildSelectedTaskPanel = (
               <select
                 id="${resourceKey}"
                 @change=${(e: Event) => {
-                  executeOp(
-                    SetResourceValueOp(
-                      resourceKey,
-                      (e.target as HTMLInputElement).value,
-                      explanMain.selectedTask
-                    ),
-                    "paintChart",
-                    true,
-                    explanMain
+                  const ret = explanMain.taskResourceValueChanged(
+                    explanMain.selectedTask,
+                    resourceKey,
+                    (e.target as HTMLInputElement).value
                   );
+                  if (!ret.ok) {
+                    // TODO popup error message.
+                    console.log(ret);
+                    e.preventDefault();
+                  }
                 }}
               >
                 ${defn.values.map(
@@ -123,7 +124,7 @@ const buildSelectedTaskPanel = (
                     key,
                     (e.target as HTMLInputElement).value
                   );
-                  if (ret !== null) {
+                  if (!ret.ok) {
                     // TODO popup error message.
                     console.log(ret);
                     e.preventDefault();
@@ -360,26 +361,23 @@ export class ExplanMain extends HTMLElement {
     taskIndex: number,
     resourceKey: string,
     resourceValue: string
-  ): Error | null {
+  ): Result<null> {
     const op = SetResourceValueOp(resourceKey, resourceValue, taskIndex);
-    const ret = executeOp(op, "planDefinitionChanged", true, this);
-    if (!ret.ok) {
-      return ret.error;
-    }
-    return null;
+    return executeOp(op, "planDefinitionChanged", true, this);
   }
 
   taskMetricValueChanged(
     taskIndex: number,
     metricKey: string,
     metricValue: string
-  ): Error | null {
+  ): Result<null> {
     const op = SetMetricValueOp(metricKey, +metricValue, taskIndex);
-    const ret = executeOp(op, "planDefinitionChanged", true, this);
-    if (!ret.ok) {
-      return ret.error;
-    }
-    return null;
+    return executeOp(op, "planDefinitionChanged", true, this);
+  }
+
+  taskNameChanged(taskIndex: number, name: string): Result<null> {
+    const op = SetTaskNameOp(taskIndex, name);
+    return executeOp(op, "planDefinitionChanged", true, this);
   }
 
   // TODO - Turn this on and off based on mouse entering the canvas area.
