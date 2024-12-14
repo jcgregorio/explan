@@ -10,7 +10,8 @@ export const KeyMap: Map<string, ActionNames> = new Map([
   ["shift-ctrl-H", "HelpAction"],
   ["shift-ctrl-|", "SplitTaskAction"],
   ["shift-ctrl-_", "DupTaskAction"],
-  ["ctrl-i", "NewTaskAction"],
+  ["alt-Insert", "NewTaskAction"],
+  ["alt-Delete", "DeleteTaskAction"],
 ]);
 
 let explanMain: ExplanMain;
@@ -22,6 +23,7 @@ export const StartKeyboardHandling = (em: ExplanMain) => {
 
 const onKeyDown = (e: KeyboardEvent) => {
   const keyname = `${e.shiftKey ? "shift-" : ""}${e.ctrlKey ? "ctrl-" : ""}${e.metaKey ? "meta-" : ""}${e.altKey ? "alt-" : ""}${e.key}`;
+  console.log(keyname);
   const actionName = KeyMap.get(keyname);
   if (actionName === undefined) {
     return;

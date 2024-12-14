@@ -41,7 +41,7 @@ import { generateRandomPlan } from "../generate/generate.ts";
 import { execute, executeOp } from "../action/execute.ts";
 import { ActionFromOp } from "../action/action.ts";
 import { StartKeyboardHandling } from "../keymap/keymap.ts";
-import { SetTaskNameOp } from "../ops/chart.ts";
+import { DeleteTaskOp, SetTaskNameOp } from "../ops/chart.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -388,6 +388,11 @@ export class ExplanMain extends HTMLElement {
 
   taskNameChanged(taskIndex: number, name: string): Result<null> {
     const op = SetTaskNameOp(taskIndex, name);
+    return executeOp(op, "paintChart", true, this);
+  }
+
+  deleteTask(taskIndex: number): Result<null> {
+    const op = DeleteTaskOp(taskIndex);
     return executeOp(op, "paintChart", true, this);
   }
 

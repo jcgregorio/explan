@@ -352,6 +352,26 @@ export class DeleteTaskSubOp implements SubOp {
     if (!ret.ok) {
       return ret;
     }
+
+    // First remove all edges to and from the task.
+    chart.Edges = chart.Edges.filter((de: DirectedEdge) => {
+      if (de.i === this.index || de.j === this.index) {
+        return false;
+      }
+      return true;
+    });
+
+    for (let i = 0; i < chart.Edges.length; i++) {
+      const edge = chart.Edges[i];
+      if (edge.i > this.index) {
+        edge.i--;
+      }
+      if (edge.j > this.index) {
+        edge.j--;
+      }
+    }
+
+    // TODO - Keep the deleted task and it's edges around for the undo.
     chart.Vertices.splice(this.index, 1);
 
     // Update Edges.
@@ -525,6 +545,14 @@ export function DupTaskOp(taskIndex: number): Op {
   ];
 
   return new Op(subOps);
+}
+
+export function DeleteTaskOp(taskIndex: number): Op {
+  return new Op([
+    new RationalizeEdgesSubOp(),
+    new DeleteTaskSubOp(taskIndex),
+    new RationalizeEdgesSubOp(),
+  ]);
 }
 
 export function AddEdgeOp(fromTaskIndex: number, toTaskIndex: number): Op {

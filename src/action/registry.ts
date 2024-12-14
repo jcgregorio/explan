@@ -2,6 +2,7 @@ import { Action } from "./action.ts";
 import { HelpAction } from "./actions/help.ts";
 import { ResetZoomAction } from "./actions/resetZoom.ts";
 import {
+  DeleteTaskAction,
   DupTaskAction,
   NewTaskAction,
   SplitTaskAction,
@@ -18,7 +19,8 @@ export type ActionNames =
   | "HelpAction"
   | "SplitTaskAction"
   | "DupTaskAction"
-  | "NewTaskAction";
+  | "NewTaskAction"
+  | "DeleteTaskAction";
 
 export const ActionRegistry: Record<ActionNames, Action> = {
   ToggleDarkModeAction: new ToggleDarkModeAction(),
@@ -29,4 +31,5 @@ export const ActionRegistry: Record<ActionNames, Action> = {
   SplitTaskAction: new SplitTaskAction(),
   DupTaskAction: new DupTaskAction(),
   NewTaskAction: new NewTaskAction(),
+  DeleteTaskAction: new DeleteTaskAction(),
 };
