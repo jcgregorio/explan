@@ -1,5 +1,10 @@
 import { ExplanMain } from "../../explanMain/explanMain";
-import { DupTaskOp, SplitTaskOp } from "../../ops/chart";
+import {
+  DupTaskOp,
+  InsertNewEmptyTaskAfterOp,
+  SplitTaskOp,
+} from "../../ops/chart";
+import { SetMetricValueOp } from "../../ops/metrics";
 import { error, ok, Result } from "../../result";
 import { Action, ActionFromOp, PostActonWork } from "../action";
 
@@ -35,6 +40,27 @@ export class DupTaskAction implements Action {
     if (!ret.ok) {
       return ret;
     }
+    return ok(
+      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo)
+    );
+  }
+}
+
+export class NewTaskAction implements Action {
+  description: string = "Creates a new task.";
+  postActionWork: PostActonWork = "planDefinitionChanged";
+  undo: boolean = true;
+
+  do(explanMain: ExplanMain): Result<Action> {
+    let ret = InsertNewEmptyTaskAfterOp(0).apply(explanMain.plan);
+    if (!ret.ok) {
+      return ret;
+    }
+    ret = SetMetricValueOp("Duration", 10, 1).apply(explanMain.plan);
+    if (!ret.ok) {
+      return ret;
+    }
+    explanMain.selectedTask = 1;
     return ok(
       new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo)
     );

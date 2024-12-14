@@ -116,7 +116,6 @@ export class Plan {
     const ret = new Task();
     Object.keys(this.metricDefinitions).forEach((metricName: string) => {
       const md = this.getMetricDefinition(metricName)!;
-
       ret.setMetric(metricName, md.default);
     });
     Object.entries(this.resourceDefinitions).forEach(
