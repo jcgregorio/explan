@@ -91,7 +91,10 @@ const template = (searchTaskPanel: SearchTaskPanel) => html`
   <ul>
     ${searchTaskPanel.searchResults.map(
       (task: Fuzzysort.KeyResult<Task>, index: number) =>
-        html`<li ?data-focus=${index === searchTaskPanel.focusIndex}>
+        html` <li
+          @click="${() => searchTaskPanel.selectSearchResult(index)}"
+          ?data-focus=${index === searchTaskPanel.focusIndex}
+        >
           ${highlightedTarget(task.indexes, task.target)}
         </li>`
     )}
@@ -148,12 +151,7 @@ class SearchTaskPanel extends HTMLElement {
         if (this.searchResults.length === 0) {
           return;
         }
-        const taskIndex = this.explanMain!.plan.chart.Vertices.indexOf(
-          this.searchResults[this.focusIndex].obj
-        );
-        this.explanMain!.setFocusOnTask(taskIndex);
-        this.searchResults = [];
-        render(template(this), this);
+        this.selectSearchResult(this.focusIndex);
         e.stopPropagation();
         e.preventDefault();
         break;
@@ -161,6 +159,15 @@ class SearchTaskPanel extends HTMLElement {
       default:
         break;
     }
+    render(template(this), this);
+  }
+
+  selectSearchResult(index: number) {
+    const taskIndex = this.explanMain!.plan.chart.Vertices.indexOf(
+      this.searchResults[index].obj
+    );
+    this.explanMain!.setFocusOnTask(taskIndex);
+    this.searchResults = [];
     render(template(this), this);
   }
 }
