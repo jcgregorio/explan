@@ -12,6 +12,7 @@ export const KeyMap: Map<string, ActionNames> = new Map([
   ["shift-ctrl-_", "DupTaskAction"],
   ["alt-Insert", "NewTaskAction"],
   ["alt-Delete", "DeleteTaskAction"],
+  ["ctrl-f", "GoToSearchAction"],
 ]);
 
 let explanMain: ExplanMain;

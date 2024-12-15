@@ -87,6 +87,9 @@ const template = (searchTaskPanel: SearchTaskPanel) => html`
     @keydown="${(e: KeyboardEvent) => {
       searchTaskPanel.onKeyDown(e);
     }}"
+    @blur="${() => {
+      searchTaskPanel.lossOfFocus();
+    }}"
   />
   <ul>
     ${searchTaskPanel.searchResults.map(
@@ -101,7 +104,7 @@ const template = (searchTaskPanel: SearchTaskPanel) => html`
   </ul>
 `;
 
-class SearchTaskPanel extends HTMLElement {
+export class SearchTaskPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
   focusIndex: number = 0;
   searchResults: Fuzzysort.KeyResults<Task> | [] = [];
@@ -167,6 +170,15 @@ class SearchTaskPanel extends HTMLElement {
       this.searchResults[index].obj
     );
     this.explanMain!.setFocusOnTask(taskIndex);
+    this.searchResults = [];
+    render(template(this), this);
+  }
+
+  setKeyboardFocusToInput() {
+    this.querySelector("input")!.focus();
+  }
+
+  lossOfFocus() {
     this.searchResults = [];
     render(template(this), this);
   }
