@@ -104,6 +104,16 @@ const template = (searchTaskPanel: SearchTaskPanel) => html`
   </ul>
 `;
 
+const fullSearchStringFromTask = (task: Task): string => {
+  const resourceKeys = Object.keys(task.resources);
+  resourceKeys.sort();
+  return `${task.name}    ${resourceKeys
+    .map((key: string) => `${key}: ${task.resources[key]}`)
+    .join("  ")}`;
+};
+
+const searchStringFromTask = (task: Task): string => task.name;
+
 export class SearchTaskPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
   focusIndex: number = 0;
@@ -122,7 +132,7 @@ export class SearchTaskPanel extends HTMLElement {
       (e.target as HTMLInputElement).value,
       this.explanMain!.plan.chart.Vertices,
       {
-        key: "name",
+        key: searchStringFromTask,
         limit: 5,
         threshold: 0.2,
       }
@@ -135,8 +145,8 @@ export class SearchTaskPanel extends HTMLElement {
     if (this.searchResults.length === 0) {
       return;
     }
+    // TODO - extract from the two places we do this.
     const keyname = `${e.shiftKey ? "shift-" : ""}${e.ctrlKey ? "ctrl-" : ""}${e.metaKey ? "meta-" : ""}${e.altKey ? "alt-" : ""}${e.key}`;
-    console.log(keyname, this.focusIndex);
     switch (keyname) {
       case "ArrowDown":
         this.focusIndex = (this.focusIndex + 1) % this.searchResults.length;
