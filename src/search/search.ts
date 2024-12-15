@@ -98,26 +98,35 @@ const template = (searchTaskPanel: SearchTaskPanel) => html`
           @click="${() => searchTaskPanel.selectSearchResult(index)}"
           ?data-focus=${index === searchTaskPanel.focusIndex}
         >
-          ${highlightedTarget(task.indexes, task.target)}
+          <code>${highlightedTarget(task.indexes, task.target)}</code>
         </li>`
     )}
   </ul>
 `;
 
-const fullSearchStringFromTask = (task: Task): string => {
-  const resourceKeys = Object.keys(task.resources);
-  resourceKeys.sort();
-  return `${task.name}    ${resourceKeys
-    .map((key: string) => `${key}: ${task.resources[key]}`)
-    .join("  ")}`;
-};
+type SearchType = "name-only" | "full-info";
 
-const searchStringFromTask = (task: Task): string => task.name;
+const searchStringFromTaskBuilder = (
+  searchType: SearchType
+): ((task: Task) => string) => {
+  if (searchType === "full-info") {
+    return (task: Task): string => {
+      const resourceKeys = Object.keys(task.resources);
+      resourceKeys.sort();
+      return `${task.name} ${resourceKeys
+        .map((key: string) => task.resources[key])
+        .join(" ")}`;
+    };
+  } else {
+    return (task: Task): string => task.name;
+  }
+};
 
 export class SearchTaskPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
   focusIndex: number = 0;
   searchResults: Fuzzysort.KeyResults<Task> | [] = [];
+  searchType: SearchType = "name-only";
 
   connectedCallback(): void {
     this.explanMain = document.querySelector("explan-main");
@@ -128,12 +137,18 @@ export class SearchTaskPanel extends HTMLElement {
   }
 
   onInput(e: InputEvent) {
+    const tasks = this.explanMain!.plan.chart.Vertices;
+    const maxNameLength = tasks.reduce<number>(
+      (prev: number, task: Task): number =>
+        task.name.length > prev ? task.name.length : prev,
+      0
+    );
     this.searchResults = fuzzysort.go<Task>(
       (e.target as HTMLInputElement).value,
-      this.explanMain!.plan.chart.Vertices,
+      tasks.slice(1, -2), // Remove Start and Finish from search range.
       {
-        key: searchStringFromTask,
-        limit: 5,
+        key: searchStringFromTaskBuilder(this.searchType),
+        limit: 15,
         threshold: 0.2,
       }
     );
@@ -184,8 +199,11 @@ export class SearchTaskPanel extends HTMLElement {
     render(template(this), this);
   }
 
-  setKeyboardFocusToInput() {
-    this.querySelector("input")!.focus();
+  setKeyboardFocusToInput(searchType: SearchType) {
+    this.searchType = searchType;
+    const inputControl = this.querySelector<HTMLInputElement>("input")!;
+    inputControl.focus();
+    inputControl.select();
   }
 
   lossOfFocus() {
