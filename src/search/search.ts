@@ -78,26 +78,30 @@ const highlightedTarget = (
   return highlight(indexesToRanges(indexes, target.length), target);
 };
 
-const template = (
-  searchTaskPanel: SearchTaskPanel,
-  res: Fuzzysort.KeyResults<Task> | [] = []
-) => html`
+const template = (searchTaskPanel: SearchTaskPanel) => html`
   <input
     type="text"
     @input="${(e: InputEvent) => {
       searchTaskPanel.onInput(e);
     }}"
+    @keydown="${(e: KeyboardEvent) => {
+      searchTaskPanel.onKeyDown(e);
+    }}"
   />
   <ul>
-    ${res.map(
-      (task: Fuzzysort.KeyResult<Task>) =>
-        html`<li>${highlightedTarget(task.indexes, task.target)}</li>`
+    ${searchTaskPanel.searchResults.map(
+      (task: Fuzzysort.KeyResult<Task>, index: number) =>
+        html`<li ?data-focus=${index === searchTaskPanel.focusIndex}>
+          ${highlightedTarget(task.indexes, task.target)}
+        </li>`
     )}
   </ul>
 `;
 
 class SearchTaskPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
+  focusIndex: number = 0;
+  searchResults: Fuzzysort.KeyResults<Task> | [] = [];
 
   connectedCallback(): void {
     this.explanMain = document.querySelector("explan-main");
@@ -108,7 +112,7 @@ class SearchTaskPanel extends HTMLElement {
   }
 
   onInput(e: InputEvent) {
-    const res = fuzzysort.go<Task>(
+    this.searchResults = fuzzysort.go<Task>(
       (e.target as HTMLInputElement).value,
       this.explanMain!.plan.chart.Vertices,
       {
@@ -117,9 +121,47 @@ class SearchTaskPanel extends HTMLElement {
         threshold: 0.2,
       }
     );
-    render(template(this, res), this);
-    console.log(res);
-    console.log(this.explanMain!.plan.chart.Vertices.indexOf(res[0].obj));
+    this.focusIndex = 0;
+    render(template(this), this);
+  }
+
+  onKeyDown(e: KeyboardEvent) {
+    if (this.searchResults.length === 0) {
+      return;
+    }
+    const keyname = `${e.shiftKey ? "shift-" : ""}${e.ctrlKey ? "ctrl-" : ""}${e.metaKey ? "meta-" : ""}${e.altKey ? "alt-" : ""}${e.key}`;
+    console.log(keyname, this.focusIndex);
+    switch (keyname) {
+      case "ArrowDown":
+        this.focusIndex = (this.focusIndex + 1) % this.searchResults.length;
+        e.stopPropagation();
+        e.preventDefault();
+        break;
+      case "ArrowUp":
+        this.focusIndex =
+          (this.focusIndex - 1 + this.searchResults.length) %
+          this.searchResults.length;
+        e.stopPropagation();
+        e.preventDefault();
+        break;
+      case "Enter":
+        if (this.searchResults.length === 0) {
+          return;
+        }
+        const taskIndex = this.explanMain!.plan.chart.Vertices.indexOf(
+          this.searchResults[this.focusIndex].obj
+        );
+        this.explanMain!.setFocusOnTask(taskIndex);
+        this.searchResults = [];
+        render(template(this), this);
+        e.stopPropagation();
+        e.preventDefault();
+        break;
+
+      default:
+        break;
+    }
+    render(template(this), this);
   }
 }
 

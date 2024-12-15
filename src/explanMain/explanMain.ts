@@ -314,11 +314,9 @@ export class ExplanMain extends HTMLElement {
     overlayCanvas.addEventListener("dblclick", (e: MouseEvent) => {
       const p = new Point(e.offsetX, e.offsetY);
       if (this.updateHighlightFromMousePos !== null) {
-        this.selectedTask =
-          this.updateHighlightFromMousePos(p, "mousedown") || -1;
-        this.forceFocusOnTask();
-        this.paintChart();
-        this.updateSelectedTaskPanel!(this.selectedTask);
+        this.setFocusOnTask(
+          this.updateHighlightFromMousePos(p, "mousedown") || -1
+        );
       }
     });
 
@@ -366,6 +364,13 @@ export class ExplanMain extends HTMLElement {
     this.paintChart();
     window.addEventListener("resize", this.paintChart.bind(this));
     StartKeyboardHandling(this);
+  }
+
+  setFocusOnTask(index: number) {
+    this.selectedTask = index;
+    this.forceFocusOnTask();
+    this.paintChart();
+    this.updateSelectedTaskPanel!(this.selectedTask);
   }
 
   taskResourceValueChanged(
