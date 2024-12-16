@@ -98,7 +98,7 @@ const template = (searchTaskPanel: SearchTaskPanel) => html`
           @click="${() => searchTaskPanel.selectSearchResult(index)}"
           ?data-focus=${index === searchTaskPanel.focusIndex}
         >
-          <code>${highlightedTarget(task.indexes, task.target)}</code>
+          ${highlightedTarget(task.indexes, task.target)}
         </li>`
     )}
   </ul>
