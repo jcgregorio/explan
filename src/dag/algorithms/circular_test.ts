@@ -1,5 +1,5 @@
 import { assert } from "@esm-bundle/chai";
-import { allSuccessors } from "./circular.ts";
+import { allSuccessors, allTasks } from "./circular.ts";
 import { Chart } from "../../chart/chart.ts";
 import { DirectedEdge, DirectedGraph } from "../dag.ts";
 
@@ -25,7 +25,7 @@ describe("allSuccessors", () => {
         new DirectedEdge(3, 4),
       ],
     };
-    assert.deepEqual(allSuccessors(1, g), [2, 3]);
+    assert.deepEqual(allSuccessors(1, g), [1, 2, 3]);
   });
 
   it("finds all the correct children", () => {
@@ -40,6 +40,27 @@ describe("allSuccessors", () => {
         new DirectedEdge(3, 4),
       ],
     };
-    assert.deepEqual(allSuccessors(1, g), [2, 3]);
+    assert.deepEqual(allSuccessors(1, g), [1, 2, 3]);
+  });
+});
+
+describe("allTasks", () => {
+  it("returns an empty list on a new chart.", () => {
+    assert.isEmpty(allTasks(new Chart()));
+  });
+
+  it("returns all the non-start and non-finish task indexes", () => {
+    const g: DirectedGraph = {
+      Vertices: [{}, {}, {}, {}, {}],
+      Edges: [
+        new DirectedEdge(0, 1),
+        new DirectedEdge(1, 2),
+        new DirectedEdge(1, 3),
+        new DirectedEdge(2, 3),
+        new DirectedEdge(2, 4),
+        new DirectedEdge(3, 4),
+      ],
+    };
+    assert.deepEqual(allTasks(g), [1, 2, 3]);
   });
 });
