@@ -1,4 +1,4 @@
-import { DirectedGraph } from "../dag";
+import { DirectedEdge, DirectedGraph, edgesByDstToMap } from "../dag";
 import { depthFirstSearchFromIndex } from "./dfs";
 
 /** Returns the indices of all the successors of the task at the given index.
@@ -8,7 +8,7 @@ export const allSuccessors = (
   taskIndex: number,
   directedGraph: DirectedGraph
 ): number[] => {
-  if (taskIndex > directedGraph.Vertices.length - 1 || taskIndex <= 0) {
+  if (taskIndex >= directedGraph.Vertices.length - 1 || taskIndex <= 0) {
     return [];
   }
   const allChildren: Set<number> = new Set();
@@ -22,6 +22,28 @@ export const allSuccessors = (
   );
   allChildren.delete(directedGraph.Vertices.length - 1);
   return [...allChildren.values()];
+};
+
+export const allPredecessors = (
+  taskIndex: number,
+  directedGraph: DirectedGraph
+): number[] => {
+  if (taskIndex >= directedGraph.Vertices.length - 1 || taskIndex <= 0) {
+    return [];
+  }
+  const predecessorsToCheck = [taskIndex];
+  const ret: Set<number> = new Set();
+  const byDest = edgesByDstToMap(directedGraph.Edges);
+  while (predecessorsToCheck.length !== 0) {
+    const node = predecessorsToCheck.pop()!;
+    ret.add(node);
+    const predecessors = byDest.get(node);
+    if (predecessors) {
+      predecessorsToCheck.push(...predecessors.map((e: DirectedEdge) => e.i));
+    }
+  }
+  ret.delete(0);
+  return [...ret.values()];
 };
 
 /** Returns the indices of all the tasks in the graph, expect the first and the
