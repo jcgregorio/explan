@@ -1,5 +1,5 @@
 import { assert } from "@esm-bundle/chai";
-import { allSuccessors, allTasks } from "./circular.ts";
+import { allSuccessors, allTasks, difference } from "./circular.ts";
 import { Chart } from "../../chart/chart.ts";
 import { DirectedEdge, DirectedGraph } from "../dag.ts";
 
@@ -62,5 +62,22 @@ describe("allTasks", () => {
       ],
     };
     assert.deepEqual(allTasks(g), [1, 2, 3]);
+  });
+});
+
+describe("difference", () => {
+  it("returns an empty list on the difference of empty arrays", () => {
+    assert.isEmpty(difference([], []));
+  });
+
+  it("finds the set difference", () => {
+    assert.deepEqual(difference([], []), []);
+    assert.deepEqual(difference([1], []), [1]);
+    assert.deepEqual(difference([1, 2], []), [1, 2]);
+    assert.deepEqual(difference([1, 2], [3]), [1, 2]);
+    assert.deepEqual(difference([1, 2], [1]), [2]);
+    assert.deepEqual(difference([1, 2], [2]), [1]);
+    assert.deepEqual(difference([1, 2], [2, 1]), []);
+    assert.deepEqual(difference([1, 2], [2, 1, 3]), []);
   });
 });
