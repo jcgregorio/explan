@@ -1,6 +1,6 @@
 import { ExplanMain } from "../../explanMain/explanMain";
 import { ok, Result } from "../../result";
-import { SearchTaskPanel } from "../../search/search";
+import { SearchTaskPanel } from "../../search/search-task-panel";
 import { Action, PostActonWork } from "../action";
 
 export class GoToSearchAction implements Action {

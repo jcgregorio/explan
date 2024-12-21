@@ -1,7 +1,12 @@
 import { TemplateResult, html, render } from "lit-html";
-import { ExplanMain } from "../explanMain/explanMain.ts";
 import fuzzysort from "fuzzysort";
 import { Task } from "../chart/chart.ts";
+
+declare global {
+  interface GlobalEventHandlersEventMap {
+    "task-change": CustomEvent<number>;
+  }
+}
 
 /** The indexes returned by fuzzysort is just a list of the indexes of the the
  *  individual chars that have been matched. We need to turn that into pairs of
@@ -78,7 +83,7 @@ const highlightedTarget = (
   return highlight(indexesToRanges(indexes, target.length), target);
 };
 
-const template = (searchTaskPanel: SearchTaskPanel) => html`
+const template = (searchTaskPanel: TaskSearchControl) => html`
   <input
     type="text"
     @input="${(e: InputEvent) => {
@@ -104,13 +109,21 @@ const template = (searchTaskPanel: SearchTaskPanel) => html`
   </ul>
 `;
 
-type SearchType = "name-only" | "full-info";
+export type SearchType = "name-only" | "full-info";
 
 const searchStringFromTaskBuilder = (
-  searchType: SearchType
+  fullTaskList: Task[],
+  searchType: SearchType,
+  includedIndexes: Set<number>
 ): ((task: Task) => string) => {
   if (searchType === "full-info") {
     return (task: Task): string => {
+      if (includedIndexes.size !== 0) {
+        const taskIndex = fullTaskList.indexOf(task);
+        if (!includedIndexes.has(taskIndex)) {
+          return "";
+        }
+      }
       const resourceKeys = Object.keys(task.resources);
       resourceKeys.sort();
       return `${task.name} ${resourceKeys
@@ -118,36 +131,44 @@ const searchStringFromTaskBuilder = (
         .join(" ")}`;
     };
   } else {
-    return (task: Task): string => task.name;
+    return (task: Task): string => {
+      if (includedIndexes.size !== 0) {
+        const taskIndex = fullTaskList.indexOf(task);
+        if (!includedIndexes.has(taskIndex)) {
+          return "";
+        }
+      }
+      return task.name;
+    };
   }
 };
 
-export class SearchTaskPanel extends HTMLElement {
-  explanMain: ExplanMain | null = null;
+export class TaskSearchControl extends HTMLElement {
+  _tasks: Task[] = [];
+  _includedIndexes: Set<number> = new Set();
   focusIndex: number = 0;
   searchResults: Fuzzysort.KeyResults<Task> | [] = [];
   searchType: SearchType = "name-only";
 
   connectedCallback(): void {
-    this.explanMain = document.querySelector("explan-main");
-    if (!this.explanMain) {
-      return;
-    }
     render(template(this), this);
   }
 
   onInput(e: InputEvent) {
-    const tasks = this.explanMain!.plan.chart.Vertices;
-    const maxNameLength = tasks.reduce<number>(
+    const maxNameLength = this._tasks.reduce<number>(
       (prev: number, task: Task): number =>
         task.name.length > prev ? task.name.length : prev,
       0
     );
     this.searchResults = fuzzysort.go<Task>(
       (e.target as HTMLInputElement).value,
-      tasks.slice(1, -2), // Remove Start and Finish from search range.
+      this._tasks.slice(1, -2), // Remove Start and Finish from search range.
       {
-        key: searchStringFromTaskBuilder(this.searchType),
+        key: searchStringFromTaskBuilder(
+          this._tasks,
+          this.searchType,
+          this._includedIndexes
+        ),
         limit: 15,
         threshold: 0.2,
       }
@@ -191,10 +212,13 @@ export class SearchTaskPanel extends HTMLElement {
   }
 
   selectSearchResult(index: number) {
-    const taskIndex = this.explanMain!.plan.chart.Vertices.indexOf(
-      this.searchResults[index].obj
+    const taskIndex = this._tasks.indexOf(this.searchResults[index].obj);
+    this.dispatchEvent(
+      new CustomEvent<number>("task-change", {
+        bubbles: true,
+        detail: taskIndex,
+      })
     );
-    this.explanMain!.setFocusOnTask(taskIndex);
     this.searchResults = [];
     render(template(this), this);
   }
@@ -210,6 +234,14 @@ export class SearchTaskPanel extends HTMLElement {
     this.searchResults = [];
     render(template(this), this);
   }
+
+  public set tasks(tasks: Task[]) {
+    this._tasks = tasks;
+  }
+
+  public set includedIndexes(v: number[]) {
+    this._includedIndexes = new Set(v);
+  }
 }
 
-customElements.define("search-task-panel", SearchTaskPanel);
+customElements.define("task-search-control", TaskSearchControl);
