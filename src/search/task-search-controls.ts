@@ -5,6 +5,7 @@ import { Task } from "../chart/chart.ts";
 declare global {
   interface GlobalEventHandlersEventMap {
     "task-change": CustomEvent<number>;
+    "task-focus": CustomEvent<null>;
   }
 }
 
@@ -86,15 +87,10 @@ const highlightedTarget = (
 const template = (searchTaskPanel: TaskSearchControl) => html`
   <input
     type="text"
-    @input="${(e: InputEvent) => {
-      searchTaskPanel.onInput(e);
-    }}"
-    @keydown="${(e: KeyboardEvent) => {
-      searchTaskPanel.onKeyDown(e);
-    }}"
-    @blur="${() => {
-      searchTaskPanel.lossOfFocus();
-    }}"
+    @input="${(e: InputEvent) => searchTaskPanel.onInput(e)}"
+    @keydown="${(e: KeyboardEvent) => searchTaskPanel.onKeyDown(e)}"
+    @blur="${() => searchTaskPanel.lossOfFocus()}"
+    @focus="${() => searchTaskPanel.searchInputReceivedFocus()}"
   />
   <ul>
     ${searchTaskPanel.searchResults.map(
@@ -223,6 +219,14 @@ export class TaskSearchControl extends HTMLElement {
     );
     this.searchResults = [];
     render(template(this), this);
+  }
+
+  searchInputReceivedFocus() {
+    this.dispatchEvent(
+      new CustomEvent<number>("task-focus", {
+        bubbles: true,
+      })
+    );
   }
 
   setKeyboardFocusToInput(searchType: SearchType) {

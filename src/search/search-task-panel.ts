@@ -15,6 +15,9 @@ export class SearchTaskPanel extends HTMLElement {
     this.addEventListener("task-change", (e) =>
       this.explanMain!.setFocusOnTask(e.detail)
     );
+    this.addEventListener("task-focus", (e) =>
+      this.setKeyboardFocusToInput("full-info")
+    );
   }
 
   setKeyboardFocusToInput(searchType: SearchType) {
