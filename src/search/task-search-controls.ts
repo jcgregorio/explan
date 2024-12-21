@@ -114,7 +114,8 @@ export type SearchType = "name-only" | "full-info";
 const searchStringFromTaskBuilder = (
   fullTaskList: Task[],
   searchType: SearchType,
-  includedIndexes: Set<number>
+  includedIndexes: Set<number>,
+  maxNameLength: number
 ): ((task: Task) => string) => {
   if (searchType === "full-info") {
     return (task: Task): string => {
@@ -126,7 +127,7 @@ const searchStringFromTaskBuilder = (
       }
       const resourceKeys = Object.keys(task.resources);
       resourceKeys.sort();
-      return `${task.name} ${resourceKeys
+      return `${task.name} ${"-".repeat(maxNameLength - task.name.length + 2)} ${resourceKeys
         .map((key: string) => task.resources[key])
         .join(" ")}`;
     };
@@ -167,7 +168,8 @@ export class TaskSearchControl extends HTMLElement {
         key: searchStringFromTaskBuilder(
           this._tasks,
           this.searchType,
-          this._includedIndexes
+          this._includedIndexes,
+          maxNameLength
         ),
         limit: 15,
         threshold: 0.2,
