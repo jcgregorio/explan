@@ -135,6 +135,23 @@
       }
     }
 
+    dependencies-control {
+      button.delete {
+        border-radius: 4px;
+        border: solid 1px var(--surface);
+        background: var(--surface);
+        color: var(--onSurface);
+
+        &:hover {
+          border: solid 1px var(--onSurfaceMuted);
+        }
+
+        &:active {
+          background: var(--highlight);
+        }
+      }
+    }
+
     @property --groupColor {
       syntax: "<color>";
       inherits: true;
@@ -239,8 +256,10 @@
         <selected-task-panel>
         </selected-task-panel>
         <dependencies-panel>
+          Predecessors
           <dependencies-control data-kind="pred">
           </dependencies-control>
+          Successors
           <dependencies-control data-kind="succ">
           </dependencies-control>
         </dependencies-panel>

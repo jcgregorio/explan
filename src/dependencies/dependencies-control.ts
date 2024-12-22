@@ -23,6 +23,7 @@ const template = (dependenciesControl: DependenciesControl) => html`
         <td>${task.name}</td>
         <td>
           <button
+            class="delete"
             title="Delete the dependency on ${task.name}"
             @click=${() => dependenciesControl.deleteDep(taskIndex)}
           >
@@ -31,12 +32,16 @@ const template = (dependenciesControl: DependenciesControl) => html`
         </td>
       </tr>`;
     })}
+    <tr>
+      <td></td>
+      <td>
+        <button @click=${dependenciesControl.addDep()} title="Add dependency.">
+          +
+        </button>
+      </td>
+    </tr>
   </table>
-  <div>
-    <button @click=${dependenciesControl.addDep()} title="Add dependency.">
-      +
-    </button>
-  </div>
+  <div></div>
 `;
 
 export class DependenciesControl extends HTMLElement {
