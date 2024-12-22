@@ -239,8 +239,8 @@ export class ExplanMain extends HTMLElement {
   focusOnTask: boolean = false;
   mouseMove: MouseMove | null = null;
 
-  dependenciesControlPred: DependenciesControl | null = null;
-  dependenciesControlSucc: DependenciesControl | null = null;
+  dependenciesPanel: HTMLElement | null = null;
+  dependenciesControl: DependenciesControl | null = null;
 
   /** Callback to call when the selected task changes. */
   updateSelectedTaskPanel: UpdateSelectedTaskPanel | null = null;
@@ -249,12 +249,8 @@ export class ExplanMain extends HTMLElement {
   updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
 
   connectedCallback() {
-    this.dependenciesControlPred = this.querySelector(
-      "dependencies-control[data-kind='pred']"
-    );
-    this.dependenciesControlSucc = this.querySelector(
-      "dependencies-control[data-kind='succ']"
-    );
+    this.dependenciesPanel = this.querySelector("dependencies-panel")!;
+    this.dependenciesControl = this.querySelector("dependencies-control");
 
     this.plan = generateRandomPlan();
     this.planDefinitionHasBeenChanged();
@@ -387,13 +383,14 @@ export class ExplanMain extends HTMLElement {
     this.selectedTask = taskIndex;
     this.updateSelectedTaskPanel!(this.selectedTask);
     const edges = edgesBySrcAndDstToMap(this.plan.chart.Edges);
-    this.dependenciesControlPred!.setTasksAndIndices(
+    this.dependenciesControl!.setTasksAndIndices(
       this.plan.chart.Vertices,
-      (edges.byDst.get(taskIndex) || []).map((e: DirectedEdge) => e.i)
-    );
-    this.dependenciesControlSucc!.setTasksAndIndices(
-      this.plan.chart.Vertices,
+      (edges.byDst.get(taskIndex) || []).map((e: DirectedEdge) => e.i),
       (edges.bySrc.get(taskIndex) || []).map((e: DirectedEdge) => e.j)
+    );
+    this.dependenciesPanel!.classList.toggle(
+      "hidden",
+      this.selectedTask === -1
     );
   }
 

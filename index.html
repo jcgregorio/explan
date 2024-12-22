@@ -92,6 +92,7 @@
     details {
 
       selected-task-panel,
+      dependencies-panel,
       simulation-panel {
         display: block;
         padding: 8px;
@@ -135,19 +136,29 @@
       }
     }
 
-    dependencies-control {
-      button.delete {
-        border-radius: 4px;
-        border: solid 1px var(--surface);
-        background: var(--surface);
-        color: var(--onSurface);
+    dependencies-panel {
+      display: block;
 
-        &:hover {
-          border: solid 1px var(--onSurfaceMuted);
+      dependencies-control {
+        display: block;
+
+        th {
+          text-align: left;
         }
 
-        &:active {
-          background: var(--highlight);
+        button.delete {
+          border-radius: 4px;
+          border: solid 1px var(--surface);
+          background: var(--surface);
+          color: var(--onSurface);
+
+          &:hover {
+            border: solid 1px var(--onSurfaceMuted);
+          }
+
+          &:active {
+            background: var(--highlight);
+          }
         }
       }
     }
@@ -256,11 +267,7 @@
         <selected-task-panel>
         </selected-task-panel>
         <dependencies-panel>
-          Predecessors
-          <dependencies-control data-kind="pred">
-          </dependencies-control>
-          Successors
-          <dependencies-control data-kind="succ">
+          <dependencies-control>
           </dependencies-control>
         </dependencies-panel>
       </details>

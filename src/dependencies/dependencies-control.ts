@@ -1,77 +1,119 @@
-import { html, render } from "lit-html";
+import { TemplateResult, html, render } from "lit-html";
 import { Task } from "../chart/chart.ts";
 
 export type DepType = "pred" | "succ";
 
-interface DeleteDepenencyEvent {
+const depDisplayName: Record<DepType, string> = {
+  pred: "Predecessors",
+  succ: "Successors",
+};
+
+interface DepenencyEvent {
   taskIndex: number;
   depType: DepType;
 }
 
 declare global {
   interface GlobalEventHandlersEventMap {
-    "delete-dependeny": CustomEvent<DeleteDepenencyEvent>;
-    "add-dependeny": CustomEvent<DepType>;
+    "delete-dependeny": CustomEvent<DepenencyEvent>;
+    "add-dependeny": CustomEvent<DepenencyEvent>;
   }
 }
 
-const template = (dependenciesControl: DependenciesControl) => html`
-  <table>
-    ${dependenciesControl.indices.map((taskIndex: number) => {
-      const task = dependenciesControl.tasks[taskIndex];
-      return html`<tr>
-        <td>${task.name}</td>
-        <td>
-          <button
-            class="delete"
-            title="Delete the dependency on ${task.name}"
-            @click=${() => dependenciesControl.deleteDep(taskIndex)}
-          >
-            X
-          </button>
-        </td>
-      </tr>`;
-    })}
-    <tr>
-      <td></td>
+const kindTemplate = (
+  dependenciesControl: DependenciesControl,
+  depType: DepType,
+  indexes: number[]
+): TemplateResult => html`
+  <tr>
+    <th>${depDisplayName[depType]}</th>
+    <th></th>
+  </tr>
+  ${indexes.map((taskIndex: number) => {
+    const task = dependenciesControl.tasks[taskIndex];
+    return html`<tr>
+      <td>${task.name}</td>
       <td>
-        <button @click=${dependenciesControl.addDep()} title="Add dependency.">
-          +
+        <button
+          class="delete"
+          title="Delete the dependency on ${task.name}"
+          @click=${() => dependenciesControl.deleteDep(taskIndex, depType)}
+        >
+          X
         </button>
       </td>
-    </tr>
+    </tr>`;
+  })}
+  <tr>
+    <td></td>
+    <td>
+      <button
+        @click=${dependenciesControl.addDep(depType)}
+        title="Add dependency."
+      >
+        +
+      </button>
+    </td>
+  </tr>
+`;
+
+const template = (
+  dependenciesControl: DependenciesControl
+): TemplateResult => html`
+  <table>
+    ${kindTemplate(
+      dependenciesControl,
+      "pred",
+      dependenciesControl.predIndexes
+    )}
+    ${kindTemplate(
+      dependenciesControl,
+      "succ",
+      dependenciesControl.succIndexes
+    )}
   </table>
-  <div></div>
 `;
 
 export class DependenciesControl extends HTMLElement {
   tasks: Task[] = [];
-  indices: number[] = [];
+  predIndexes: number[] = [];
+  succIndexes: number[] = [];
 
   connectedCallback(): void {
     render(template(this), this);
   }
 
-  public setTasksAndIndices(tasks: Task[], indices: number[]) {
+  public setTasksAndIndices(
+    tasks: Task[],
+    predIndexes: number[],
+    succIndexes: number[]
+  ) {
     this.tasks = tasks;
-    this.indices = indices;
+    this.predIndexes = predIndexes;
+    this.succIndexes = succIndexes;
     render(template(this), this);
   }
 
-  public deleteDep(taskIndex: number) {
+  public deleteDep(taskIndex: number, depType: DepType) {
     this.dispatchEvent(
       new CustomEvent("delete-dependency", {
         bubbles: true,
-        detail: taskIndex,
+        detail: {
+          taskIndex: taskIndex,
+          depType: depType,
+        },
       })
     );
   }
 
-  public addDep() {
+  public addDep(depType: DepType) {
     this.dispatchEvent(
       new CustomEvent("add-dependency", {
         bubbles: true,
-        detail: this.dataset["kind"],
+        detail: {
+          taskIndex: -1,
+          depType: depType,
+        },
       })
     );
   }
