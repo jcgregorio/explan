@@ -60,3 +60,23 @@ export const difference = (a: number[], b: number[]): number[] => {
   const bSet = new Set(b);
   return a.filter((i: number) => !bSet.has(i));
 };
+
+export const allNonPredecessors = (
+  taskIndex: number,
+  directedGraph: DirectedGraph
+): number[] => {
+  return difference(
+    allTasks(directedGraph),
+    allSuccessors(taskIndex, directedGraph)
+  );
+};
+
+export const allNonSuccessors = (
+  taskIndex: number,
+  directedGraph: DirectedGraph
+): number[] => {
+  return difference(
+    allTasks(directedGraph),
+    allPredecessors(taskIndex, directedGraph)
+  );
+};

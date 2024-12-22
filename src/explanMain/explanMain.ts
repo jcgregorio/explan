@@ -1,6 +1,6 @@
 import { Task } from "../chart/chart.ts";
 import { FilterFunc } from "../chart/filter/filter.ts";
-import { DirectedEdge } from "../dag/dag.ts";
+import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
 import { SetMetricValueOp } from "../ops/metrics.ts";
 import { Op } from "../ops/ops.ts";
 import { SetResourceValueOp } from "../ops/resources.ts";
@@ -42,6 +42,13 @@ import { execute, executeOp } from "../action/execute.ts";
 import { ActionFromOp } from "../action/action.ts";
 import { StartKeyboardHandling } from "../keymap/keymap.ts";
 import { DeleteTaskOp, SetTaskNameOp } from "../ops/chart.ts";
+import { DependenciesControl } from "../dependencies/dependencies-control.ts";
+import {
+  allNonPredecessors,
+  allNonSuccessors,
+  allPredecessors,
+  allSuccessors,
+} from "../dag/algorithms/circular.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -232,6 +239,9 @@ export class ExplanMain extends HTMLElement {
   focusOnTask: boolean = false;
   mouseMove: MouseMove | null = null;
 
+  dependenciesControlPred: DependenciesControl | null = null;
+  dependenciesControlSucc: DependenciesControl | null = null;
+
   /** Callback to call when the selected task changes. */
   updateSelectedTaskPanel: UpdateSelectedTaskPanel | null = null;
 
@@ -239,6 +249,13 @@ export class ExplanMain extends HTMLElement {
   updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
 
   connectedCallback() {
+    this.dependenciesControlPred = this.querySelector(
+      "dependencies-control[data-kind='pred']"
+    );
+    this.dependenciesControlSucc = this.querySelector(
+      "dependencies-control[data-kind='succ']"
+    );
+
     this.plan = generateRandomPlan();
     this.planDefinitionHasBeenChanged();
 
@@ -307,7 +324,7 @@ export class ExplanMain extends HTMLElement {
       if (this.updateHighlightFromMousePos !== null) {
         this.selectedTask =
           this.updateHighlightFromMousePos(p, "mousedown") || -1;
-        this.updateSelectedTaskPanel!(this.selectedTask);
+        this.updateTaskPanels(this.selectedTask);
       }
     });
 
@@ -326,7 +343,7 @@ export class ExplanMain extends HTMLElement {
       this
     );
 
-    this.updateSelectedTaskPanel(this.selectedTask);
+    this.updateTaskPanels(this.selectedTask);
 
     // React to the upload input.
     const fileUpload =
@@ -366,11 +383,25 @@ export class ExplanMain extends HTMLElement {
     StartKeyboardHandling(this);
   }
 
+  updateTaskPanels(taskIndex: number) {
+    this.selectedTask = taskIndex;
+    this.updateSelectedTaskPanel!(this.selectedTask);
+    const edges = edgesBySrcAndDstToMap(this.plan.chart.Edges);
+    this.dependenciesControlPred!.setTasksAndIndices(
+      this.plan.chart.Vertices,
+      (edges.byDst.get(taskIndex) || []).map((e: DirectedEdge) => e.i)
+    );
+    this.dependenciesControlSucc!.setTasksAndIndices(
+      this.plan.chart.Vertices,
+      (edges.bySrc.get(taskIndex) || []).map((e: DirectedEdge) => e.j)
+    );
+  }
+
   setFocusOnTask(index: number) {
     this.selectedTask = index;
     this.forceFocusOnTask();
     this.paintChart();
-    this.updateSelectedTaskPanel!(this.selectedTask);
+    this.updateTaskPanels(this.selectedTask);
   }
 
   taskResourceValueChanged(
@@ -449,7 +480,7 @@ export class ExplanMain extends HTMLElement {
       return value.early;
     });
     this.criticalPath = CriticalPath(slacks, precision.rounder());
-    this.updateSelectedTaskPanel!(this.selectedTask);
+    this.updateTaskPanels(this.selectedTask);
   }
 
   getTaskLabeller(): TaskLabel {
