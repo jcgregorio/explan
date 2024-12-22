@@ -1,4 +1,5 @@
 import { Action } from "./action.ts";
+import { AddPredecessorAction } from "./actions/addPredecessor.ts";
 import {
   GoToFullSearchAction,
   GoToSearchAction,
@@ -26,7 +27,8 @@ export type ActionNames =
   | "NewTaskAction"
   | "DeleteTaskAction"
   | "GoToSearchAction"
-  | "GoToFullSearchAction";
+  | "GoToFullSearchAction"
+  | "AddPredecessorAction";
 
 export const ActionRegistry: Record<ActionNames, Action> = {
   ToggleDarkModeAction: new ToggleDarkModeAction(),
@@ -40,4 +42,5 @@ export const ActionRegistry: Record<ActionNames, Action> = {
   DeleteTaskAction: new DeleteTaskAction(),
   GoToSearchAction: new GoToSearchAction(),
   GoToFullSearchAction: new GoToFullSearchAction(),
+  AddPredecessorAction: new AddPredecessorAction(),
 };

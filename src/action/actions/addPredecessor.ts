@@ -7,7 +7,7 @@ import { Action, ActionFromOp, PostActonWork } from "../action";
 export class AddPredecessorAction implements Action {
   description: string =
     "Prompts for and adds a predecessor to the current Task.";
-  postActionWork: PostActonWork = "paintChart";
+  postActionWork: PostActonWork = "planDefinitionChanged";
   undo: boolean = true;
 
   async do(explanMain: ExplanMain): Promise<Result<Action>> {
