@@ -6,21 +6,21 @@ import { ActionNames, ActionRegistry } from "./registry.ts";
 
 const undoStack: Action[] = [];
 
-export const undo = (explanMain: ExplanMain): Result<null> => {
+export const undo = async (explanMain: ExplanMain): Promise<Result<null>> => {
   const action = undoStack.pop()!;
   if (!action) {
     return ok(null);
   }
 
-  return executeUndo(action, explanMain);
+  return await executeUndo(action, explanMain);
 };
 
-export const execute = (
+export const execute = async (
   name: ActionNames,
   explanMain: ExplanMain
-): Result<null> => {
+): Promise<Result<null>> => {
   const action = ActionRegistry[name];
-  const ret = action.do(explanMain);
+  const ret = await action.do(explanMain);
   if (!ret.ok) {
     return ret;
   }
@@ -44,14 +44,14 @@ export const execute = (
   return ok(null);
 };
 
-export const executeOp = (
+export const executeOp = async (
   op: Op,
   postActionWork: PostActonWork,
   undo: boolean,
   explanMain: ExplanMain
-): Result<null> => {
+): Promise<Result<null>> => {
   const action = new ActionFromOp(op, postActionWork, undo);
-  const ret = action.do(explanMain);
+  const ret = await action.do(explanMain);
   if (!ret.ok) {
     return ret;
   }
@@ -77,8 +77,11 @@ export const executeOp = (
   return ok(null);
 };
 
-const executeUndo = (action: Action, explanMain: ExplanMain): Result<null> => {
-  const ret = action.do(explanMain);
+const executeUndo = async (
+  action: Action,
+  explanMain: ExplanMain
+): Promise<Result<null>> => {
+  const ret = await action.do(explanMain);
   if (!ret.ok) {
     return ret;
   }

@@ -8,7 +8,7 @@ export class UndoAction implements Action {
   postActionWork: PostActonWork = "";
   undo: boolean = false;
 
-  do(explanMain: ExplanMain): Result<Action> {
+  async do(explanMain: ExplanMain): Promise<Result<Action>> {
     const ret = undo(explanMain);
 
     // Undo is not a reversible action.

@@ -14,7 +14,7 @@ export class SplitTaskAction implements Action {
   postActionWork: PostActonWork = "planDefinitionChanged";
   undo: boolean = true;
 
-  do(explanMain: ExplanMain): Result<Action> {
+  async do(explanMain: ExplanMain): Promise<Result<Action>> {
     if (explanMain.selectedTask === -1) {
       return error(new Error("A task must be selected first."));
     }
@@ -33,7 +33,7 @@ export class DupTaskAction implements Action {
   postActionWork: PostActonWork = "planDefinitionChanged";
   undo: boolean = true;
 
-  do(explanMain: ExplanMain): Result<Action> {
+  async do(explanMain: ExplanMain): Promise<Result<Action>> {
     if (explanMain.selectedTask === -1) {
       return error(new Error("A task must be selected first."));
     }
@@ -52,7 +52,7 @@ export class NewTaskAction implements Action {
   postActionWork: PostActonWork = "planDefinitionChanged";
   undo: boolean = true;
 
-  do(explanMain: ExplanMain): Result<Action> {
+  async do(explanMain: ExplanMain): Promise<Result<Action>> {
     let ret = InsertNewEmptyTaskAfterOp(0).applyTo(explanMain.plan);
     if (!ret.ok) {
       return ret;
@@ -68,7 +68,7 @@ export class DeleteTaskAction implements Action {
   postActionWork: PostActonWork = "planDefinitionChanged";
   undo: boolean = true;
 
-  do(explanMain: ExplanMain): Result<Action> {
+  async do(explanMain: ExplanMain): Promise<Result<Action>> {
     if (explanMain.selectedTask === -1) {
       return error(new Error("A task must be selected first."));
     }

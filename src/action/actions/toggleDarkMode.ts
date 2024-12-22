@@ -9,7 +9,7 @@ export class ToggleDarkModeAction implements Action {
   undo: boolean = false;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  do(explanMain: ExplanMain): Result<Action> {
+  async do(explanMain: ExplanMain): Promise<Result<Action>> {
     toggleTheme();
     // ToggleDarkModeAction is its own inverse.
     return ok(this);

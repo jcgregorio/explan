@@ -101,8 +101,8 @@ const buildSelectedTaskPanel = (
             <td>
               <select
                 id="${resourceKey}"
-                @change=${(e: Event) => {
-                  const ret = explanMain.taskResourceValueChanged(
+                @change=${async (e: Event) => {
+                  const ret = await explanMain.taskResourceValueChanged(
                     explanMain.selectedTask,
                     resourceKey,
                     (e.target as HTMLInputElement).value
@@ -136,8 +136,8 @@ const buildSelectedTaskPanel = (
                 id="${key}"
                 type="number"
                 .value="${task.metrics[key]}"
-                @change=${(e: Event) => {
-                  const ret = explanMain.taskMetricValueChanged(
+                @change=${async (e: Event) => {
+                  const ret = await explanMain.taskMetricValueChanged(
                     explanMain.selectedTask,
                     key,
                     (e.target as HTMLInputElement).value
@@ -401,32 +401,35 @@ export class ExplanMain extends HTMLElement {
     this.updateTaskPanels(this.selectedTask);
   }
 
-  taskResourceValueChanged(
+  async taskResourceValueChanged(
     taskIndex: number,
     resourceKey: string,
     resourceValue: string
-  ): Result<null> {
+  ): Promise<Result<null>> {
     const op = SetResourceValueOp(resourceKey, resourceValue, taskIndex);
-    return executeOp(op, "planDefinitionChanged", true, this);
+    return await executeOp(op, "planDefinitionChanged", true, this);
   }
 
-  taskMetricValueChanged(
+  async taskMetricValueChanged(
     taskIndex: number,
     metricKey: string,
     metricValue: string
-  ): Result<null> {
+  ): Promise<Result<null>> {
     const op = SetMetricValueOp(metricKey, +metricValue, taskIndex);
-    return executeOp(op, "planDefinitionChanged", true, this);
+    return await executeOp(op, "planDefinitionChanged", true, this);
   }
 
-  taskNameChanged(taskIndex: number, name: string): Result<null> {
+  async taskNameChanged(
+    taskIndex: number,
+    name: string
+  ): Promise<Result<null>> {
     const op = SetTaskNameOp(taskIndex, name);
-    return executeOp(op, "paintChart", true, this);
+    return await executeOp(op, "paintChart", true, this);
   }
 
-  deleteTask(taskIndex: number): Result<null> {
+  async deleteTask(taskIndex: number): Promise<Result<null>> {
     const op = DeleteTaskOp(taskIndex);
-    return executeOp(op, "paintChart", true, this);
+    return await executeOp(op, "paintChart", true, this);
   }
 
   // TODO - Turn this on and off based on mouse entering the canvas area.

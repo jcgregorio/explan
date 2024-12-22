@@ -7,7 +7,7 @@ export class ResetZoomAction implements Action {
   postActionWork: PostActonWork = "paintChart";
   undo: boolean = false;
 
-  do(explanMain: ExplanMain): Result<Action> {
+  async do(explanMain: ExplanMain): Promise<Result<Action>> {
     explanMain.displayRange = null;
     return ok(this);
   }

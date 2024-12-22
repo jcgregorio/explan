@@ -7,7 +7,7 @@ export class HelpAction implements Action {
   postActionWork: PostActonWork = "";
   undo: boolean = false;
 
-  do(explanMain: ExplanMain): Result<Action> {
+  async do(explanMain: ExplanMain): Promise<Result<Action>> {
     explanMain
       .querySelector<HTMLDialogElement>("keyboard-map-dialog")!
       .showModal();

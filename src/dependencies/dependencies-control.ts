@@ -3,7 +3,7 @@ import { Task } from "../chart/chart.ts";
 
 export type DepType = "pred" | "succ";
 
-const depDisplayName: Record<DepType, string> = {
+export const depDisplayName: Record<DepType, string> = {
   pred: "Predecessors",
   succ: "Successors",
 };

@@ -8,7 +8,7 @@ export class ToggleRadarAction implements Action {
   postActionWork: PostActonWork = "";
   undo: boolean = false;
 
-  do(explanMain: ExplanMain): Result<Action> {
+  async do(explanMain: ExplanMain): Promise<Result<Action>> {
     explanMain.toggleRadar();
     // ToggleRadarAction is its own inverse.
     return ok(this);

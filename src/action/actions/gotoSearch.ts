@@ -8,7 +8,7 @@ export class GoToSearchAction implements Action {
   postActionWork: PostActonWork = "";
   undo: boolean = false;
 
-  do(_explanMain: ExplanMain): Result<Action> {
+  async do(_explanMain: ExplanMain): Promise<Result<Action>> {
     document
       .querySelector<SearchTaskPanel>("search-task-panel")!
       .setKeyboardFocusToInput("name-only");
@@ -22,7 +22,7 @@ export class GoToFullSearchAction implements Action {
   postActionWork: PostActonWork = "";
   undo: boolean = false;
 
-  do(_explanMain: ExplanMain): Result<Action> {
+  async do(_explanMain: ExplanMain): Promise<Result<Action>> {
     document
       .querySelector<SearchTaskPanel>("search-task-panel")!
       .setKeyboardFocusToInput("full-info");

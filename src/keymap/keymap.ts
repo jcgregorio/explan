@@ -23,7 +23,7 @@ export const StartKeyboardHandling = (em: ExplanMain) => {
   document.addEventListener("keydown", onKeyDown);
 };
 
-const onKeyDown = (e: KeyboardEvent) => {
+const onKeyDown = async (e: KeyboardEvent) => {
   const keyname = `${e.shiftKey ? "shift-" : ""}${e.ctrlKey ? "ctrl-" : ""}${e.metaKey ? "meta-" : ""}${e.altKey ? "alt-" : ""}${e.key}`;
   console.log(keyname);
   const actionName = KeyMap.get(keyname);
@@ -32,7 +32,7 @@ const onKeyDown = (e: KeyboardEvent) => {
   }
   e.stopPropagation();
   e.preventDefault();
-  const ret = execute(actionName, explanMain);
+  const ret = await execute(actionName, explanMain);
   if (!ret.ok) {
     console.log(ret.error);
   }

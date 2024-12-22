@@ -8,7 +8,7 @@ export interface Action {
   description: string;
   postActionWork: PostActonWork;
   undo: boolean; // If true include in undo/redo actions.
-  do(explanMain: ExplanMain): Result<Action>;
+  do(explanMain: ExplanMain): Promise<Result<Action>>;
 }
 
 export class NOOPAction implements Action {
@@ -16,7 +16,7 @@ export class NOOPAction implements Action {
   postActionWork: PostActonWork = "";
   undo: boolean = false;
 
-  do(explanMain: ExplanMain): Result<Action> {
+  async do(explanMain: ExplanMain): Promise<Result<Action>> {
     return ok(new NOOPAction());
   }
 }
@@ -35,7 +35,7 @@ export class ActionFromOp {
     this.op = op;
   }
 
-  do(explanMain: ExplanMain): Result<Action> {
+  async do(explanMain: ExplanMain): Promise<Result<Action>> {
     const ret = this.op.applyTo(explanMain.plan);
     if (!ret.ok) {
       return ret;
