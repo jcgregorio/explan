@@ -23,6 +23,10 @@ export class AddDependencyDialog extends HTMLElement {
     });
   }
 
+  /** Populates the dialog and shows it as a Modal dialog and returns a Promise
+   *  that resolves on success to a taskIndex, or undefined if the user
+   *  cancelled out of the flow.
+   */
   public selectDependency(
     chart: Chart,
     taskIndex: number,
