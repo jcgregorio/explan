@@ -42,6 +42,9 @@ export class AddDependencyDialog extends HTMLElement {
     }
     this.taskSearchControl!.tasks = chart.Vertices;
     this.taskSearchControl!.includedIndexes = includedIndexes;
+
+    // TODO - Allow both types of search in the dependency dialog.
+    this.taskSearchControl!.setKeyboardFocusToInput("name-only");
     const ret = new Promise<number | undefined>((resolve, _reject) => {
       this.resolve = resolve;
       this.dialog!.showModal();
