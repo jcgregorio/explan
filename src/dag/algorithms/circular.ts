@@ -66,7 +66,7 @@ export const difference = (a: number[], b: number[]): number[] => {
   return a.filter((i: number) => bSet.has(i) === false);
 };
 
-export const allNonPredecessors = (
+export const allPotentialSuccessors = (
   taskIndex: number,
   directedGraph: DirectedGraph
 ): number[] => {
@@ -81,7 +81,7 @@ export const allNonPredecessors = (
   ]);
 };
 
-export const allNonSuccessors = (
+export const allPotentialPredecessors = (
   taskIndex: number,
   directedGraph: DirectedGraph
 ): number[] => {

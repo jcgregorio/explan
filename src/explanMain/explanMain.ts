@@ -44,8 +44,8 @@ import { StartKeyboardHandling } from "../keymap/keymap.ts";
 import { DeleteTaskOp, SetTaskNameOp } from "../ops/chart.ts";
 import { DependenciesControl } from "../dependencies/dependencies-control.ts";
 import {
-  allNonPredecessors,
-  allNonSuccessors,
+  allPotentialSuccessors,
+  allPotentialPredecessors,
   allPredecessors,
   allSuccessors,
 } from "../dag/algorithms/circular.ts";

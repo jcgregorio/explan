@@ -2,8 +2,8 @@ import { TaskSearchControl } from "../search/task-search-controls";
 import { Chart } from "../chart/chart";
 import { DepType } from "../dependencies/dependencies-control";
 import {
-  allNonPredecessors,
-  allNonSuccessors,
+  allPotentialSuccessors,
+  allPotentialPredecessors,
 } from "../dag/algorithms/circular";
 
 export class AddDependencyDialog extends HTMLElement {
@@ -36,9 +36,9 @@ export class AddDependencyDialog extends HTMLElement {
 
     let includedIndexes = [];
     if (depType === "pred") {
-      includedIndexes = allNonSuccessors(taskIndex, chart);
+      includedIndexes = allPotentialPredecessors(taskIndex, chart);
     } else {
-      includedIndexes = allNonPredecessors(taskIndex, chart);
+      includedIndexes = allPotentialSuccessors(taskIndex, chart);
     }
     this.taskSearchControl!.tasks = chart.Vertices;
     this.taskSearchControl!.includedIndexes = includedIndexes;
