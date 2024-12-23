@@ -14,7 +14,8 @@ export const KeyMap: Map<string, ActionNames> = new Map([
   ["alt-Delete", "DeleteTaskAction"],
   ["ctrl-f", "GoToSearchAction"],
   ["shift-ctrl-F", "GoToFullSearchAction"],
-  ["shift-ctrl-P", "AddPredecessorAction"],
+  ["shift-ctrl-<", "AddPredecessorAction"],
+  ["shift-ctrl->", "AddSuccessorAction"],
 ]);
 
 let explanMain: ExplanMain;
