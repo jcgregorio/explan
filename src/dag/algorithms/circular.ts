@@ -1,4 +1,9 @@
-import { DirectedEdge, DirectedGraph, edgesByDstToMap } from "../dag";
+import {
+  DirectedEdge,
+  DirectedGraph,
+  edgesByDstToMap,
+  edgesBySrcToMap,
+} from "../dag";
 import { depthFirstSearchFromIndex } from "./dfs";
 
 /** Returns the indices of all the successors of the task at the given index.
@@ -58,25 +63,34 @@ export const allTasks = (directedGraph: DirectedGraph): number[] => {
 
 export const difference = (a: number[], b: number[]): number[] => {
   const bSet = new Set(b);
-  return a.filter((i: number) => !bSet.has(i));
+  return a.filter((i: number) => bSet.has(i) === false);
 };
 
 export const allNonPredecessors = (
   taskIndex: number,
   directedGraph: DirectedGraph
 ): number[] => {
-  return difference(
-    allTasks(directedGraph),
-    allSuccessors(taskIndex, directedGraph)
-  );
+  // Remove all direct successors also.
+  const bySrc = edgesBySrcToMap(directedGraph.Edges);
+  const directSucc = bySrc.get(taskIndex) || [];
+  const directSuccArray = directSucc.map((e: DirectedEdge) => e.j);
+
+  return difference(allTasks(directedGraph), [
+    ...allPredecessors(taskIndex, directedGraph),
+    ...directSuccArray,
+  ]);
 };
 
 export const allNonSuccessors = (
   taskIndex: number,
   directedGraph: DirectedGraph
 ): number[] => {
-  return difference(
-    allTasks(directedGraph),
-    allPredecessors(taskIndex, directedGraph)
-  );
+  // Remove all direct predecessors also.
+  const byDest = edgesByDstToMap(directedGraph.Edges);
+  const directPred = byDest.get(taskIndex) || [];
+  const directPredArray = directPred.map((e: DirectedEdge) => e.i);
+  return difference(allTasks(directedGraph), [
+    ...allSuccessors(taskIndex, directedGraph),
+    ...directPredArray,
+  ]);
 };
