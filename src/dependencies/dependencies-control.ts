@@ -15,8 +15,8 @@ interface DepenencyEvent {
 
 declare global {
   interface GlobalEventHandlersEventMap {
-    "delete-dependeny": CustomEvent<DepenencyEvent>;
-    "add-dependeny": CustomEvent<DepenencyEvent>;
+    "delete-dependency": CustomEvent<DepenencyEvent>;
+    "add-dependency": CustomEvent<DepenencyEvent>;
   }
 }
 
@@ -48,7 +48,7 @@ const kindTemplate = (
     <td></td>
     <td>
       <button
-        @click=${dependenciesControl.addDep(depType)}
+        @click=${() => dependenciesControl.addDep(depType)}
         title="Add dependency."
       >
         +

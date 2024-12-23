@@ -49,6 +49,7 @@ import {
   allPredecessors,
   allSuccessors,
 } from "../dag/algorithms/circular.ts";
+import { ActionNames } from "../action/registry.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -251,6 +252,17 @@ export class ExplanMain extends HTMLElement {
   connectedCallback() {
     this.dependenciesPanel = this.querySelector("dependencies-panel")!;
     this.dependenciesControl = this.querySelector("dependencies-control");
+
+    this.dependenciesControl!.addEventListener("add-dependency", async (e) => {
+      let actionName: ActionNames = "AddPredecessorAction";
+      if (e.detail.depType === "succ") {
+        actionName = "AddSuccessorAction";
+      }
+      const ret = await execute(actionName, this);
+      if (!ret.ok) {
+        console.log(ret.error);
+      }
+    });
 
     this.plan = generateRandomPlan();
     this.planDefinitionHasBeenChanged();
