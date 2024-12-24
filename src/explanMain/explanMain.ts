@@ -250,6 +250,8 @@ export class ExplanMain extends HTMLElement {
 
   dependenciesPanel: DependenciesPanel | null = null;
 
+  downloadLink: HTMLAnchorElement | null = null;
+
   /** Callback to call when the selected task changes. */
   updateSelectedTaskPanel: UpdateSelectedTaskPanel | null = null;
 
@@ -257,6 +259,10 @@ export class ExplanMain extends HTMLElement {
   updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
 
   connectedCallback() {
+    this.downloadLink = this.querySelector<HTMLAnchorElement>("#download")!;
+    this.downloadLink.addEventListener("click", () => {
+      this.prepareDownload();
+    });
     this.dependenciesPanel = this.querySelector("dependencies-panel")!;
 
     this.dependenciesPanel!.addEventListener("add-dependency", async (e) => {
@@ -409,6 +415,13 @@ export class ExplanMain extends HTMLElement {
     StartKeyboardHandling(this);
   }
 
+  prepareDownload() {
+    const downloadBlob = new Blob([JSON.stringify(this.plan, null, "  ")], {
+      type: "application/json",
+    });
+    this.downloadLink!.href = URL.createObjectURL(downloadBlob);
+  }
+
   updateTaskPanels(taskIndex: number) {
     this.selectedTask = taskIndex;
     this.updateSelectedTaskPanel!(this.selectedTask);
@@ -485,14 +498,6 @@ export class ExplanMain extends HTMLElement {
   }
 
   recalculateSpansAndCriticalPath() {
-    // Populate the download link.
-    // TODO - Only do this on demand.
-    const download = document.querySelector<HTMLLinkElement>("#download")!;
-    const downloadBlob = new Blob([JSON.stringify(this.plan, null, "  ")], {
-      type: "application/json",
-    });
-    download.href = URL.createObjectURL(downloadBlob);
-
     let slacks: Slack[] = [];
 
     const slackResult = ComputeSlack(
