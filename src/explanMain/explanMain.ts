@@ -37,7 +37,10 @@ import {
   criticalTaskFrequencies,
   simulation,
 } from "../simulation/simulation.ts";
-import { generateRandomPlan } from "../generate/generate.ts";
+import {
+  generateRandomPlan,
+  generateStarterPlan,
+} from "../generate/generate.ts";
 import { execute, executeOp } from "../action/execute.ts";
 import { ActionFromOp } from "../action/action.ts";
 import { StartKeyboardHandling } from "../keymap/keymap.ts";
@@ -279,7 +282,7 @@ export class ExplanMain extends HTMLElement {
       }
     });
 
-    this.plan = generateRandomPlan();
+    this.plan = generateStarterPlan();
     this.planDefinitionHasBeenChanged();
 
     // Dragging on the radar.

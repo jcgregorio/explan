@@ -159,7 +159,7 @@ export class TaskSearchControl extends HTMLElement {
     );
     this.searchResults = fuzzysort.go<Task>(
       (e.target as HTMLInputElement).value,
-      this._tasks.slice(1, -2), // Remove Start and Finish from search range.
+      this._tasks.slice(1, -1), // Remove Start and Finish from search range.
       {
         key: searchStringFromTaskBuilder(
           this._tasks,

@@ -89,8 +89,8 @@ export const allPotentialPredecessors = (
   const byDest = edgesByDstToMap(directedGraph.Edges);
   const directPred = byDest.get(taskIndex) || [];
   const directPredArray = directPred.map((e: DirectedEdge) => e.i);
-  return difference(allTasks(directedGraph), [
-    ...allSuccessors(taskIndex, directedGraph),
-    ...directPredArray,
-  ]);
+  const allSucc = allSuccessors(taskIndex, directedGraph);
+  const all = allTasks(directedGraph);
+  const toBeSubtracted = [...allSucc, ...directPredArray];
+  return difference(all, toBeSubtracted);
 };

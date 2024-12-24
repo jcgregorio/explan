@@ -25,6 +25,31 @@ const rndDuration = (): number => {
   return rndInt(DURATION);
 };
 
+export const generateStarterPlan = (): Plan => {
+  const plan = new Plan();
+  let taskID = 0;
+
+  const ops: Op[] = [AddResourceOp("Person")];
+
+  people.forEach((person: string) => {
+    ops.push(AddResourceOptionOp("Person", person));
+  });
+
+  ops.push(
+    InsertNewEmptyTaskAfterOp(0),
+    SetMetricValueOp("Duration", 10, 1),
+    SetResourceValueOp("Person", "Fred", 1),
+    SetResourceValueOp("Uncertainty", "low", 1)
+  );
+
+  const res = applyAllOpsToPlan(ops, plan);
+
+  if (!res.ok) {
+    console.log(res.error);
+  }
+  return plan;
+};
+
 export const generateRandomPlan = (): Plan => {
   const plan = new Plan();
   let taskID = 0;
