@@ -140,26 +140,22 @@
     dependencies-panel {
       display: block;
 
-      dependencies-control {
-        display: block;
+      th {
+        text-align: left;
+      }
 
-        th {
-          text-align: left;
+      button.delete {
+        border-radius: 4px;
+        border: solid 1px var(--surface);
+        background: var(--surface);
+        color: var(--onSurface);
+
+        &:hover {
+          border: solid 1px var(--onSurfaceMuted);
         }
 
-        button.delete {
-          border-radius: 4px;
-          border: solid 1px var(--surface);
-          background: var(--surface);
-          color: var(--onSurface);
-
-          &:hover {
-            border: solid 1px var(--onSurfaceMuted);
-          }
-
-          &:active {
-            background: var(--highlight);
-          }
+        &:active {
+          background: var(--highlight);
         }
       }
     }
