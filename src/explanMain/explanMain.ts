@@ -41,8 +41,13 @@ import { generateRandomPlan } from "../generate/generate.ts";
 import { execute, executeOp } from "../action/execute.ts";
 import { ActionFromOp } from "../action/action.ts";
 import { StartKeyboardHandling } from "../keymap/keymap.ts";
-import { DeleteTaskOp, SetTaskNameOp } from "../ops/chart.ts";
-import { DependenciesControl } from "../dependencies/dependencies-control.ts";
+import {
+  DeleteTaskOp,
+  RemoveEdgeOp,
+  RemoveEdgeSupOp,
+  SetTaskNameOp,
+} from "../ops/chart.ts";
+import { DependenciesPanel } from "../dependencies/dependencies-panel.ts";
 import {
   allPotentialSuccessors,
   allPotentialPredecessors,
@@ -240,8 +245,7 @@ export class ExplanMain extends HTMLElement {
   focusOnTask: boolean = false;
   mouseMove: MouseMove | null = null;
 
-  dependenciesPanel: HTMLElement | null = null;
-  dependenciesControl: DependenciesControl | null = null;
+  dependenciesPanel: DependenciesPanel | null = null;
 
   /** Callback to call when the selected task changes. */
   updateSelectedTaskPanel: UpdateSelectedTaskPanel | null = null;
@@ -251,14 +255,25 @@ export class ExplanMain extends HTMLElement {
 
   connectedCallback() {
     this.dependenciesPanel = this.querySelector("dependencies-panel")!;
-    this.dependenciesControl = this.querySelector("dependencies-control");
 
-    this.dependenciesControl!.addEventListener("add-dependency", async (e) => {
+    this.dependenciesPanel!.addEventListener("add-dependency", async (e) => {
       let actionName: ActionNames = "AddPredecessorAction";
       if (e.detail.depType === "succ") {
         actionName = "AddSuccessorAction";
       }
       const ret = await execute(actionName, this);
+      if (!ret.ok) {
+        console.log(ret.error);
+      }
+    });
+
+    this.dependenciesPanel!.addEventListener("delete-dependency", async (e) => {
+      let [i, j] = [e.detail.taskIndex, this.selectedTask];
+      if (e.detail.depType === "succ") {
+        [i, j] = [j, i];
+      }
+      const op = RemoveEdgeOp(i, j);
+      const ret = await executeOp(op, "planDefinitionChanged", true, this);
       if (!ret.ok) {
         console.log(ret.error);
       }
@@ -395,7 +410,7 @@ export class ExplanMain extends HTMLElement {
     this.selectedTask = taskIndex;
     this.updateSelectedTaskPanel!(this.selectedTask);
     const edges = edgesBySrcAndDstToMap(this.plan.chart.Edges);
-    this.dependenciesControl!.setTasksAndIndices(
+    this.dependenciesPanel!.setTasksAndIndices(
       this.plan.chart.Vertices,
       (edges.byDst.get(taskIndex) || []).map((e: DirectedEdge) => e.i),
       (edges.bySrc.get(taskIndex) || []).map((e: DirectedEdge) => e.j)

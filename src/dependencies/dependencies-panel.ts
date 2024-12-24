@@ -21,7 +21,7 @@ declare global {
 }
 
 const kindTemplate = (
-  dependenciesControl: DependenciesControl,
+  dependenciesControl: DependenciesPanel,
   depType: DepType,
   indexes: number[]
 ): TemplateResult => html`
@@ -58,7 +58,7 @@ const kindTemplate = (
 `;
 
 const template = (
-  dependenciesControl: DependenciesControl
+  dependenciesControl: DependenciesPanel
 ): TemplateResult => html`
   <table>
     ${kindTemplate(
@@ -74,7 +74,7 @@ const template = (
   </table>
 `;
 
-export class DependenciesControl extends HTMLElement {
+export class DependenciesPanel extends HTMLElement {
   tasks: Task[] = [];
   predIndexes: number[] = [];
   succIndexes: number[] = [];
@@ -119,4 +119,4 @@ export class DependenciesControl extends HTMLElement {
   }
 }
 
-customElements.define("dependencies-control", DependenciesControl);
+customElements.define("dependencies-panel", DependenciesPanel);

@@ -1,6 +1,6 @@
 import { TaskSearchControl } from "../search/task-search-controls";
 import { Chart } from "../chart/chart";
-import { DepType } from "../dependencies/dependencies-control";
+import { DepType } from "../dependencies/dependencies-panel";
 import {
   allPotentialSuccessors,
   allPotentialPredecessors,

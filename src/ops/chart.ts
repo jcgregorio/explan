@@ -584,3 +584,11 @@ export function AddEdgeOp(fromTaskIndex: number, toTaskIndex: number): Op {
 export function RationalizeEdgesOp(): Op {
   return new Op([new RationalizeEdgesSubOp()]);
 }
+
+export function RemoveEdgeOp(i: number, j: number): Op {
+  return new Op([
+    new RationalizeEdgesSubOp(),
+    new RemoveEdgeSupOp(i, j),
+    new RationalizeEdgesSubOp(),
+  ]);
+}
