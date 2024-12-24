@@ -91,6 +91,7 @@ const buildSelectedTaskPanel = (
         <td>
           <input
             type="text"
+            id="task-name"
             .value="${task.name}"
             @change=${(e: Event) => {
               explanMain.taskNameChanged(
@@ -172,6 +173,12 @@ const buildSelectedTaskPanel = (
     const task = plan.chart.Vertices[taskIndex];
     console.log(task);
     render(selectedTaskPanelTemplate(task, plan), selectedTaskPanel);
+    window.setTimeout(() => {
+      const input =
+        selectedTaskPanel.querySelector<HTMLInputElement>("#task-name")!;
+      input.focus();
+      input.select();
+    }, 0);
   };
 
   return updateSelectedTaskPanel;
