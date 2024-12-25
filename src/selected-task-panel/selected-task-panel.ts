@@ -27,95 +27,6 @@ declare global {
   }
 }
 
-const template = (selectedTaskPanel: SelectedTaskPanel): TemplateResult => {
-  const taskIndex = selectedTaskPanel.taskIndex;
-  if (taskIndex === -1) {
-    return html`No task selected.`;
-  }
-  const task = selectedTaskPanel.plan.chart.Vertices[taskIndex];
-  return html`
-    <table>
-      <tr>
-        <td>Name</td>
-        <td>
-          <input
-            type="text"
-            id="task-name"
-            .value="${task.name}"
-            @change=${(e: Event) =>
-              selectedTaskPanel.dispatchEvent(
-                new CustomEvent<TaskNameChangeDetails>("task-name-change", {
-                  bubbles: true,
-                  detail: {
-                    taskIndex: taskIndex,
-                    name: (e.target as HTMLInputElement).value,
-                  },
-                })
-              )}
-          />
-        </td>
-      </tr>
-      ${Object.entries(selectedTaskPanel.plan.resourceDefinitions).map(
-        ([resourceKey, defn]) =>
-          html` <tr>
-            <td>
-              <label for="${resourceKey}">${resourceKey}</label>
-            </td>
-            <td>
-              <select
-                id="${resourceKey}"
-                @change=${async (e: Event) =>
-                  selectedTaskPanel.dispatchEvent(
-                    new CustomEvent("task-resource-value-change", {
-                      bubbles: true,
-                      detail: {
-                        taskIndex: taskIndex,
-                        value: (e.target as HTMLInputElement).value,
-                        name: resourceKey,
-                      },
-                    })
-                  )}
-              >
-                ${defn.values.map(
-                  (resourceValue: string) =>
-                    html`<option
-                      name=${resourceValue}
-                      .selected=${task.resources[resourceKey] === resourceValue}
-                    >
-                      ${resourceValue}
-                    </option>`
-                )}
-              </select>
-            </td>
-          </tr>`
-      )}
-      ${Object.keys(selectedTaskPanel.plan.metricDefinitions).map(
-        (key: string) =>
-          html` <tr>
-            <td><label for="${key}">${key}</label></td>
-            <td>
-              <input
-                id="${key}"
-                type="number"
-                .value="${task.metrics[key]}"
-                @change=${async (e: Event) =>
-                  selectedTaskPanel.dispatchEvent(
-                    new CustomEvent("task-metric-value-change", {
-                      bubbles: true,
-                      detail: {
-                        taskIndex: taskIndex,
-                        value: +(e.target as HTMLInputElement).value,
-                        name: key,
-                      },
-                    })
-                  )}
-              />
-            </td>
-          </tr>`
-      )}
-    </table>
-  `;
-};
 
 export class SelectedTaskPanel extends HTMLElement {
   plan: Plan = new Plan();
@@ -141,8 +52,98 @@ export class SelectedTaskPanel extends HTMLElement {
   }
 
   render() {
-    render(template(this), this);
+    render(this.template(), this);
   }
+
+  template(): TemplateResult {
+    const taskIndex = this..taskIndex;
+    if (taskIndex === -1) {
+      return html`No task selected.`;
+    }
+    const task = this.plan.chart.Vertices[taskIndex];
+    return html`
+      <table>
+        <tr>
+          <td>Name</td>
+          <td>
+            <input
+              type="text"
+              id="task-name"
+              .value="${task.name}"
+              @change=${(e: Event) =>
+                this.dispatchEvent(
+                  new CustomEvent<TaskNameChangeDetails>("task-name-change", {
+                    bubbles: true,
+                    detail: {
+                      taskIndex: taskIndex,
+                      name: (e.target as HTMLInputElement).value,
+                    },
+                  })
+                )}
+            />
+          </td>
+        </tr>
+        ${Object.entries(this.plan.resourceDefinitions).map(
+          ([resourceKey, defn]) =>
+            html` <tr>
+              <td>
+                <label for="${resourceKey}">${resourceKey}</label>
+              </td>
+              <td>
+                <select
+                  id="${resourceKey}"
+                  @change=${async (e: Event) =>
+                    this.dispatchEvent(
+                      new CustomEvent("task-resource-value-change", {
+                        bubbles: true,
+                        detail: {
+                          taskIndex: taskIndex,
+                          value: (e.target as HTMLInputElement).value,
+                          name: resourceKey,
+                        },
+                      })
+                    )}
+                >
+                  ${defn.values.map(
+                    (resourceValue: string) =>
+                      html`<option
+                        name=${resourceValue}
+                        .selected=${task.resources[resourceKey] === resourceValue}
+                      >
+                        ${resourceValue}
+                      </option>`
+                  )}
+                </select>
+              </td>
+            </tr>`
+        )}
+        ${Object.keys(this.plan.metricDefinitions).map(
+          (key: string) =>
+            html` <tr>
+              <td><label for="${key}">${key}</label></td>
+              <td>
+                <input
+                  id="${key}"
+                  type="number"
+                  .value="${task.metrics[key]}"
+                  @change=${async (e: Event) =>
+                    this.dispatchEvent(
+                      new CustomEvent("task-metric-value-change", {
+                        bubbles: true,
+                        detail: {
+                          taskIndex: taskIndex,
+                          value: +(e.target as HTMLInputElement).value,
+                          name: key,
+                        },
+                      })
+                    )}
+                />
+              </td>
+            </tr>`
+        )}
+      </table>
+    `;
+  };  
 }
 
 customElements.define("selected-task-panel", SelectedTaskPanel);
