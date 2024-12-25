@@ -355,11 +355,6 @@ export class ExplanMain extends HTMLElement {
     this.updateTaskPanels(this.selectedTask);
   }
 
-  async deleteTask(taskIndex: number): Promise<Result<null>> {
-    const op = DeleteTaskOp(taskIndex);
-    return await executeOp(op, "paintChart", true, this);
-  }
-
   // TODO - Turn this on and off based on mouse entering the canvas area.
   onMouseMove() {
     const location = this.mouseMove!.readLocation();
@@ -476,7 +471,7 @@ export class ExplanMain extends HTMLElement {
       // will not work when focusing on a selected task. Bug or feature?
       this.displayRange = new DisplayRange(earliestStart - 1, latestFinish + 1);
 
-      filterFunc = (task: Task, taskIndex: number): boolean => {
+      filterFunc = (_task: Task, taskIndex: number): boolean => {
         if (startAndFinish.includes(taskIndex)) {
           return true;
         }
