@@ -193,7 +193,7 @@ export class ExplanMain extends HTMLElement {
       "task-name-change",
       async (e: CustomEvent<TaskNameChangeDetails>) => {
         const op = SetTaskNameOp(e.detail.taskIndex, e.detail.name);
-        reportOnError(await executeOp(op, "paintChart", true, this));
+        reportOnError(await executeOp(op, "planDefinitionChanged", true, this));
       }
     );
 
@@ -284,7 +284,6 @@ export class ExplanMain extends HTMLElement {
         this.selectedTask =
           this.updateHighlightFromMousePos(p, "mousedown") || -1;
         this.updateTaskPanels(this.selectedTask);
-        e.preventDefault();
       }
     });
 

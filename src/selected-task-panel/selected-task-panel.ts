@@ -1,5 +1,6 @@
 import { TemplateResult, html, render } from "lit-html";
 import { Plan } from "../plan/plan";
+import { Task } from "../chart/chart";
 
 export interface TaskNameChangeDetails {
   name: string;
@@ -26,15 +27,12 @@ declare global {
   }
 }
 
-const template = (
-  selectedTaskPanel: SelectedTaskPanel,
-  plan: Plan,
-  taskIndex: number
-): TemplateResult => {
+const template = (selectedTaskPanel: SelectedTaskPanel): TemplateResult => {
+  const taskIndex = selectedTaskPanel.taskIndex;
   if (taskIndex === -1) {
     return html`No task selected.`;
   }
-  const task = plan.chart.Vertices[taskIndex];
+  const task = selectedTaskPanel.plan.chart.Vertices[taskIndex];
   return html`
     <table>
       <tr>
@@ -57,7 +55,7 @@ const template = (
           />
         </td>
       </tr>
-      ${Object.entries(plan.resourceDefinitions).map(
+      ${Object.entries(selectedTaskPanel.plan.resourceDefinitions).map(
         ([resourceKey, defn]) =>
           html` <tr>
             <td>
@@ -91,7 +89,7 @@ const template = (
             </td>
           </tr>`
       )}
-      ${Object.keys(plan.metricDefinitions).map(
+      ${Object.keys(selectedTaskPanel.plan.metricDefinitions).map(
         (key: string) =>
           html` <tr>
             <td><label for="${key}">${key}</label></td>
@@ -124,13 +122,13 @@ export class SelectedTaskPanel extends HTMLElement {
   taskIndex: number = -1;
 
   connectedCallback(): void {
-    render(template(this, this.plan, this.taskIndex), this);
+    this.render();
   }
 
   updateSelectedTaskPanel(plan: Plan, taskIndex: number) {
     this.plan = plan;
     this.taskIndex = taskIndex;
-    render(template(this, this.plan, this.taskIndex), this);
+    this.render();
     /*
     TODO - Do the following when selecting a new task.
       window.setTimeout(() => {
@@ -140,6 +138,10 @@ export class SelectedTaskPanel extends HTMLElement {
         input.select();
       }, 0);
       */
+  }
+
+  render() {
+    render(template(this), this);
   }
 }
 
