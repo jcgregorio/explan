@@ -58,6 +58,12 @@ import {
   allSuccessors,
 } from "../dag/algorithms/circular.ts";
 import { ActionNames } from "../action/registry.ts";
+import {
+  SelectedTaskPanel,
+  TaskMetricValueChangeDetails,
+  TaskNameChangeDetails,
+  TaskResourceValueChangeDetails,
+} from "../selected-task-panel/selected-task-panel.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -65,126 +71,11 @@ const NUM_SIMULATION_LOOPS = 100;
 
 const precision = new Precision(2);
 
-/** Type of function to call when the currently selected task has changed. */
-type UpdateSelectedTaskPanel = (taskIndex: number) => void;
-
 interface CriticalPathEntry {
   count: number;
   tasks: number[];
   durations: number[];
 }
-
-// Builds the task panel which then returns a closure used to update the panel
-// with info from a specific Task.
-const buildSelectedTaskPanel = (
-  plan: Plan,
-  selectedTaskPanel: HTMLElement,
-  explanMain: ExplanMain
-): UpdateSelectedTaskPanel => {
-  const selectedTaskPanelTemplate = (
-    task: Task,
-    plan: Plan
-  ): TemplateResult => html`
-    <table>
-      <tr>
-        <td>Name</td>
-        <td>
-          <input
-            type="text"
-            id="task-name"
-            .value="${task.name}"
-            @change=${(e: Event) => {
-              explanMain.taskNameChanged(
-                explanMain.selectedTask,
-                (e.target as HTMLInputElement).value
-              );
-            }}
-          />
-        </td>
-      </tr>
-      ${Object.entries(plan.resourceDefinitions).map(
-        ([resourceKey, defn]) =>
-          html` <tr>
-            <td>
-              <label for="${resourceKey}">${resourceKey}</label>
-            </td>
-            <td>
-              <select
-                id="${resourceKey}"
-                @change=${async (e: Event) => {
-                  const ret = await explanMain.taskResourceValueChanged(
-                    explanMain.selectedTask,
-                    resourceKey,
-                    (e.target as HTMLInputElement).value
-                  );
-                  if (!ret.ok) {
-                    // TODO popup error message.
-                    console.log(ret);
-                    e.preventDefault();
-                  }
-                }}
-              >
-                ${defn.values.map(
-                  (resourceValue: string) =>
-                    html`<option
-                      name=${resourceValue}
-                      .selected=${task.resources[resourceKey] === resourceValue}
-                    >
-                      ${resourceValue}
-                    </option>`
-                )}
-              </select>
-            </td>
-          </tr>`
-      )}
-      ${Object.keys(plan.metricDefinitions).map(
-        (key: string) =>
-          html` <tr>
-            <td><label for="${key}">${key}</label></td>
-            <td>
-              <input
-                id="${key}"
-                type="number"
-                .value="${task.metrics[key]}"
-                @change=${async (e: Event) => {
-                  const ret = await explanMain.taskMetricValueChanged(
-                    explanMain.selectedTask,
-                    key,
-                    (e.target as HTMLInputElement).value
-                  );
-                  if (!ret.ok) {
-                    // TODO popup error message.
-                    console.log(ret);
-                    e.preventDefault();
-                  }
-                }}
-              />
-            </td>
-          </tr>`
-      )}
-    </table>
-  `;
-
-  const updateSelectedTaskPanel = (taskIndex: number) => {
-    if (taskIndex === -1) {
-      render(html`No task selected.`, selectedTaskPanel);
-      return;
-    }
-    const task = plan.chart.Vertices[taskIndex];
-    console.log(task);
-    render(selectedTaskPanelTemplate(task, plan), selectedTaskPanel);
-    /*
-    TODO - Do the following when selecting a new task.
-      window.setTimeout(() => {
-        const input =
-          selectedTaskPanel.querySelector<HTMLInputElement>("#task-name")!;
-        input.focus();
-        input.select();
-      }, 0);
-      */
-  };
-  return updateSelectedTaskPanel;
-};
 
 const criticalPathsTemplate = (
   allCriticalPaths: Map<string, CriticalPathEntry>,
@@ -261,8 +152,7 @@ export class ExplanMain extends HTMLElement {
 
   downloadLink: HTMLAnchorElement | null = null;
 
-  /** Callback to call when the selected task changes. */
-  updateSelectedTaskPanel: UpdateSelectedTaskPanel | null = null;
+  selectedTaskPanel: SelectedTaskPanel | null = null;
 
   /** Callback to call when a mouse moves over the chart. */
   updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
@@ -296,6 +186,50 @@ export class ExplanMain extends HTMLElement {
         console.log(ret.error);
       }
     });
+
+    this.selectedTaskPanel = this.querySelector("selected-task-panel")!;
+    this.selectedTaskPanel.addEventListener(
+      "task-name-change",
+      async (e: CustomEvent<TaskNameChangeDetails>) => {
+        const ret = await this.taskNameChanged(
+          e.detail.taskIndex,
+          e.detail.name
+        );
+        if (!ret.ok) {
+          console.log(ret);
+        }
+      }
+    );
+
+    this.selectedTaskPanel.addEventListener(
+      "task-resource-value-change",
+      async (e: CustomEvent<TaskResourceValueChangeDetails>) => {
+        const ret = await this.taskResourceValueChanged(
+          e.detail.taskIndex,
+          e.detail.name,
+          e.detail.value
+        );
+        if (!ret.ok) {
+          // TODO popup error message.
+          console.log(ret);
+        }
+      }
+    );
+
+    this.selectedTaskPanel.addEventListener(
+      "task-metric-value-change",
+      async (e: CustomEvent<TaskMetricValueChangeDetails>) => {
+        const ret = await this.taskMetricValueChanged(
+          e.detail.taskIndex,
+          e.detail.name,
+          e.detail.value
+        );
+        if (!ret.ok) {
+          // TODO popup error message.
+          console.log(ret);
+        }
+      }
+    );
 
     this.plan = generateStarterPlan();
     this.planDefinitionHasBeenChanged();
@@ -379,12 +313,6 @@ export class ExplanMain extends HTMLElement {
       }
     });
 
-    this.updateSelectedTaskPanel = buildSelectedTaskPanel(
-      this.plan,
-      this.querySelector("selected-task-panel")!,
-      this
-    );
-
     this.updateTaskPanels(this.selectedTask);
 
     // React to the upload input.
@@ -434,7 +362,10 @@ export class ExplanMain extends HTMLElement {
 
   updateTaskPanels(taskIndex: number) {
     this.selectedTask = taskIndex;
-    this.updateSelectedTaskPanel!(this.selectedTask);
+    this.selectedTaskPanel!.updateSelectedTaskPanel(
+      this.plan,
+      this.selectedTask
+    );
     const edges = edgesBySrcAndDstToMap(this.plan.chart.Edges);
     this.dependenciesPanel!.setTasksAndIndices(
       this.plan.chart.Vertices,
@@ -466,9 +397,9 @@ export class ExplanMain extends HTMLElement {
   async taskMetricValueChanged(
     taskIndex: number,
     metricKey: string,
-    metricValue: string
+    metricValue: number
   ): Promise<Result<null>> {
-    const op = SetMetricValueOp(metricKey, +metricValue, taskIndex);
+    const op = SetMetricValueOp(metricKey, metricValue, taskIndex);
     return await executeOp(op, "planDefinitionChanged", true, this);
   }
 
@@ -499,11 +430,6 @@ export class ExplanMain extends HTMLElement {
     this.displayRange = null;
     this.groupByOptions = ["", ...Object.keys(this.plan.resourceDefinitions)];
     this.groupByOptionsIndex = 0;
-    this.updateSelectedTaskPanel = buildSelectedTaskPanel(
-      this.plan,
-      this.querySelector("selected-task-panel")!,
-      this
-    );
     this.recalculateSpansAndCriticalPath();
   }
 
