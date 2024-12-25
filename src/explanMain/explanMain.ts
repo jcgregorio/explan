@@ -64,6 +64,7 @@ import {
   TaskNameChangeDetails,
   TaskResourceValueChangeDetails,
 } from "../selected-task-panel/selected-task-panel.ts";
+import { reportOnError } from "../report-error/report-error.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -191,43 +192,26 @@ export class ExplanMain extends HTMLElement {
     this.selectedTaskPanel.addEventListener(
       "task-name-change",
       async (e: CustomEvent<TaskNameChangeDetails>) => {
-        const ret = await this.taskNameChanged(
-          e.detail.taskIndex,
-          e.detail.name
-        );
-        if (!ret.ok) {
-          console.log(ret);
-        }
+        const op = SetTaskNameOp(e.detail.taskIndex, e.detail.name);
+        reportOnError(await executeOp(op, "paintChart", true, this));
       }
     );
 
     this.selectedTaskPanel.addEventListener(
       "task-resource-value-change",
       async (e: CustomEvent<TaskResourceValueChangeDetails>) => {
-        const ret = await this.taskResourceValueChanged(
-          e.detail.taskIndex,
-          e.detail.name,
-          e.detail.value
-        );
-        if (!ret.ok) {
-          // TODO popup error message.
-          console.log(ret);
-        }
+        const { name, value, taskIndex } = e.detail;
+        const op = SetResourceValueOp(name, value, taskIndex);
+        reportOnError(await executeOp(op, "planDefinitionChanged", true, this));
       }
     );
 
     this.selectedTaskPanel.addEventListener(
       "task-metric-value-change",
       async (e: CustomEvent<TaskMetricValueChangeDetails>) => {
-        const ret = await this.taskMetricValueChanged(
-          e.detail.taskIndex,
-          e.detail.name,
-          e.detail.value
-        );
-        if (!ret.ok) {
-          // TODO popup error message.
-          console.log(ret);
-        }
+        const { name, value, taskIndex } = e.detail;
+        const op = SetMetricValueOp(name, value, taskIndex);
+        reportOnError(await executeOp(op, "planDefinitionChanged", true, this));
       }
     );
 
@@ -383,32 +367,6 @@ export class ExplanMain extends HTMLElement {
     this.forceFocusOnTask();
     this.paintChart();
     this.updateTaskPanels(this.selectedTask);
-  }
-
-  async taskResourceValueChanged(
-    taskIndex: number,
-    resourceKey: string,
-    resourceValue: string
-  ): Promise<Result<null>> {
-    const op = SetResourceValueOp(resourceKey, resourceValue, taskIndex);
-    return await executeOp(op, "planDefinitionChanged", true, this);
-  }
-
-  async taskMetricValueChanged(
-    taskIndex: number,
-    metricKey: string,
-    metricValue: number
-  ): Promise<Result<null>> {
-    const op = SetMetricValueOp(metricKey, metricValue, taskIndex);
-    return await executeOp(op, "planDefinitionChanged", true, this);
-  }
-
-  async taskNameChanged(
-    taskIndex: number,
-    name: string
-  ): Promise<Result<null>> {
-    const op = SetTaskNameOp(taskIndex, name);
-    return await executeOp(op, "paintChart", true, this);
   }
 
   async deleteTask(taskIndex: number): Promise<Result<null>> {

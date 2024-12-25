@@ -7,6 +7,7 @@ export type PostActonWork = "" | "paintChart" | "planDefinitionChanged";
 export interface Action {
   description: string;
   postActionWork: PostActonWork;
+  // TODO - Do we need a PostActionFocus: number which points to the Task we should move the focus to?
   undo: boolean; // If true include in undo/redo actions.
   do(explanMain: ExplanMain): Promise<Result<Action>>;
 }
