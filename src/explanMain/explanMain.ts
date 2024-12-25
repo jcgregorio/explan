@@ -173,14 +173,16 @@ const buildSelectedTaskPanel = (
     const task = plan.chart.Vertices[taskIndex];
     console.log(task);
     render(selectedTaskPanelTemplate(task, plan), selectedTaskPanel);
-    window.setTimeout(() => {
-      const input =
-        selectedTaskPanel.querySelector<HTMLInputElement>("#task-name")!;
-      input.focus();
-      input.select();
-    }, 0);
+    /*
+    TODO - Do the following when selecting a new task.
+      window.setTimeout(() => {
+        const input =
+          selectedTaskPanel.querySelector<HTMLInputElement>("#task-name")!;
+        input.focus();
+        input.select();
+      }, 0);
+      */
   };
-
   return updateSelectedTaskPanel;
 };
 
@@ -364,6 +366,7 @@ export class ExplanMain extends HTMLElement {
         this.selectedTask =
           this.updateHighlightFromMousePos(p, "mousedown") || -1;
         this.updateTaskPanels(this.selectedTask);
+        e.preventDefault();
       }
     });
 

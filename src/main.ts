@@ -1,5 +1,5 @@
 import { Chart, Task, validateChart } from "./chart/chart.ts";
-import { InsertNewEmptyTaskAfterOp, SetTaskNameOp } from "./ops/chart.ts";
+import { InsertNewEmptyMilestoneAfterOp, SetTaskNameOp } from "./ops/chart.ts";
 import { SetMetricValueOp } from "./ops/metrics.ts";
 import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
 import { Plan } from "./plan/plan.ts";
@@ -16,10 +16,10 @@ taskB.setMetric("Duration", 15);
 let plan = new Plan();
 
 const ops: Op[] = [
-  InsertNewEmptyTaskAfterOp(0),
+  InsertNewEmptyMilestoneAfterOp(0),
   SetMetricValueOp("Duration", 10, 1),
   SetTaskNameOp(1, "A"),
-  InsertNewEmptyTaskAfterOp(1),
+  InsertNewEmptyMilestoneAfterOp(1),
   SetMetricValueOp("Duration", 15, 2),
   SetTaskNameOp(1, "B"),
 ];

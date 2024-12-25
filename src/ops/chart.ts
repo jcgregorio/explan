@@ -3,6 +3,7 @@ import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
 import { Plan } from "../plan/plan.ts";
 import { Chart, Task, TaskState } from "../chart/chart.ts";
 import { Op, SubOp, SubOpResult } from "./ops.ts";
+import { SetMetricValueOp, SetMetricValueSubOp } from "./metrics.ts";
 
 /** A value of -1 for j means the Finish Milestone. */
 export function DirectedEdgeForPlan(
@@ -528,7 +529,7 @@ export class SetTaskStateSubOp implements SubOp {
   }
 }
 
-export function InsertNewEmptyTaskAfterOp(taskIndex: number): Op {
+export function InsertNewEmptyMilestoneAfterOp(taskIndex: number): Op {
   return new Op([
     new RationalizeEdgesSubOp(),
     new AddTaskAfterSubOp(taskIndex),
@@ -589,6 +590,17 @@ export function RemoveEdgeOp(i: number, j: number): Op {
   return new Op([
     new RationalizeEdgesSubOp(),
     new RemoveEdgeSupOp(i, j),
+    new RationalizeEdgesSubOp(),
+  ]);
+}
+
+export function InsertNewEmptyTaskAfterOp(taskIndex: number): Op {
+  return new Op([
+    new RationalizeEdgesSubOp(),
+    new AddTaskAfterSubOp(taskIndex),
+    new SetMetricValueSubOp("Duration", 10, taskIndex + 1),
+    new AddEdgeSubOp(0, taskIndex + 1),
+    new AddEdgeSubOp(taskIndex + 1, -1),
     new RationalizeEdgesSubOp(),
   ]);
 }

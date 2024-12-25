@@ -1,6 +1,6 @@
 import {
   DupTaskOp,
-  InsertNewEmptyTaskAfterOp,
+  InsertNewEmptyMilestoneAfterOp,
   SetTaskNameOp,
   SplitTaskOp,
 } from "../ops/chart";
@@ -36,7 +36,7 @@ export const generateStarterPlan = (): Plan => {
   });
 
   ops.push(
-    InsertNewEmptyTaskAfterOp(0),
+    InsertNewEmptyMilestoneAfterOp(0),
     SetMetricValueOp("Duration", 10, 1),
     SetResourceValueOp("Person", "Fred", 1),
     SetResourceValueOp("Uncertainty", "low", 1)
@@ -61,7 +61,7 @@ export const generateRandomPlan = (): Plan => {
   });
 
   ops.push(
-    InsertNewEmptyTaskAfterOp(0),
+    InsertNewEmptyMilestoneAfterOp(0),
     SetMetricValueOp("Duration", rndDuration(), 1),
     SetTaskNameOp(1, randomTaskName()),
     SetResourceValueOp("Person", people[rndInt(people.length)], 1),

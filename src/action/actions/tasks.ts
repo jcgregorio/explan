@@ -2,6 +2,7 @@ import { ExplanMain } from "../../explanMain/explanMain";
 import {
   DeleteTaskOp,
   DupTaskOp,
+  InsertNewEmptyMilestoneAfterOp,
   InsertNewEmptyTaskAfterOp,
   SplitTaskOp,
 } from "../../ops/chart";
