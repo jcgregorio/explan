@@ -27,7 +27,6 @@ declare global {
   }
 }
 
-
 export class SelectedTaskPanel extends HTMLElement {
   plan: Plan = new Plan();
   taskIndex: number = -1;
@@ -56,7 +55,7 @@ export class SelectedTaskPanel extends HTMLElement {
   }
 
   template(): TemplateResult {
-    const taskIndex = this..taskIndex;
+    const taskIndex = this.taskIndex;
     if (taskIndex === -1) {
       return html`No task selected.`;
     }
@@ -108,7 +107,8 @@ export class SelectedTaskPanel extends HTMLElement {
                     (resourceValue: string) =>
                       html`<option
                         name=${resourceValue}
-                        .selected=${task.resources[resourceKey] === resourceValue}
+                        .selected=${task.resources[resourceKey] ===
+                        resourceValue}
                       >
                         ${resourceValue}
                       </option>`
@@ -143,7 +143,7 @@ export class SelectedTaskPanel extends HTMLElement {
         )}
       </table>
     `;
-  };  
+  }
 }
 
 customElements.define("selected-task-panel", SelectedTaskPanel);
