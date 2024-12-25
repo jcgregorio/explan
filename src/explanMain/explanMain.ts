@@ -2,7 +2,6 @@ import { Task } from "../chart/chart.ts";
 import { FilterFunc } from "../chart/filter/filter.ts";
 import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
 import { SetMetricValueOp } from "../ops/metrics.ts";
-import { Op } from "../ops/ops.ts";
 import { SetResourceValueOp } from "../ops/resources.ts";
 import { FromJSON, Plan } from "../plan/plan.ts";
 import { Precision } from "../precision/precision.ts";
@@ -42,21 +41,9 @@ import {
   generateStarterPlan,
 } from "../generate/generate.ts";
 import { execute, executeOp } from "../action/execute.ts";
-import { ActionFromOp } from "../action/action.ts";
 import { StartKeyboardHandling } from "../keymap/keymap.ts";
-import {
-  DeleteTaskOp,
-  RemoveEdgeOp,
-  RemoveEdgeSupOp,
-  SetTaskNameOp,
-} from "../ops/chart.ts";
+import { DeleteTaskOp, RemoveEdgeOp, SetTaskNameOp } from "../ops/chart.ts";
 import { DependenciesPanel } from "../dependencies/dependencies-panel.ts";
-import {
-  allPotentialSuccessors,
-  allPotentialPredecessors,
-  allPredecessors,
-  allSuccessors,
-} from "../dag/algorithms/circular.ts";
 import { ActionNames } from "../action/registry.ts";
 import {
   SelectedTaskPanel,

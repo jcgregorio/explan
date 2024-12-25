@@ -1,6 +1,5 @@
 import { TemplateResult, html, render } from "lit-html";
 import { Plan } from "../plan/plan";
-import { Task } from "../chart/chart";
 
 export interface TaskNameChangeDetails {
   name: string;
