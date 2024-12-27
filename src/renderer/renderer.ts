@@ -5,6 +5,7 @@ import { Plan } from "../plan/plan.ts";
 import { ResourceDefinition } from "../resources/resources.ts";
 import { Result, ok } from "../result.ts";
 import { Span } from "../slack/slack.ts";
+import { TaskDuration } from "../types/types.ts";
 import { KDTree } from "./kd/kd.ts";
 import { DisplayRange } from "./range/range.ts";
 import { Point } from "./scale/point.ts";
@@ -70,6 +71,9 @@ export interface RenderOptions {
 
   /** Function that produces display text for a Task and its associated Slack. */
   taskLabel: TaskLabel;
+
+  /** Returns the duration for a given task. */
+  taskDuration: TaskDuration;
 
   /** The indices of tasks that should be emphasized when draw, typically used
    * to denote the critical path. */

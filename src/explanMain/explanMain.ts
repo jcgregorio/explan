@@ -52,6 +52,7 @@ import {
   TaskResourceValueChangeDetails,
 } from "../selected-task-panel/selected-task-panel.ts";
 import { reportOnError } from "../report-error/report-error.ts";
+import { TaskDuration } from "../types/types.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -79,6 +80,12 @@ const criticalPathsTemplate = (
           ${value.count} : ${key}
         </li>`
     )}
+    <li
+      @click=${() =>
+        explanMain.onPotentialCriticialPathClick("", allCriticalPaths)}
+    >
+      [restore]
+    </li>
   </ul>
 `;
 
@@ -141,6 +148,8 @@ export class ExplanMain extends HTMLElement {
   downloadLink: HTMLAnchorElement | null = null;
 
   selectedTaskPanel: SelectedTaskPanel | null = null;
+
+  alternateTaskDurations: number[] | null = null;
 
   /** Callback to call when a mouse moves over the chart. */
   updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
@@ -367,9 +376,19 @@ export class ExplanMain extends HTMLElement {
   planDefinitionHasBeenChanged() {
     this.radarScale = null;
     this.displayRange = null;
+    this.alternateTaskDurations = null;
     this.groupByOptions = ["", ...Object.keys(this.plan.resourceDefinitions)];
     this.groupByOptionsIndex = 0;
     this.recalculateSpansAndCriticalPath();
+  }
+
+  getTaskDurationFunc(): TaskDuration {
+    if (this.alternateTaskDurations !== null) {
+      return (taskIndex: number) => this.alternateTaskDurations![taskIndex];
+    } else {
+      return (taskIndex: number) =>
+        this.plan.chart.Vertices[taskIndex].duration;
+    }
   }
 
   recalculateSpansAndCriticalPath() {
@@ -377,7 +396,7 @@ export class ExplanMain extends HTMLElement {
 
     const slackResult = ComputeSlack(
       this.plan.chart,
-      null,
+      this.getTaskDurationFunc(),
       precision.rounder()
     );
     if (!slackResult.ok) {
@@ -499,6 +518,7 @@ export class ExplanMain extends HTMLElement {
       hasEdges: false,
       drawTimeMarkersOnTasks: false,
       taskLabel: this.getTaskLabeller(),
+      taskDuration: this.getTaskDurationFunc(),
       taskEmphasize: this.criticalPath,
       filterFunc: null,
       groupByResource: this.groupByOptions[this.groupByOptionsIndex],
@@ -525,6 +545,7 @@ export class ExplanMain extends HTMLElement {
       hasEdges: true,
       drawTimeMarkersOnTasks: true,
       taskLabel: this.getTaskLabeller(),
+      taskDuration: this.getTaskDurationFunc(),
       taskEmphasize: this.criticalPath,
       filterFunc: filterFunc,
       groupByResource: this.groupByOptions[this.groupByOptionsIndex],
@@ -551,6 +572,7 @@ export class ExplanMain extends HTMLElement {
       hasEdges: true,
       drawTimeMarkersOnTasks: true,
       taskLabel: this.getTaskLabeller(),
+      taskDuration: this.getTaskDurationFunc(),
       taskEmphasize: this.criticalPath,
       filterFunc: filterFunc,
       groupByResource: this.groupByOptions[this.groupByOptionsIndex],
@@ -648,12 +670,12 @@ export class ExplanMain extends HTMLElement {
     key: string,
     allCriticalPaths: Map<string, CriticalPathEntry>
   ) {
-    const criticalPathEntry = allCriticalPaths.get(key)!;
-    criticalPathEntry.durations.forEach(
-      (duration: number, taskIndex: number) => {
-        this.plan.chart.Vertices[taskIndex].duration = duration;
-      }
-    );
+    if (key === "") {
+      this.alternateTaskDurations = null;
+    } else {
+      this.alternateTaskDurations = allCriticalPaths.get(key)!.durations;
+    }
+
     this.recalculateSpansAndCriticalPath();
     this.paintChart();
   }

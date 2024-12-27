@@ -35,7 +35,7 @@ export const simulation = (
     // Generate random durations based on each Tasks uncertainty.
     const durations = plan.chart.Vertices.map((t: Task) => {
       const rawDuration = new Jacobian(
-        t.duration,
+        t.duration, // Acceptable direct access to duration.
         t.getResource("Uncertainty") as Uncertainty
       ).sample(rndInt(MAX_RANDOM) / MAX_RANDOM);
       return precision.round(rawDuration);
