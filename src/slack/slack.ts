@@ -1,7 +1,7 @@
 import { Result, ok, error } from "../result.ts";
 import { Task, Chart, ChartValidate } from "../chart/chart.ts";
 import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
-import { Rounder } from "../types/types.ts";
+import { Rounder, TaskDuration } from "../types/types.ts";
 
 /** Span represents when a task will be done, i.e. it contains the time the task
  * is expected to begin and end. */
@@ -22,8 +22,6 @@ export class Slack {
   slack: number = 0;
 }
 
-export type TaskDuration = (taskIndex: number) => number;
-
 export type SlackResult = Result<Slack[]>;
 
 // Calculate the slack for each Task in the Chart.
@@ -42,7 +40,7 @@ export function ComputeSlack(
     slacks[i] = new Slack();
   }
 
-  const r = ChartValidate(c);
+  const r = ChartValidate(c, taskDuration);
   if (!r.ok) {
     return error(r.error);
   }

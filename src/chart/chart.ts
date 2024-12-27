@@ -11,6 +11,7 @@ import {
 
 import { topologicalSort } from "../dag/algorithms/toposort.ts";
 import { MetricValues } from "../metrics/metrics.ts";
+import { TaskDuration } from "../types/types.ts";
 
 export type TaskState = "unstarted" | "started" | "complete";
 
@@ -199,21 +200,27 @@ export function validateChart(g: DirectedGraph): ValidateResult {
   return ok(tsRet.order);
 }
 
-export function ChartValidate(c: Chart): ValidateResult {
+export function ChartValidate(
+  c: Chart,
+  taskDuration: TaskDuration | null = null
+): ValidateResult {
+  if (taskDuration === null) {
+    taskDuration = (taskIndex: number) => c.Vertices[taskIndex].duration;
+  }
   const ret = validateChart(c);
   if (!ret.ok) {
     return ret;
   }
-  if (c.Vertices[0].duration !== 0) {
+  if (taskDuration(0) !== 0) {
     return error(
-      `Start Milestone must have duration of 0, instead got ${c.Vertices[0].duration}`
+      `Start Milestone must have duration of 0, instead got ${taskDuration(0)}`
     );
   }
-  if (c.Vertices[c.Vertices.length - 1].duration !== 0) {
+  if (taskDuration(c.Vertices.length - 1) !== 0) {
     return error(
-      `Finish Milestone must have duration of 0, instead got ${
-        c.Vertices[c.Vertices.length - 1].duration
-      }`
+      `Finish Milestone must have duration of 0, instead got ${taskDuration(
+        c.Vertices.length - 1
+      )}`
     );
   }
   return ret;
