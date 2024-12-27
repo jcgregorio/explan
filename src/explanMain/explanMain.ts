@@ -377,7 +377,7 @@ export class ExplanMain extends HTMLElement {
 
     const slackResult = ComputeSlack(
       this.plan.chart,
-      undefined,
+      null,
       precision.rounder()
     );
     if (!slackResult.ok) {

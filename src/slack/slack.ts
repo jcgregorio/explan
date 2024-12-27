@@ -22,20 +22,20 @@ export class Slack {
   slack: number = 0;
 }
 
-export type TaskDuration = (t: Task, taskIndex: number) => number;
-
-export const defaultTaskDuration = (t: Task): number => {
-  return t.duration;
-};
+export type TaskDuration = (taskIndex: number) => number;
 
 export type SlackResult = Result<Slack[]>;
 
 // Calculate the slack for each Task in the Chart.
 export function ComputeSlack(
   c: Chart,
-  taskDuration: TaskDuration = defaultTaskDuration,
+  taskDuration: TaskDuration | null = null,
   round: Rounder
 ): SlackResult {
+  if (taskDuration === null) {
+    taskDuration = (taskIndex: number) => c.Vertices[taskIndex].duration;
+  }
+
   // Create a Slack for each Task.
   const slacks: Slack[] = new Array(c.Vertices.length);
   for (let i = 0; i < c.Vertices.length; i++) {
@@ -63,9 +63,7 @@ export function ComputeSlack(
         return predecessorSlack.early.finish;
       })
     );
-    slack.early.finish = round(
-      slack.early.start + taskDuration(task, vertexIndex)
-    );
+    slack.early.finish = round(slack.early.start + taskDuration(vertexIndex));
   });
 
   // Now backwards through the topological sort and find the late finish of each
@@ -87,9 +85,7 @@ export function ComputeSlack(
           return successorSlack.late.start;
         })
       );
-      slack.late.start = round(
-        slack.late.finish - taskDuration(task, vertexIndex)
-      );
+      slack.late.start = round(slack.late.finish - taskDuration(vertexIndex));
       slack.slack = round(slack.late.finish - slack.early.finish);
     }
   });

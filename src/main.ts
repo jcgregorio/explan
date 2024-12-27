@@ -50,7 +50,7 @@ console.log(
   "Tasks on the critical path for in the first quartile:",
   ComputeSlack(
     C,
-    (t: Task, taskIndex: number) => jacobians[taskIndex].sample(0.25),
+    (taskIndex: number) => jacobians[taskIndex].sample(0.25),
     precision.rounder()
   )
 );

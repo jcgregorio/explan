@@ -44,7 +44,7 @@ export const simulation = (
     // Compute the slack based on those random durations.
     const slacksRet = ComputeSlack(
       plan.chart,
-      (t: Task, taskIndex: number) => durations[taskIndex],
+      (taskIndex: number) => durations[taskIndex],
       precision.rounder()
     );
     if (!slacksRet.ok) {
