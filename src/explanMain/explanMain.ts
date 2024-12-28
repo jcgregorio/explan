@@ -265,6 +265,7 @@ export class ExplanMain extends HTMLElement {
     });
 
     this.querySelector("#simulate")!.addEventListener("click", () => {
+      this.recalculateSpansAndCriticalPath();
       this.criticalPath = this.simulationPanel!.simulate(
         this.plan.chart,
         NUM_SIMULATION_LOOPS,
