@@ -85,6 +85,9 @@ export class SimulationPanel extends HTMLElement {
   displayCriticalPathDifferences(criticalPath: number[]): TemplateResult {
     const removed = difference(this.originalCriticalPath, criticalPath);
     const added = difference(criticalPath, this.originalCriticalPath);
+    if (removed.length === 0 && added.length === 0) {
+      return html`Original Critical Path`;
+    }
     return html`
       ${added.map(
         (taskIndex: number) => html`
