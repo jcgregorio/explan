@@ -118,7 +118,7 @@ export class SimulationPanel extends HTMLElement {
         Clear
       </button>
 
-      <table>
+      <table class="paths">
         <tr>
           <th>Count</th>
           <th>Critical Path</th>
