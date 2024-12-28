@@ -1,4 +1,4 @@
-import { Task } from "../chart/chart";
+import { Chart, Task } from "../chart/chart";
 import { Plan } from "../plan/plan";
 import { Precision } from "../precision/precision";
 import { ComputeSlack, CriticalPath } from "../slack/slack";
@@ -14,8 +14,19 @@ const rndInt = (n: number): number => {
 
 export interface CriticalPathEntry {
   count: number;
-  tasks: number[];
+  criticalPath: number[];
   durations: number[];
+}
+
+export interface CriticalPathTaskEntry {
+  taskIndex: number;
+  duration: number;
+  numTimesAppeared: number;
+}
+
+export interface SimulationResults {
+  paths: Map<string, CriticalPathEntry>;
+  tasks: CriticalPathTaskEntry[];
 }
 
 /**
@@ -23,9 +34,9 @@ export interface CriticalPathEntry {
  * paths.
  */
 export const simulation = (
-  plan: Plan,
+  chart: Chart,
   numSimulationLoops: number
-): Map<string, CriticalPathEntry> => {
+): SimulationResults => {
   // Simulate the uncertainty in the plan and generate possible alternate
   // critical paths.
 
@@ -33,7 +44,7 @@ export const simulation = (
 
   for (let i = 0; i < numSimulationLoops; i++) {
     // Generate random durations based on each Tasks uncertainty.
-    const durations = plan.chart.Vertices.map((t: Task) => {
+    const durations = chart.Vertices.map((t: Task) => {
       const rawDuration = new Jacobian(
         t.duration, // Acceptable direct access to duration.
         t.getResource("Uncertainty") as Uncertainty
@@ -43,7 +54,7 @@ export const simulation = (
 
     // Compute the slack based on those random durations.
     const slacksRet = ComputeSlack(
-      plan.chart,
+      chart,
       (taskIndex: number) => durations[taskIndex],
       precision.rounder()
     );
@@ -57,7 +68,7 @@ export const simulation = (
     if (pathEntry === undefined) {
       pathEntry = {
         count: 0,
-        tasks: criticalPath,
+        criticalPath: criticalPath,
         durations: durations,
       };
       allCriticalPaths.set(criticalPathAsString, pathEntry);
@@ -65,28 +76,25 @@ export const simulation = (
     pathEntry.count++;
   }
 
-  return allCriticalPaths;
+  return {
+    paths: allCriticalPaths,
+    tasks: criticalTaskFrequencies(allCriticalPaths, chart),
+  };
 };
-
-export interface CriticalPathTaskEntry {
-  taskIndex: number;
-  duration: number;
-  numTimesAppeared: number;
-}
 
 export const criticalTaskFrequencies = (
   allCriticalPaths: Map<string, CriticalPathEntry>,
-  plan: Plan
+  chart: Chart
 ): CriticalPathTaskEntry[] => {
   const critialTasks: Map<number, CriticalPathTaskEntry> = new Map();
 
   allCriticalPaths.forEach((value: CriticalPathEntry) => {
-    value.tasks.forEach((taskIndex: number) => {
+    value.criticalPath.forEach((taskIndex: number) => {
       let taskEntry = critialTasks.get(taskIndex);
       if (taskEntry === undefined) {
         taskEntry = {
           taskIndex: taskIndex,
-          duration: plan.chart.Vertices[taskIndex].duration,
+          duration: chart.Vertices[taskIndex].duration,
           numTimesAppeared: 0,
         };
         critialTasks.set(taskIndex, taskEntry);

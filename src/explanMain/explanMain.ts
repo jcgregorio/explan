@@ -32,6 +32,7 @@ import { ComputeSlack, CriticalPath, Slack, Span } from "../slack/slack.ts";
 import { Theme, colorThemeFromElement } from "../style/theme/theme.ts";
 import { TemplateResult, html, render } from "lit-html";
 import {
+  CriticalPathEntry,
   CriticalPathTaskEntry,
   criticalTaskFrequencies,
   simulation,
@@ -53,63 +54,13 @@ import {
 } from "../selected-task-panel/selected-task-panel.ts";
 import { reportOnError } from "../report-error/report-error.ts";
 import { TaskDuration } from "../types/types.ts";
+import { SimulationPanel } from "../simulation-panel/simulation-panel.ts";
 
 const FONT_SIZE_PX = 32;
 
 const NUM_SIMULATION_LOOPS = 100;
 
 const precision = new Precision(2);
-
-interface CriticalPathEntry {
-  count: number;
-  tasks: number[];
-  durations: number[];
-}
-
-const criticalPathsTemplate = (
-  allCriticalPaths: Map<string, CriticalPathEntry>,
-  explanMain: ExplanMain
-): TemplateResult => html`
-  <ul>
-    ${Array.from(allCriticalPaths.entries()).map(
-      ([key, value]) =>
-        html`<li
-          @click=${() =>
-            explanMain.onPotentialCriticialPathClick(key, allCriticalPaths)}
-        >
-          ${value.count} : ${key}
-        </li>`
-    )}
-    <li
-      @click=${() =>
-        explanMain.onPotentialCriticialPathClick("", allCriticalPaths)}
-    >
-      [restore]
-    </li>
-  </ul>
-`;
-
-const criticalTaskFrequenciesTemplate = (
-  plan: Plan,
-  criticalTasksDurationDescending: CriticalPathTaskEntry[]
-) =>
-  html`<tr>
-      <th>Name</th>
-      <th>Duration</th>
-      <th>Frequency (%)</th>
-    </tr>
-    ${criticalTasksDurationDescending.map(
-      (taskEntry: CriticalPathTaskEntry) =>
-        html`<tr>
-          <td>${plan.chart.Vertices[taskEntry.taskIndex].name}</td>
-          <td>${taskEntry.duration}</td>
-          <td>
-            ${Math.floor(
-              (100 * taskEntry.numTimesAppeared) / NUM_SIMULATION_LOOPS
-            )}
-          </td>
-        </tr>`
-    )} `;
 
 export class ExplanMain extends HTMLElement {
   /** The Plan being edited. */
@@ -151,10 +102,21 @@ export class ExplanMain extends HTMLElement {
 
   alternateTaskDurations: number[] | null = null;
 
+  simulationPanel: SimulationPanel | null = null;
+
   /** Callback to call when a mouse moves over the chart. */
   updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
 
   connectedCallback() {
+    this.simulationPanel =
+      this.querySelector<SimulationPanel>("simulation-panel");
+    this.simulationPanel!.addEventListener("simulation-select", (e) => {
+      this.alternateTaskDurations = e.detail.durations;
+      this.criticalPath = e.detail.criticalPath;
+      this.recalculateSpansAndCriticalPath();
+      this.paintChart();
+    });
+
     this.downloadLink = this.querySelector<HTMLAnchorElement>("#download")!;
     this.downloadLink.addEventListener("click", () => {
       this.prepareDownload();
@@ -210,9 +172,6 @@ export class ExplanMain extends HTMLElement {
         reportOnError(await executeOp(op, "planDefinitionChanged", true, this));
       }
     );
-
-    this.plan = generateStarterPlan();
-    this.planDefinitionHasBeenChanged();
 
     // Dragging on the radar.
     const radar = this.querySelector<HTMLElement>("#radar")!;
@@ -292,8 +251,6 @@ export class ExplanMain extends HTMLElement {
       }
     });
 
-    this.updateTaskPanels(this.selectedTask);
-
     // React to the upload input.
     const fileUpload =
       document.querySelector<HTMLInputElement>("#file-upload")!;
@@ -305,11 +262,13 @@ export class ExplanMain extends HTMLElement {
       }
       this.plan = ret.value;
       this.planDefinitionHasBeenChanged();
-      this.paintChart();
     });
 
     this.querySelector("#simulate")!.addEventListener("click", () => {
-      this.simulate();
+      this.criticalPath = this.simulationPanel!.simulate(
+        this.plan.chart,
+        NUM_SIMULATION_LOOPS
+      );
       this.paintChart();
     });
 
@@ -324,10 +283,12 @@ export class ExplanMain extends HTMLElement {
     this.querySelector("#gen-random-plan")!.addEventListener("click", () => {
       this.plan = generateRandomPlan();
       this.planDefinitionHasBeenChanged();
-      this.paintChart();
     });
 
-    this.paintChart();
+    this.plan = generateStarterPlan();
+    this.updateTaskPanels(this.selectedTask);
+    this.planDefinitionHasBeenChanged();
+
     window.addEventListener("resize", this.paintChart.bind(this));
     StartKeyboardHandling(this);
   }
@@ -380,6 +341,7 @@ export class ExplanMain extends HTMLElement {
     this.groupByOptions = ["", ...Object.keys(this.plan.resourceDefinitions)];
     this.groupByOptionsIndex = 0;
     this.recalculateSpansAndCriticalPath();
+    this.paintChart();
   }
 
   getTaskDurationFunc(): TaskDuration {
@@ -664,55 +626,6 @@ export class ExplanMain extends HTMLElement {
       opts,
       overlay
     );
-  }
-
-  onPotentialCriticialPathClick(
-    key: string,
-    allCriticalPaths: Map<string, CriticalPathEntry>
-  ) {
-    if (key === "") {
-      this.alternateTaskDurations = null;
-    } else {
-      this.alternateTaskDurations = allCriticalPaths.get(key)!.durations;
-    }
-
-    this.recalculateSpansAndCriticalPath();
-    this.paintChart();
-  }
-
-  simulate() {
-    // Run the simulation.
-    const allCriticalPaths = simulation(this.plan, NUM_SIMULATION_LOOPS);
-
-    // Display all the potential critical paths found.
-    render(
-      criticalPathsTemplate(allCriticalPaths, this),
-      document.querySelector<HTMLElement>("#criticalPaths")!
-    );
-
-    // Find how often each task appears on all the potential critical path.
-    const criticalTasksDurationDescending = criticalTaskFrequencies(
-      allCriticalPaths,
-      this.plan
-    );
-
-    // Display a table of tasks on all potential critical paths.
-    render(
-      criticalTaskFrequenciesTemplate(
-        this.plan,
-        criticalTasksDurationDescending
-      ),
-      document.querySelector<HTMLElement>("#criticalTasks")!
-    );
-
-    // Reset the spans using the original durations.
-    this.recalculateSpansAndCriticalPath();
-
-    // Highlight all the tasks that could appear on the critical path.
-    this.criticalPath = criticalTasksDurationDescending.map(
-      (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex
-    );
-    this.paintChart();
   }
 }
 
