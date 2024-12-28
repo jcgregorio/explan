@@ -11,6 +11,8 @@ export interface Theme {
   overlay: string;
   groupColor: string;
   highlight: string;
+  added: string;
+  removed: string;
 }
 
 type ThemeProp = keyof Theme;
@@ -23,6 +25,8 @@ const colorThemePrototype: Theme = {
   overlay: "",
   groupColor: "",
   highlight: "",
+  added: "",
+  removed: "",
 };
 
 export const colorThemeFromElement = (ele: HTMLElement): Theme => {
