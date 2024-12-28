@@ -7,6 +7,7 @@ import {
   simulation,
 } from "../simulation/simulation";
 import { Chart } from "../chart/chart";
+import { difference } from "../dag/algorithms/circular";
 
 export interface SimulationSelectDetails {
   durations: number[] | null;
@@ -26,15 +27,21 @@ export class SimulationPanel extends HTMLElement {
   };
   chart: Chart | null = null;
   numSimulationLoops: number = 0;
+  originalCriticalPath: number[] = [];
 
   connectedCallback(): void {
     this.render();
   }
 
-  simulate(chart: Chart, numSimulationLoops: number): number[] {
+  simulate(
+    chart: Chart,
+    numSimulationLoops: number,
+    originalCriticalPath: number[]
+  ): number[] {
     this.results = simulation(chart, numSimulationLoops);
     this.chart = chart;
     this.numSimulationLoops = numSimulationLoops;
+    this.originalCriticalPath = originalCriticalPath;
 
     this.render();
     return this.results.tasks.map(
@@ -75,6 +82,23 @@ export class SimulationPanel extends HTMLElement {
     render(this.template(), this);
   }
 
+  displayCriticalPathDifferences(criticalPath: number[]): TemplateResult {
+    const removed = difference(this.originalCriticalPath, criticalPath);
+    const added = difference(criticalPath, this.originalCriticalPath);
+    return html`
+      ${added.map(
+        (taskIndex: number) => html`
+          <span class="added">+${this.chart!.Vertices[taskIndex].name}</span>
+        `
+      )}
+      ${removed.map(
+        (taskIndex: number) => html`
+          <span class="removed">-${this.chart!.Vertices[taskIndex].name}</span>
+        `
+      )}
+    `;
+  }
+
   template(): TemplateResult {
     if (this.results.paths.size === 0) {
       return html``;
@@ -103,7 +127,11 @@ export class SimulationPanel extends HTMLElement {
           (key: string) =>
             html`<tr @click=${() => this.pathClicked(key)}>
               <td>${this.results.paths.get(key)!.count}</td>
-              <td>${key}</td>
+              <td>
+                ${this.displayCriticalPathDifferences(
+                  this.results.paths.get(key)!.criticalPath
+                )}
+              </td>
             </tr>`
         )}
       </table>

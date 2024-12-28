@@ -267,7 +267,8 @@ export class ExplanMain extends HTMLElement {
     this.querySelector("#simulate")!.addEventListener("click", () => {
       this.criticalPath = this.simulationPanel!.simulate(
         this.plan.chart,
-        NUM_SIMULATION_LOOPS
+        NUM_SIMULATION_LOOPS,
+        this.criticalPath
       );
       this.paintChart();
     });
