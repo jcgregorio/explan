@@ -86,6 +86,7 @@ const highlightedTarget = (
 
 const template = (searchTaskPanel: TaskSearchControl) => html`
   <input
+    placeholder="Search"
     type="text"
     @input="${(e: InputEvent) => searchTaskPanel.onInput(e)}"
     @keydown="${(e: KeyboardEvent) => searchTaskPanel.onKeyDown(e)}"
