@@ -79,6 +79,12 @@ export class SimulationPanel extends HTMLElement {
     if (this.results.paths.size === 0) {
       return html``;
     }
+    const pathKeys = [...this.results.paths.keys()];
+    const sortedPathKeys = pathKeys.sort((a: string, b: string) => {
+      return (
+        this.results.paths.get(b)!.count - this.results.paths.get(a)!.count
+      );
+    });
     return html`
       <button
         @click=${() => {
@@ -93,10 +99,10 @@ export class SimulationPanel extends HTMLElement {
           <th>Count</th>
           <th>Critical Path</th>
         </tr>
-        ${Array.from(this.results.paths.entries()).map(
-          ([key, value]) =>
+        ${sortedPathKeys.map(
+          (key: string) =>
             html`<tr @click=${() => this.pathClicked(key)}>
-              <td>${value.count}</td>
+              <td>${this.results.paths.get(key)!.count}</td>
               <td>${key}</td>
             </tr>`
         )}
