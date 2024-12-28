@@ -90,14 +90,16 @@
       position: relative;
     }
 
-    details {
+    search-task-panel {
+      border-bottom: solid 1px var(--onSurfaceMuted);
+      display: block;
+    }
 
-      selected-task-panel,
-      dependencies-panel,
-      simulation-panel {
-        display: block;
-        padding: 8px;
-      }
+    selected-task-panel,
+    dependencies-panel,
+    simulation-panel {
+      display: block;
+      padding: 8px;
     }
 
     nav {
@@ -288,19 +290,13 @@
       <search-task-panel>
         <task-search-control></task-search-control>
       </search-task-panel>
-      <details open>
-        <summary>Task</summary>
-        <selected-task-panel>
-        </selected-task-panel>
-        <dependencies-panel>
-        </dependencies-panel>
-      </details>
-      <details>
-        <summary>Simulation</summary>
-        <button id="simulate">Simulate</button>
-        <simulation-panel>
-        </simulation-panel>
-      </details>
+      <selected-task-panel>
+      </selected-task-panel>
+      <dependencies-panel>
+      </dependencies-panel>
+      <button id="simulate">Simulate</button>
+      <simulation-panel>
+      </simulation-panel>
     </panels-parent>
     <footer>Footer</footer>
     <keyboard-map-dialog>
