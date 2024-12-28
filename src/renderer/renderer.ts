@@ -521,6 +521,14 @@ export function renderTasksToCanvas(
       point.y = point.y * window.devicePixelRatio;
       const taskLocation = taskLocationKDTree.nearest(point);
       const originalTaskIndex = taskLocation.originalTaskIndex;
+
+      // Do not allow highlighting or clicking the Start and Finish tasks.
+      if (
+        originalTaskIndex === 0 ||
+        originalTaskIndex === plan.chart.Vertices.length - 1
+      ) {
+        return null;
+      }
       if (updateType === "mousemove") {
         if (originalTaskIndex === lastHighlightedTaskIndex) {
           return originalTaskIndex;
