@@ -248,6 +248,7 @@ export class ExplanMain extends HTMLElement {
       if (this.updateHighlightFromMousePos !== null) {
         this.setSelection(
           this.updateHighlightFromMousePos(p, "mousedown") || -1,
+          true,
           true
         );
       }
