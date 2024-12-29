@@ -1,6 +1,6 @@
 import { TaskSearchControl } from "../search/task-search-controls";
 import { Chart } from "../chart/chart";
-import { DepType } from "../dependencies/dependencies-panel";
+import { DepType, depDisplayName } from "../dependencies/dependencies-panel";
 import {
   allPotentialSuccessors,
   allPotentialPredecessors,
@@ -32,7 +32,7 @@ export class AddDependencyDialog extends HTMLElement {
     taskIndex: number,
     depType: DepType
   ): Promise<number | undefined> {
-    this.titleElement!.textContent = depType;
+    this.titleElement!.textContent = depDisplayName[depType];
 
     let includedIndexes = [];
     if (depType === "pred") {
