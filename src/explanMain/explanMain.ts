@@ -55,6 +55,7 @@ import {
 import { reportOnError } from "../report-error/report-error.ts";
 import { TaskDuration } from "../types/types.ts";
 import { SimulationPanel } from "../simulation-panel/simulation-panel.ts";
+import { applyStoredTheme } from "../style/toggler/toggler.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -203,6 +204,7 @@ export class ExplanMain extends HTMLElement {
     this.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
       execute("ToggleDarkModeAction", this);
     });
+    applyStoredTheme();
 
     this.querySelector("#radar-toggle")!.addEventListener("click", () => {
       execute("ToggleRadarAction", this);
