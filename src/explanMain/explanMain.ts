@@ -345,7 +345,10 @@ export class ExplanMain extends HTMLElement {
     this.displayRange = null;
     this.alternateTaskDurations = null;
     this.groupByOptions = ["", ...Object.keys(this.plan.resourceDefinitions)];
-    this.groupByOptionsIndex = 0;
+    if (this.groupByOptionsIndex >= this.groupByOptions.length) {
+      this.groupByOptionsIndex = 0;
+    }
+
     this.recalculateSpansAndCriticalPath();
     this.paintChart();
   }
