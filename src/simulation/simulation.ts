@@ -35,12 +35,15 @@ export interface SimulationResults {
  */
 export const simulation = (
   chart: Chart,
-  numSimulationLoops: number
+  numSimulationLoops: number,
+  originalCriticalPath: number[]
 ): SimulationResults => {
-  // Simulate the uncertainty in the plan and generate possible alternate
-  // critical paths.
-
   const allCriticalPaths = new Map<string, CriticalPathEntry>();
+  allCriticalPaths.set(`${originalCriticalPath}`, {
+    count: 0,
+    criticalPath: originalCriticalPath.slice(),
+    durations: chart.Vertices.map((task: Task) => task.duration),
+  });
 
   for (let i = 0; i < numSimulationLoops; i++) {
     // Generate random durations based on each Tasks uncertainty.

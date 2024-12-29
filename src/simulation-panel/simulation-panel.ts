@@ -38,7 +38,7 @@ export class SimulationPanel extends HTMLElement {
     numSimulationLoops: number,
     originalCriticalPath: number[]
   ): number[] {
-    this.results = simulation(chart, numSimulationLoops);
+    this.results = simulation(chart, numSimulationLoops, originalCriticalPath);
     this.chart = chart;
     this.numSimulationLoops = numSimulationLoops;
     this.originalCriticalPath = originalCriticalPath;
