@@ -604,10 +604,24 @@ export function renderTasksToCanvas(
     }
   });
 
+  if (opts.selectedTaskIndex !== -1) {
+    selectedTaskLocation = taskIndexToTaskHighlightCorners.get(
+      opts.selectedTaskIndex
+    )!.topLeft;
+  }
+
+  let returnedLocation: Point | null = null;
+  if (selectedTaskLocation !== null) {
+    returnedLocation = new Point(
+      selectedTaskLocation.x / window.devicePixelRatio,
+      selectedTaskLocation.y / window.devicePixelRatio
+    );
+  }
+
   return ok({
     scale: scale,
     updateHighlightFromMousePos: updateHighlightFromMousePos,
-    selectedTaskLocation: selectedTaskLocation,
+    selectedTaskLocation: returnedLocation,
   });
 }
 
