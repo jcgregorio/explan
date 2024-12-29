@@ -13,7 +13,7 @@ export class SearchTaskPanel extends HTMLElement {
     }
     this.taskSearchControl = this.querySelector("task-search-control");
     this.addEventListener("task-change", (e) => {
-      this.explanMain!.setSelection(e.detail.taskIndex, e.detail.focus);
+      this.explanMain!.setSelection(e.detail.taskIndex, e.detail.focus, true);
     });
     this.addEventListener("task-focus", (e) =>
       this.setKeyboardFocusToInput("full-info")

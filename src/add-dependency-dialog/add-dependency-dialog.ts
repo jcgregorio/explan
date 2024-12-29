@@ -19,7 +19,7 @@ export class AddDependencyDialog extends HTMLElement {
     this.dialog.addEventListener("cancel", () => this.resolve(undefined));
     this.taskSearchControl.addEventListener("task-change", (e) => {
       this.dialog!.close();
-      this.resolve(e.detail);
+      this.resolve(e.detail.taskIndex);
     });
   }
 

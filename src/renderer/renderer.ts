@@ -606,7 +606,7 @@ export function renderTasksToCanvas(
 
   if (opts.selectedTaskIndex !== -1) {
     selectedTaskLocation = taskIndexToTaskHighlightCorners.get(
-      opts.selectedTaskIndex
+      fromOriginalIndexToFilteredIndex.get(opts.selectedTaskIndex)! // Convert
     )!.topLeft;
   }
 

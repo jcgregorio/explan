@@ -293,7 +293,7 @@ export class ExplanMain extends HTMLElement {
     this.updateTaskPanels(this.selectedTask);
     this.planDefinitionHasBeenChanged();
 
-    window.addEventListener("resize", this.paintChart.bind(this));
+    window.addEventListener("resize", () => this.paintChart());
     StartKeyboardHandling(this);
   }
 
@@ -322,12 +322,16 @@ export class ExplanMain extends HTMLElement {
     );
   }
 
-  setSelection(index: number, focus: boolean) {
+  setSelection(
+    index: number,
+    focus: boolean,
+    scrollToSelected: boolean = false
+  ) {
     this.selectedTask = index;
     if (focus) {
       this.forceFocusOnTask();
     }
-    this.paintChart();
+    this.paintChart(scrollToSelected);
     this.updateTaskPanels(this.selectedTask);
   }
 
@@ -422,7 +426,7 @@ export class ExplanMain extends HTMLElement {
     this.focusOnTask = true;
   }
 
-  paintChart() {
+  paintChart(scrollToSelected: boolean = false) {
     console.time("paintChart");
 
     const themeColors: Theme = colorThemeFromElement(document.body);
@@ -562,7 +566,7 @@ export class ExplanMain extends HTMLElement {
     if (zoomRet.ok) {
       this.updateHighlightFromMousePos =
         zoomRet.value.updateHighlightFromMousePos;
-      if (zoomRet.value.selectedTaskLocation !== null) {
+      if (zoomRet.value.selectedTaskLocation !== null && scrollToSelected) {
         console.log("Scroll to: ", zoomRet.value.selectedTaskLocation.y);
         document.querySelector("chart-parent")!.scrollTo({
           top: zoomRet.value.selectedTaskLocation.y,
