@@ -236,17 +236,19 @@ export class ExplanMain extends HTMLElement {
     overlayCanvas.addEventListener("mousedown", (e: MouseEvent) => {
       const p = new Point(e.offsetX, e.offsetY);
       if (this.updateHighlightFromMousePos !== null) {
-        this.selectedTask =
-          this.updateHighlightFromMousePos(p, "mousedown") || -1;
-        this.updateTaskPanels(this.selectedTask);
+        this.setSelection(
+          this.updateHighlightFromMousePos(p, "mousedown") || -1,
+          false
+        );
       }
     });
 
     overlayCanvas.addEventListener("dblclick", (e: MouseEvent) => {
       const p = new Point(e.offsetX, e.offsetY);
       if (this.updateHighlightFromMousePos !== null) {
-        this.setFocusOnTask(
-          this.updateHighlightFromMousePos(p, "mousedown") || -1
+        this.setSelection(
+          this.updateHighlightFromMousePos(p, "mousedown") || -1,
+          true
         );
       }
     });
@@ -320,9 +322,11 @@ export class ExplanMain extends HTMLElement {
     );
   }
 
-  setFocusOnTask(index: number) {
+  setSelection(index: number, focus: boolean) {
     this.selectedTask = index;
-    this.forceFocusOnTask();
+    if (focus) {
+      this.forceFocusOnTask();
+    }
     this.paintChart();
     this.updateTaskPanels(this.selectedTask);
   }

@@ -2,9 +2,14 @@ import { TemplateResult, html, render } from "lit-html";
 import fuzzysort from "fuzzysort";
 import { Task } from "../chart/chart.ts";
 
+interface TaskChangeDetail {
+  taskIndex: number;
+  focus: boolean;
+}
+
 declare global {
   interface GlobalEventHandlersEventMap {
-    "task-change": CustomEvent<number>;
+    "task-change": CustomEvent<TaskChangeDetail>;
     "task-focus": CustomEvent<null>;
   }
 }
@@ -47,7 +52,7 @@ const indexesToRanges = (
   const ranges = indexes.map((x: number) => [x, x + 1]).flat();
 
   // Now prepend with 0 and append 'len' so that we have pairs that will slice
-  // target fully into substrings. Remember that slice return chars in [a, b),
+  // target fully into substrings. Remember that slice returns chars in [a, b),
   // i.e. String.slice(a,b) where b is one beyond the last char in the string we
   // want to include.
   return [0, ...ranges, len];
@@ -97,7 +102,7 @@ const template = (searchTaskPanel: TaskSearchControl) => html`
     ${searchTaskPanel.searchResults.map(
       (task: Fuzzysort.KeyResult<Task>, index: number) =>
         html` <li
-          @click="${() => searchTaskPanel.selectSearchResult(index)}"
+          @click="${() => searchTaskPanel.selectSearchResult(index, false)}"
           ?data-focus=${index === searchTaskPanel.focusIndex}
         >
           ${highlightedTarget(task.indexes, task.target)}
@@ -199,7 +204,15 @@ export class TaskSearchControl extends HTMLElement {
         if (this.searchResults.length === 0) {
           return;
         }
-        this.selectSearchResult(this.focusIndex);
+        this.selectSearchResult(this.focusIndex, false);
+        e.stopPropagation();
+        e.preventDefault();
+        break;
+      case "ctrl-Enter":
+        if (this.searchResults.length === 0) {
+          return;
+        }
+        this.selectSearchResult(this.focusIndex, true);
         e.stopPropagation();
         e.preventDefault();
         break;
@@ -210,12 +223,15 @@ export class TaskSearchControl extends HTMLElement {
     render(template(this), this);
   }
 
-  selectSearchResult(index: number) {
+  selectSearchResult(index: number, focus: boolean) {
     const taskIndex = this._tasks.indexOf(this.searchResults[index].obj);
     this.dispatchEvent(
-      new CustomEvent<number>("task-change", {
+      new CustomEvent<TaskChangeDetail>("task-change", {
         bubbles: true,
-        detail: taskIndex,
+        detail: {
+          taskIndex: taskIndex,
+          focus: focus,
+        },
       })
     );
     this.searchResults = [];
