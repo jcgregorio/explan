@@ -613,6 +613,8 @@ export function renderTasksToCanvas(
     )!.topLeft;
   }
 
+  // Return the selected task location in screen coordinates, not in canvas
+  // units.
   let returnedLocation: Point | null = null;
   if (selectedTaskLocation !== null) {
     returnedLocation = new Point(
