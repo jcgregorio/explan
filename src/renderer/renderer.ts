@@ -604,7 +604,10 @@ export function renderTasksToCanvas(
     }
   });
 
-  if (opts.selectedTaskIndex !== -1) {
+  if (
+    opts.selectedTaskIndex !== -1 &&
+    fromOriginalIndexToFilteredIndex.has(opts.selectedTaskIndex)
+  ) {
     selectedTaskLocation = taskIndexToTaskHighlightCorners.get(
       fromOriginalIndexToFilteredIndex.get(opts.selectedTaskIndex)! // Convert
     )!.topLeft;
