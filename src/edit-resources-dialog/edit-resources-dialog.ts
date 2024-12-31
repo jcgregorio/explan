@@ -60,6 +60,11 @@ export class EditResourcesDialog extends HTMLElement {
       console.log(ret.error);
     }
     this.render();
+    this.close();
+  }
+
+  private close() {
+    this.querySelector<HTMLDialogElement>("dialog")!.close();
   }
 
   private editResource(name: string) {
@@ -69,9 +74,10 @@ export class EditResourcesDialog extends HTMLElement {
   private template(): TemplateResult {
     return html`
       <dialog>
+        <h3>Resources</h3>
         <table>
           <tr>
-            <th>Resource</th>
+            <th>Name</th>
             <th>Values</th>
             <th>Delete</th>
             <th>Edit</th>
@@ -87,6 +93,9 @@ export class EditResourcesDialog extends HTMLElement {
             }
           )}
         </table>
+        <div class="dialog-footer">
+          <button @click=${() => this.close()}>Close</button>
+        </div>
       </dialog>
     `;
   }
