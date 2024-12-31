@@ -1,7 +1,7 @@
 import { TemplateResult, html, render } from "lit-html";
 import { Plan } from "../plan/plan";
 import { ResourceDefinition } from "../resources/resources";
-import { DeleteResourceOp } from "../ops/resources";
+import { AddResourceOp, DeleteResourceOp } from "../ops/resources";
 import { executeOp } from "../action/execute";
 import { ExplanMain } from "../explanMain/explanMain";
 
@@ -60,7 +60,6 @@ export class EditResourcesDialog extends HTMLElement {
       console.log(ret.error);
     }
     this.render();
-    this.close();
   }
 
   private close() {
@@ -69,6 +68,23 @@ export class EditResourcesDialog extends HTMLElement {
 
   private editResource(name: string) {
     // TODO
+  }
+
+  private async newResource() {
+    const name = window.prompt("Resource name:", "");
+    if (name === null) {
+      return;
+    }
+    const ret = await executeOp(
+      AddResourceOp(name),
+      "planDefinitionChanged",
+      true,
+      this.explanMain!
+    );
+    if (!ret.ok) {
+      console.log(ret.error);
+    }
+    this.render();
   }
 
   private template(): TemplateResult {
@@ -92,6 +108,20 @@ export class EditResourcesDialog extends HTMLElement {
               </tr>`;
             }
           )}
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+              <button
+                @click=${() => {
+                  this.newResource();
+                }}
+              >
+                New
+              </button>
+            </td>
+          </tr>
         </table>
         <div class="dialog-footer">
           <button @click=${() => this.close()}>Close</button>
