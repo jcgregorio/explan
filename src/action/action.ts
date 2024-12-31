@@ -41,6 +41,7 @@ export class ActionFromOp {
     if (!ret.ok) {
       return ret;
     }
+    explanMain.plan = ret.value.plan;
     return ok(
       new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo)
     );

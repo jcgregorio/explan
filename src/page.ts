@@ -1,5 +1,6 @@
 import "./help/help.ts";
 import "./add-dependency-dialog/add-dependency-dialog.ts";
+import "./edit-resources-dialog/edit-resources-dialog.ts";
 import "./selected-task-panel/selected-task-panel.ts";
 import "./simulation-panel/simulation-panel.ts";
 import "./search/search-task-panel.ts";

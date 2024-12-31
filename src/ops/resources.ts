@@ -1,6 +1,11 @@
 import { Result, ok, error } from "../result.ts";
 import { Plan } from "../plan/plan.ts";
-import { Op, SubOp, SubOpResult } from "./ops.ts";
+import {
+  Op,
+  SubOp,
+  SubOpResult,
+  applyAllOpsToPlanAndThenInverse,
+} from "./ops.ts";
 import {
   DEFAULT_RESOURCE_VALUE,
   ResourceDefinition,
@@ -10,15 +15,14 @@ import { Task } from "../chart/chart.ts";
 export class AddResourceSubOp implements SubOp {
   key: string;
 
-  // Maps an index of a Task to a value for the given resource key.
-  taskResourceValues: Map<number, string>;
+  deleteResourceUndoState: deleteResourceUndoState | null;
 
   constructor(
     name: string,
-    taskResourceValues: Map<number, string> = new Map<number, string>() // Should only be supplied by inverse actions.
+    deleteResourceUndoState: deleteResourceUndoState | null = null
   ) {
     this.key = name;
-    this.taskResourceValues = taskResourceValues;
+    this.deleteResourceUndoState = deleteResourceUndoState;
   }
 
   applyTo(plan: Plan): Result<SubOpResult> {
@@ -27,14 +31,23 @@ export class AddResourceSubOp implements SubOp {
       return error(`${this.key} already exists as a Resource`);
     }
 
-    plan.setResourceDefinition(this.key, new ResourceDefinition());
+    plan.setResourceDefinition(
+      this.key,
+      (this.deleteResourceUndoState &&
+        this.deleteResourceUndoState.resourceDefinition) ||
+        new ResourceDefinition()
+    );
 
     // Now loop over every task and add this key and set it to the default, unless
     // there is matching entry in taskResourceValues, in which case we will use that value.
     plan.chart.Vertices.forEach((task: Task, index: number) => {
       task.setResource(
         this.key,
-        this.taskResourceValues.get(index) || DEFAULT_RESOURCE_VALUE
+        (this.deleteResourceUndoState &&
+          this.deleteResourceUndoState.taskIndexToDeletedResourceValue.get(
+            index
+          )) ||
+          DEFAULT_RESOURCE_VALUE
       );
     });
 
@@ -44,6 +57,11 @@ export class AddResourceSubOp implements SubOp {
   inverse(): SubOp {
     return new DeleteResourceSupOp(this.key);
   }
+}
+
+interface deleteResourceUndoState {
+  resourceDefinition: ResourceDefinition;
+  taskIndexToDeletedResourceValue: Map<number, string>;
 }
 
 export class DeleteResourceSupOp implements SubOp {
@@ -62,7 +80,7 @@ export class DeleteResourceSupOp implements SubOp {
     }
 
     // Remove from resource definitions.
-    plan.deleteMetricDefinition(this.key);
+    plan.deleteResourceDefinition(this.key);
 
     const taskIndexToDeletedResourceValue: Map<number, string> = new Map();
 
@@ -74,16 +92,19 @@ export class DeleteResourceSupOp implements SubOp {
       task.deleteResource(this.key);
     });
 
+    const deleteResourceUndoState: deleteResourceUndoState = {
+      resourceDefinition: resourceDefinition,
+      taskIndexToDeletedResourceValue: taskIndexToDeletedResourceValue,
+    };
+
     return ok({
       plan: plan,
-      inverse: this.inverse(taskIndexToDeletedResourceValue),
+      inverse: this.inverse(deleteResourceUndoState),
     });
   }
 
-  private inverse(
-    resourceValuesForDeletedResourceKey: Map<number, string>
-  ): SubOp {
-    return new AddResourceSubOp(this.key, resourceValuesForDeletedResourceKey);
+  private inverse(deleteResourceUndoState: deleteResourceUndoState): SubOp {
+    return new AddResourceSubOp(this.key, deleteResourceUndoState);
   }
 }
 

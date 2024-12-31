@@ -56,6 +56,7 @@ import { reportOnError } from "../report-error/report-error.ts";
 import { TaskDuration } from "../types/types.ts";
 import { SimulationPanel } from "../simulation-panel/simulation-panel.ts";
 import { applyStoredTheme } from "../style/toggler/toggler.ts";
+import { EditResourcesDialog } from "../edit-resources-dialog/edit-resources-dialog.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -290,6 +291,12 @@ export class ExplanMain extends HTMLElement {
     this.querySelector("#gen-random-plan")!.addEventListener("click", () => {
       this.plan = generateRandomPlan();
       this.planDefinitionHasBeenChanged();
+    });
+
+    this.querySelector("#edit-resources")!.addEventListener("click", () => {
+      this.querySelector<EditResourcesDialog>(
+        "edit-resources-dialog"
+      )!.showModal(this);
     });
 
     this.plan = generateStarterPlan();

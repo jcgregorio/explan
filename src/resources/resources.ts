@@ -10,6 +10,8 @@ export interface ResourceDefinitionSerialized {
 
 export class ResourceDefinition {
   values: string[];
+
+  // True if the Resource is built in and can't be edited or deleted.
   isStatic: boolean;
 
   constructor(
