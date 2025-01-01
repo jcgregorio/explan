@@ -56,7 +56,7 @@ export class EditResourceDefinition extends HTMLElement {
                   height="24"
                   viewBox="0 0 24 24"
                 >
-                  <path d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
+                  <use href="#keyboard-up-icon" />
                 </svg>
               </td>
               <td>
@@ -66,9 +66,7 @@ export class EditResourceDefinition extends HTMLElement {
                   height="24"
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
-                  />
+                  <use href="#keyboard-down-icon" />
                 </svg>
               </td>
               <td>
@@ -78,8 +76,7 @@ export class EditResourceDefinition extends HTMLElement {
                   height="24"
                   viewBox="0 0 24 24"
                 >
-                  <path d="M6 17.59 7.41 19 12 14.42 16.59 19 18 17.59l-6-6z" />
-                  <path d="m6 11 1.41 1.41L12 7.83l4.59 4.58L18 11l-6-6z" />
+                  <use href="#keyboard-double-up-icon" />
                 </svg>
               </td>
               <td>
@@ -89,8 +86,7 @@ export class EditResourceDefinition extends HTMLElement {
                   height="24"
                   viewBox="0 0 24 24"
                 >
-                  <path d="M18 6.41 16.59 5 12 9.58 7.41 5 6 6.41l6 6z" />
-                  <path d="m18 13-1.41-1.41L12 16.17l-4.59-4.58L6 13l6 6z" />
+                  <use href="#keyboard-double-down-icon" />
                 </svg>
               </td>
               <td>
@@ -100,9 +96,7 @@ export class EditResourceDefinition extends HTMLElement {
                   height="24"
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-                  />
+                  <use href="#delete-icon" />
                 </svg>
               </td>
             </tr>`;

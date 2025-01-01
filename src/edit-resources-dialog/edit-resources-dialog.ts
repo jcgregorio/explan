@@ -37,7 +37,16 @@ export class EditResourcesDialog extends HTMLElement {
     if (isStatic) {
       return html``;
     }
-    return html`<button @click=${() => this.deleteResource(name)}>✗</button>`;
+    return html`<button @click=${() => this.deleteResource(name)}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+      >
+        <use href=#delete-icon>
+      </svg>
+    </button>`;
   }
 
   private editButtonIfNotStatic(
@@ -47,7 +56,16 @@ export class EditResourcesDialog extends HTMLElement {
     if (isStatic) {
       return html``;
     }
-    return html`<button @click=${() => this.editResource(name)}>🖉</button>`;
+    return html`<button @click=${() => this.editResource(name)}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+      >
+        <use href=#edit-icon>
+      </svg>
+    </button>`;
   }
 
   private async deleteResource(name: string) {
