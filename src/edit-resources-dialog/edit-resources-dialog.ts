@@ -4,6 +4,7 @@ import { ResourceDefinition } from "../resources/resources";
 import { AddResourceOp, DeleteResourceOp } from "../ops/resources";
 import { executeOp } from "../action/execute";
 import { ExplanMain } from "../explanMain/explanMain";
+import { EditResourceDefinition } from "../edit-resource-definition/edit-resource-definition";
 
 export class EditResourcesDialog extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -67,7 +68,14 @@ export class EditResourcesDialog extends HTMLElement {
   }
 
   private editResource(name: string) {
-    // TODO
+    this.close();
+    this.explanMain!.querySelector<EditResourceDefinition>(
+      "edit-resource-definition"
+    )!.showModal(
+      this.explanMain!,
+      name,
+      this.explanMain!.plan.resourceDefinitions[name]
+    );
   }
 
   private async newResource() {
