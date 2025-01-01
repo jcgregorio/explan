@@ -31,6 +31,11 @@ export class EditResourceDefinition extends HTMLElement {
 
   private changeResourceName(newName: string) {}
   private newResourceValue() {}
+  private moveUp(value: string) {}
+  private moveDown(value: string) {}
+  private moveToTop(value: string) {}
+  private moveToBottom(value: string) {}
+  private deleteResourceValue(value: string) {}
 
   // SVG icons copied from https://github.com/marella/material-design-icons/blob/main/svg/filled/.
   private template(): TemplateResult {
@@ -50,54 +55,76 @@ export class EditResourceDefinition extends HTMLElement {
             return html`<tr>
               <td><input .value=${value} type="text" /></td>
               <td>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                >
-                  <use href="#keyboard-up-icon" />
-                </svg>
+                <button class="icon-button" @click=${() => this.moveUp(value)}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
+                    <use href="#keyboard-up-icon" />
+                  </svg>
+                </button>
               </td>
               <td>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
+                <button
+                  class="icon-button"
+                  @click=${() => this.moveDown(value)}
                 >
-                  <use href="#keyboard-down-icon" />
-                </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
+                    <use href="#keyboard-down-icon" />
+                  </svg>
+                </button>
               </td>
               <td>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
+                <button
+                  class="icon-button"
+                  @click=${() => this.moveToTop(value)}
                 >
-                  <use href="#keyboard-double-up-icon" />
-                </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
+                    <use href="#keyboard-double-up-icon" />
+                  </svg>
+                </button>
               </td>
               <td>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
+                <button
+                  class="icon-button"
+                  @click=${() => this.moveToBottom(value)}
                 >
-                  <use href="#keyboard-double-down-icon" />
-                </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
+                    <use href="#keyboard-double-down-icon" />
+                  </svg>
+                </button>
               </td>
               <td>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
+                <button
+                  class="icon-button"
+                  @click=${() => this.deleteResourceValue(value)}
                 >
-                  <use href="#delete-icon" />
-                </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
+                    <use href="#delete-icon" />
+                  </svg>
+                </button>
               </td>
             </tr>`;
           })}

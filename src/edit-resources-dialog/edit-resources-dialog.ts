@@ -37,7 +37,7 @@ export class EditResourcesDialog extends HTMLElement {
     if (isStatic) {
       return html``;
     }
-    return html`<button @click=${() => this.deleteResource(name)}>
+    return html`<button class=icon-button @click=${() => this.deleteResource(name)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -56,7 +56,7 @@ export class EditResourcesDialog extends HTMLElement {
     if (isStatic) {
       return html``;
     }
-    return html`<button @click=${() => this.editResource(name)}>
+    return html`<button class=icon-button @click=${() => this.editResource(name)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
