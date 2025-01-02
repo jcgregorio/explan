@@ -577,9 +577,12 @@ export class ExplanMain extends HTMLElement {
       this.updateHighlightFromMousePos =
         zoomRet.value.updateHighlightFromMousePos;
       if (zoomRet.value.selectedTaskLocation !== null && scrollToSelected) {
-        console.log("Scroll to: ", zoomRet.value.selectedTaskLocation.y);
+        let top = 0;
+        if (!this.focusOnTask) {
+          top = zoomRet.value.selectedTaskLocation.y;
+        }
         document.querySelector("chart-parent")!.scrollTo({
-          top: zoomRet.value.selectedTaskLocation.y,
+          top: top,
           left: 0,
           behavior: "smooth",
         });
