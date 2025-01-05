@@ -1,6 +1,7 @@
 import { TemplateResult, html, render } from "lit-html";
 import { ResourceDefinition } from "../resources/resources";
 import { ExplanMain } from "../explanMain/explanMain";
+import { icon } from "../icons/icons";
 
 export class EditResourceDefinition extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -56,14 +57,7 @@ export class EditResourceDefinition extends HTMLElement {
               <td><input .value=${value} type="text" /></td>
               <td>
                 <button class="icon-button" @click=${() => this.moveUp(value)}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                  >
-                    <use href="#keyboard-up-icon" />
-                  </svg>
+                  ${icon("keyboard-up-icon")}
                 </button>
               </td>
               <td>
@@ -71,14 +65,7 @@ export class EditResourceDefinition extends HTMLElement {
                   class="icon-button"
                   @click=${() => this.moveDown(value)}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                  >
-                    <use href="#keyboard-down-icon" />
-                  </svg>
+                  ${icon("keyboard-down-icon")}
                 </button>
               </td>
               <td>
@@ -86,14 +73,7 @@ export class EditResourceDefinition extends HTMLElement {
                   class="icon-button"
                   @click=${() => this.moveToTop(value)}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                  >
-                    <use href="#keyboard-double-up-icon" />
-                  </svg>
+                  ${icon("keyboard-double-up-icon")}
                 </button>
               </td>
               <td>
@@ -101,14 +81,7 @@ export class EditResourceDefinition extends HTMLElement {
                   class="icon-button"
                   @click=${() => this.moveToBottom(value)}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                  >
-                    <use href="#keyboard-double-down-icon" />
-                  </svg>
+                  ${icon("keyboard-double-down-icon")}
                 </button>
               </td>
               <td>
@@ -116,14 +89,7 @@ export class EditResourceDefinition extends HTMLElement {
                   class="icon-button"
                   @click=${() => this.deleteResourceValue(value)}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                  >
-                    <use href="#delete-icon" />
-                  </svg>
+                  ${icon("delete-icon")}
                 </button>
               </td>
             </tr>`;

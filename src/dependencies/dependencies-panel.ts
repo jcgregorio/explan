@@ -1,5 +1,6 @@
 import { TemplateResult, html, render } from "lit-html";
 import { Task } from "../chart/chart.ts";
+import { icon } from "../icons/icons.ts";
 
 export type DepType = "pred" | "succ";
 
@@ -39,14 +40,7 @@ const kindTemplate = (
           title="Delete the dependency on ${task.name}"
           @click=${() => dependenciesControl.deleteDep(taskIndex, depType)}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <use href="#delete-icon" />
-          </svg>
+          ${icon("delete-icon")}
         </button>
       </td>
     </tr>`;
