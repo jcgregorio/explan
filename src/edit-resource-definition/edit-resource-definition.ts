@@ -217,6 +217,7 @@ export class EditResourceDefinition extends HTMLElement {
                 </td>
                 <td>
                   <button
+                    .disabled=${this.resourceDefinition.values.length === 1}
                     class="icon-button"
                     @click=${() => this.deleteResourceValue(value, valueIndex)}
                   >
