@@ -70,16 +70,22 @@ export class EditResourceDefinition extends HTMLElement {
     await this.executeOp(RenameResourceOp(oldName, newName));
   }
 
+  private getProposedResourceName(): string {
+    this.newValueCounter++;
+    return `New Value ${this.newValueCounter}`;
+  }
+
   private async newResourceValue() {
-    let newResourceName = "";
-    do {
-      this.newValueCounter++;
-      newResourceName = `New Value ${this.newValueCounter}`;
-    } while (
+    // Come up with a unique name to add, since all resource values must be
+    // unique for a given resource name.
+    let newResourceName = this.getProposedResourceName();
+    while (
       this.explanMain!.plan.resourceDefinitions[this.name].values.findIndex(
         (value: string) => value === newResourceName
       ) != -1
-    );
+    ) {
+      newResourceName = this.getProposedResourceName();
+    }
 
     await this.executeOp(AddResourceOptionOp(this.name, newResourceName));
   }
