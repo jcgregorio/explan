@@ -76,6 +76,7 @@ export class EditResourceDefinition extends HTMLElement {
   }
 
   private async newResourceValue() {
+    this.newValueCounter = 0;
     // Come up with a unique name to add, since all resource values must be
     // unique for a given resource name.
     let newResourceName = this.getProposedResourceName();
