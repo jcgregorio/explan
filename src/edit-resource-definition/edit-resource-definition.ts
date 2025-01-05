@@ -6,6 +6,7 @@ import { executeOp } from "../action/execute";
 import {
   AddResourceOptionOp,
   DeleteResourceOptionOp,
+  MoveResourceOptionOp,
   RenameResourceOp,
   RenameResourceOptionOp,
 } from "../ops/resources";
@@ -115,10 +116,28 @@ export class EditResourceDefinition extends HTMLElement {
 
     await this.executeOp(AddResourceOptionOp(this.name, newResourceName));
   }
-  private async moveUp(value: string, valueIndex: number) {}
-  private async moveDown(value: string, valueIndex: number) {}
-  private async moveToTop(value: string, valueIndex: number) {}
-  private async moveToBottom(value: string, valueIndex: number) {}
+  private async moveUp(value: string, valueIndex: number) {
+    await this.executeOp(
+      MoveResourceOptionOp(this.name, valueIndex, valueIndex - 1)
+    );
+  }
+  private async moveDown(value: string, valueIndex: number) {
+    await this.executeOp(
+      MoveResourceOptionOp(this.name, valueIndex, valueIndex + 1)
+    );
+  }
+  private async moveToTop(value: string, valueIndex: number) {
+    await this.executeOp(MoveResourceOptionOp(this.name, valueIndex, 0));
+  }
+  private async moveToBottom(value: string, valueIndex: number) {
+    await this.executeOp(
+      MoveResourceOptionOp(
+        this.name,
+        valueIndex,
+        this.explanMain!.plan.resourceDefinitions[this.name]!.values.length - 1
+      )
+    );
+  }
   private async deleteResourceValue(value: string, valueIndex: number) {
     await this.executeOp(DeleteResourceOptionOp(this.name, value));
   }
