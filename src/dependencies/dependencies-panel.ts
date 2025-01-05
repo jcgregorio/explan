@@ -49,10 +49,11 @@ const kindTemplate = (
     <td></td>
     <td>
       <button
+        class="icon-button"
         @click=${() => dependenciesControl.addDep(depType)}
         title="Add dependency."
       >
-        +
+        ${icon("add-icon")}
       </button>
     </td>
   </tr>

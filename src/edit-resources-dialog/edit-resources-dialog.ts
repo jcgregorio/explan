@@ -60,6 +60,7 @@ export class EditResourcesDialog extends HTMLElement {
     }
     return html`<button
       class="icon-button"
+      title="Delete this resource."
       @click=${() => this.deleteResource(name)}
     >
       ${icon("delete-icon")}
@@ -75,6 +76,7 @@ export class EditResourcesDialog extends HTMLElement {
     }
     return html`<button
       class="icon-button"
+      title="Edit the resource definition."
       @click=${() => this.editResource(name)}
     >
       ${icon("edit-icon")}
@@ -154,11 +156,13 @@ export class EditResourcesDialog extends HTMLElement {
             <td></td>
             <td>
               <button
+                class="icon-button"
+                title="Add a new Resource."
                 @click=${() => {
                   this.newResource();
                 }}
               >
-                New
+                ${icon("add-icon")}
               </button>
             </td>
           </tr>
