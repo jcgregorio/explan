@@ -9,6 +9,8 @@ import { Op, applyAllOpsToPlan } from "../ops/ops";
 import {
   AddResourceOp,
   AddResourceOptionOp,
+  DeleteResourceOptionOp,
+  RenameResourceOptionOp,
   SetResourceValueOp,
 } from "../ops/resources";
 import { Plan } from "../plan/plan";
@@ -52,13 +54,13 @@ export const generateStarterPlan = (): Plan => {
 
 export const generateRandomPlan = (): Plan => {
   const plan = new Plan();
-  let taskID = 0;
 
   const ops: Op[] = [AddResourceOp("Person")];
 
   people.forEach((person: string) => {
     ops.push(AddResourceOptionOp("Person", person));
   });
+  ops.push(DeleteResourceOptionOp("Person", ""));
 
   ops.push(
     InsertNewEmptyMilestoneAfterOp(0),

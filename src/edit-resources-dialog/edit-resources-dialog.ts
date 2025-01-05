@@ -43,12 +43,11 @@ export class EditResourcesDialog extends HTMLElement {
   }
 
   private valuesToShortString(values: string[]): string {
-    return (
-      values
-        .map((v: string) => `"${v}"`)
-        .join(", ")
-        .slice(0, 20) + "..."
-    );
+    let ret = values.join(", ");
+    if (ret.length > 80) {
+      ret = ret.slice(0, 80) + " ...";
+    }
+    return ret;
   }
 
   private delButtonIfNotStatic(
