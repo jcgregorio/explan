@@ -179,14 +179,17 @@ export class EditResourceDefinition extends HTMLElement {
                 </td>
                 <td>
                   <button
-                    class="icon-button"
                     @click=${() => this.moveUp(value, valueIndex)}
+                    class="icon-button"
+                    .disabled=${valueIndex === 0}
                   >
                     ${icon("keyboard-up-icon")}
                   </button>
                 </td>
                 <td>
                   <button
+                    .disabled=${valueIndex ===
+                    this.resourceDefinition.values.length - 1}
                     class="icon-button"
                     @click=${() => this.moveDown(value, valueIndex)}
                   >
@@ -195,18 +198,21 @@ export class EditResourceDefinition extends HTMLElement {
                 </td>
                 <td>
                   <button
-                    class="icon-button"
-                    @click=${() => this.moveToTop(value, valueIndex)}
-                  >
-                    ${icon("keyboard-double-up-icon")}
-                  </button>
-                </td>
-                <td>
-                  <button
+                    .disabled=${valueIndex ===
+                    this.resourceDefinition.values.length - 1}
                     class="icon-button"
                     @click=${() => this.moveToBottom(value, valueIndex)}
                   >
                     ${icon("keyboard-double-down-icon")}
+                  </button>
+                </td>
+                <td>
+                  <button
+                    .disabled=${valueIndex === 0}
+                    class="icon-button"
+                    @click=${() => this.moveToTop(value, valueIndex)}
+                  >
+                    ${icon("keyboard-double-up-icon")}
                   </button>
                 </td>
                 <td>

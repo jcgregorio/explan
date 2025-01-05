@@ -112,6 +112,12 @@
       display: none;
     }
 
+    button[disabled] {
+      color: var(--diabled);
+      fill: var(--diabled);
+      ;
+    }
+
     keyboard-map-dialog dialog,
     add-dependency-dialog dialog {
       background: var(--surface);
@@ -269,6 +275,12 @@
       initial-value: rgba(175, 15, 29);
     }
 
+    @property --diabled {
+      syntax: "<color>";
+      inherits: true;
+      initial-value: hsl(0, 0%, 46%);
+    }
+
     body {
       --surface: #f5f5f5;
       --onSurface: hsl(0, 0%, 15%);
@@ -279,6 +291,7 @@
       --highlight: rgba(59, 114, 177, 0.2);
       --added: rgba(24, 132, 47);
       --removed: rgba(175, 15, 29);
+      --disabled: hsl(0, 0%, 46%);
     }
 
     body.darkmode {
@@ -291,6 +304,7 @@
       --highlight: rgba(32, 114, 195, 0.393);
       --added: rgb(36, 180, 67);
       --removed: rgb(227, 22, 39);
+      --disabled: hsl(0, 0%, 36%);
     }
   </style>
 </head>
