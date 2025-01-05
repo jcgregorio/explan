@@ -1,11 +1,12 @@
 import { TemplateResult, html, render } from "lit-html";
-import { Plan } from "../plan/plan";
-import { ResourceDefinition } from "../resources/resources";
 import { AddResourceOp, DeleteResourceOp } from "../ops/resources";
 import { executeOp } from "../action/execute";
 import { ExplanMain } from "../explanMain/explanMain";
 import { EditResourceDefinition } from "../edit-resource-definition/edit-resource-definition";
 import { icon } from "../icons/icons";
+
+// Longest representation we'll show for all the options of a Resource.
+const MAX_SHORT_STRING = 80;
 
 export class EditResourcesDialog extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -44,8 +45,8 @@ export class EditResourcesDialog extends HTMLElement {
 
   private valuesToShortString(values: string[]): string {
     let ret = values.join(", ");
-    if (ret.length > 80) {
-      ret = ret.slice(0, 80) + " ...";
+    if (ret.length > MAX_SHORT_STRING) {
+      ret = ret.slice(0, MAX_SHORT_STRING) + " ...";
     }
     return ret;
   }
