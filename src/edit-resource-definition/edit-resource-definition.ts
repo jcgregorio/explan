@@ -77,7 +77,8 @@ export class EditResourceDefinition extends HTMLElement {
   private async changeResourceName(e: Event, newName: string, oldName: string) {
     const ret = await this.executeOp(RenameResourceOp(oldName, newName));
     if (!ret.ok) {
-      e.preventDefault();
+      this.name = oldName;
+      this.render();
     }
     this.name = newName;
   }
@@ -91,8 +92,8 @@ export class EditResourceDefinition extends HTMLElement {
       RenameResourceOptionOp(this.name, oldValue, newValue)
     );
     if (!ret.ok) {
-      e.stopPropagation();
-      e.preventDefault();
+      (e.target as HTMLInputElement).value = oldValue;
+      this.render();
     }
   }
 
@@ -142,7 +143,6 @@ export class EditResourceDefinition extends HTMLElement {
     await this.executeOp(DeleteResourceOptionOp(this.name, value));
   }
 
-  // SVG icons copied from https://github.com/marella/material-design-icons/blob/main/svg/filled/.
   private template(): TemplateResult {
     return html`
       <dialog>
