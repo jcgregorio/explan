@@ -3,13 +3,15 @@ import { ResourceDefinition } from "../resources/resources";
 import { ExplanMain } from "../explanMain/explanMain";
 import { icon } from "../icons/icons";
 import { executeOp } from "../action/execute";
-import { RenameResourceOp } from "../ops/resources";
+import { AddResourceOptionOp, RenameResourceOp } from "../ops/resources";
+import { Op } from "../ops/ops";
 
 export class EditResourceDefinition extends HTMLElement {
   explanMain: ExplanMain | null = null;
   resourceDefinition: ResourceDefinition = new ResourceDefinition();
   name: string = "";
   planDefinitionChangedCallback: () => void;
+  newValueCounter = 0;
 
   constructor() {
     super();
@@ -52,9 +54,9 @@ export class EditResourceDefinition extends HTMLElement {
     this.querySelector<HTMLDialogElement>("dialog")!.close();
   }
 
-  private async changeResourceName(newName: string, oldName: string) {
+  private async executeOp(op: Op) {
     const ret = await executeOp(
-      RenameResourceOp(oldName, newName),
+      op,
       "planDefinitionChanged",
       true,
       this.explanMain!
@@ -64,7 +66,23 @@ export class EditResourceDefinition extends HTMLElement {
     }
   }
 
-  private async newResourceValue() {}
+  private async changeResourceName(newName: string, oldName: string) {
+    await this.executeOp(RenameResourceOp(oldName, newName));
+  }
+
+  private async newResourceValue() {
+    let newResourceName = "";
+    do {
+      this.newValueCounter++;
+      newResourceName = `New Value ${this.newValueCounter}`;
+    } while (
+      this.explanMain!.plan.resourceDefinitions[this.name].values.findIndex(
+        (value: string) => value === newResourceName
+      ) != -1
+    );
+
+    await this.executeOp(AddResourceOptionOp(this.name, newResourceName));
+  }
   private async moveUp(value: string, valueIndex: number) {}
   private async moveDown(value: string, valueIndex: number) {}
   private async moveToTop(value: string, valueIndex: number) {}
