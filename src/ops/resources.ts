@@ -343,10 +343,6 @@ export class MoveResourceOptionSubOp implements SubOp {
       return error(`${this.newIndex} is not a valid target value.`);
     }
 
-    if (this.newIndex > definition.values.length - 1) {
-      return error(`${this.newIndex} is not a valid target value.`);
-    }
-
     if (this.oldIndex > definition.values.length - 1) {
       return error(
         `${this.key} does not have a value at index ${this.oldIndex}`

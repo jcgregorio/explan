@@ -69,7 +69,7 @@ export class EditResourceDefinition extends HTMLElement {
       this.explanMain!
     );
     if (!ret.ok) {
-      console.log(ret.error);
+      window.alert(ret.error);
     }
     return ret;
   }
@@ -77,6 +77,7 @@ export class EditResourceDefinition extends HTMLElement {
   private async changeResourceName(e: Event, newName: string, oldName: string) {
     const ret = await this.executeOp(RenameResourceOp(oldName, newName));
     if (!ret.ok) {
+      window.alert(ret.error);
       this.name = oldName;
       this.render();
     }
@@ -92,6 +93,7 @@ export class EditResourceDefinition extends HTMLElement {
       RenameResourceOptionOp(this.name, oldValue, newValue)
     );
     if (!ret.ok) {
+      window.alert(ret.error);
       (e.target as HTMLInputElement).value = oldValue;
       this.render();
     }

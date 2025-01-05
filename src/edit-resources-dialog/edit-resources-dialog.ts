@@ -121,6 +121,7 @@ export class EditResourcesDialog extends HTMLElement {
       this.explanMain!
     );
     if (!ret.ok) {
+      window.alert(ret.error);
       console.log(ret.error);
     }
     this.render();
