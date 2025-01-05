@@ -203,6 +203,9 @@ export class DeleteResourceOptionSubOp implements SubOp {
       if (resourceValue === undefined) {
         return;
       }
+      if (resourceValue !== this.value) {
+        return;
+      }
 
       // Since the value is no longer valid we change it back to the default.
       task.setResource(this.key, definition.values[0]);

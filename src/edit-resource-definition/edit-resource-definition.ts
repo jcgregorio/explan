@@ -3,8 +3,13 @@ import { ResourceDefinition } from "../resources/resources";
 import { ExplanMain } from "../explanMain/explanMain";
 import { icon } from "../icons/icons";
 import { executeOp } from "../action/execute";
-import { AddResourceOptionOp, RenameResourceOp } from "../ops/resources";
+import {
+  AddResourceOptionOp,
+  DeleteResourceOptionOp,
+  RenameResourceOp,
+} from "../ops/resources";
 import { Op } from "../ops/ops";
+import { Result } from "../result";
 
 export class EditResourceDefinition extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -54,7 +59,7 @@ export class EditResourceDefinition extends HTMLElement {
     this.querySelector<HTMLDialogElement>("dialog")!.close();
   }
 
-  private async executeOp(op: Op) {
+  private async executeOp(op: Op): Promise<Result<null>> {
     const ret = await executeOp(
       op,
       "planDefinitionChanged",
@@ -64,10 +69,15 @@ export class EditResourceDefinition extends HTMLElement {
     if (!ret.ok) {
       console.log(ret.error);
     }
+    return ret;
   }
 
-  private async changeResourceName(newName: string, oldName: string) {
-    await this.executeOp(RenameResourceOp(oldName, newName));
+  private async changeResourceName(e: Event, newName: string, oldName: string) {
+    const ret = await this.executeOp(RenameResourceOp(oldName, newName));
+    if (!ret.ok) {
+      e.preventDefault();
+    }
+    this.name = newName;
   }
 
   private getProposedResourceName(): string {
@@ -94,7 +104,9 @@ export class EditResourceDefinition extends HTMLElement {
   private async moveDown(value: string, valueIndex: number) {}
   private async moveToTop(value: string, valueIndex: number) {}
   private async moveToBottom(value: string, valueIndex: number) {}
-  private async deleteResourceValue(value: string, valueIndex: number) {}
+  private async deleteResourceValue(value: string, valueIndex: number) {
+    await this.executeOp(DeleteResourceOptionOp(this.name, value));
+  }
 
   // SVG icons copied from https://github.com/marella/material-design-icons/blob/main/svg/filled/.
   private template(): TemplateResult {
@@ -108,7 +120,7 @@ export class EditResourceDefinition extends HTMLElement {
             data-old-name=${this.name}
             @change=${(e: Event) => {
               const ele = e.target as HTMLInputElement;
-              this.changeResourceName(ele.value, ele.dataset.oldName || "");
+              this.changeResourceName(e, ele.value, ele.dataset.oldName || "");
             }}
           />
         </label>
