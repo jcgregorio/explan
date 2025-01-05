@@ -36,7 +36,7 @@ const kindTemplate = (
       <td>${task.name}</td>
       <td>
         <button
-          class="delete"
+          class="icon-button"
           title="Delete the dependency on ${task.name}"
           @click=${() => dependenciesControl.deleteDep(taskIndex, depType)}
         >
