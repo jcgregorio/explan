@@ -2,13 +2,35 @@ import { TemplateResult, html, render } from "lit-html";
 import { ResourceDefinition } from "../resources/resources";
 import { ExplanMain } from "../explanMain/explanMain";
 import { icon } from "../icons/icons";
+import { executeOp } from "../action/execute";
+import { RenameResourceOp } from "../ops/resources";
 
 export class EditResourceDefinition extends HTMLElement {
   explanMain: ExplanMain | null = null;
   resourceDefinition: ResourceDefinition = new ResourceDefinition();
   name: string = "";
+  planDefinitionChangedCallback: () => void;
 
-  connectedCallback(): void {}
+  constructor() {
+    super();
+    this.planDefinitionChangedCallback = () => {
+      this.render();
+    };
+  }
+
+  connectedCallback(): void {
+    document.addEventListener(
+      "plan-definition-changed",
+      this.planDefinitionChangedCallback
+    );
+  }
+
+  disconnectedCallback(): void {
+    document.removeEventListener(
+      "plan-definition-changed",
+      this.planDefinitionChangedCallback
+    );
+  }
 
   showModal(
     explanMain: ExplanMain,
@@ -30,13 +52,24 @@ export class EditResourceDefinition extends HTMLElement {
     this.querySelector<HTMLDialogElement>("dialog")!.close();
   }
 
-  private changeResourceName(newName: string) {}
-  private newResourceValue() {}
-  private moveUp(value: string) {}
-  private moveDown(value: string) {}
-  private moveToTop(value: string) {}
-  private moveToBottom(value: string) {}
-  private deleteResourceValue(value: string) {}
+  private async changeResourceName(newName: string, oldName: string) {
+    const ret = await executeOp(
+      RenameResourceOp(oldName, newName),
+      "planDefinitionChanged",
+      true,
+      this.explanMain!
+    );
+    if (!ret.ok) {
+      console.log(ret.error);
+    }
+  }
+
+  private async newResourceValue() {}
+  private async moveUp(value: string, valueIndex: number) {}
+  private async moveDown(value: string, valueIndex: number) {}
+  private async moveToTop(value: string, valueIndex: number) {}
+  private async moveToBottom(value: string, valueIndex: number) {}
+  private async deleteResourceValue(value: string, valueIndex: number) {}
 
   // SVG icons copied from https://github.com/marella/material-design-icons/blob/main/svg/filled/.
   private template(): TemplateResult {
@@ -47,53 +80,61 @@ export class EditResourceDefinition extends HTMLElement {
           <input
             type="text"
             .value=${this.name}
-            @change=${(e: Event) =>
-              this.changeResourceName((e.target as HTMLInputElement).value)}
+            data-old-name=${this.name}
+            @change=${(e: Event) => {
+              const ele = e.target as HTMLInputElement;
+              this.changeResourceName(ele.value, ele.dataset.oldName || "");
+            }}
           />
         </label>
         <table>
-          ${this.resourceDefinition.values.map((value: string) => {
-            return html`<tr>
-              <td><input .value=${value} type="text" /></td>
-              <td>
-                <button class="icon-button" @click=${() => this.moveUp(value)}>
-                  ${icon("keyboard-up-icon")}
-                </button>
-              </td>
-              <td>
-                <button
-                  class="icon-button"
-                  @click=${() => this.moveDown(value)}
-                >
-                  ${icon("keyboard-down-icon")}
-                </button>
-              </td>
-              <td>
-                <button
-                  class="icon-button"
-                  @click=${() => this.moveToTop(value)}
-                >
-                  ${icon("keyboard-double-up-icon")}
-                </button>
-              </td>
-              <td>
-                <button
-                  class="icon-button"
-                  @click=${() => this.moveToBottom(value)}
-                >
-                  ${icon("keyboard-double-down-icon")}
-                </button>
-              </td>
-              <td>
-                <button
-                  class="icon-button"
-                  @click=${() => this.deleteResourceValue(value)}
-                >
-                  ${icon("delete-icon")}
-                </button>
-              </td>
-            </tr>`;
-          })}
+          ${this.resourceDefinition.values.map(
+            (value: string, valueIndex: number) => {
+              return html`<tr>
+                <td><input .value=${value} type="text" /></td>
+                <td>
+                  <button
+                    class="icon-button"
+                    @click=${() => this.moveUp(value, valueIndex)}
+                  >
+                    ${icon("keyboard-up-icon")}
+                  </button>
+                </td>
+                <td>
+                  <button
+                    class="icon-button"
+                    @click=${() => this.moveDown(value, valueIndex)}
+                  >
+                    ${icon("keyboard-down-icon")}
+                  </button>
+                </td>
+                <td>
+                  <button
+                    class="icon-button"
+                    @click=${() => this.moveToTop(value, valueIndex)}
+                  >
+                    ${icon("keyboard-double-up-icon")}
+                  </button>
+                </td>
+                <td>
+                  <button
+                    class="icon-button"
+                    @click=${() => this.moveToBottom(value, valueIndex)}
+                  >
+                    ${icon("keyboard-double-down-icon")}
+                  </button>
+                </td>
+                <td>
+                  <button
+                    class="icon-button"
+                    @click=${() => this.deleteResourceValue(value, valueIndex)}
+                  >
+                    ${icon("delete-icon")}
+                  </button>
+                </td>
+              </tr>`;
+            }
+          )}
           <tr>
             <td></td>
             <td></td>

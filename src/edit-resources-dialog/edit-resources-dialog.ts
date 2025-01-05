@@ -9,8 +9,28 @@ import { icon } from "../icons/icons";
 
 export class EditResourcesDialog extends HTMLElement {
   explanMain: ExplanMain | null = null;
+  planDefinitionChangedCallback: () => void;
 
-  connectedCallback(): void {}
+  constructor() {
+    super();
+    this.planDefinitionChangedCallback = () => {
+      this.render();
+    };
+  }
+
+  connectedCallback(): void {
+    document.addEventListener(
+      "plan-definition-changed",
+      this.planDefinitionChangedCallback
+    );
+  }
+
+  disconnectedCallback(): void {
+    document.removeEventListener(
+      "plan-definition-changed",
+      this.planDefinitionChangedCallback
+    );
+  }
 
   showModal(explanMain: ExplanMain) {
     this.explanMain = explanMain;

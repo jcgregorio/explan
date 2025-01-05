@@ -4,6 +4,12 @@ import { ok, Result } from "../result.ts";
 import { Action, ActionFromOp, PostActonWork } from "./action.ts";
 import { ActionNames, ActionRegistry } from "./registry.ts";
 
+declare global {
+  interface GlobalEventHandlersEventMap {
+    "plan-definition-changed": CustomEvent<null>;
+  }
+}
+
 const undoStack: Action[] = [];
 
 export const undo = async (explanMain: ExplanMain): Promise<Result<null>> => {
@@ -34,6 +40,9 @@ export const execute = async (
     case "planDefinitionChanged":
       explanMain.planDefinitionHasBeenChanged();
       explanMain.paintChart();
+      // Send an event in case we have any dialogs up that need to re-render if
+      // the plan changed, possible since Ctrl-Z works from anywhere.
+      document.dispatchEvent(new CustomEvent("plan-definition-changed"));
 
     default:
       break;
@@ -66,6 +75,10 @@ export const executeOp = async (
     case "planDefinitionChanged":
       explanMain.planDefinitionHasBeenChanged();
       explanMain.paintChart();
+      // Send an event in case we have any dialogs up that need to re-render if
+      // the plan changed, possible since Ctrl-Z works from anywhere.
+      document.dispatchEvent(new CustomEvent("plan-definition-changed"));
+
       break;
 
     default:
@@ -96,6 +109,10 @@ const executeUndo = async (
     case "planDefinitionChanged":
       explanMain.planDefinitionHasBeenChanged();
       explanMain.paintChart();
+      // Send an event in case we have any dialogs up that need to re-render if
+      // the plan changed, possible since Ctrl-Z works from anywhere.
+      document.dispatchEvent(new CustomEvent("plan-definition-changed"));
+
       break;
 
     default:
