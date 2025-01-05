@@ -7,6 +7,7 @@ import {
   AddResourceOptionOp,
   DeleteResourceOptionOp,
   RenameResourceOp,
+  RenameResourceOptionOp,
 } from "../ops/resources";
 import { Op } from "../ops/ops";
 import { Result } from "../result";
@@ -80,6 +81,20 @@ export class EditResourceDefinition extends HTMLElement {
     this.name = newName;
   }
 
+  private async changeResourceValueName(
+    e: Event,
+    newValue: string,
+    oldValue: string
+  ) {
+    const ret = await this.executeOp(
+      RenameResourceOptionOp(this.name, oldValue, newValue)
+    );
+    if (!ret.ok) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }
+
   private getProposedResourceName(): string {
     this.newValueCounter++;
     return `New Value ${this.newValueCounter}`;
@@ -128,7 +143,21 @@ export class EditResourceDefinition extends HTMLElement {
           ${this.resourceDefinition.values.map(
             (value: string, valueIndex: number) => {
               return html`<tr>
-                <td><input .value=${value} type="text" /></td>
+                <td>
+                  <input
+                    data-old-value=${value}
+                    @change=${(e: Event) => {
+                      const ele = e.target as HTMLInputElement;
+                      this.changeResourceValueName(
+                        e,
+                        ele.value,
+                        ele.dataset.oldValue || ""
+                      );
+                    }}
+                    .value=${value}
+                    type="text"
+                  />
+                </td>
                 <td>
                   <button
                     class="icon-button"
