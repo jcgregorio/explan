@@ -3,7 +3,7 @@ import { ExplanMain } from "../explanMain/explanMain";
 import { icon } from "../icons/icons";
 import { displayValue } from "../metrics/range";
 import { executeOp } from "../action/execute";
-import { AddMetricOp } from "../ops/metrics";
+import { AddMetricOp, DeleteMetricOp } from "../ops/metrics";
 import { MetricDefinition } from "../metrics/metrics";
 
 export class EditMetricsDialog extends HTMLElement {
@@ -117,8 +117,17 @@ export class EditMetricsDialog extends HTMLElement {
     </button>`;
   }
 
-  private deleteMetric(name: string) {
-    throw new Error("Method not implemented.");
+  private async deleteMetric(name: string) {
+    const ret = await executeOp(
+      DeleteMetricOp(name),
+      "planDefinitionChanged",
+      true,
+      this.explanMain!
+    );
+    if (!ret.ok) {
+      console.log(ret.error);
+    }
+    this.render();
   }
 
   private editButtonIfNotStatic(
