@@ -12,6 +12,7 @@ import {
 } from "../ops/resources";
 import { Op } from "../ops/ops";
 import { Result } from "../result";
+import { live } from "lit-html/directives/live.js";
 
 export class EditResourceDefinition extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -152,7 +153,7 @@ export class EditResourceDefinition extends HTMLElement {
           Name:
           <input
             type="text"
-            .value=${this.name}
+            .value=${live(this.name)}
             data-old-name=${this.name}
             @change=${(e: Event) => {
               const ele = e.target as HTMLInputElement;
@@ -175,7 +176,7 @@ export class EditResourceDefinition extends HTMLElement {
                         ele.dataset.oldValue || ""
                       );
                     }}
-                    .value=${value}
+                    .value=${live(value)}
                     type="text"
                   />
                 </td>

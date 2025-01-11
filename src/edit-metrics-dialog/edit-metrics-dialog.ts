@@ -32,6 +32,7 @@ export class EditMetricsDialog extends HTMLElement {
       this.planDefinitionChangedCallback
     );
   }
+
   private render() {
     render(this.template(), this);
   }

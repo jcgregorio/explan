@@ -1,5 +1,6 @@
 import { TemplateResult, html, render } from "lit-html";
 import { Plan } from "../plan/plan";
+import { live } from "lit-html/directives/live.js";
 
 export interface TaskNameChangeDetails {
   name: string;
@@ -29,9 +30,28 @@ declare global {
 export class SelectedTaskPanel extends HTMLElement {
   plan: Plan = new Plan();
   taskIndex: number = -1;
+  planDefinitionChangedCallback: () => void;
+
+  constructor() {
+    super();
+    this.planDefinitionChangedCallback = () => {
+      this.render();
+    };
+  }
 
   connectedCallback(): void {
     this.render();
+    document.addEventListener(
+      "plan-definition-changed",
+      this.planDefinitionChangedCallback
+    );
+  }
+
+  disconnectedCallback(): void {
+    document.removeEventListener(
+      "plan-definition-changed",
+      this.planDefinitionChangedCallback
+    );
   }
 
   updateSelectedTaskPanel(plan: Plan, taskIndex: number) {
@@ -67,7 +87,7 @@ export class SelectedTaskPanel extends HTMLElement {
             <input
               type="text"
               id="task-name"
-              .value="${task.name}"
+              .value="${live(task.name)}"
               @change=${(e: Event) =>
                 this.dispatchEvent(
                   new CustomEvent<TaskNameChangeDetails>("task-name-change", {
@@ -123,8 +143,8 @@ export class SelectedTaskPanel extends HTMLElement {
               <td>
                 <input
                   id="${key}"
+                  .value=${live(task.metrics[key])}
                   type="number"
-                  .value="${task.metrics[key]}"
                   @change=${async (e: Event) =>
                     this.dispatchEvent(
                       new CustomEvent("task-metric-value-change", {
