@@ -57,6 +57,7 @@ import { TaskDuration } from "../types/types.ts";
 import { SimulationPanel } from "../simulation-panel/simulation-panel.ts";
 import { applyStoredTheme } from "../style/toggler/toggler.ts";
 import { EditResourcesDialog } from "../edit-resources-dialog/edit-resources-dialog.ts";
+import { EditMetricsDialog } from "../edit-metrics-dialog/edit-metrics-dialog.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -297,6 +298,12 @@ export class ExplanMain extends HTMLElement {
       this.querySelector<EditResourcesDialog>(
         "edit-resources-dialog"
       )!.showModal(this);
+    });
+
+    this.querySelector("#edit-metrics")!.addEventListener("click", () => {
+      this.querySelector<EditMetricsDialog>("edit-metrics-dialog")!.showModal(
+        this
+      );
     });
 
     this.plan = generateStarterPlan();

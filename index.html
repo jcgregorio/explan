@@ -118,12 +118,6 @@
       ;
     }
 
-    keyboard-map-dialog dialog,
-    add-dependency-dialog dialog {
-      background: var(--surface);
-      color: var(--onSurface);
-    }
-
     task-search-control {
       ul {
         list-style-type: none;
@@ -212,7 +206,8 @@
 
 
     dialog {
-      background-color: var(--surface);
+      background: var(--surface);
+      color: var(--onSurface);
 
       .dialog-footer {
         display: flex;
@@ -346,6 +341,7 @@
         <button id="focus-on-selected-task">Focus</button>
         <button id="gen-random-plan">Generate</button>
         <button id="edit-resources">Edit Resources</button>
+        <button id="edit-metrics">Edit Metrics</button>
         <a id="download" download="plan.json" href="">Download</a>
         <label> Upload <input type="file" id="file-upload" /></label>
       </nav>
@@ -388,6 +384,8 @@
     </edit-resources-dialog>
     <edit-resource-definition>
     </edit-resource-definition>
+    <edit-metrics-dialog>
+    </edit-metrics-dialog>
   </explan-main>
   <script type="module" src="./dst/page.js"></script>
 </body>
