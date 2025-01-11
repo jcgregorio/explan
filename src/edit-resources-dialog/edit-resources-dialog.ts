@@ -15,7 +15,9 @@ export class EditResourcesDialog extends HTMLElement {
   constructor() {
     super();
     this.planDefinitionChangedCallback = () => {
-      this.render();
+      if (this.explanMain !== null) {
+        this.render();
+      }
     };
   }
 

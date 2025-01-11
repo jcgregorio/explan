@@ -1,10 +1,12 @@
+import { MetricDefinition } from "../metrics/metrics";
+import { MetricRange } from "../metrics/range";
 import {
   DupTaskOp,
   InsertNewEmptyMilestoneAfterOp,
   SetTaskNameOp,
   SplitTaskOp,
 } from "../ops/chart";
-import { SetMetricValueOp } from "../ops/metrics";
+import { AddMetricOp, SetMetricValueOp } from "../ops/metrics";
 import { Op, applyAllOpsToPlan } from "../ops/ops";
 import {
   AddResourceOp,
@@ -55,6 +57,10 @@ export const generateRandomPlan = (): Plan => {
   ops.push(DeleteResourceOptionOp("Person", ""));
 
   ops.push(
+    AddMetricOp(
+      "Cost ($/hr)",
+      new MetricDefinition(15, new MetricRange(15, 800))
+    ),
     InsertNewEmptyMilestoneAfterOp(0),
     SetMetricValueOp("Duration", rndDuration(), 1),
     SetTaskNameOp(1, randomTaskName()),

@@ -5,6 +5,16 @@ export interface MetricRangeSerialized {
   max: number;
 }
 
+export const displayValue = (x: number): string => {
+  if (x === Number.MAX_VALUE) {
+    return "(max float)";
+  } else if (x === -Number.MAX_VALUE) {
+    return "(min float)";
+  } else {
+    return x.toString();
+  }
+};
+
 export const clamp = (x: number, min: number, max: number): number => {
   if (x > max) {
     return max;
