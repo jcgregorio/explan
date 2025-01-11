@@ -5,6 +5,7 @@ import { displayValue } from "../metrics/range";
 import { executeOp } from "../action/execute";
 import { AddMetricOp, DeleteMetricOp } from "../ops/metrics";
 import { MetricDefinition } from "../metrics/metrics";
+import { EditMetricDefinition } from "../edit-metric-definition/edit-metric-definition";
 
 export class EditMetricsDialog extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -147,7 +148,10 @@ export class EditMetricsDialog extends HTMLElement {
   }
 
   private editMetric(name: string) {
-    throw new Error("Method not implemented.");
+    this.cancel();
+    this.explanMain!.querySelector<EditMetricDefinition>(
+      "edit-metric-definition"
+    )!.showModal(this.explanMain!, name);
   }
 
   private async newMetric() {
