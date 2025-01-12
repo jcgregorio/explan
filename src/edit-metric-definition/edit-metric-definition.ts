@@ -1,5 +1,12 @@
 import { TemplateResult, html, render } from "lit-html";
 import { ExplanMain } from "../explanMain/explanMain";
+import { live } from "lit-html/directives/live.js";
+import { displayValue } from "../metrics/range";
+import { RenameMetricOp } from "../ops/metrics";
+import { MetricDefinition } from "../metrics/metrics";
+import { Result } from "../result";
+import { Op } from "../ops/ops";
+import { executeOp } from "../action/execute";
 
 export class EditMetricDefinition extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -32,7 +39,97 @@ export class EditMetricDefinition extends HTMLElement {
   }
 
   private template(): TemplateResult {
-    return html`<dialog>TBD</dialog>`;
+    const defn = this.explanMain?.plan.metricDefinitions[this.metricName];
+    if (!defn) {
+      return html``;
+    }
+    return html`<dialog>
+      <table>
+        <tr>
+          <th>Name</th>
+          <td>
+            <input
+              .value=${live(this.metricName)}
+              @change=${(e: Event) => this.nameChange(e)}
+            />
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <th>Min</th>
+          <td>
+            <input
+              .value=${live(displayValue(defn.range.min))}
+              ?disabled=${defn.range.min === -Number.MAX_VALUE}
+            />
+          </td>
+          <td>
+            <label>
+              <input
+                type="checkbox"
+                ?checked=${defn.range.min === -Number.MAX_VALUE}
+              />
+              Limit</label
+            >
+          </td>
+        </tr>
+        <tr>
+          <th>Max</th>
+          <td>
+            <input
+              .value=${live(displayValue(defn.range.max))}
+              ?disabled=${defn.range.max === Number.MAX_VALUE}
+            />
+          </td>
+          <td>
+            <label>
+              <input
+                type="checkbox"
+                ?checked=${defn.range.max === Number.MAX_VALUE}
+              />
+              Limit</label
+            >
+          </td>
+        </tr>
+        <tr>
+          <th>Default</th>
+          <td><input .value=${live(defn.default)} /></td>
+          <td></td>
+        </tr>
+      </table>
+      <div class="dialog-footer">
+        <button @click=${() => this.cancel()}>Close</button>
+      </div>
+    </dialog>`;
+  }
+
+  private async executeOp(op: Op): Promise<Result<null>> {
+    const ret = await executeOp(
+      op,
+      "planDefinitionChanged",
+      true,
+      this.explanMain!
+    );
+    if (!ret.ok) {
+      window.alert(ret.error);
+    }
+    return ret;
+  }
+
+  private async nameChange(e: Event) {
+    const ele = e.target as HTMLInputElement;
+    const oldName = this.metricName;
+    const newName = ele.value;
+    this.metricName = newName;
+    const ret = await this.executeOp(RenameMetricOp(oldName, newName));
+    if (!ret.ok) {
+      this.metricName = oldName;
+    }
+    this.render();
+  }
+
+  private cancel() {
+    this.querySelector<HTMLDialogElement>("dialog")!.close();
   }
 
   public showModal(explanMain: ExplanMain, metricName: string) {

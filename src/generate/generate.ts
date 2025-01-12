@@ -57,10 +57,7 @@ export const generateRandomPlan = (): Plan => {
   ops.push(DeleteResourceOptionOp("Person", ""));
 
   ops.push(
-    AddMetricOp(
-      "Cost ($/hr)",
-      new MetricDefinition(15, new MetricRange(15, 800))
-    ),
+    AddMetricOp("Cost ($/hr)", new MetricDefinition(15, new MetricRange())),
     InsertNewEmptyMilestoneAfterOp(0),
     SetMetricValueOp("Duration", rndDuration(), 1),
     SetTaskNameOp(1, randomTaskName()),
