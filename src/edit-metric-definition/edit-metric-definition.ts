@@ -97,6 +97,11 @@ export class EditMetricDefinition extends HTMLElement {
           </td>
         </tr>
         <tr>
+          <th>Precision</th>
+          <td><input .value=${live(defn.precision.precision)} /></td>
+          <td></td>
+        </tr>
+        <tr>
           <th>Default</th>
           <td><input .value=${live(defn.default)} /></td>
           <td></td>
