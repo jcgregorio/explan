@@ -7,6 +7,7 @@ import { MetricDefinition } from "../metrics/metrics";
 import { Result } from "../result";
 import { Op } from "../ops/ops";
 import { executeOp } from "../action/execute";
+import { reportError } from "../report-error/report-error";
 
 export class EditMetricDefinition extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -69,6 +70,9 @@ export class EditMetricDefinition extends HTMLElement {
               <input
                 type="checkbox"
                 ?checked=${defn.range.min === -Number.MAX_VALUE}
+                @change=${(e: Event) => {
+                  this.minLimitChange(e);
+                }}
               />
               Limit</label
             >
@@ -117,6 +121,18 @@ export class EditMetricDefinition extends HTMLElement {
     return ret;
   }
 
+  private async minLimitChange(e: Event) {
+    const ele = e.target as HTMLInputElement;
+    const defn = this.getDefinitionCopy();
+    if (ele.checked) {
+      defn.range = new MetricRange(-Number.MAX_VALUE, defn.range.max);
+    } else {
+      const newMin = 0 < defn.range.max ? 0 : defn.range.max - 1;
+      defn.range = new MetricRange(newMin, defn.range.max);
+    }
+    this.updateMetricDefinition(defn);
+  }
+
   private async nameChange(e: Event) {
     const ele = e.target as HTMLInputElement;
     const oldName = this.metricName;
@@ -132,13 +148,23 @@ export class EditMetricDefinition extends HTMLElement {
   private async minChange(e: Event) {
     const ele = e.target as HTMLInputElement;
     const newValue = +ele.value;
-    const defn = this.explanMain?.plan.metricDefinitions[this.metricName];
-    const definitionCopy = MetricDefinition.FromJSON(defn?.toJSON());
-    definitionCopy.range = new MetricRange(newValue, defn?.range.max);
-    const ret = await this.executeOp(
-      UpdateMetricOp(this.metricName, definitionCopy)
-    );
+    const definitionCopy = this.getDefinitionCopy();
+    definitionCopy.range = new MetricRange(newValue, definitionCopy!.range.max);
+    this.updateMetricDefinition(definitionCopy);
+  }
+
+  private async updateMetricDefinition(newDef: MetricDefinition) {
+    newDef.rationalize();
+    const ret = await this.executeOp(UpdateMetricOp(this.metricName, newDef));
+    if (!ret.ok) {
+      reportError(ret.error);
+    }
     this.render();
+  }
+
+  private getDefinitionCopy(): MetricDefinition {
+    const defn = this.explanMain?.plan.metricDefinitions[this.metricName];
+    return MetricDefinition.FromJSON(defn?.toJSON());
   }
 
   private cancel() {

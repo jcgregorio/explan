@@ -9,6 +9,18 @@ describe("MetricDefinition", () => {
     assert.equal(m.default, 1);
   });
 
+  it("Rounds default, min and max to the provided precision.", () => {
+    const m = new MetricDefinition(
+      2.22222,
+      new MetricRange(-1.1234, 1.1234),
+      false,
+      new Precision(2)
+    );
+    assert.equal(m.default, 1.12);
+    assert.equal(m.range.min, -1.12);
+    assert.equal(m.range.max, 1.12);
+  });
+
   it("Round trips through JSON", () => {
     const m = new MetricDefinition(
       50,

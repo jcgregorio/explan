@@ -289,7 +289,7 @@ describe("SetMetricValueOp", () => {
       ),
       SetMetricValueOp("cost", 99.999, taskIndex),
       TOp((plan: Plan) => {
-        assert.equal(plan.chart.Vertices[taskIndex].getMetric("cost"), 99.9);
+        assert.equal(plan.chart.Vertices[taskIndex].getMetric("cost"), 100);
       }),
     ]);
   });

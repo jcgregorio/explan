@@ -168,6 +168,11 @@ export class UpdateMetricSubOp implements SubOp {
       return error(`Static metric ${this.name} can't be updated.`);
     }
 
+    // Rationalize default should be in [min, max].
+    this.metricDefinition.default = this.metricDefinition.range.clamp(
+      this.metricDefinition.default
+    );
+
     plan.setMetricDefinition(this.name, this.metricDefinition);
 
     const taskMetricValues: Map<number, number> = new Map();
@@ -241,12 +246,7 @@ export class SetMetricValueSubOp implements SubOp {
 
     const task = plan.chart.Vertices[this.taskIndex];
     const oldValue = task.getMetric(this.name) || metricsDefinition.default;
-    task.setMetric(
-      this.name,
-      metricsDefinition.precision.round(
-        metricsDefinition.range.clamp(this.value)
-      )
-    );
+    task.setMetric(this.name, metricsDefinition.clampAndRound(this.value));
 
     return ok({ plan: plan, inverse: this.inverse(oldValue) });
   }

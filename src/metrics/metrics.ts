@@ -21,10 +21,27 @@ export class MetricDefinition {
     isStatic: boolean = false,
     precision: Precision = new Precision(1)
   ) {
-    this.range = range;
-    this.default = clamp(defaultValue, range.min, range.max);
-    this.isStatic = isStatic;
     this.precision = precision;
+    this.range = range;
+    this.default = defaultValue;
+    this.isStatic = isStatic;
+    this.rationalize();
+  }
+
+  rationalize() {
+    // min and max should be rounded to precision first. and then clamp and
+    // precision applied to the default.
+    this.range = new MetricRange(
+      this.precision.round(this.range.min),
+      this.precision.round(this.range.max)
+    );
+    // min and max should be rounded to precision first. and then clamp and
+    // precision applied to the default.
+    this.default = this.clampAndRound(this.default);
+  }
+
+  clampAndRound(x: number): number {
+    return this.precision.round(this.range.clamp(x));
   }
 
   toJSON(): MetricDefinitionSerialized {
