@@ -69,7 +69,7 @@ export class EditMetricDefinition extends HTMLElement {
             <label>
               <input
                 type="checkbox"
-                ?checked=${defn.range.min === -Number.MAX_VALUE}
+                ?checked=${defn.range.min !== -Number.MAX_VALUE}
                 @change=${(e: Event) => {
                   this.minLimitChange(e);
                 }}
@@ -90,7 +90,7 @@ export class EditMetricDefinition extends HTMLElement {
             <label>
               <input
                 type="checkbox"
-                ?checked=${defn.range.max === Number.MAX_VALUE}
+                ?checked=${defn.range.max !== Number.MAX_VALUE}
               />
               Limit</label
             >
@@ -130,10 +130,10 @@ export class EditMetricDefinition extends HTMLElement {
     const ele = e.target as HTMLInputElement;
     const defn = this.getDefinitionCopy();
     if (ele.checked) {
-      defn.range = new MetricRange(-Number.MAX_VALUE, defn.range.max);
-    } else {
       const newMin = 0 < defn.range.max ? 0 : defn.range.max - 1;
       defn.range = new MetricRange(newMin, defn.range.max);
+    } else {
+      defn.range = new MetricRange(-Number.MAX_VALUE, defn.range.max);
     }
     this.updateMetricDefinition(defn);
   }
