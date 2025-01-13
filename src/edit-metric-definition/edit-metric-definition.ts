@@ -1,8 +1,8 @@
 import { TemplateResult, html, render } from "lit-html";
 import { ExplanMain } from "../explanMain/explanMain";
 import { live } from "lit-html/directives/live.js";
-import { displayValue } from "../metrics/range";
-import { RenameMetricOp } from "../ops/metrics";
+import { MetricRange, displayValue } from "../metrics/range";
+import { RenameMetricOp, UpdateMetricOp } from "../ops/metrics";
 import { MetricDefinition } from "../metrics/metrics";
 import { Result } from "../result";
 import { Op } from "../ops/ops";
@@ -61,6 +61,7 @@ export class EditMetricDefinition extends HTMLElement {
             <input
               .value=${live(displayValue(defn.range.min))}
               ?disabled=${defn.range.min === -Number.MAX_VALUE}
+              @change=${(e: Event) => this.minChange(e)}
             />
           </td>
           <td>
@@ -125,6 +126,18 @@ export class EditMetricDefinition extends HTMLElement {
     if (!ret.ok) {
       this.metricName = oldName;
     }
+    this.render();
+  }
+
+  private async minChange(e: Event) {
+    const ele = e.target as HTMLInputElement;
+    const newValue = +ele.value;
+    const defn = this.explanMain?.plan.metricDefinitions[this.metricName];
+    const definitionCopy = MetricDefinition.FromJSON(defn?.toJSON());
+    definitionCopy.range = new MetricRange(newValue, defn?.range.max);
+    const ret = await this.executeOp(
+      UpdateMetricOp(this.metricName, definitionCopy)
+    );
     this.render();
   }
 

@@ -183,10 +183,18 @@ export class UpdateMetricSubOp implements SubOp {
         // taskMetricValues has a value then use that, as this is an inverse
         // operation.
         newValue = this.taskMetricValues.get(index)!;
-      } else if (oldValue === oldMetricDefinition.default) {
-        // If the oldValue is the default, change it to the new default.
+      } else if (
+        oldValue === oldMetricDefinition.default &&
+        this.metricDefinition.range.min <= oldValue &&
+        this.metricDefinition.range.max > oldValue
+      ) {
+        // If the oldValue is the default, change it to the new default, but only if the
+        // new default is in the range.
         newValue = this.metricDefinition.default;
         taskMetricValues.set(index, oldValue);
+
+        // What might have changed is the min or max newValue, which might make
+        // the default value invalid.
       } else {
         // Clamp.
         newValue = this.metricDefinition.range.clamp(oldValue);
