@@ -84,6 +84,7 @@ export class EditMetricDefinition extends HTMLElement {
             <input
               .value=${live(displayValue(defn.range.max))}
               ?disabled=${defn.range.max === Number.MAX_VALUE}
+              @change=${(e: Event) => this.maxChange(e)}
             />
           </td>
           <td>
@@ -91,6 +92,9 @@ export class EditMetricDefinition extends HTMLElement {
               <input
                 type="checkbox"
                 ?checked=${defn.range.max !== Number.MAX_VALUE}
+                @change=${(e: Event) => {
+                  this.maxLimitChange(e);
+                }}
               />
               Limit</label
             >
@@ -138,6 +142,18 @@ export class EditMetricDefinition extends HTMLElement {
     this.updateMetricDefinition(defn);
   }
 
+  private async maxLimitChange(e: Event) {
+    const ele = e.target as HTMLInputElement;
+    const defn = this.getDefinitionCopy();
+    if (ele.checked) {
+      const newMax = 100 > defn.range.min ? 100 : defn.range.min + 1;
+      defn.range = new MetricRange(defn.range.min, newMax);
+    } else {
+      defn.range = new MetricRange(defn.range.min, Number.MAX_VALUE);
+    }
+    this.updateMetricDefinition(defn);
+  }
+
   private async nameChange(e: Event) {
     const ele = e.target as HTMLInputElement;
     const oldName = this.metricName;
@@ -155,6 +171,14 @@ export class EditMetricDefinition extends HTMLElement {
     const newValue = +ele.value;
     const definitionCopy = this.getDefinitionCopy();
     definitionCopy.range = new MetricRange(newValue, definitionCopy!.range.max);
+    this.updateMetricDefinition(definitionCopy);
+  }
+
+  private async maxChange(e: Event) {
+    const ele = e.target as HTMLInputElement;
+    const newValue = +ele.value;
+    const definitionCopy = this.getDefinitionCopy();
+    definitionCopy.range = new MetricRange(definitionCopy!.range.min, newValue);
     this.updateMetricDefinition(definitionCopy);
   }
 
