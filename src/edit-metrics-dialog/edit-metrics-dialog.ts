@@ -49,6 +49,20 @@ export class EditMetricsDialog extends HTMLElement {
   }
 
   private template(): TemplateResult {
+    const md = this.explanMain!.plan.metricDefinitions;
+    const allKeysSorted = Object.keys(md).sort(
+      (keyA: string, keyB: string): number => {
+        const a = md[keyA];
+        const b = md[keyB];
+        if (a.isStatic === b.isStatic) {
+          return keyA.localeCompare(keyB);
+        }
+        if (a.isStatic) {
+          return -1;
+        }
+        return 1;
+      }
+    );
     return html` <dialog>
       <table>
         <tr>
@@ -60,24 +74,24 @@ export class EditMetricsDialog extends HTMLElement {
           <th></th>
         </tr>
 
-        ${Object.entries(this.explanMain!.plan.metricDefinitions).map(
-          ([metricName, metricDefn]) => {
-            return html`
-              <tr>
-                <td>${metricName}</td>
-                <td>${displayValue(metricDefn.range.min)}</td>
-                <td>${displayValue(metricDefn.range.max)}</td>
-                <td>${metricDefn.default}</td>
-                <td>
-                  ${this.delButtonIfNotStatic(metricName, metricDefn.isStatic)}
-                </td>
-                <td>
-                  ${this.editButtonIfNotStatic(metricName, metricDefn.isStatic)}
-                </td>
-              </tr>
-            `;
-          }
-        )}
+        ${allKeysSorted.map((metricName: string) => {
+          const metricDefn =
+            this.explanMain!.plan.metricDefinitions[metricName];
+          return html`
+            <tr>
+              <td>${metricName}</td>
+              <td>${displayValue(metricDefn.range.min)}</td>
+              <td>${displayValue(metricDefn.range.max)}</td>
+              <td>${metricDefn.default}</td>
+              <td>
+                ${this.delButtonIfNotStatic(metricName, metricDefn.isStatic)}
+              </td>
+              <td>
+                ${this.editButtonIfNotStatic(metricName, metricDefn.isStatic)}
+              </td>
+            </tr>
+          `;
+        })}
         <tr>
           <td></td>
           <td></td>
