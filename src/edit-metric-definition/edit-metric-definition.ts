@@ -107,7 +107,14 @@ export class EditMetricDefinition extends HTMLElement {
         </tr>
         <tr>
           <th>Default</th>
-          <td><input .value=${live(defn.default)} /></td>
+          <td>
+            <input
+              .value=${live(defn.default)}
+              @change=${(e: Event) => {
+                this.defaultChange(e);
+              }}
+            />
+          </td>
           <td></td>
         </tr>
       </table>
@@ -164,6 +171,13 @@ export class EditMetricDefinition extends HTMLElement {
       this.metricName = oldName;
     }
     this.render();
+  }
+
+  private async defaultChange(e: Event) {
+    const ele = e.target as HTMLInputElement;
+    const defn = this.getDefinitionCopy();
+    defn.default = +ele.value;
+    this.updateMetricDefinition(defn);
   }
 
   private async minChange(e: Event) {
