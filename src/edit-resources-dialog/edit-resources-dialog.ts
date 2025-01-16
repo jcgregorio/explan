@@ -132,6 +132,21 @@ export class EditResourcesDialog extends HTMLElement {
   }
 
   private template(): TemplateResult {
+    const rd = this.explanMain!.plan.resourceDefinitions;
+    const allKeysSorted = Object.keys(rd).sort(
+      (keyA: string, keyB: string): number => {
+        const a = rd[keyA];
+        const b = rd[keyB];
+        if (a.isStatic === b.isStatic) {
+          return keyA.localeCompare(keyB);
+        }
+        if (a.isStatic) {
+          return -1;
+        }
+        return 1;
+      }
+    );
+
     return html`
       <dialog>
         <h3>Resources</h3>
@@ -142,16 +157,15 @@ export class EditResourcesDialog extends HTMLElement {
             <th>Delete</th>
             <th>Edit</th>
           </tr>
-          ${Object.entries(this.explanMain!.plan.resourceDefinitions).map(
-            ([name, defn]) => {
-              return html`<tr>
-                <td>${name}</td>
-                <td>${this.valuesToShortString(defn.values)}</td>
-                <td>${this.delButtonIfNotStatic(name, defn.isStatic)}</td>
-                <td>${this.editButtonIfNotStatic(name, defn.isStatic)}</td>
-              </tr>`;
-            }
-          )}
+          ${allKeysSorted.map((name) => {
+            const defn = rd[name];
+            return html`<tr>
+              <td>${name}</td>
+              <td>${this.valuesToShortString(defn.values)}</td>
+              <td>${this.delButtonIfNotStatic(name, defn.isStatic)}</td>
+              <td>${this.editButtonIfNotStatic(name, defn.isStatic)}</td>
+            </tr>`;
+          })}
           <tr>
             <td></td>
             <td></td>
