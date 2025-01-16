@@ -8,6 +8,7 @@ import { Result } from "../result";
 import { Op } from "../ops/ops";
 import { executeOp } from "../action/execute";
 import { reportError } from "../report-error/report-error";
+import { Precision } from "../precision/precision";
 
 export class EditMetricDefinition extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -102,7 +103,14 @@ export class EditMetricDefinition extends HTMLElement {
         </tr>
         <tr>
           <th>Precision</th>
-          <td><input .value=${live(defn.precision.precision)} /></td>
+          <td>
+            <input
+              .value=${live(defn.precision.precision)}
+              @change=${(e: Event) => {
+                this.precisionChange(e);
+              }}
+            />
+          </td>
           <td></td>
         </tr>
         <tr>
@@ -177,6 +185,13 @@ export class EditMetricDefinition extends HTMLElement {
     const ele = e.target as HTMLInputElement;
     const defn = this.getDefinitionCopy();
     defn.default = +ele.value;
+    this.updateMetricDefinition(defn);
+  }
+
+  private async precisionChange(e: Event) {
+    const ele = e.target as HTMLInputElement;
+    const defn = this.getDefinitionCopy();
+    defn.precision = new Precision(+ele.value);
     this.updateMetricDefinition(defn);
   }
 
