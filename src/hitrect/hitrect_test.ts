@@ -1,10 +1,17 @@
 import { assert } from "@esm-bundle/chai";
-import { HitRect, Rect } from "./hitrect.ts";
+import { HitRect } from "./hitrect.ts";
 import { Point } from "../renderer/scale/point.ts";
+import { Rect } from "../types/types.ts";
 
 describe("HitRect", () => {
-  const r1: Rect = { top: 0, bottom: 1, left: 0, right: 1 };
-  const r2: Rect = { top: 2, bottom: 3, left: 0, right: 2 };
+  const r1: Rect = {
+    topLeft: new Point(0, 0),
+    bottomRight: new Point(1, 1),
+  };
+  const r2: Rect = {
+    topLeft: new Point(0, 2),
+    bottomRight: new Point(2, 3),
+  };
 
   it("works on an empty list of Rects", () => {
     assert.equal(new HitRect([]).hit(new Point(0, 0)), -1);

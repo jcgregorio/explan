@@ -1,24 +1,20 @@
 import { Point } from "../renderer/scale/point";
-
-export interface Rect {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-}
+import { Rect } from "../types/types";
 
 const withinY = (y: number, rect: Rect): boolean => {
-  return rect.top <= y && rect.bottom >= y;
+  return rect.topLeft.y <= y && rect.bottomRight.y >= y;
 };
 
 const withinX = (x: number, rect: Rect): boolean => {
-  return rect.left <= x && rect.right >= x;
+  return rect.topLeft.x <= x && rect.bottomRight.x >= x;
 };
 
 export class HitRect {
   rects: Rect[];
   constructor(rects: Rect[]) {
-    this.rects = rects.sort((a: Rect, b: Rect): number => a.top - b.top);
+    this.rects = rects.sort(
+      (a: Rect, b: Rect): number => a.topLeft.y - b.topLeft.y
+    );
   }
 
   /** Returns the index of the Rect that p is in, otherwise returns -1. */
@@ -40,7 +36,7 @@ export class HitRect {
       }
       // Else look in left or
       // right half accordingly
-      else if (this.rects[mid].top < p.y) {
+      else if (this.rects[mid].topLeft.y < p.y) {
         start = mid + 1;
       } else {
         end = mid - 1;

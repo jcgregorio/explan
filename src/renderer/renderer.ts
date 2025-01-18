@@ -5,7 +5,7 @@ import { Plan } from "../plan/plan.ts";
 import { ResourceDefinition } from "../resources/resources.ts";
 import { Result, ok } from "../result.ts";
 import { Span } from "../slack/slack.ts";
-import { TaskDuration } from "../types/types.ts";
+import { Rect, TaskDuration } from "../types/types.ts";
 import { KDTree } from "./kd/kd.ts";
 import { DisplayRange } from "./range/range.ts";
 import { Point } from "./scale/point.ts";
@@ -323,11 +323,7 @@ export function renderTasksToCanvas(
   ctx.save();
   ctx.clip(clipRegion);
 
-  interface RectCorners {
-    topLeft: Point;
-    bottomRight: Point;
-  }
-  const taskIndexToTaskHighlightCorners: Map<number, RectCorners> = new Map();
+  const taskIndexToTaskHighlightCorners: Map<number, Rect> = new Map();
 
   // Draw tasks in their rows.
   chartLike.Vertices.forEach((task: Task, taskIndex: number) => {
@@ -480,7 +476,7 @@ export function renderTasksToCanvas(
 
     // Add in all four corners of every Task to taskLocations.
     taskIndexToTaskHighlightCorners.forEach(
-      (rc: RectCorners, filteredTaskIndex: number) => {
+      (rc: Rect, filteredTaskIndex: number) => {
         const originalTaskIndex =
           fromFilteredIndexToOriginalIndex.get(filteredTaskIndex)!;
         taskLocations.push(
@@ -594,7 +590,7 @@ export function renderTasksToCanvas(
   }
 
   // Find the highest task of all the tasks displayed.
-  taskIndexToTaskHighlightCorners.forEach((rc: RectCorners) => {
+  taskIndexToTaskHighlightCorners.forEach((rc: Rect) => {
     if (selectedTaskLocation === null) {
       selectedTaskLocation = rc.topLeft;
       return;
