@@ -9,16 +9,14 @@ const withinX = (x: number, rect: Rect): boolean => {
   return rect.topLeft.x <= x && rect.bottomRight.x >= x;
 };
 
-export class HitRect {
-  rects: Rect[];
-  constructor(rects: Rect[]) {
-    this.rects = rects.sort(
-      (a: Rect, b: Rect): number => a.topLeft.y - b.topLeft.y
-    );
+export class HitRect<R extends Rect> {
+  rects: R[];
+  constructor(rects: R[]) {
+    this.rects = rects.sort((a: R, b: R): number => a.topLeft.y - b.topLeft.y);
   }
 
   /** Returns the index of the Rect that p is in, otherwise returns -1. */
-  hit(p: Point): number {
+  hit(p: Point): R | null {
     let start = 0;
     let end = this.rects.length - 1;
 
@@ -30,9 +28,9 @@ export class HitRect {
       // mid, return True
       if (withinY(p.y, this.rects[mid])) {
         if (withinX(p.x, this.rects[mid])) {
-          return mid;
+          return this.rects[mid];
         }
-        return -1;
+        return null;
       }
       // Else look in left or
       // right half accordingly
@@ -43,6 +41,6 @@ export class HitRect {
       }
     }
 
-    return -1;
+    return null;
   }
 }

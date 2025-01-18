@@ -11,6 +11,7 @@ import { KDTree } from "./kd/kd.ts";
 import { DisplayRange } from "./range/range.ts";
 import { Point, pt } from "../point/point.ts";
 import { Feature, Metric, Scale } from "./scale/scale.ts";
+import { HitRect } from "../hitrect/hitrect.ts";
 
 type Direction = "up" | "down";
 
@@ -210,8 +211,6 @@ export function renderTasksToCanvas(
     return vret;
   }
 
-  const taskLocations: TaskLocation[] = [];
-
   const originalLabels = plan.chart.Vertices.map(
     (task: Task, taskIndex: number) => opts.taskLabel(taskIndex)
   );
@@ -324,7 +323,13 @@ export function renderTasksToCanvas(
   ctx.save();
   ctx.clip(clipRegion);
 
-  const taskIndexToTaskHighlightCorners: Map<number, Rect> = new Map();
+  interface RectWithFilteredTaskIndex extends Rect {
+    filteredTaskIndex: number;
+  }
+  const taskIndexToTaskHighlightCorners: Map<
+    number,
+    RectWithFilteredTaskIndex
+  > = new Map();
 
   // Draw tasks in their rows.
   chartLike.Vertices.forEach((task: Task, taskIndex: number) => {
@@ -371,6 +376,7 @@ export function renderTasksToCanvas(
     taskIndexToTaskHighlightCorners.set(taskIndex, {
       topLeft: highlightTopLeft,
       bottomRight: highlightBottomRight,
+      filteredTaskIndex: taskIndex,
     });
     if (opts.hasTasks) {
       if (taskStart.x === taskEnd.x) {
@@ -391,8 +397,7 @@ export function renderTasksToCanvas(
           taskIndex,
           fromFilteredIndexToOriginalIndex.get(taskIndex)!,
           clipWidth,
-          labels,
-          taskLocations
+          labels
         );
       }
     }
@@ -475,36 +480,10 @@ export function renderTasksToCanvas(
   if (overlay !== null) {
     const overlayCtx = overlay.getContext("2d")!;
 
-    // Add in all four corners of every Task to taskLocations.
-    taskIndexToTaskHighlightCorners.forEach(
-      (rc: Rect, filteredTaskIndex: number) => {
-        const originalTaskIndex =
-          fromFilteredIndexToOriginalIndex.get(filteredTaskIndex)!;
-        taskLocations.push(
-          {
-            x: rc.bottomRight.x,
-            y: rc.bottomRight.y,
-            originalTaskIndex: originalTaskIndex,
-          },
-          {
-            x: rc.topLeft.x,
-            y: rc.topLeft.y,
-            originalTaskIndex: originalTaskIndex,
-          },
-          {
-            x: rc.bottomRight.x,
-            y: rc.topLeft.y,
-            originalTaskIndex: originalTaskIndex,
-          },
-          {
-            x: rc.topLeft.x,
-            y: rc.bottomRight.y,
-            originalTaskIndex: originalTaskIndex,
-          }
-        );
-      }
-    );
-    const taskLocationKDTree = new KDTree(taskLocations);
+    console.log([...taskIndexToTaskHighlightCorners.values()]);
+    const taskLocationKDTree = new HitRect<RectWithFilteredTaskIndex>([
+      ...taskIndexToTaskHighlightCorners.values(),
+    ]);
 
     // Always recored in the original unfiltered task index.
     let lastHighlightedTaskIndex = -1;
@@ -516,8 +495,13 @@ export function renderTasksToCanvas(
       // First convert point in offset coords into canvas coords.
       point.x = point.x * window.devicePixelRatio;
       point.y = point.y * window.devicePixelRatio;
-      const taskLocation = taskLocationKDTree.nearest(point);
-      const originalTaskIndex = taskLocation.originalTaskIndex;
+      const taskLocation = taskLocationKDTree.hit(point);
+      const originalTaskIndex =
+        taskLocation === null
+          ? -1
+          : fromFilteredIndexToOriginalIndex.get(
+              taskLocation!.filteredTaskIndex
+            )!;
 
       // Do not allow highlighting or clicking the Start and Finish tasks.
       if (
@@ -850,8 +834,7 @@ function drawTaskText(
   taskIndex: number,
   originalTaskIndex: number,
   clipWidth: number,
-  labels: string[],
-  taskLocations: TaskLocation[]
+  labels: string[]
 ) {
   if (!opts.hasText) {
     return;
@@ -884,11 +867,6 @@ function drawTaskText(
   const textX = textStart.x + xPixelDelta;
   const textY = textStart.y;
   ctx.fillText(label, textStart.x + xPixelDelta, textStart.y);
-  taskLocations.push({
-    x: textX,
-    y: textY,
-    originalTaskIndex: originalTaskIndex,
-  });
 }
 
 function drawTaskBar(
