@@ -2,7 +2,7 @@ import { assert } from "@esm-bundle/chai";
 import { RenderOptions, defaultTaskLabel } from "../renderer.ts";
 import { Feature, Metric, Scale } from "./scale.ts";
 import { DisplayRange } from "../range/range.ts";
-import { Point } from "./point.ts";
+import { Point, pt } from "./point.ts";
 
 describe("Scale", () => {
   const optsForTest: RenderOptions = {
@@ -10,7 +10,6 @@ describe("Scale", () => {
     hasText: true,
     hasTasks: false,
     hasEdges: false,
-    taskHighlights: [],
     filterFunc: null,
     displayRange: null,
     displayRangeUsage: "restrict",
@@ -21,11 +20,18 @@ describe("Scale", () => {
       onSurfaceMuted: "#111",
       overlay: "rgba(0,0,0,0.2)",
       groupColor: "rgba(0,0,200rrt,0.2)",
+      highlight: "blue",
     },
     hasTimeline: false,
     drawTimeMarkersOnTasks: false,
     groupByResource: "",
     taskLabel: defaultTaskLabel,
+    taskDuration: function (taskIndex: number): number {
+      throw new Error("Function not implemented.");
+    },
+    taskEmphasize: [],
+    highlightedTask: null,
+    selectedTaskIndex: 0,
   };
 
   it("Calculates metrics correctly for 12px font", () => {
@@ -40,7 +46,7 @@ describe("Scale", () => {
     assert.equal(s["groupByColumnWidthPx"], 0);
     assert.deepEqual(
       // marginWidthPx + dayWidthPx, marginWidthPx + rowHeight + 5*blockSize
-      new Point(3 + 12, 3 + 6 * 4 + 5 * 4),
+      pt(3 + 12, 3 + 6 * 4 + 5 * 4),
       s.feature(1, 1, Feature.taskLineStart)
     );
   });
@@ -58,7 +64,7 @@ describe("Scale", () => {
     assert.deepEqual(
       s.feature(1, 1, Feature.taskLineStart),
       // margin + dayWidthPx, margin + rowHeight + 5*blockSize
-      new Point(7 + 12, 7 + 6 * 8 + 5 * 8)
+      pt(7 + 12, 7 + 6 * 8 + 5 * 8)
     );
   });
 
@@ -74,25 +80,25 @@ describe("Scale", () => {
     assert.equal(s["blockSizePx"], 4);
     assert.equal(s["marginSizePx"], 3);
     assert.equal(s["groupByColumnWidthPx"], 0);
-    assert.deepEqual(s["origin"], new Point(-125, 0));
+    assert.deepEqual(s["origin"], pt(-125, 0));
 
     // Given the subrange, drawing should start to be on the canvas at day 5.
     assert.deepEqual(
       s.feature(1, 5, Feature.taskLineStart),
       // margin + dayWidthPx + origin.x, margin + rowHeight + 5*blockSize + origin.y
-      new Point(3, 3 + 6 * 4 + 5 * 4)
+      pt(3, 3 + 6 * 4 + 5 * 4)
     );
     // And earlier days will be drawn in the negative range.
     assert.deepEqual(
       s.feature(1, 4, Feature.taskLineStart),
       // margin + dayWidthPx + origin.x, margin + rowHeight + 5*blockSize + origin.y
-      new Point(3 - 25, 3 + 6 * 4 + 5 * 4)
+      pt(3 - 25, 3 + 6 * 4 + 5 * 4)
     );
     // And tasks to the right will be larger than 236 = 265 - 2*10, the canvas width in pixels.
     assert.deepEqual(
       s.feature(1, 15, Feature.taskLineStart),
       // margin + dayWidthPx + origin.x, margin + rowHeight + 5*blockSize + origin.y
-      new Point(3 + 15 * 25 - 125, 3 + 6 * 4 + 5 * 4)
+      pt(3 + 15 * 25 - 125, 3 + 6 * 4 + 5 * 4)
     );
   });
 });

@@ -25,7 +25,7 @@ import {
   renderTasksToCanvas,
   suggestedCanvasHeight,
 } from "../renderer/renderer.ts";
-import { Point } from "../renderer/scale/point.ts";
+import { Point, pt } from "../renderer/scale/point.ts";
 import { Scale } from "../renderer/scale/scale.ts";
 import { Result } from "../result.ts";
 import { ComputeSlack, CriticalPath, Slack, Span } from "../slack/slack.ts";
@@ -238,7 +238,7 @@ export class ExplanMain extends HTMLElement {
     window.requestAnimationFrame(this.onMouseMove.bind(this));
 
     overlayCanvas.addEventListener("mousedown", (e: MouseEvent) => {
-      const p = new Point(e.offsetX, e.offsetY);
+      const p = pt(e.offsetX, e.offsetY);
       if (this.updateHighlightFromMousePos !== null) {
         this.setSelection(
           this.updateHighlightFromMousePos(p, "mousedown") || -1,
@@ -248,7 +248,7 @@ export class ExplanMain extends HTMLElement {
     });
 
     overlayCanvas.addEventListener("dblclick", (e: MouseEvent) => {
-      const p = new Point(e.offsetX, e.offsetY);
+      const p = pt(e.offsetX, e.offsetY);
       if (this.updateHighlightFromMousePos !== null) {
         this.setSelection(
           this.updateHighlightFromMousePos(p, "mousedown") || -1,

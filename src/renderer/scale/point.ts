@@ -1,34 +1,37 @@
 /** A coordinate point on the rendering surface. */
-export class Point {
+
+export interface Point {
   x: number;
   y: number;
-
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
-
-  add(x: number, y: number): Point {
-    this.x += x;
-    this.y += y;
-    return this;
-  }
-
-  sum(rhs: Point): Point {
-    return new Point(this.x + rhs.x, this.y + rhs.y);
-  }
-
-  equal(rhs: Point): boolean {
-    return this.x === rhs.x && this.y === rhs.y;
-  }
-
-  set(rhs: Point): Point {
-    this.x = rhs.x;
-    this.y = rhs.y;
-    return this;
-  }
-
-  dup(): Point {
-    return new Point(this.x, this.y);
-  }
 }
+
+export const pt = (x: number, y: number): Point => {
+  return { x: x, y: y };
+};
+
+export const ptt = (p: [number, number]): Point => {
+  const [x, y] = p;
+  return { x: x, y: y };
+};
+
+export const sum = (p1: Point, p2: Point): Point => {
+  return {
+    x: p1.x + p2.x,
+    y: p1.y + p2.y,
+  };
+};
+
+export const add = (p1: Point, p2: [number, number]): Point => {
+  const [x2, y2] = p2;
+  return {
+    x: p1.x + x2,
+    y: p1.y + y2,
+  };
+};
+
+export const equal = (p1: Point, p2: Point): boolean =>
+  p1.x === p2.x && p1.y === p2.y;
+
+export const dup = (p: Point): Point => {
+  return { x: p.x, y: p.y };
+};

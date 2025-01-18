@@ -8,7 +8,7 @@ import { Span } from "../slack/slack.ts";
 import { Rect, TaskDuration } from "../types/types.ts";
 import { KDTree } from "./kd/kd.ts";
 import { DisplayRange } from "./range/range.ts";
-import { Point } from "./scale/point.ts";
+import { Point, pt } from "./scale/point.ts";
 import { Feature, Metric, Scale } from "./scale/scale.ts";
 
 type Direction = "up" | "down";
@@ -613,7 +613,7 @@ export function renderTasksToCanvas(
   // units.
   let returnedLocation: Point | null = null;
   if (selectedTaskLocation !== null) {
-    returnedLocation = new Point(
+    returnedLocation = pt(
       selectedTaskLocation.x / window.devicePixelRatio,
       selectedTaskLocation.y / window.devicePixelRatio
     );

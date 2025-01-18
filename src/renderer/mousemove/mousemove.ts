@@ -1,11 +1,11 @@
-import { Point } from "../scale/point.ts";
+import { Point, dup, equal, pt } from "../scale/point.ts";
 
 /** MouseMove watches mouse events for a given HTMLElement and records the most
  *  recent location.
  */
 export class MouseMove {
-  currentMoveLocation: Point = new Point(0, 0);
-  lastReadLocation: Point = new Point(0, 0);
+  currentMoveLocation: Point = pt(0, 0);
+  lastReadLocation: Point = pt(0, 0);
   ele: HTMLElement;
 
   constructor(ele: HTMLElement) {
@@ -26,10 +26,10 @@ export class MouseMove {
    * returns null.
    */
   readLocation(): Point | null {
-    if (this.currentMoveLocation.equal(this.lastReadLocation)) {
+    if (equal(this.currentMoveLocation, this.lastReadLocation)) {
       return null;
     }
-    this.lastReadLocation.set(this.currentMoveLocation);
-    return this.lastReadLocation.dup();
+    this.lastReadLocation = dup(this.currentMoveLocation);
+    return dup(this.lastReadLocation);
   }
 }

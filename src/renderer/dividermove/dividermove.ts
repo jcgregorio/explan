@@ -2,7 +2,7 @@
  * Functionality for creating draggable dividers between elements on a page.
  */
 import { clamp } from "../../metrics/range.ts";
-import { Point } from "../scale/point.ts";
+import { Point, equal, pt } from "../scale/point.ts";
 
 // Values are returned as percentages around the current mouse location. That
 // is, if we are in "column" mode then `before` would equal the mouse position
@@ -79,10 +79,10 @@ export class DividerMove {
   parentRect: Rect | null = null;
 
   /** The current mouse position in Page coordinates. */
-  currentMoveLocation: Point = new Point(0, 0);
+  currentMoveLocation: Point = pt(0, 0);
 
   /** The last mouse position in Page coordinates reported via CustomEvent. */
-  lastMoveSent: Point = new Point(0, 0);
+  lastMoveSent: Point = pt(0, 0);
 
   /** The parent element that contains the divider. */
   parent: HTMLElement;
@@ -116,7 +116,7 @@ export class DividerMove {
   }
 
   onTimeout() {
-    if (!this.currentMoveLocation.equal(this.lastMoveSent)) {
+    if (!equal(this.currentMoveLocation, this.lastMoveSent)) {
       let diffPercent: number = 0;
       if (this.dividerType === "column") {
         diffPercent =
@@ -138,7 +138,7 @@ export class DividerMove {
           },
         })
       );
-      this.lastMoveSent.set(this.currentMoveLocation);
+      this.lastMoveSent = this.currentMoveLocation;
     }
   }
 
@@ -160,21 +160,21 @@ export class DividerMove {
     this.parent.addEventListener("mouseup", this.mouseup.bind(this));
     this.parent.addEventListener("mouseleave", this.mouseleave.bind(this));
 
-    this.begin = new Point(e.pageX, e.pageY);
+    this.begin = pt(e.pageX, e.pageY);
   }
 
   mouseup(e: MouseEvent) {
     if (this.begin === null) {
       return;
     }
-    this.finished(new Point(e.pageX, e.pageY));
+    this.finished(pt(e.pageX, e.pageY));
   }
 
   mouseleave(e: MouseEvent) {
     if (this.begin === null) {
       return;
     }
-    this.finished(new Point(e.pageX, e.pageY));
+    this.finished(pt(e.pageX, e.pageY));
   }
 
   finished(end: Point) {
@@ -189,7 +189,7 @@ export class DividerMove {
     this.currentMoveLocation = end;
     this.onTimeout();
     this.begin = null;
-    this.currentMoveLocation = new Point(0, 0);
-    this.lastMoveSent = new Point(0, 0);
+    this.currentMoveLocation = pt(0, 0);
+    this.lastMoveSent = pt(0, 0);
   }
 }

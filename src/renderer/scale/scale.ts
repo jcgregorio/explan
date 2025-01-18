@@ -1,6 +1,6 @@
 import { clamp } from "../../metrics/range.ts";
 import { RenderOptions } from "../renderer.ts";
-import { Point } from "./point.ts";
+import { Point, add, pt, sum } from "./point.ts";
 
 export interface DayRow {
   day: number;
@@ -99,8 +99,8 @@ export class Scale {
       ? Math.ceil((opts.fontSizePx * 4) / 3)
       : 0;
 
-    this.timelineOrigin = new Point(milestoneRadius, 0);
-    this.groupByOrigin = new Point(0, milestoneRadius + this.timelineHeightPx);
+    this.timelineOrigin = pt(milestoneRadius, 0);
+    this.groupByOrigin = pt(0, milestoneRadius + this.timelineHeightPx);
 
     let beginOffset = 0;
     if (opts.displayRange === null || opts.displayRangeUsage === "highlight") {
@@ -109,7 +109,7 @@ export class Scale {
       this.dayWidthPx =
         (canvasWidthPx - this.groupByColumnWidthPx - 2 * this.marginSizePx) /
         totalNumberOfDays;
-      this.origin = new Point(0, 0);
+      this.origin = pt(0, 0);
     } else {
       // Should we set x-margins to 0 if a SubRange is requested?
       // Or should we totally drop all margins from here and just use
@@ -120,15 +120,15 @@ export class Scale {
       beginOffset = Math.floor(
         this.dayWidthPx * opts.displayRange.begin + this.marginSizePx
       );
-      this.origin = new Point(-beginOffset + this.marginSizePx, 0);
+      this.origin = pt(-beginOffset + this.marginSizePx, 0);
     }
 
-    this.tasksOrigin = new Point(
+    this.tasksOrigin = pt(
       this.groupByColumnWidthPx - beginOffset + milestoneRadius,
       this.timelineHeightPx + milestoneRadius
     );
 
-    this.tasksClipRectOrigin = new Point(
+    this.tasksClipRectOrigin = pt(
       this.groupByColumnWidthPx,
       this.timelineHeightPx
     );
@@ -173,39 +173,33 @@ export class Scale {
 
   /** The top left corner of the bounding box for a single task. */
   private taskRowEnvelopeStart(row: number, day: number): Point {
-    return this.origin.sum(
-      new Point(
-        Math.floor(
-          day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx
-        ),
-        Math.floor(
-          row * this.rowHeightPx + this.marginSizePx + this.timelineHeightPx
-        )
-      )
-    );
+    return add(this.origin, [
+      Math.floor(
+        day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx
+      ),
+      Math.floor(
+        row * this.rowHeightPx + this.marginSizePx + this.timelineHeightPx
+      ),
+    ]);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private groupRowEnvelopeStart(row: number, day: number): Point {
-    return this.groupByOrigin.sum(
-      new Point(
-        0,
-        row * this.rowHeightPx + this.marginSizePx + this.timelineHeightPx
-      )
-    );
+    return add(this.groupByOrigin, [
+      0,
+      row * this.rowHeightPx + this.marginSizePx + this.timelineHeightPx,
+    ]);
   }
 
   private groupHeaderStart(): Point {
-    return this.origin.sum(new Point(this.marginSizePx, this.marginSizePx));
+    return add(this.origin, [this.marginSizePx, this.marginSizePx]);
   }
 
   private timeEnvelopeStart(day: number): Point {
-    return this.origin.sum(
-      new Point(
-        day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx,
-        0
-      )
-    );
+    return add(this.origin, [
+      day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx,
+      0,
+    ]);
   }
 
   /** Returns the coordinate of the item */
@@ -214,65 +208,65 @@ export class Scale {
       case Feature.taskLineStart:
       case Feature.verticalArrowDestTop:
       case Feature.verticalArrowStart:
-        return this.taskRowEnvelopeStart(row, day).add(
+        return add(this.taskRowEnvelopeStart(row, day), [
           0,
-          this.rowHeightPx - this.blockSizePx
-        );
+          this.rowHeightPx - this.blockSizePx,
+        ]);
 
       case Feature.verticalArrowDestBottom:
-        return this.taskRowEnvelopeStart(row, day).add(0, this.rowHeightPx);
+        return add(this.taskRowEnvelopeStart(row, day), [0, this.rowHeightPx]);
       case Feature.textStart:
-        return this.taskRowEnvelopeStart(row, day).add(
+        return add(this.taskRowEnvelopeStart(row, day), [
           this.blockSizePx,
-          this.blockSizePx
-        );
+          this.blockSizePx,
+        ]);
       case Feature.groupTextStart:
-        return this.groupRowEnvelopeStart(row, day).add(
+        return add(this.groupRowEnvelopeStart(row, day), [
           this.blockSizePx,
-          this.blockSizePx
-        );
+          this.blockSizePx,
+        ]);
       case Feature.percentStart:
-        return this.taskRowEnvelopeStart(row, day).add(
+        return add(this.taskRowEnvelopeStart(row, day), [
           0,
-          this.rowHeightPx - this.lineWidthPx
-        );
+          this.rowHeightPx - this.lineWidthPx,
+        ]);
       case Feature.horizontalArrowDest:
       case Feature.horizontalArrowStart:
-        return this.taskRowEnvelopeStart(row, day).add(
+        return add(this.taskRowEnvelopeStart(row, day), [
           0,
-          Math.floor(this.rowHeightPx - 0.5 * this.blockSizePx) - 1
-        );
+          Math.floor(this.rowHeightPx - 0.5 * this.blockSizePx) - 1,
+        ]);
       case Feature.verticalArrowDestToMilestoneTop:
-        return this.feature(row, day, Feature.verticalArrowDestTop).add(
+        return add(this.feature(row, day, Feature.verticalArrowDestTop), [
           0,
-          -1 * this.metric(Metric.milestoneDiameter)
-        );
-      case Feature.verticalArrowDestToMilestoneBottom:
-        return this.feature(row, day, Feature.verticalArrowDestTop).add(
-          0,
-          this.metric(Metric.milestoneDiameter)
-        );
-      case Feature.horizontalArrowDestToMilestone:
-        return this.feature(row, day, Feature.horizontalArrowDest).add(
           -1 * this.metric(Metric.milestoneDiameter),
-          -1 * this.metric(Metric.milestoneDiameter)
-        );
-      case Feature.verticalArrowStartFromMilestoneTop:
-        return this.feature(row, day, Feature.verticalArrowStart).add(
+        ]);
+      case Feature.verticalArrowDestToMilestoneBottom:
+        return add(this.feature(row, day, Feature.verticalArrowDestTop), [
           0,
-          -1 * this.metric(Metric.milestoneDiameter)
-        );
+          this.metric(Metric.milestoneDiameter),
+        ]);
+      case Feature.horizontalArrowDestToMilestone:
+        return add(this.feature(row, day, Feature.horizontalArrowDest), [
+          -1 * this.metric(Metric.milestoneDiameter),
+          -1 * this.metric(Metric.milestoneDiameter),
+        ]);
+      case Feature.verticalArrowStartFromMilestoneTop:
+        return add(this.feature(row, day, Feature.verticalArrowStart), [
+          0,
+          -1 * this.metric(Metric.milestoneDiameter),
+        ]);
 
       case Feature.verticalArrowStartFromMilestoneBottom:
-        return this.feature(row, day, Feature.verticalArrowStart).add(
+        return add(this.feature(row, day, Feature.verticalArrowStart), [
           0,
-          this.metric(Metric.milestoneDiameter)
-        );
-      case Feature.horizontalArrowStartFromMilestone:
-        return this.feature(row, day, Feature.horizontalArrowStart).add(
           this.metric(Metric.milestoneDiameter),
-          0
-        );
+        ]);
+      case Feature.horizontalArrowStartFromMilestone:
+        return add(this.feature(row, day, Feature.horizontalArrowStart), [
+          this.metric(Metric.milestoneDiameter),
+          0,
+        ]);
       case Feature.taskEnvelopeTop:
         return this.taskRowEnvelopeStart(row, day);
       case Feature.groupEnvelopeStart:
@@ -280,12 +274,14 @@ export class Scale {
       case Feature.timeMarkStart:
         return this.timeEnvelopeStart(day);
       case Feature.timeMarkEnd:
-        return this.timeEnvelopeStart(day).add(0, this.rowHeightPx * (row + 1));
+        return add(this.timeEnvelopeStart(day), [
+          0,
+          this.rowHeightPx * (row + 1),
+        ]);
       case Feature.timeTextStart:
-        return this.timeEnvelopeStart(day).add(this.blockSizePx, 0);
-
+        return add(this.timeEnvelopeStart(day), [this.blockSizePx, 0]);
       case Feature.groupTitleTextStart:
-        return this.groupHeaderStart().add(this.blockSizePx, 0);
+        return add(this.groupHeaderStart(), [this.blockSizePx, 0]);
       case Feature.displayRangeTop:
         return this.timeEnvelopeStart(day);
       case Feature.taskRowBottom:
@@ -297,7 +293,7 @@ export class Scale {
       default:
         // The line below will not compile if you missed an enum in the switch above.
         coord satisfies never;
-        return new Point(0, 0);
+        return pt(0, 0);
     }
   }
 

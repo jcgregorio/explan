@@ -1,4 +1,4 @@
-import { Point } from "../scale/point.ts";
+import { Point, dup, equal, pt } from "../scale/point.ts";
 
 export interface DragRange {
   begin: Point;
@@ -20,8 +20,8 @@ export const DRAG_RANGE_EVENT = "dragrange";
  */
 export class MouseDrag {
   begin: Point | null = null;
-  currentMoveLocation: Point = new Point(0, 0);
-  lastMoveSent: Point = new Point(0, 0);
+  currentMoveLocation: Point = pt(0, 0);
+  lastMoveSent: Point = pt(0, 0);
   ele: HTMLElement;
   internvalHandle: number = 0;
 
@@ -42,16 +42,16 @@ export class MouseDrag {
   }
 
   onTimeout() {
-    if (!this.currentMoveLocation.equal(this.lastMoveSent)) {
+    if (!equal(this.currentMoveLocation, this.lastMoveSent)) {
       this.ele.dispatchEvent(
         new CustomEvent<DragRange>(DRAG_RANGE_EVENT, {
           detail: {
-            begin: this.begin!.dup(),
-            end: this.currentMoveLocation.dup(),
+            begin: dup(this.begin!),
+            end: dup(this.currentMoveLocation),
           },
         })
       );
-      this.lastMoveSent.set(this.currentMoveLocation);
+      this.lastMoveSent = dup(this.currentMoveLocation);
     }
   }
 
@@ -65,18 +65,18 @@ export class MouseDrag {
 
   mousedown(e: MouseEvent) {
     this.internvalHandle = window.setInterval(this.onTimeout.bind(this), 16);
-    this.begin = new Point(e.offsetX, e.offsetY);
+    this.begin = pt(e.offsetX, e.offsetY);
   }
 
   mouseup(e: MouseEvent) {
-    this.finished(new Point(e.offsetX, e.offsetY));
+    this.finished(pt(e.offsetX, e.offsetY));
   }
 
   mouseleave(e: MouseEvent) {
     if (this.begin === null) {
       return;
     }
-    this.finished(new Point(e.offsetX, e.offsetY));
+    this.finished(pt(e.offsetX, e.offsetY));
   }
 
   finished(end: Point) {
@@ -84,7 +84,7 @@ export class MouseDrag {
     this.currentMoveLocation = end;
     this.onTimeout();
     this.begin = null;
-    this.currentMoveLocation = new Point(0, 0);
-    this.lastMoveSent = new Point(0, 0);
+    this.currentMoveLocation = pt(0, 0);
+    this.lastMoveSent = pt(0, 0);
   }
 }

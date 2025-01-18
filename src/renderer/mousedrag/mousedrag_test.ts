@@ -1,6 +1,6 @@
 import { assert } from "@esm-bundle/chai";
 import { DRAG_RANGE_EVENT, DragRange, MouseDrag } from "./mousedrag.ts";
-import { Point } from "../scale/point.ts";
+import { Point, add, equal, pt } from "../scale/point.ts";
 
 describe("MouseMove", () => {
   let div: HTMLDivElement;
@@ -20,16 +20,16 @@ describe("MouseMove", () => {
   it("ignores 'mousemove' events if 'mousedown' hasn't occurred first", () => {
     div.dispatchEvent(new MouseEvent("mousemove", { clientX: 1, clientY: 2 }));
     assert.isNull(mm.begin);
-    assert.deepEqual(mm.currentMoveLocation, new Point(0, 0));
-    assert.deepEqual(mm.lastMoveSent, new Point(0, 0));
+    assert.deepEqual(mm.currentMoveLocation, pt(0, 0));
+    assert.deepEqual(mm.lastMoveSent, pt(0, 0));
   });
 
   it("records the location of the 'mousemove' event if it comes after a 'mousedown' event", () => {
     div.dispatchEvent(new MouseEvent("mousedown", { clientX: 1, clientY: 1 }));
     div.dispatchEvent(new MouseEvent("mousemove", { clientX: 2, clientY: 2 }));
     assert.isNotNull(mm.begin);
-    assert.notDeepEqual(mm.currentMoveLocation, new Point(0, 0));
-    assert.deepEqual(mm.lastMoveSent, new Point(0, 0));
+    assert.notDeepEqual(mm.currentMoveLocation, pt(0, 0));
+    assert.deepEqual(mm.lastMoveSent, pt(0, 0));
   });
 
   it("emits a DRAG_RANGE_EVENT event after seeing 'mousemove' event(s)", () => {
@@ -45,15 +45,15 @@ describe("MouseMove", () => {
       // be (1, 2). We don't actually inspect the offsetX and offsetY values
       // directly in a test because they are calculated by the browser from the
       // clientX and clientY and could change over time.
-      assert.isTrue(e.detail.begin.add(1, 2).equal(e.detail.end));
+      assert.isTrue(equal(add(e.detail.begin, [1, 2]), e.detail.end));
 
       handlerCalled = true;
     };
     div.addEventListener(DRAG_RANGE_EVENT, handler as EventListener);
     mm.onTimeout();
     assert.isTrue(handlerCalled);
-    assert.notDeepEqual(mm.currentMoveLocation, new Point(0, 0));
-    assert.notDeepEqual(mm.lastMoveSent, new Point(0, 0));
+    assert.notDeepEqual(mm.currentMoveLocation, pt(0, 0));
+    assert.notDeepEqual(mm.lastMoveSent, pt(0, 0));
   });
 
   it("does not emits a second DRAG_RANGE_EVENT event if the mouse hasn't moved again", () => {
@@ -86,7 +86,7 @@ describe("MouseMove", () => {
       assert.isNumber(e.detail.end.y);
       // Same as above, only look at the delta of the Points and not the exact
       // values.
-      assert.isTrue(e.detail.begin.add(2, 2).equal(e.detail.end));
+      assert.isTrue(equal(add(e.detail.begin, [2, 2]), e.detail.end));
       handlerCalled = true;
     };
     div.addEventListener("dragrange", handler as EventListener);
@@ -97,7 +97,7 @@ describe("MouseMove", () => {
 
     assert.isTrue(handlerCalled);
     assert.isNull(mm.begin);
-    assert.deepEqual(mm.currentMoveLocation, new Point(0, 0));
-    assert.deepEqual(mm.lastMoveSent, new Point(0, 0));
+    assert.deepEqual(mm.currentMoveLocation, pt(0, 0));
+    assert.deepEqual(mm.lastMoveSent, pt(0, 0));
   });
 });
