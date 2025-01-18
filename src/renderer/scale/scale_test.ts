@@ -2,7 +2,7 @@ import { assert } from "@esm-bundle/chai";
 import { RenderOptions, defaultTaskLabel } from "../renderer.ts";
 import { Feature, Metric, Scale } from "./scale.ts";
 import { DisplayRange } from "../range/range.ts";
-import { Point, pt } from "../../point/point.ts";
+import { pt } from "../../point/point.ts";
 
 describe("Scale", () => {
   const optsForTest: RenderOptions = {

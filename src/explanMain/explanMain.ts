@@ -25,25 +25,18 @@ import {
   renderTasksToCanvas,
   suggestedCanvasHeight,
 } from "../renderer/renderer.ts";
-import { Point, pt } from "../point/point.ts";
+import { pt } from "../point/point.ts";
 import { Scale } from "../renderer/scale/scale.ts";
 import { Result } from "../result.ts";
 import { ComputeSlack, CriticalPath, Slack, Span } from "../slack/slack.ts";
 import { Theme, colorThemeFromElement } from "../style/theme/theme.ts";
-import { TemplateResult, html, render } from "lit-html";
-import {
-  CriticalPathEntry,
-  CriticalPathTaskEntry,
-  criticalTaskFrequencies,
-  simulation,
-} from "../simulation/simulation.ts";
 import {
   generateRandomPlan,
   generateStarterPlan,
 } from "../generate/generate.ts";
 import { execute, executeOp } from "../action/execute.ts";
 import { StartKeyboardHandling } from "../keymap/keymap.ts";
-import { DeleteTaskOp, RemoveEdgeOp, SetTaskNameOp } from "../ops/chart.ts";
+import { RemoveEdgeOp, SetTaskNameOp } from "../ops/chart.ts";
 import { DependenciesPanel } from "../dependencies/dependencies-panel.ts";
 import { ActionNames } from "../action/registry.ts";
 import {
