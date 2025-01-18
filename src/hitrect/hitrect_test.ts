@@ -14,25 +14,25 @@ describe("HitRect", () => {
   };
 
   it("works on an empty list of Rects", () => {
-    assert.equal(new HitRect([]).hit(pt(0, 0)), -1);
+    assert.equal(new HitRect([]).hit(pt(0, 0)), null);
   });
 
   it("works on a single Rect", () => {
-    assert.equal(new HitRect([r1]).hit(pt(0, 0)), 0);
-    assert.equal(new HitRect([r1]).hit(pt(2, 2)), -1);
-    assert.equal(new HitRect([r1]).hit(pt(0, -1)), -1);
+    assert.equal(new HitRect([r1]).hit(pt(0, 0)), r1);
+    assert.equal(new HitRect([r1]).hit(pt(2, 2)), null);
+    assert.equal(new HitRect([r1]).hit(pt(0, -1)), null);
   });
 
   it("works on a two Rects", () => {
     const r = new HitRect([r2, r1]);
-    assert.equal(r.hit(pt(0, 0)), 0, "inside r1");
-    assert.equal(r.hit(pt(0, 2)), 1, "inside r2");
-    assert.equal(r.hit(pt(2, -1)), -1, "above r1");
-    assert.equal(r.hit(pt(2, 1.5)), -1, "vertically between r1 and r2");
-    assert.equal(r.hit(pt(2, 4)), -1, "below r2");
-    assert.equal(r.hit(pt(3, 2.5)), -1, "to the right of r2");
-    assert.equal(r.hit(pt(-1, 2.5)), -1, "to the left of r2");
-    assert.equal(r.hit(pt(1.5, 0)), -1, "to the right of r1");
-    assert.equal(r.hit(pt(-1.5, 0)), -1, "to the left of r1");
+    assert.equal(r.hit(pt(0, 0)), r1, "inside r1");
+    assert.equal(r.hit(pt(0, 2)), r2, "inside r2");
+    assert.equal(r.hit(pt(2, -1)), null, "above r1");
+    assert.equal(r.hit(pt(2, 1.5)), null, "vertically between r1 and r2");
+    assert.equal(r.hit(pt(2, 4)), null, "below r2");
+    assert.equal(r.hit(pt(3, 2.5)), null, "to the right of r2");
+    assert.equal(r.hit(pt(-1, 2.5)), null, "to the left of r2");
+    assert.equal(r.hit(pt(1.5, 0)), null, "to the right of r1");
+    assert.equal(r.hit(pt(-1.5, 0)), null, "to the left of r1");
   });
 });
