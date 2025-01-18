@@ -1,4 +1,4 @@
-import { Point, dup, equal, pt } from "../scale/point.ts";
+import { Point, dup, equal, pt } from "../../point/point.ts";
 
 export interface DragRange {
   begin: Point;

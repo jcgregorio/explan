@@ -25,7 +25,7 @@ import {
   renderTasksToCanvas,
   suggestedCanvasHeight,
 } from "../renderer/renderer.ts";
-import { Point, pt } from "../renderer/scale/point.ts";
+import { Point, pt } from "../point/point.ts";
 import { Scale } from "../renderer/scale/scale.ts";
 import { Result } from "../result.ts";
 import { ComputeSlack, CriticalPath, Slack, Span } from "../slack/slack.ts";

@@ -1,4 +1,4 @@
-import { Point, dup, equal, pt } from "../scale/point.ts";
+import { Point, dup, equal, pt } from "../../point/point.ts";
 
 /** MouseMove watches mouse events for a given HTMLElement and records the most
  *  recent location.

@@ -1,6 +1,6 @@
 import { clamp } from "../../metrics/range.ts";
 import { RenderOptions } from "../renderer.ts";
-import { Point, add, pt, sum } from "./point.ts";
+import { Point, add, pt, sum } from "../../point/point.ts";
 
 export interface DayRow {
   day: number;

@@ -5,10 +5,11 @@ import { Plan } from "../plan/plan.ts";
 import { ResourceDefinition } from "../resources/resources.ts";
 import { Result, ok } from "../result.ts";
 import { Span } from "../slack/slack.ts";
-import { Rect, TaskDuration } from "../types/types.ts";
+import { TaskDuration } from "../types/types.ts";
+import { Rect } from "../rect/rect.ts";
 import { KDTree } from "./kd/kd.ts";
 import { DisplayRange } from "./range/range.ts";
-import { Point, pt } from "./scale/point.ts";
+import { Point, pt } from "../point/point.ts";
 import { Feature, Metric, Scale } from "./scale/scale.ts";
 
 type Direction = "up" | "down";

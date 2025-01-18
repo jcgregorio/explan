@@ -2,7 +2,7 @@
  * Functionality for creating draggable dividers between elements on a page.
  */
 import { clamp } from "../../metrics/range.ts";
-import { Point, dup, equal, pt } from "../scale/point.ts";
+import { Point, dup, equal, pt } from "../../point/point.ts";
 
 // Values are returned as percentages around the current mouse location. That
 // is, if we are in "column" mode then `before` would equal the mouse position

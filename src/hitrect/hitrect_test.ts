@@ -1,6 +1,6 @@
 import { assert } from "@esm-bundle/chai";
 import { HitRect } from "./hitrect.ts";
-import { Point, pt } from "../renderer/scale/point.ts";
+import { Point, pt } from "../point/point.ts";
 import { Rect } from "../types/types.ts";
 
 describe("HitRect", () => {

@@ -1,5 +1,5 @@
 import { assert } from "@esm-bundle/chai";
-import { Point, add, dup, equal, pt, sum } from "./point";
+import { add, dup, equal, pt, sum } from "./point";
 
 describe("Point", () => {
   it("has equal comparitor", () => {

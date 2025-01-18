@@ -1,5 +1,5 @@
-import { Point } from "../renderer/scale/point";
-import { Rect } from "../types/types";
+import { Point } from "../point/point";
+import { Rect } from "../rect/rect";
 
 const withinY = (y: number, rect: Rect): boolean => {
   return rect.topLeft.y <= y && rect.bottomRight.y >= y;

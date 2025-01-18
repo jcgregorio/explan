@@ -1,6 +1,6 @@
 import { assert } from "@esm-bundle/chai";
 import { DRAG_RANGE_EVENT, DragRange, MouseDrag } from "./mousedrag.ts";
-import { Point, add, equal, pt } from "../scale/point.ts";
+import { Point, add, equal, pt } from "../../point/point.ts";
 
 describe("MouseMove", () => {
   let div: HTMLDivElement;
