@@ -341,6 +341,9 @@ export class ExplanMain extends HTMLElement {
     if (focus) {
       this.forceFocusOnTask();
     }
+    if (this.selectedTask === -1) {
+      this.focusOnTask = false;
+    }
     this.paintChart(scrollToSelected);
     this.updateTaskPanels(this.selectedTask);
   }
