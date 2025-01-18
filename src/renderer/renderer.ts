@@ -9,7 +9,7 @@ import { TaskDuration } from "../types/types.ts";
 import { Rect } from "../rect/rect.ts";
 import { KDTree } from "./kd/kd.ts";
 import { DisplayRange } from "./range/range.ts";
-import { Point, pt } from "../point/point.ts";
+import { Point, difference, pt } from "../point/point.ts";
 import { Feature, Metric, Scale } from "./scale/scale.ts";
 import { HitRect } from "../hitrect/hitrect.ts";
 
@@ -268,6 +268,8 @@ export function renderTasksToCanvas(
   const percentHeight = scale.metric(Metric.percentHeight);
   const arrowHeadHeight = scale.metric(Metric.arrowHeadHeight);
   const arrowHeadWidth = scale.metric(Metric.arrowHeadWidth);
+  const minTaskWidthPx = scale.metric(Metric.minTaskWidthPx);
+
   const daysWithTimeMarkers: Set<number> = new Set();
   const tiret = taskIndexToRowFromGroupBy(
     opts,
@@ -367,11 +369,17 @@ export function renderTasksToCanvas(
       span.start,
       Feature.taskEnvelopeTop
     );
-    const highlightBottomRight = scale.feature(
+    let highlightBottomRight = scale.feature(
       row + 1,
       span.finish,
       Feature.taskEnvelopeTop
     );
+
+    // Pad highlightBottomRight if too small.
+    const [width, _] = difference(highlightTopLeft, highlightBottomRight);
+    if (width < minTaskWidthPx) {
+      highlightBottomRight.x = highlightTopLeft.x + minTaskWidthPx;
+    }
 
     taskIndexToTaskHighlightCorners.set(taskIndex, {
       topLeft: highlightTopLeft,
@@ -480,7 +488,6 @@ export function renderTasksToCanvas(
   if (overlay !== null) {
     const overlayCtx = overlay.getContext("2d")!;
 
-    console.log([...taskIndexToTaskHighlightCorners.values()]);
     const taskLocationKDTree = new HitRect<RectWithFilteredTaskIndex>([
       ...taskIndexToTaskHighlightCorners.values(),
     ]);

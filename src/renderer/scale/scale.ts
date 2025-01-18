@@ -52,6 +52,7 @@ export enum Metric {
   lineDashLine,
   lineDashGap,
   textXOffset,
+  minTaskWidthPx,
   rowHeight,
 }
 
@@ -315,6 +316,8 @@ export class Scale {
         return this.blockSizePx;
       case Metric.textXOffset:
         return this.blockSizePx;
+      case Metric.minTaskWidthPx:
+        return this.blockSizePx * 10;
       case Metric.rowHeight:
         return this.rowHeightPx;
       default:

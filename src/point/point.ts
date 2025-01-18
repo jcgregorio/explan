@@ -35,3 +35,7 @@ export const equal = (p1: Point, p2: Point): boolean =>
 export const dup = (p: Point): Point => {
   return { x: p.x, y: p.y };
 };
+
+export const difference = (p1: Point, p2: Point): [number, number] => {
+  return [p2.x - p1.x, p2.y - p1.y];
+};
