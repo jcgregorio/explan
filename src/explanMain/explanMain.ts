@@ -243,11 +243,12 @@ export class ExplanMain extends HTMLElement {
     overlayCanvas.addEventListener("dblclick", (e: MouseEvent) => {
       const p = pt(e.offsetX, e.offsetY);
       if (this.updateHighlightFromMousePos !== null) {
-        this.setSelection(
-          this.updateHighlightFromMousePos(p, "mousedown") || -1,
-          true,
-          true
-        );
+        const taskIndex =
+          this.updateHighlightFromMousePos(p, "mousedown") || -1;
+        if (taskIndex === -1) {
+          execute("ResetZoomAction", this);
+        }
+        this.setSelection(taskIndex, true, true);
       }
     });
 
