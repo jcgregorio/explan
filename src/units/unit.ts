@@ -1,4 +1,5 @@
 import { MetricDefinition } from "../metrics/metrics";
+import { Weekdays } from "./weekdays";
 
 interface Unit {
   displayTime(t: number): string;
@@ -30,7 +31,8 @@ class Days implements Unit {
   }
 
   displayTime(t: number): string {
-    const d = new Date(this.start.getTime() + t * 60 * 60 * 24);
+    const d = new Date(this.start.getTime());
+    d.setDate(d.getDate() + t);
     return d.toLocaleDateString();
   }
 
@@ -43,16 +45,17 @@ class Days implements Unit {
 class WeekDays implements Unit {
   start: Date;
   metricDefn: MetricDefinition;
+  weekdays: Weekdays;
 
   constructor(start: Date, metricDefn: MetricDefinition) {
     this.start = start;
     this.metricDefn = metricDefn;
+    this.weekdays = new Weekdays(start);
   }
 
   displayTime(t: number): string {
-    // Need a func to convert the number of weekdays into a number of days,
-    // i.e. adding in all the weekends (and eventually holidays).
-    const d = new Date(this.start.getTime() + t * 60 * 60 * 24);
+    const d = new Date(this.start.getTime());
+    d.setDate(d.getDate() + this.weekdays.weekdaysToDays(t));
     return d.toLocaleDateString();
   }
 

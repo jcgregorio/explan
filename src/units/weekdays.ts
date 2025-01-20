@@ -38,6 +38,7 @@ export class Weekdays {
       const dayOfWeek = start.getDay();
       if (dayOfWeek === 0 || dayOfWeek === 6) {
         // Sun or Sat.
+        // TODO - Here is where holiday checks would go.
         continue;
       }
       weekday += 1;
