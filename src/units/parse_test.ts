@@ -18,6 +18,7 @@ describe("parseDuration", () => {
     assert.equal(isOK(parseDuration("10d", 7)), 10);
     assert.equal(isOK(parseDuration("10d", 7)), 10);
     assert.equal(isOK(parseDuration("", 5)), 0);
+    assert.equal(isOK(parseDuration("  \n", 5)), 0);
   });
 
   it("handles numbers", () => {

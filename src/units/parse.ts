@@ -4,6 +4,7 @@ const decimalRegex = /^[\d\.]+$/;
 const shorthandRegex = /^(\d+d)?(\d+w)?(\d+m)?(\d+y)?$/;
 
 export const parseDuration = (s: string, daysInWeek: 5 | 7): Result<number> => {
+  s = s.trim();
   if (s.match(decimalRegex)) {
     return ok(+s);
   }
