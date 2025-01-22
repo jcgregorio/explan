@@ -30,5 +30,6 @@ describe("parseDuration", () => {
   it("detects invalid durations numbers", () => {
     assert.isFalse(parseDuration("f", 5).ok);
     assert.isFalse(parseDuration("123z", 5).ok);
+    assert.isFalse(parseDuration("-12", 5).ok);
   });
 });
