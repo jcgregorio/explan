@@ -1,9 +1,11 @@
 import { MetricDefinition } from "../metrics/metrics";
+import { Result, ok } from "../result";
+import { parseDuration } from "./parse";
 import { Weekdays } from "./weekdays";
 
 interface Unit {
   displayTime(t: number): string;
-  parse(s: string): number;
+  parse(s: string): Result<number>;
 }
 
 class Unitless implements Unit {
@@ -16,8 +18,8 @@ class Unitless implements Unit {
   displayTime(t: number): string {
     return this.metricDefn.clampAndRound(t).toString();
   }
-  parse(s: string): number {
-    return this.metricDefn.clampAndRound(+s);
+  parse(s: string): Result<number> {
+    return ok(this.metricDefn.clampAndRound(+s));
   }
 }
 
@@ -36,9 +38,9 @@ class Days implements Unit {
     return d.toLocaleDateString();
   }
 
-  parse(s: string): number {
+  parse(s: string): Result<number> {
     // Need code to convert 1w2d => 9.
-    return this.metricDefn.clampAndRound(+s);
+    return ok(this.metricDefn.clampAndRound(+s));
   }
 }
 
@@ -59,8 +61,8 @@ class WeekDays implements Unit {
     return d.toLocaleDateString();
   }
 
-  parse(s: string): number {
+  parse(s: string): Result<number> {
     // Need code to convert 1w2d => 9.
-    return this.metricDefn.clampAndRound(+s);
+    return ok(this.metricDefn.clampAndRound(+s));
   }
 }
