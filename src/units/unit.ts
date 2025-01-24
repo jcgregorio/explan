@@ -8,7 +8,7 @@ interface Unit {
   parse(s: string): Result<number>;
 }
 
-class Unitless implements Unit {
+export class Unitless implements Unit {
   metricDefn: MetricDefinition;
 
   constructor(metricDefn: MetricDefinition) {
@@ -23,7 +23,7 @@ class Unitless implements Unit {
   }
 }
 
-class Days implements Unit {
+export class Days implements Unit {
   start: Date;
   metricDefn: MetricDefinition;
 
@@ -39,12 +39,15 @@ class Days implements Unit {
   }
 
   parse(s: string): Result<number> {
-    // Need code to convert 1w2d => 9.
-    return ok(this.metricDefn.clampAndRound(+s));
+    const d = parseDuration(s, 7);
+    if (!d.ok) {
+      return d;
+    }
+    return ok(this.metricDefn.clampAndRound(d.value));
   }
 }
 
-class WeekDays implements Unit {
+export class WeekDays implements Unit {
   start: Date;
   metricDefn: MetricDefinition;
   weekdays: Weekdays;
@@ -62,7 +65,10 @@ class WeekDays implements Unit {
   }
 
   parse(s: string): Result<number> {
-    // Need code to convert 1w2d => 9.
-    return ok(this.metricDefn.clampAndRound(+s));
+    const d = parseDuration(s, 5);
+    if (!d.ok) {
+      return d;
+    }
+    return ok(this.metricDefn.clampAndRound(d.value));
   }
 }

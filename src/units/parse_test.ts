@@ -9,6 +9,7 @@ const isOK = (r: Result<number>): number => {
 
 describe("parseDuration", () => {
   it("handles shorthand durations", () => {
+    assert.equal(isOK(parseDuration("w", 7)), 0);
     assert.equal(isOK(parseDuration("1w", 7)), 7);
     assert.equal(isOK(parseDuration("1w", 5)), 5);
     assert.equal(isOK(parseDuration("1d1w", 5)), 6);
