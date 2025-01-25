@@ -32,10 +32,10 @@ export class Days implements Unit {
     this.metricDefn = metricDefn;
   }
 
-  displayTime(t: number): string {
+  displayTime(t: number, locale?: Intl.LocalesArgument): string {
     const d = new Date(this.start.getTime());
     d.setDate(d.getDate() + t);
-    return d.toLocaleDateString();
+    return d.toLocaleDateString(locale);
   }
 
   parse(s: string): Result<number> {
@@ -58,10 +58,11 @@ export class WeekDays implements Unit {
     this.weekdays = new Weekdays(start);
   }
 
-  displayTime(t: number): string {
+  // Locale only used for testing.
+  displayTime(t: number, locale?: Intl.LocalesArgument): string {
     const d = new Date(this.start.getTime());
     d.setDate(d.getDate() + this.weekdays.weekdaysToDays(t));
-    return d.toLocaleDateString();
+    return d.toLocaleDateString(locale);
   }
 
   parse(s: string): Result<number> {

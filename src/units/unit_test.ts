@@ -13,7 +13,7 @@ describe("Units", () => {
       false,
       new Precision(2)
     );
-    const start = new Date("2025-01-22");
+    const start = new Date("2025-01-22T12:00:00");
     const d = new Days(start, m);
 
     const isOK = (r: Result<number>) => {
@@ -47,6 +47,11 @@ describe("Units", () => {
         1,
         " w parses as 0w which is 0, but is clamped to 1."
       );
+    });
+
+    it("displays durations correctly", () => {
+      assert.equal(d.displayTime(0, "en-US"), "1/22/2025");
+      assert.equal(d.displayTime(1.2, "en-US"), "1/23/2025");
     });
   });
 });
