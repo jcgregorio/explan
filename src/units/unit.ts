@@ -1,5 +1,5 @@
 import { MetricDefinition } from "../metrics/metrics";
-import { Result, ok } from "../result";
+import { Result, error, ok } from "../result";
 import { parseDuration } from "./parse";
 import { Weekdays } from "./weekdays";
 
@@ -19,7 +19,11 @@ export class Unitless implements Unit {
     return this.metricDefn.clampAndRound(t).toString();
   }
   parse(s: string): Result<number> {
-    return ok(this.metricDefn.clampAndRound(+s));
+    const parsed = parseDuration(s, 7);
+    if (!parsed.ok) {
+      return parsed;
+    }
+    return ok(this.metricDefn.clampAndRound(parsed.value));
   }
 }
 
