@@ -15,7 +15,7 @@ describe("Units", () => {
   const start = new Date("2025-01-22T12:00:00");
 
   describe("Unitless", () => {
-    const d = new Unitless(m);
+    const d = new Unitless(start, m);
 
     const isOK = (r: Result<number>) => {
       assert.isTrue(r.ok);
@@ -39,19 +39,15 @@ describe("Units", () => {
     });
 
     it("understands duration shorthands", () => {
-      assert.equal(isOK(d.parse("1w")), 7);
-      assert.equal(isOK(d.parse("2d1w")), 9);
-      assert.equal(isOK(d.parse("2d3m")), 86);
-      assert.equal(isOK(d.parse("1w2d3m")), 93);
-      assert.equal(
-        isOK(d.parse("w")),
-        1,
-        " w parses as 0w which is 0, but is clamped to 1."
-      );
+      assert.isFalse(d.parse("1w").ok);
+      assert.isFalse(d.parse("2d1w").ok);
+      assert.isFalse(d.parse("2d3m").ok);
+      assert.isFalse(d.parse("1w2d3m").ok);
+      assert.isFalse(d.parse("w").ok);
     });
 
     it("displays durations correctly", () => {
-      assert.equal(d.displayTime(0), "1");
+      assert.equal(d.displayTime(0), "1", "clamped to 1 first");
       assert.equal(d.displayTime(1.2), "1.2");
     });
   });
