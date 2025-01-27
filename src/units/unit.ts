@@ -13,14 +13,16 @@ interface Unit {
   parse(s: string): Result<number>;
 }
 
+const UNIT_TYPES = ["Unitless", "Days", "Weekdays"] as const;
+
 // All types of duration units available.
-export type UnitTypes = "Unitless" | "Days" | "Weekdays";
+export type UnitTypes = (typeof UNIT_TYPES)[number];
 
 // Describes each type of Unit available.
 export const UnitDescriptions: Record<UnitTypes, string> = {
   Unitless: "Unitless durations.",
-  Days: "7 days a week.",
-  Weekdays: "5 days a week.",
+  Days: "Days, with 7 days a week.",
+  Weekdays: "Days, with 5 days a week.",
 };
 
 // Builders for each type of Unit.
@@ -34,6 +36,13 @@ export const UnitBuilders: Record<
     new Days(start, metricDefn),
   Weekdays: (start: Date, metricDefn: MetricDefinition) =>
     new WeekDays(start, metricDefn),
+};
+
+export const toUnit = (s: string): UnitTypes => {
+  if (UNIT_TYPES.some((t: UnitTypes) => t === s)) {
+    return s as UnitTypes;
+  }
+  return "Unitless";
 };
 
 // Unitless,
