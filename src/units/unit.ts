@@ -23,7 +23,7 @@ interface UnitSerialized {
   unitType: string;
 }
 
-class UnitBase {
+export class UnitBase {
   start: Date;
   metricDefn: MetricDefinition;
   unitType: UnitTypes;

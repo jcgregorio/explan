@@ -2,8 +2,9 @@ import { assert } from "@esm-bundle/chai";
 import { MetricDefinition } from "../metrics/metrics";
 import { MetricRange } from "../metrics/range";
 import { Precision } from "../precision/precision";
-import { Days, Unitless, WeekDays } from "./unit.ts";
+import { Days, UnitBase, Unitless, WeekDays } from "./unit.ts";
 import { Result } from "../result.ts";
+import { FromJSON } from "../plan/plan.ts";
 
 describe("Units", () => {
   const m = new MetricDefinition(
@@ -50,6 +51,11 @@ describe("Units", () => {
       assert.equal(d.displayTime(0), "1", "clamped to 1 first");
       assert.equal(d.displayTime(1.2), "1.2");
     });
+
+    it("roundtrips through JSON", () => {
+      const d2 = UnitBase.fromJSON(JSON.stringify(d), m);
+      assert.deepEqual(d, d2);
+    });
   });
 
   describe("Days", () => {
@@ -92,6 +98,11 @@ describe("Units", () => {
       assert.equal(d.displayTime(0, "en-US"), "1/22/2025");
       assert.equal(d.displayTime(1.2, "en-US"), "1/23/2025");
     });
+
+    it("roundtrips through JSON", () => {
+      const d2 = UnitBase.fromJSON(JSON.stringify(d), m);
+      assert.deepEqual(d, d2);
+    });
   });
 
   describe("WeekDays", () => {
@@ -133,6 +144,12 @@ describe("Units", () => {
     it("displays durations correctly", () => {
       assert.equal(d.displayTime(0, "en-US"), "1/22/2025");
       assert.equal(d.displayTime(1.2, "en-US"), "1/23/2025");
+    });
+
+    it("roundtrips through JSON", () => {
+      const d1 = new WeekDays(start, m);
+      const d2 = UnitBase.fromJSON(JSON.stringify(d1), m);
+      assert.deepEqual(d1, d2);
     });
   });
 });
