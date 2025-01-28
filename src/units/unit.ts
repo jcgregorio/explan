@@ -11,7 +11,31 @@ interface Unit {
   // Parse a duration, either as a raw number, or in a shorthand duration, such
   // as 1d, 2d, 5y.
   parse(s: string): Result<number>;
+
+  unitType: UnitTypes;
+
+  start: Date;
 }
+
+interface UnitSerialized {
+  start: number;
+  unitType: string;
+}
+
+const toJSON = (u: Unit): UnitSerialized => {
+  return {
+    unitType: u.unitType,
+    start: u.start.getTime(),
+  };
+};
+
+const fromJSON = (s: string, metricDefn: MetricDefinition): Unit => {
+  const unitSerialized: UnitSerialized = JSON.parse(s);
+  return UnitBuilders[toUnit(unitSerialized.unitType)](
+    new Date(unitSerialized.start),
+    metricDefn
+  );
+};
 
 const UNIT_TYPES = ["Unitless", "Days", "Weekdays"] as const;
 
@@ -47,9 +71,13 @@ export const toUnit = (s: string): UnitTypes => {
 
 // Unitless,
 export class Unitless implements Unit {
+  start: Date;
   metricDefn: MetricDefinition;
 
-  constructor(_start: Date, metricDefn: MetricDefinition) {
+  unitType: UnitTypes = "Unitless";
+
+  constructor(start: Date, metricDefn: MetricDefinition) {
+    this.start = start;
     this.metricDefn = metricDefn;
   }
 
@@ -69,6 +97,8 @@ export class Unitless implements Unit {
 export class Days implements Unit {
   start: Date;
   metricDefn: MetricDefinition;
+
+  unitType: UnitTypes = "Days";
 
   constructor(start: Date, metricDefn: MetricDefinition) {
     this.start = start;
@@ -94,6 +124,8 @@ export class WeekDays implements Unit {
   start: Date;
   metricDefn: MetricDefinition;
   weekdays: Weekdays;
+
+  unitType: UnitTypes = "Weekdays";
 
   constructor(start: Date, metricDefn: MetricDefinition) {
     this.start = start;
