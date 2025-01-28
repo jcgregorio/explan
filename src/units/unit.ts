@@ -12,10 +12,6 @@ interface Unit {
   // Parse a duration, either as a raw number, or in a shorthand duration, such
   // as 1d, 2d, 5y.
   parse(s: string): Result<number>;
-
-  unitType: UnitTypes;
-
-  start: Date;
 }
 
 // The form a Unit takes when serialized to JSON.
@@ -30,8 +26,7 @@ interface UnitSerialized {
 class UnitBase {
   start: Date;
   metricDefn: MetricDefinition;
-
-  unitType: UnitTypes = "Unitless";
+  unitType: UnitTypes;
 
   constructor(start: Date, metricDefn: MetricDefinition, unitType: UnitTypes) {
     this.start = start;
