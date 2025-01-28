@@ -75,6 +75,7 @@ export const UnitBuilders: Record<
     new WeekDays(start, metricDefn),
 };
 
+// Parse string into a valid UnitTypes.
 export const toUnit = (s: string): UnitTypes => {
   if (UNIT_TYPES.some((t: UnitTypes) => t === s)) {
     return s as UnitTypes;
@@ -82,7 +83,7 @@ export const toUnit = (s: string): UnitTypes => {
   return "Unitless";
 };
 
-// Unitless,
+// Unitless.
 export class Unitless extends UnitBase implements Unit {
   constructor(start: Date, metricDefn: MetricDefinition) {
     super(start, metricDefn, "Unitless");
