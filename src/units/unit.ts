@@ -1,3 +1,4 @@
+import { StartKeyboardHandling } from "../keymap/keymap";
 import { MetricDefinition } from "../metrics/metrics";
 import { Result, error, ok } from "../result";
 import { parseDuration } from "./parse";
@@ -17,25 +18,42 @@ interface Unit {
   start: Date;
 }
 
+// The form a Unit takes when serialized to JSON.
+//
+// Note we don't serialize the MetricDefinition since that comes from the
+// "Duration" static metric.
 interface UnitSerialized {
   start: number;
   unitType: string;
 }
 
-const toJSON = (u: Unit): UnitSerialized => {
-  return {
-    unitType: u.unitType,
-    start: u.start.getTime(),
-  };
-};
+class UnitBase {
+  start: Date;
+  metricDefn: MetricDefinition;
 
-const fromJSON = (s: string, metricDefn: MetricDefinition): Unit => {
-  const unitSerialized: UnitSerialized = JSON.parse(s);
-  return UnitBuilders[toUnit(unitSerialized.unitType)](
-    new Date(unitSerialized.start),
-    metricDefn
-  );
-};
+  unitType: UnitTypes = "Unitless";
+
+  constructor(start: Date, metricDefn: MetricDefinition, unitType: UnitTypes) {
+    this.start = start;
+    this.metricDefn = metricDefn;
+    this.unitType = unitType;
+  }
+
+  toJSON(): UnitSerialized {
+    return {
+      unitType: this.unitType,
+      start: this.start.getTime(),
+    };
+  }
+
+  static fromJSON(s: string, metricDefn: MetricDefinition): Unit {
+    const unitSerialized: UnitSerialized = JSON.parse(s);
+    return UnitBuilders[toUnit(unitSerialized.unitType)](
+      new Date(unitSerialized.start),
+      metricDefn
+    );
+  }
+}
 
 const UNIT_TYPES = ["Unitless", "Days", "Weekdays"] as const;
 
@@ -70,15 +88,9 @@ export const toUnit = (s: string): UnitTypes => {
 };
 
 // Unitless,
-export class Unitless implements Unit {
-  start: Date;
-  metricDefn: MetricDefinition;
-
-  unitType: UnitTypes = "Unitless";
-
+export class Unitless extends UnitBase implements Unit {
   constructor(start: Date, metricDefn: MetricDefinition) {
-    this.start = start;
-    this.metricDefn = metricDefn;
+    super(start, metricDefn, "Unitless");
   }
 
   displayTime(t: number): string {
@@ -94,15 +106,9 @@ export class Unitless implements Unit {
   }
 }
 
-export class Days implements Unit {
-  start: Date;
-  metricDefn: MetricDefinition;
-
-  unitType: UnitTypes = "Days";
-
+export class Days extends UnitBase implements Unit {
   constructor(start: Date, metricDefn: MetricDefinition) {
-    this.start = start;
-    this.metricDefn = metricDefn;
+    super(start, metricDefn, "Days");
   }
 
   displayTime(t: number, locale?: Intl.LocalesArgument): string {
@@ -120,16 +126,11 @@ export class Days implements Unit {
   }
 }
 
-export class WeekDays implements Unit {
-  start: Date;
-  metricDefn: MetricDefinition;
+export class WeekDays extends UnitBase implements Unit {
   weekdays: Weekdays;
 
-  unitType: UnitTypes = "Weekdays";
-
   constructor(start: Date, metricDefn: MetricDefinition) {
-    this.start = start;
-    this.metricDefn = metricDefn;
+    super(start, metricDefn, "Weekdays");
     this.weekdays = new Weekdays(start);
   }
 
