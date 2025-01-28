@@ -56,8 +56,6 @@ const FONT_SIZE_PX = 32;
 
 const NUM_SIMULATION_LOOPS = 100;
 
-const precision = new Precision(2);
-
 export class ExplanMain extends HTMLElement {
   /** The Plan being edited. */
   plan: Plan = new Plan();
@@ -383,10 +381,13 @@ export class ExplanMain extends HTMLElement {
   recalculateSpansAndCriticalPath() {
     let slacks: Slack[] = [];
 
+    const rounder =
+      this.plan.getStaticMetricDefinition("Duration").precision.round;
+
     const slackResult = ComputeSlack(
       this.plan.chart,
       this.getTaskDurationFunc(),
-      precision.rounder()
+      rounder
     );
     if (!slackResult.ok) {
       console.error(slackResult);
@@ -397,7 +398,7 @@ export class ExplanMain extends HTMLElement {
     this.spans = slacks.map((value: Slack): Span => {
       return value.early;
     });
-    this.criticalPath = CriticalPath(slacks, precision.rounder());
+    this.criticalPath = CriticalPath(slacks, rounder);
     this.updateTaskPanels(this.selectedTask);
   }
 

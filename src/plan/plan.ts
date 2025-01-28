@@ -23,11 +23,14 @@ import { UncertaintyToNum } from "../stats/cdf/triangular/jacobian.ts";
 
 export type StaticMetricKeys = "Duration" | "Percent Complete";
 
-export const StaticMetricDefinitions: MetricDefinitions = {
+export const StaticMetricDefinitions: Record<
+  StaticMetricKeys,
+  MetricDefinition
+> = {
   // How long a task will take, in days.
   Duration: new MetricDefinition(0, new MetricRange(0), true),
   // The percent complete for a task.
-  Percent: new MetricDefinition(0, new MetricRange(0, 100), true),
+  "Percent Complete": new MetricDefinition(0, new MetricRange(0, 100), true),
 };
 
 export const StaticResourceDefinitions: ResourceDefinitions = {
@@ -53,6 +56,10 @@ export class Plan {
     this.resourceDefinitions = Object.assign({}, StaticResourceDefinitions);
     this.metricDefinitions = Object.assign({}, StaticMetricDefinitions);
     this.applyMetricsAndResourcesToVertices();
+  }
+
+  getStaticMetricDefinition(name: StaticMetricKeys): MetricDefinition {
+    return this.metricDefinitions[name];
   }
 
   applyMetricsAndResourcesToVertices() {

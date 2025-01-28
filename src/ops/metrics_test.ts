@@ -80,7 +80,7 @@ describe("DeleteMetricOp", () => {
   });
 
   it("will not delete a static metric", () => {
-    const res = DeleteMetricOp("Percent").applyTo(new Plan());
+    const res = DeleteMetricOp("Percent Complete").applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("The static Metric"));
   });
