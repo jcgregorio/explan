@@ -33,7 +33,12 @@ export const StaticMetricDefinitions: Record<
   "Percent Complete": new MetricDefinition(0, new MetricRange(0, 100), true),
 };
 
-export const StaticResourceDefinitions: ResourceDefinitions = {
+export type StaticResourceKeys = "Uncertainty";
+
+export const StaticResourceDefinitions: Record<
+  StaticResourceKeys,
+  ResourceDefinition
+> = {
   Uncertainty: new ResourceDefinition(Object.keys(UncertaintyToNum), true),
 };
 
@@ -60,6 +65,10 @@ export class Plan {
 
   getStaticMetricDefinition(name: StaticMetricKeys): MetricDefinition {
     return this.metricDefinitions[name];
+  }
+
+  getStaticResourceDefinition(name: StaticResourceKeys): ResourceDefinition {
+    return this.resourceDefinitions[name];
   }
 
   applyMetricsAndResourcesToVertices() {
