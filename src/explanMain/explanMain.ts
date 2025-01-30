@@ -381,8 +381,9 @@ export class ExplanMain extends HTMLElement {
   recalculateSpansAndCriticalPath() {
     let slacks: Slack[] = [];
 
-    const rounder =
-      this.plan.getStaticMetricDefinition("Duration").precision.round;
+    const rounder = this.plan
+      .getStaticMetricDefinition("Duration")
+      .precision.rounder();
 
     const slackResult = ComputeSlack(
       this.plan.chart,
