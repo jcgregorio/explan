@@ -18,8 +18,7 @@ interface Unit {
 //
 // Note we don't serialize the MetricDefinition since that comes from the
 // "Duration" static metric.
-interface UnitSerialized {
-  start: number;
+export interface UnitSerialized {
   unitType: string;
 }
 
@@ -35,18 +34,15 @@ export class UnitBase {
   }
 
   toJSON(): UnitSerialized {
-    return {
-      unitType: this.unitType,
-      start: this.start.getTime(),
-    };
+    return { unitType: this.unitType };
   }
 
-  static fromJSON(s: string, metricDefn: MetricDefinition): Unit {
-    const unitSerialized: UnitSerialized = JSON.parse(s);
-    return UnitBuilders[toUnit(unitSerialized.unitType)](
-      new Date(unitSerialized.start),
-      metricDefn
-    );
+  static fromJSON(
+    s: UnitSerialized,
+    start: Date,
+    metricDefn: MetricDefinition
+  ): UnitBase {
+    return UnitBuilders[toUnit(s.unitType)](start, metricDefn);
   }
 }
 
@@ -65,7 +61,7 @@ export const UnitDescriptions: Record<UnitTypes, string> = {
 // Builders for each type of Unit.
 export const UnitBuilders: Record<
   UnitTypes,
-  (start: Date, metricDefn: MetricDefinition) => Unit
+  (start: Date, metricDefn: MetricDefinition) => UnitBase
 > = {
   Unitless: (start: Date, metricDefn: MetricDefinition) =>
     new Unitless(start, metricDefn),

@@ -20,6 +20,13 @@ import {
 } from "../resources/resources.ts";
 import { Result, ok } from "../result.ts";
 import { UncertaintyToNum } from "../stats/cdf/triangular/jacobian.ts";
+import {
+  Days,
+  UnitBase,
+  UnitSerialized,
+  UnitTypes,
+  Unitless,
+} from "../units/unit.ts";
 
 export type StaticMetricKeys = "Duration" | "Percent Complete";
 
@@ -43,6 +50,9 @@ export const StaticResourceDefinitions: Record<
 };
 
 export interface PlanSerialized {
+  // A value of 0 means unstared.
+  startDate: number;
+  durationUnits: UnitSerialized;
   chart: ChartSerialized;
   resourceDefinitions: ResourceDefinitionsSerialized;
   metricDefinitions: MetricDefinitionsSerialized;
@@ -50,6 +60,13 @@ export interface PlanSerialized {
 
 export class Plan {
   chart: Chart;
+
+  // Controls how time is displayed.
+  durationUnits: UnitBase;
+
+  started: boolean = false;
+
+  startDate: Date = new Date();
 
   resourceDefinitions: ResourceDefinitions;
 
@@ -60,6 +77,12 @@ export class Plan {
 
     this.resourceDefinitions = Object.assign({}, StaticResourceDefinitions);
     this.metricDefinitions = Object.assign({}, StaticMetricDefinitions);
+
+    this.durationUnits = new Days(
+      new Date(),
+      this.getStaticMetricDefinition("Duration")
+    );
+
     this.applyMetricsAndResourcesToVertices();
   }
 
@@ -89,6 +112,8 @@ export class Plan {
 
   toJSON(): PlanSerialized {
     return {
+      startDate: this.started ? this.startDate.getTime() : 0,
+      durationUnits: this.durationUnits.toJSON(),
       chart: this.chart.toJSON(),
       resourceDefinitions: Object.fromEntries(
         Object.entries(this.resourceDefinitions).filter(
@@ -141,65 +166,78 @@ export class Plan {
     );
     return ret;
   }
-}
 
-export const FromJSON = (text: string): Result<Plan> => {
-  const planSerialized: PlanSerialized = JSON.parse(text);
-  const plan = new Plan();
+  public static FromJSON = (text: string): Result<Plan> => {
+    const planSerialized: PlanSerialized = JSON.parse(text);
+    const plan = new Plan();
 
-  plan.chart.Vertices = planSerialized.chart.vertices.map(
-    (taskSerialized: TaskSerialized): Task => {
-      const task = new Task(taskSerialized.name);
-      task.state = taskSerialized.state;
-      task.metrics = taskSerialized.metrics;
-      task.resources = taskSerialized.resources;
+    plan.chart.Vertices = planSerialized.chart.vertices.map(
+      (taskSerialized: TaskSerialized): Task => {
+        const task = new Task(taskSerialized.name);
+        task.state = taskSerialized.state;
+        task.metrics = taskSerialized.metrics;
+        task.resources = taskSerialized.resources;
 
-      return task;
+        return task;
+      }
+    );
+    plan.chart.Edges = planSerialized.chart.edges.map(
+      (directedEdgeSerialized: DirectedEdgeSerialized): DirectedEdge =>
+        new DirectedEdge(directedEdgeSerialized.i, directedEdgeSerialized.j)
+    );
+
+    const deserializedMetricDefinitions = Object.fromEntries(
+      Object.entries(planSerialized.metricDefinitions).map(
+        ([key, serializedMetricDefinition]) => [
+          key,
+          MetricDefinition.FromJSON(serializedMetricDefinition),
+        ]
+      )
+    );
+
+    plan.metricDefinitions = Object.assign(
+      {},
+      StaticMetricDefinitions,
+      deserializedMetricDefinitions
+    );
+
+    const deserializedResourceDefinitions = Object.fromEntries(
+      Object.entries(planSerialized.resourceDefinitions).map(
+        ([key, serializedResourceDefinition]) => [
+          key,
+          ResourceDefinition.FromJSON(serializedResourceDefinition),
+        ]
+      )
+    );
+
+    plan.resourceDefinitions = Object.assign(
+      {},
+      StaticResourceDefinitions,
+      deserializedResourceDefinitions
+    );
+
+    if (planSerialized.startDate === 0) {
+      plan.started = false;
+      plan.startDate = new Date();
+    } else {
+      plan.started = true;
+      plan.startDate = new Date(planSerialized.startDate);
     }
-  );
-  plan.chart.Edges = planSerialized.chart.edges.map(
-    (directedEdgeSerialized: DirectedEdgeSerialized): DirectedEdge =>
-      new DirectedEdge(directedEdgeSerialized.i, directedEdgeSerialized.j)
-  );
+    plan.durationUnits = UnitBase.fromJSON(
+      planSerialized.durationUnits,
+      plan.startDate,
+      plan.getStaticMetricDefinition("Duration")
+    );
 
-  const deserializedMetricDefinitions = Object.fromEntries(
-    Object.entries(planSerialized.metricDefinitions).map(
-      ([key, serializedMetricDefinition]) => [
-        key,
-        MetricDefinition.FromJSON(serializedMetricDefinition),
-      ]
-    )
-  );
+    const ret = RationalizeEdgesOp().applyTo(plan);
+    if (!ret.ok) {
+      return ret;
+    }
 
-  plan.metricDefinitions = Object.assign(
-    {},
-    StaticMetricDefinitions,
-    deserializedMetricDefinitions
-  );
-
-  const deserializedResourceDefinitions = Object.fromEntries(
-    Object.entries(planSerialized.resourceDefinitions).map(
-      ([key, serializedResourceDefinition]) => [
-        key,
-        ResourceDefinition.FromJSON(serializedResourceDefinition),
-      ]
-    )
-  );
-
-  plan.resourceDefinitions = Object.assign(
-    {},
-    StaticResourceDefinitions,
-    deserializedResourceDefinitions
-  );
-
-  const ret = RationalizeEdgesOp().applyTo(plan);
-  if (!ret.ok) {
-    return ret;
-  }
-
-  const retVal = validateChart(plan.chart);
-  if (!retVal.ok) {
-    return retVal;
-  }
-  return ok(plan);
-};
+    const retVal = validateChart(plan.chart);
+    if (!retVal.ok) {
+      return retVal;
+    }
+    return ok(plan);
+  };
+}

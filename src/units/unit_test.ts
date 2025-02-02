@@ -4,7 +4,6 @@ import { MetricRange } from "../metrics/range";
 import { Precision } from "../precision/precision";
 import { Days, UnitBase, Unitless, WeekDays } from "./unit.ts";
 import { Result } from "../result.ts";
-import { FromJSON } from "../plan/plan.ts";
 
 describe("Units", () => {
   const m = new MetricDefinition(
@@ -53,7 +52,7 @@ describe("Units", () => {
     });
 
     it("roundtrips through JSON", () => {
-      const d2 = UnitBase.fromJSON(JSON.stringify(d), m);
+      const d2 = UnitBase.fromJSON(JSON.stringify(d), start, m);
       assert.deepEqual(d, d2);
     });
   });
@@ -100,8 +99,9 @@ describe("Units", () => {
     });
 
     it("roundtrips through JSON", () => {
-      const d2 = UnitBase.fromJSON(JSON.stringify(d), m);
-      assert.deepEqual(d, d2);
+      const stringified = JSON.stringify(d);
+      const d2 = UnitBase.fromJSON(JSON.parse(stringified), start, m);
+      assert.deepEqual(d2, d);
     });
   });
 
@@ -148,7 +148,8 @@ describe("Units", () => {
 
     it("roundtrips through JSON", () => {
       const d1 = new WeekDays(start, m);
-      const d2 = UnitBase.fromJSON(JSON.stringify(d1), m);
+      const stringified = JSON.stringify(d1);
+      const d2 = UnitBase.fromJSON(JSON.parse(stringified), start, m);
       assert.deepEqual(d1, d2);
     });
   });

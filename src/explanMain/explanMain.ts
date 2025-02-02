@@ -3,8 +3,7 @@ import { FilterFunc } from "../chart/filter/filter.ts";
 import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
 import { SetMetricValueOp } from "../ops/metrics.ts";
 import { SetResourceValueOp } from "../ops/resources.ts";
-import { FromJSON, Plan } from "../plan/plan.ts";
-import { Precision } from "../precision/precision.ts";
+import { Plan } from "../plan/plan.ts";
 import {
   DIVIDER_MOVE_EVENT,
   DividerMove,
@@ -255,7 +254,7 @@ export class ExplanMain extends HTMLElement {
       document.querySelector<HTMLInputElement>("#file-upload")!;
     fileUpload.addEventListener("change", async () => {
       const json = await fileUpload.files![0].text();
-      const ret = FromJSON(json);
+      const ret = Plan.FromJSON(json);
       if (!ret.ok) {
         throw ret.error;
       }

@@ -1,5 +1,5 @@
 import { assert } from "@esm-bundle/chai";
-import { FromJSON, Plan } from "./plan";
+import { Plan } from "./plan";
 import {
   AddResourceOp,
   AddResourceOptionOp,
@@ -13,7 +13,7 @@ describe("Plan", () => {
   it("Round trips via JSON", () => {
     const plan = new Plan();
     const serialized = JSON.stringify(plan, null, "  ");
-    const deserializedResult = FromJSON(serialized);
+    const deserializedResult = Plan.FromJSON(serialized);
     assert.isTrue(deserializedResult.ok);
     const deserialized = deserializedResult.value;
     assert.equal(serialized, JSON.stringify(deserialized, null, "  "));
@@ -44,7 +44,7 @@ describe("Plan", () => {
     const serialized = JSON.stringify(plan, null, "  ");
 
     // Now reconstitute from that serialization.
-    const deserializedResult = FromJSON(serialized);
+    const deserializedResult = Plan.FromJSON(serialized);
     assert.isTrue(deserializedResult.ok);
     const deserialized = deserializedResult.value;
 
