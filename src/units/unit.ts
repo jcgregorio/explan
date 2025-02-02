@@ -1,4 +1,3 @@
-import { StartKeyboardHandling } from "../keymap/keymap";
 import { MetricDefinition } from "../metrics/metrics";
 import { Result, error, ok } from "../result";
 import { parseDuration } from "./parse";
@@ -12,6 +11,8 @@ abstract class Unit {
   // Parse a duration, either as a raw number, or in a shorthand duration, such
   // as 1d, 2d, 5y.
   abstract parse(s: string): Result<number>;
+
+  // TODO - Needs a method to go from Date() to duration.
 }
 
 // The form a Unit takes when serialized to JSON.
