@@ -489,6 +489,9 @@ export class ExplanMain extends HTMLElement {
       };
     }
 
+    const durationDisplay = (t: number) =>
+      this.plan.durationUnits.displayTime(t);
+
     const radarOpts: RenderOptions = {
       fontSizePx: 6,
       hasText: false,
@@ -514,6 +517,7 @@ export class ExplanMain extends HTMLElement {
       groupByResource: this.groupByOptions[this.groupByOptionsIndex],
       highlightedTask: null,
       selectedTaskIndex: this.selectedTask,
+      durationDisplay: durationDisplay,
     };
 
     const zoomOpts: RenderOptions = {
@@ -541,6 +545,7 @@ export class ExplanMain extends HTMLElement {
       groupByResource: this.groupByOptions[this.groupByOptionsIndex],
       highlightedTask: 1,
       selectedTaskIndex: this.selectedTask,
+      durationDisplay: durationDisplay,
     };
 
     const timelineOpts: RenderOptions = {
@@ -568,6 +573,7 @@ export class ExplanMain extends HTMLElement {
       groupByResource: this.groupByOptions[this.groupByOptionsIndex],
       highlightedTask: null,
       selectedTaskIndex: this.selectedTask,
+      durationDisplay: durationDisplay,
     };
 
     const ret = this.paintOneChart("#radar", radarOpts);

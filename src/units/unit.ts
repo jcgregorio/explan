@@ -5,13 +5,13 @@ import { parseDuration } from "./parse";
 import { Weekdays } from "./weekdays";
 
 // Unit describes how the duration values are to be interpreted.
-interface Unit {
+abstract class Unit {
   // Convert a duration into a displayable string.
-  displayTime(t: number): string;
+  abstract displayTime(t: number): string;
 
   // Parse a duration, either as a raw number, or in a shorthand duration, such
   // as 1d, 2d, 5y.
-  parse(s: string): Result<number>;
+  abstract parse(s: string): Result<number>;
 }
 
 // The form a Unit takes when serialized to JSON.
@@ -22,15 +22,23 @@ export interface UnitSerialized {
   unitType: string;
 }
 
-export class UnitBase {
-  start: Date;
-  metricDefn: MetricDefinition;
-  unitType: UnitTypes;
+export class UnitBase implements Unit {
+  protected start: Date;
+  protected metricDefn: MetricDefinition;
+  protected unitType: UnitTypes;
 
   constructor(start: Date, metricDefn: MetricDefinition, unitType: UnitTypes) {
     this.start = start;
     this.metricDefn = metricDefn;
     this.unitType = unitType;
+  }
+
+  displayTime(t: number): string {
+    throw new Error("Method implemented in subclasses.");
+  }
+
+  parse(s: string): Result<number> {
+    throw new Error("Method implemented in subclasses.");
   }
 
   toJSON(): UnitSerialized {

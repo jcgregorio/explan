@@ -97,6 +97,9 @@ export interface RenderOptions {
    * chart.
    */
   selectedTaskIndex: number;
+
+  /** Converts the times in a chart into a displayable string. */
+  durationDisplay: (d: number) => string;
 }
 
 const verticalArrowStartFeatureFromTaskDuration = (
@@ -970,7 +973,7 @@ const drawTimeMarkerAtDayToTask = (
   ctx.textBaseline = "top";
   const textStart = scale.feature(row, day, Feature.timeTextStart);
   if (opts.hasText && opts.hasTimeline) {
-    ctx.fillText(`${day}`, textStart.x, textStart.y);
+    ctx.fillText(`${opts.durationDisplay(day)}`, textStart.x, textStart.y);
   }
 };
 
