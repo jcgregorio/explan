@@ -52,7 +52,7 @@ describe("Units", () => {
     });
 
     it("roundtrips through JSON", () => {
-      const d2 = UnitBase.fromJSON(JSON.stringify(d), start, m);
+      const d2 = UnitBase.fromJSON(JSON.parse(JSON.stringify(d)), start, m);
       assert.deepEqual(d, d2);
     });
   });
