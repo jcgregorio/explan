@@ -197,6 +197,9 @@ export interface RenderResult {
   selectedTaskLocation: Point | null;
 }
 
+// A span on the x-axis.
+type xRange = [number, number];
+
 // TODO - Pass in max rows, and a mapping that maps from taskIndex to row,
 // because two different tasks might be placed on the same row. Also we should
 // pass in max rows? Or should that come from the above mapping?
@@ -336,6 +339,9 @@ export function renderTasksToCanvas(
     RectWithFilteredTaskIndex
   > = new Map();
 
+  // Keep track of where we draw timeline labels, to avoid overlaps.
+  const timeMarkerRanges: xRange[] = [];
+
   // Draw tasks in their rows.
   chartLike.Vertices.forEach((task: Task, taskIndex: number) => {
     const row = taskIndexToRow.get(taskIndex)!;
@@ -356,7 +362,8 @@ export function renderTasksToCanvas(
         task,
         opts,
         scale,
-        daysWithTimeMarkers
+        daysWithTimeMarkers,
+        timeMarkerRanges
       );
     }
 
@@ -948,13 +955,24 @@ const drawTimeMarkerAtDayToTask = (
   task: Task,
   opts: RenderOptions,
   scale: Scale,
-  daysWithTimeMarkers: Set<number>
+  daysWithTimeMarkers: Set<number>,
+  timeMarkerRanges: xRange[]
 ) => {
   if (daysWithTimeMarkers.has(day)) {
     return;
   }
   daysWithTimeMarkers.add(day);
   const timeMarkStart = scale.feature(row, day, Feature.timeMarkStart);
+
+  // Don't bother drawing the line if it's under an existing time label.
+  if (
+    timeMarkerRanges.findIndex(
+      ([begin, end]) => timeMarkStart.x >= begin && timeMarkStart.x <= end
+    ) !== -1
+  ) {
+    return;
+  }
+
   const timeMarkEnd = scale.feature(
     row,
     day,
@@ -972,8 +990,23 @@ const drawTimeMarkerAtDayToTask = (
   ctx.fillStyle = opts.colors.onSurface;
   ctx.textBaseline = "top";
   const textStart = scale.feature(row, day, Feature.timeTextStart);
-  if (opts.hasText && opts.hasTimeline) {
-    ctx.fillText(`${opts.durationDisplay(day)}`, textStart.x, textStart.y);
+  const label = opts.durationDisplay(day);
+  const meas = ctx.measureText(label);
+  const textBegin = timeMarkStart.x;
+  const textEnd = textStart.x + meas.width;
+  if (
+    opts.hasText &&
+    opts.hasTimeline &&
+    // Don't draw the label if it overlaps any existing labelss.
+    timeMarkerRanges.findIndex(([begin, end]) => {
+      return (
+        (textBegin <= begin && textEnd >= begin) ||
+        (textBegin <= end && textEnd >= end)
+      );
+    }) === -1
+  ) {
+    ctx.fillText(`${label}`, textStart.x, textStart.y);
+    timeMarkerRanges.push([textBegin, textEnd]);
   }
 };
 
