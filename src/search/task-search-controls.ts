@@ -59,7 +59,10 @@ const indexesToRanges = (
 };
 
 /** Returns the target string highlighted around the given character indexes in
- *  the ranges array. */
+ *  the ranges array.
+ *
+ *  We don't use the highlighting from fuzzysort.
+ */
 const highlight = (ranges: number[], target: string): TemplateResult[] => {
   const ret: TemplateResult[] = [];
   let inHighlight = false;
@@ -89,27 +92,33 @@ const highlightedTarget = (
   return highlight(indexesToRanges(indexes, target.length), target);
 };
 
-const template = (searchTaskPanel: TaskSearchControl) => html`
+const searchResults = (searchTaskPanel: TaskSearchControl): TemplateResult[] =>
+  searchTaskPanel.searchResults.map(
+    (task: Fuzzysort.KeyResult<Task>, index: number) =>
+      html` <li
+        tabindex="0"
+        @click="${(e: Event) =>
+          searchTaskPanel.selectSearchResult(index, false)}"
+        ?data-focus=${index === searchTaskPanel.focusIndex}
+      >
+        ${highlightedTarget(task.indexes, task.target)}
+      </li>`
+  );
+
+const template = (searchTaskPanel: TaskSearchControl): TemplateResult => html`
   <input
+    autocomplete="off"
+    name="task_search"
+    id="search_input"
     placeholder="Search"
     type="text"
-    @input="${(e: InputEvent) => searchTaskPanel.onInput(e)}"
+    @input="${(e: InputEvent) =>
+      searchTaskPanel.onInput((e.target as HTMLInputElement).value)}"
     @keydown="${(e: KeyboardEvent) => searchTaskPanel.onKeyDown(e)}"
-    @blur="${() => searchTaskPanel.lossOfFocus()}"
     @focus="${() => searchTaskPanel.searchInputReceivedFocus()}"
   />
   <ul>
-    ${searchTaskPanel.searchResults.map(
-      (task: Fuzzysort.KeyResult<Task>, index: number) =>
-        html` <li
-          tabindex="0"
-          @click="${(e: Event) =>
-            searchTaskPanel.selectSearchResult(index, false)}"
-          ?data-focus=${index === searchTaskPanel.focusIndex}
-        >
-          ${highlightedTarget(task.indexes, task.target)}
-        </li>`
-    )}
+    ${searchResults(searchTaskPanel)}
   </ul>
 `;
 
@@ -158,29 +167,21 @@ export class TaskSearchControl extends HTMLElement {
   focusIndex: number = 0;
   searchResults: Fuzzysort.KeyResults<Task> | [] = [];
   searchType: SearchType = "name-only";
+  taskToSearchString: (task: Task) => string = (task: Task) => "";
 
   connectedCallback(): void {
     render(template(this), this);
   }
 
-  onInput(e: InputEvent) {
-    const maxNameLength = this._tasks.reduce<number>(
-      (prev: number, task: Task): number =>
-        task.name.length > prev ? task.name.length : prev,
-      0
-    );
+  onInput(inputString: string) {
     this.searchResults = fuzzysort.go<Task>(
-      (e.target as HTMLInputElement).value,
+      inputString,
       this._tasks.slice(1, -1), // Remove Start and Finish from search range.
       {
-        key: searchStringFromTaskBuilder(
-          this._tasks,
-          this.searchType,
-          this._includedIndexes,
-          maxNameLength
-        ),
+        key: this.taskToSearchString,
         limit: 15,
         threshold: 0.2,
+        all: true,
       }
     );
     this.focusIndex = 0;
@@ -257,19 +258,32 @@ export class TaskSearchControl extends HTMLElement {
     const inputControl = this.querySelector<HTMLInputElement>("input")!;
     inputControl.focus();
     inputControl.select();
-  }
-
-  lossOfFocus() {
-    //this.searchResults = [];
     render(template(this), this);
   }
 
   public set tasks(tasks: Task[]) {
     this._tasks = tasks;
+    this.buildTaskToSearchString();
   }
 
   public set includedIndexes(v: number[]) {
     this._includedIndexes = new Set(v);
+    this.buildTaskToSearchString();
+  }
+
+  private buildTaskToSearchString() {
+    const maxNameLength = this._tasks.reduce<number>(
+      (prev: number, task: Task): number =>
+        task.name.length > prev ? task.name.length : prev,
+      0
+    );
+    this.taskToSearchString = searchStringFromTaskBuilder(
+      this._tasks,
+      this.searchType,
+      this._includedIndexes,
+      maxNameLength
+    );
+    this.onInput("");
   }
 }
 
