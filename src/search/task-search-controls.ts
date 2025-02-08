@@ -102,7 +102,9 @@ const template = (searchTaskPanel: TaskSearchControl) => html`
     ${searchTaskPanel.searchResults.map(
       (task: Fuzzysort.KeyResult<Task>, index: number) =>
         html` <li
-          @click="${() => searchTaskPanel.selectSearchResult(index, false)}"
+          tabindex="0"
+          @click="${(e: Event) =>
+            searchTaskPanel.selectSearchResult(index, false)}"
           ?data-focus=${index === searchTaskPanel.focusIndex}
         >
           ${highlightedTarget(task.indexes, task.target)}
@@ -146,6 +148,10 @@ const searchStringFromTaskBuilder = (
   }
 };
 
+/**
+ * Control for using fuzzy search on a list of tasks.
+ *
+ */
 export class TaskSearchControl extends HTMLElement {
   _tasks: Task[] = [];
   _includedIndexes: Set<number> = new Set();
@@ -254,7 +260,7 @@ export class TaskSearchControl extends HTMLElement {
   }
 
   lossOfFocus() {
-    this.searchResults = [];
+    //this.searchResults = [];
     render(template(this), this);
   }
 
