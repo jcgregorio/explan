@@ -22,7 +22,10 @@ export class SearchTaskPanel extends HTMLElement {
 
   setKeyboardFocusToInput(searchType: SearchType) {
     this.taskSearchControl!.tasks = this.explanMain!.plan.chart.Vertices;
-    this.taskSearchControl!.includedIndexes = [];
+    this.taskSearchControl!.includedIndexes =
+      this.explanMain!.plan.chart.Vertices.map(
+        (_, index: number) => index
+      ).slice(1, -1);
     this.taskSearchControl!.setKeyboardFocusToInput(searchType);
   }
 }

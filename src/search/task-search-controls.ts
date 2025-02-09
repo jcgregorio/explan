@@ -94,7 +94,7 @@ const highlightedTarget = (
 
 const searchResults = (searchTaskPanel: TaskSearchControl): TemplateResult[] =>
   searchTaskPanel.searchResults.map(
-    (task: Fuzzysort.KeyResult<Task>, index: number) =>
+    (task: SearchResult, index: number) =>
       html` <li
         tabindex="0"
         @click="${(e: Event) =>
@@ -158,6 +158,28 @@ const searchStringFromTaskBuilder = (
   }
 };
 
+interface SearchResult {
+  obj: Task;
+  indexes: ReadonlyArray<number>;
+  target: string;
+}
+
+const taskListToSearchResults = (
+  tasks: Task[],
+  taskToSearchString: (task: Task) => string,
+  includedIndexes: Set<number>
+): SearchResult[] => {
+  return tasks
+    .filter((_task: Task, index: number) => includedIndexes.has(index))
+    .map((t: Task) => {
+      return {
+        obj: t,
+        indexes: [],
+        target: taskToSearchString(t),
+      };
+    });
+};
+
 /**
  * Control for using fuzzy search on a list of tasks.
  *
@@ -166,7 +188,7 @@ export class TaskSearchControl extends HTMLElement {
   _tasks: Task[] = [];
   _includedIndexes: Set<number> = new Set();
   focusIndex: number = 0;
-  searchResults: Fuzzysort.KeyResults<Task> | [] = [];
+  searchResults: SearchResult[] = [];
   searchType: SearchType = "name-only";
   taskToSearchString: (task: Task) => string = (task: Task) => "";
 
@@ -175,16 +197,31 @@ export class TaskSearchControl extends HTMLElement {
   }
 
   onInput(inputString: string) {
-    this.searchResults = fuzzysort.go<Task>(
-      inputString,
-      this._tasks.slice(1, -1), // Remove Start and Finish from search range.
-      {
-        key: this.taskToSearchString,
-        limit: 15,
-        threshold: 0,
-        all: true,
-      }
-    );
+    if (inputString === "") {
+      this.searchResults = taskListToSearchResults(
+        this._tasks,
+        this.taskToSearchString,
+        this._includedIndexes
+      );
+    } else {
+      this.searchResults = fuzzysort
+        .go<Task>(
+          inputString,
+          this._tasks.slice(1, -1), // Remove Start and Finish from search range.
+          {
+            key: this.taskToSearchString,
+            limit: this._tasks.length,
+            threshold: 0.2,
+          }
+        )
+        .map((value: Fuzzysort.KeyResult<Task>): SearchResult => {
+          return {
+            obj: value.obj,
+            indexes: value.indexes,
+            target: value.target,
+          };
+        });
+    }
     this.focusIndex = 0;
     render(template(this), this);
   }
@@ -260,6 +297,7 @@ export class TaskSearchControl extends HTMLElement {
     const inputControl = this.querySelector<HTMLInputElement>("input")!;
     inputControl.focus();
     inputControl.select();
+    this.onInput(inputControl.value);
     render(template(this), this);
   }
 
