@@ -188,7 +188,7 @@ export class TaskSearchControl extends HTMLElement {
   _tasks: Task[] = [];
   _includedIndexes: Set<number> = new Set();
   focusIndex: number = 0;
-  searchResults: SearchResult[] = [];
+  searchResults: ReadonlyArray<SearchResult> = [];
   searchType: SearchType = "name-only";
   taskToSearchString: (task: Task) => string = (task: Task) => "";
 
@@ -204,23 +204,15 @@ export class TaskSearchControl extends HTMLElement {
         this._includedIndexes
       );
     } else {
-      this.searchResults = fuzzysort
-        .go<Task>(
-          inputString,
-          this._tasks.slice(1, -1), // Remove Start and Finish from search range.
-          {
-            key: this.taskToSearchString,
-            limit: this._tasks.length,
-            threshold: 0.2,
-          }
-        )
-        .map((value: Fuzzysort.KeyResult<Task>): SearchResult => {
-          return {
-            obj: value.obj,
-            indexes: value.indexes,
-            target: value.target,
-          };
-        });
+      this.searchResults = fuzzysort.go<Task>(
+        inputString,
+        this._tasks.slice(1, -1), // Remove Start and Finish from search range.
+        {
+          key: this.taskToSearchString,
+          limit: this._tasks.length,
+          threshold: 0.2,
+        }
+      );
     }
     this.focusIndex = 0;
     render(template(this), this);
