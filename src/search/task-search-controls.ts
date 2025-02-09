@@ -100,6 +100,7 @@ const searchResults = (searchTaskPanel: TaskSearchControl): TemplateResult[] =>
         @click="${(e: Event) =>
           searchTaskPanel.selectSearchResult(index, false)}"
         ?data-focus=${index === searchTaskPanel.focusIndex}
+        data-index=${index}
       >
         ${highlightedTarget(task.indexes, task.target)}
       </li>`
@@ -180,7 +181,7 @@ export class TaskSearchControl extends HTMLElement {
       {
         key: this.taskToSearchString,
         limit: 15,
-        threshold: 0.2,
+        threshold: 0,
         all: true,
       }
     );
@@ -227,6 +228,7 @@ export class TaskSearchControl extends HTMLElement {
       default:
         break;
     }
+    console.log(this.focusIndex);
     render(template(this), this);
   }
 
