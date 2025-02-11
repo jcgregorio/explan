@@ -21,7 +21,6 @@ export interface TaskSerialized {
   resources: { [key: string]: string };
   metrics: MetricValues;
   name: string;
-  state: TaskState;
 }
 
 // Do we create sub-classes and then serialize separately? Or do we have a
@@ -48,14 +47,11 @@ export class Task {
 
   name: string;
 
-  state: TaskState = "unstarted";
-
   toJSON(): TaskSerialized {
     return {
       resources: this.resources,
       metrics: this.metrics,
       name: this.name,
-      state: this.state,
     };
   }
 
@@ -96,7 +92,6 @@ export class Task {
     ret.resources = Object.assign({}, this.resources);
     ret.metrics = Object.assign({}, this.metrics);
     ret.name = this.name;
-    ret.state = this.state;
     return ret;
   }
 }

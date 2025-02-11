@@ -174,7 +174,6 @@ export class Plan {
     plan.chart.Vertices = planSerialized.chart.vertices.map(
       (taskSerialized: TaskSerialized): Task => {
         const task = new Task(taskSerialized.name);
-        task.state = taskSerialized.state;
         task.metrics = taskSerialized.metrics;
         task.resources = taskSerialized.resources;
 

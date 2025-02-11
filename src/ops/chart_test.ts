@@ -5,7 +5,6 @@ import {
   SplitTaskOp,
   InsertNewEmptyTaskAfterOp,
   SetTaskNameOp,
-  SetTaskStateOp,
   DupTaskOp,
 } from "./chart.ts";
 import { Plan } from "../plan/plan.ts";
@@ -77,34 +76,6 @@ describe("SetTaskName", () => {
 
   it("Fails if the taskIndex is out of range", () => {
     const res = SetTaskNameOp(2, "bar").applyTo(new Plan());
-    assert.isFalse(res.ok);
-    assert.isTrue(res.error.message.includes("is not in range"));
-  });
-});
-
-describe("SetTaskStateOp", () => {
-  const newTaskState = "complete";
-  it("Sets a tasks state.", () => {
-    TestOpsForwardAndBack([
-      InsertNewEmptyTaskAfterOp(0),
-      T2Op((plan: Plan) => {
-        assert.equal(plan.chart.Vertices[1].state, "unstarted");
-      }),
-      SetTaskStateOp(1, newTaskState),
-      TOp((plan: Plan) => {
-        assert.equal(plan.chart.Vertices[1].state, "complete");
-      }),
-    ]);
-  });
-
-  it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskStateOp(-1, newTaskState).applyTo(new Plan());
-    assert.isFalse(res.ok);
-    assert.isTrue(res.error.message.includes("is not in range"));
-  });
-
-  it("Fails if the taskIndex is out of range", () => {
-    const res = SetTaskStateOp(2, newTaskState).applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("is not in range"));
   });

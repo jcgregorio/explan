@@ -502,33 +502,6 @@ export class SetTaskNameSubOp implements SubOp {
   }
 }
 
-export class SetTaskStateSubOp implements SubOp {
-  taskState: TaskState;
-  taskIndex: number;
-
-  constructor(taskIndex: number, taskState: TaskState) {
-    this.taskIndex = taskIndex;
-    this.taskState = taskState;
-  }
-
-  applyTo(plan: Plan): Result<SubOpResult> {
-    const ret = indexInRangeForVertices(this.taskIndex, plan.chart);
-    if (!ret.ok) {
-      return ret;
-    }
-    const oldState = plan.chart.Vertices[this.taskIndex].state;
-    plan.chart.Vertices[this.taskIndex].state = this.taskState;
-    return ok({
-      plan: plan,
-      inverse: this.inverse(oldState),
-    });
-  }
-
-  inverse(taskState: TaskState): SubOp {
-    return new SetTaskStateSubOp(this.taskIndex, taskState);
-  }
-}
-
 export function InsertNewEmptyMilestoneAfterOp(taskIndex: number): Op {
   return new Op([
     new RationalizeEdgesSubOp(),
@@ -541,10 +514,6 @@ export function InsertNewEmptyMilestoneAfterOp(taskIndex: number): Op {
 
 export function SetTaskNameOp(taskIndex: number, name: string): Op {
   return new Op([new SetTaskNameSubOp(taskIndex, name)]);
-}
-
-export function SetTaskStateOp(taskIndex: number, taskState: TaskState): Op {
-  return new Op([new SetTaskStateSubOp(taskIndex, taskState)]);
 }
 
 export function SplitTaskOp(taskIndex: number): Op {

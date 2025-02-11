@@ -19,7 +19,7 @@ import { Plan } from "../plan/plan";
 
 const people: string[] = ["Fred", "Barney", "Wilma", "Betty"];
 
-const DURATION = 100;
+const DURATION = 10;
 
 const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
@@ -66,7 +66,7 @@ export const generateRandomPlan = (): Plan => {
   );
 
   let numTasks = 1;
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < 50; i++) {
     let index = rndInt(numTasks) + 1;
     ops.push(
       SplitTaskOp(index),
