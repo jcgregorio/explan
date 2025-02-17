@@ -23,6 +23,7 @@ import { UncertaintyToNum } from "../stats/cdf/triangular/jacobian.ts";
 import {
   Days,
   UnitBase,
+  UnitBuilders,
   UnitSerialized,
   UnitTypes,
   Unitless,
@@ -83,6 +84,13 @@ export class Plan {
     );
 
     this.applyMetricsAndResourcesToVertices();
+  }
+
+  setDurationUnits(unitType: UnitTypes) {
+    this.durationUnits = UnitBuilders[unitType](
+      this.startDate,
+      this.getStaticMetricDefinition("Duration")
+    );
   }
 
   getStaticMetricDefinition(name: StaticMetricKeys): MetricDefinition {

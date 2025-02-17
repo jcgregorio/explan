@@ -67,4 +67,11 @@ describe("Plan", () => {
       "moderate"
     );
   });
+
+  it("can set duration units", () => {
+    const p = new Plan();
+    assert.equal("1/8/1970", p.durationUnits.displayTime(8, "en-US"));
+    p.setDurationUnits("Weekdays");
+    assert.equal("1/12/1970", p.durationUnits.displayTime(8, "en-US"));
+  });
 });

@@ -6,7 +6,7 @@ import { Weekdays } from "./weekdays";
 // Unit describes how the duration values are to be interpreted.
 abstract class Unit {
   // Convert a duration into a displayable string.
-  abstract displayTime(t: number): string;
+  abstract displayTime(t: number, locale?: Intl.LocalesArgument): string;
 
   // Parse a duration, either as a raw number, or in a shorthand duration, such
   // as 1d, 2d, 5y.
@@ -34,7 +34,7 @@ export class UnitBase implements Unit {
     this.unitType = unitType;
   }
 
-  displayTime(t: number): string {
+  displayTime(t: number, locale?: Intl.LocalesArgument): string {
     throw new Error("Method implemented in subclasses.");
   }
 
@@ -94,7 +94,7 @@ export class Unitless extends UnitBase implements Unit {
     super(start, metricDefn, "Unitless");
   }
 
-  displayTime(t: number): string {
+  displayTime(t: number, locale?: Intl.LocalesArgument): string {
     return this.metricDefn.clampAndRound(t).toString();
   }
 
