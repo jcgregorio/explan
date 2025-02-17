@@ -109,25 +109,6 @@ export class Plan {
     );
   }
 
-  toJSON(): PlanSerialized {
-    return {
-      started: this.started,
-      startDate: this.started ? this.startDate.getTime() : 0,
-      durationUnits: this.durationUnits.toJSON(),
-      chart: this.chart.toJSON(),
-      resourceDefinitions: Object.fromEntries(
-        Object.entries(this.resourceDefinitions).filter(
-          ([key, resourceDefinition]) => !resourceDefinition.isStatic
-        )
-      ),
-      metricDefinitions: Object.fromEntries(
-        Object.entries(this.metricDefinitions)
-          .filter(([key, metricDefinition]) => !metricDefinition.isStatic)
-          .map(([key, metricDefinition]) => [key, metricDefinition.toJSON()])
-      ),
-    };
-  }
-
   getMetricDefinition(key: string): MetricDefinition | undefined {
     return this.metricDefinitions[key];
   }
@@ -165,6 +146,25 @@ export class Plan {
       }
     );
     return ret;
+  }
+
+  toJSON(): PlanSerialized {
+    return {
+      started: this.started,
+      startDate: this.started ? this.startDate.getTime() : 0,
+      durationUnits: this.durationUnits.toJSON(),
+      chart: this.chart.toJSON(),
+      resourceDefinitions: Object.fromEntries(
+        Object.entries(this.resourceDefinitions).filter(
+          ([key, resourceDefinition]) => !resourceDefinition.isStatic
+        )
+      ),
+      metricDefinitions: Object.fromEntries(
+        Object.entries(this.metricDefinitions)
+          .filter(([key, metricDefinition]) => !metricDefinition.isStatic)
+          .map(([key, metricDefinition]) => [key, metricDefinition.toJSON()])
+      ),
+    };
   }
 
   static FromJSON(planSerialized: PlanSerialized): Plan {
