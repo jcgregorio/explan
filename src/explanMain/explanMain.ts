@@ -254,7 +254,7 @@ export class ExplanMain extends HTMLElement {
       document.querySelector<HTMLInputElement>("#file-upload")!;
     fileUpload.addEventListener("change", async () => {
       const json = await fileUpload.files![0].text();
-      const ret = Plan.FromJSON(json);
+      const ret = Plan.FromJSONText(json);
       if (!ret.ok) {
         throw ret.error;
       }

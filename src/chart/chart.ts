@@ -13,8 +13,6 @@ import { topologicalSort } from "../dag/algorithms/toposort.ts";
 import { MetricValues } from "../metrics/metrics.ts";
 import { TaskDuration } from "../types/types.ts";
 
-export type TaskState = "unstarted" | "started" | "complete";
-
 export const DEFAULT_TASK_NAME = "Task Name";
 
 export interface TaskSerialized {
@@ -132,6 +130,18 @@ export class Chart {
       vertices: this.Vertices.map((t: Task) => t.toJSON()),
       edges: this.Edges.map((e: DirectedEdge) => e.toJSON()),
     };
+  }
+
+  static FromJSON(chartSerialized: ChartSerialized): Chart {
+    const ret = new Chart();
+    ret.Vertices = chartSerialized.vertices.map((ts: TaskSerialized) =>
+      Task.FromJSON(ts)
+    );
+    ret.Edges = chartSerialized.edges.map(
+      (directedEdgeSerialized: DirectedEdgeSerialized) =>
+        DirectedEdge.FromJSON(directedEdgeSerialized)
+    );
+    return ret;
   }
 }
 

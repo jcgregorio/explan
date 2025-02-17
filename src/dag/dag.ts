@@ -34,6 +34,10 @@ export class DirectedEdge {
       j: this.j,
     };
   }
+
+  static FromJSON(des: DirectedEdgeSerialized): DirectedEdge {
+    return new DirectedEdge(des.i, des.j);
+  }
 }
 
 /** Every Egde in a graph. */

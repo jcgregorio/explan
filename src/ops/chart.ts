@@ -1,7 +1,7 @@
 import { Result, ok, error } from "../result.ts";
 import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
 import { Plan } from "../plan/plan.ts";
-import { Chart, Task, TaskState } from "../chart/chart.ts";
+import { Chart, Task } from "../chart/chart.ts";
 import { Op, SubOp, SubOpResult } from "./ops.ts";
 import { SetMetricValueOp, SetMetricValueSubOp } from "./metrics.ts";
 
