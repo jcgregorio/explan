@@ -6,6 +6,7 @@ export const DEFAULT_RESOURCE_VALUE = "";
 
 export interface ResourceDefinitionSerialized {
   values: string[];
+  static: boolean;
 }
 
 export class ResourceDefinition {
@@ -25,11 +26,12 @@ export class ResourceDefinition {
   toJSON(): ResourceDefinitionSerialized {
     return {
       values: this.values,
+      static: this.isStatic,
     };
   }
 
   static fromJSON(s: ResourceDefinitionSerialized): ResourceDefinition {
-    return new ResourceDefinition(s.values);
+    return new ResourceDefinition(s.values, s.static);
   }
 }
 
