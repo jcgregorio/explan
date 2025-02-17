@@ -28,6 +28,12 @@ describe("MetricRange", () => {
     assert.equal(r.max, Number.MAX_VALUE);
   });
 
+  it("Roundtrips through JSON", () => {
+    const r = new MetricRange(10);
+    const actual = MetricRange.fromJSON(r.toJSON());
+    assert.deepEqual(actual, r);
+  });
+
   describe("Returns the right information when clamping a value.", () => {
     const mr = new MetricRange(-1, 1);
     it("Handles numbers above the range.", () => {

@@ -155,13 +155,16 @@ export class Plan {
       durationUnits: this.durationUnits.toJSON(),
       chart: this.chart.toJSON(),
       resourceDefinitions: Object.fromEntries(
-        Object.entries(this.resourceDefinitions).filter(
-          ([key, resourceDefinition]) => !resourceDefinition.isStatic
-        )
+        Object.entries(this.resourceDefinitions)
+          .filter(([_, resourceDefinition]) => !resourceDefinition.isStatic)
+          .map(([key, resourceDefinition]) => [
+            key,
+            resourceDefinition.toJSON(),
+          ])
       ),
       metricDefinitions: Object.fromEntries(
         Object.entries(this.metricDefinitions)
-          .filter(([key, metricDefinition]) => !metricDefinition.isStatic)
+          .filter(([_, metricDefinition]) => !metricDefinition.isStatic)
           .map(([key, metricDefinition]) => [key, metricDefinition.toJSON()])
       ),
     };
