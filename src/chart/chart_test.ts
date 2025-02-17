@@ -1,5 +1,5 @@
 import { assert } from "@esm-bundle/chai";
-import { Task, validateChart } from "./chart.ts";
+import { ChartValidate, Task, validateDirectedGraph } from "./chart.ts";
 import { Chart } from "./chart.ts";
 import { DirectedEdge, DirectedGraph } from "../dag/dag.ts";
 
@@ -14,7 +14,7 @@ describe("validateChart", () => {
         new DirectedEdge(2, 3),
       ],
     };
-    assert.isTrue(validateChart(G).ok);
+    assert.isTrue(validateDirectedGraph(G).ok);
   });
 
   it("A directed graph with a loop fails to validate:", () => {
@@ -28,12 +28,27 @@ describe("validateChart", () => {
         new DirectedEdge(2, 0),
       ],
     };
-    assert.isFalse(validateChart(GWithLoop).ok);
+    assert.isFalse(validateDirectedGraph(GWithLoop).ok);
   });
 
   it("A default chart validates.", () => {
-    const r = validateChart(new Chart());
+    const r = validateDirectedGraph(new Chart());
     assert.isTrue(r.ok);
+  });
+});
+
+describe("ChartValidate", () => {
+  it("A default chart validates.", () => {
+    const r = ChartValidate(new Chart());
+    assert.isTrue(r.ok);
+  });
+
+  it("Fails on Tasks with duplicate IDs.", () => {
+    const c = new Chart();
+    c.Vertices[0].id = "fred";
+    c.Vertices[1].id = "fred";
+    const r = ChartValidate(c);
+    assert.isFalse(r.ok);
   });
 });
 
@@ -41,6 +56,11 @@ describe("Task", () => {
   it("Can duplicate itself", () => {
     const t = new Task();
     const copy = t.dup();
+
+    // Yhey only differ in the ID.
+    assert.notDeepEqual(t, copy);
+    t.id = "fred";
+    copy.id = "fred";
     assert.deepEqual(t, copy);
 
     // Modify the copy and show they become different.
@@ -51,6 +71,8 @@ describe("Task", () => {
   it("Duplicates are correct of metrics.", () => {
     const t = new Task();
     const copy = t.dup();
+    t.id = "fred";
+    copy.id = "fred";
     assert.deepEqual(t, copy);
 
     // Modify the copy and show they become different.
@@ -61,6 +83,8 @@ describe("Task", () => {
   it("Duplicates are correct of resources.", () => {
     const t = new Task();
     const copy = t.dup();
+    t.id = "fred";
+    copy.id = "fred";
     assert.deepEqual(t, copy);
 
     // Modify the copy and show they become different.

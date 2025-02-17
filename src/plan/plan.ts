@@ -1,9 +1,9 @@
 import {
   Chart,
   ChartSerialized,
+  ChartValidate,
   Task,
   TaskSerialized,
-  validateChart,
 } from "../chart/chart.ts";
 import { DirectedEdge, DirectedEdgeSerialized } from "../dag/dag.ts";
 import {
@@ -234,7 +234,7 @@ export class Plan {
       return ret;
     }
 
-    const retVal = validateChart(plan.chart);
+    const retVal = ChartValidate(plan.chart);
     if (!retVal.ok) {
       return retVal;
     }

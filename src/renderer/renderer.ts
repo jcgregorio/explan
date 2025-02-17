@@ -1,4 +1,4 @@
-import { Task, validateChart } from "../chart/chart.ts";
+import { ChartValidate, Task } from "../chart/chart.ts";
 import { ChartLike, filter, FilterFunc } from "../chart/filter/filter.ts";
 import { DirectedEdge, VertexIndices } from "../dag/dag.ts";
 import { Plan } from "../plan/plan.ts";
@@ -212,7 +212,7 @@ export function renderTasksToCanvas(
   opts: RenderOptions,
   overlay: HTMLCanvasElement | null = null
 ): Result<RenderResult> {
-  const vret = validateChart(plan.chart);
+  const vret = ChartValidate(plan.chart);
   if (!vret.ok) {
     return vret;
   }

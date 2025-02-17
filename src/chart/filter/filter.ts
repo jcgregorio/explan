@@ -1,7 +1,7 @@
 import { DirectedEdge, Edges } from "../../dag/dag";
 import { ok, Result } from "../../result";
 import { Span } from "../../slack/slack";
-import { Chart, Task, Tasks, validateChart } from "../chart";
+import { Chart, ChartValidate, Task, Tasks } from "../chart";
 
 export interface ChartLike {
   Vertices: Tasks;
@@ -36,7 +36,7 @@ export const filter = (
   labels: string[],
   selectedTaskIndex: number
 ): Result<FilterResult> => {
-  const vret = validateChart(chart);
+  const vret = ChartValidate(chart);
   if (!vret.ok) {
     return vret;
   }

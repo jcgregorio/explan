@@ -1,4 +1,4 @@
-import { Chart, Task, validateChart } from "./chart/chart.ts";
+import { Chart, ChartValidate, Task } from "./chart/chart.ts";
 import { InsertNewEmptyMilestoneAfterOp, SetTaskNameOp } from "./ops/chart.ts";
 import { SetMetricValueOp } from "./ops/metrics.ts";
 import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
@@ -55,6 +55,6 @@ console.log(
   )
 );
 
-console.log(validateChart(plan.chart));
+console.log(ChartValidate(plan.chart));
 
 console.log(JSON.stringify(plan, null, "  "));

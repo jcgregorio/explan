@@ -130,8 +130,8 @@ export type TopologicalOrder = VertexIndices;
 
 export type ValidateResult = Result<TopologicalOrder>;
 
-/** Validates a DirectedGraph is a valid Chart. */
-export function validateChart(g: DirectedGraph): ValidateResult {
+/** Validates the DirectedGraph component of a Chart is valid. */
+export function validateDirectedGraph(g: DirectedGraph): ValidateResult {
   if (g.Vertices.length < 2) {
     return error(
       "Chart must contain at least two node, the start and finish tasks."
@@ -203,7 +203,7 @@ export function ChartValidate(
   if (taskDuration === null) {
     taskDuration = (taskIndex: number) => c.Vertices[taskIndex].duration;
   }
-  const ret = validateChart(c);
+  const ret = validateDirectedGraph(c);
   if (!ret.ok) {
     return ret;
   }
@@ -218,6 +218,14 @@ export function ChartValidate(
         c.Vertices.length - 1
       )}`
     );
+  }
+  const allIDs = new Set();
+  for (let taskIndex = 0; taskIndex < c.Vertices.length; taskIndex++) {
+    const task = c.Vertices[taskIndex];
+    if (allIDs.has(task.id)) {
+      return error(new Error(`Two tasks contain the same ID: ${task.id}`));
+    }
+    allIDs.add(task.id);
   }
   return ret;
 }
