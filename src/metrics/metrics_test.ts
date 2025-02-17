@@ -28,12 +28,12 @@ describe("MetricDefinition", () => {
       false,
       new Precision(2)
     );
-    const reconstituted = MetricDefinition.FromJSON(m.toJSON());
+    const reconstituted = MetricDefinition.fromJSON(m.toJSON());
     assert.deepEqual(m, reconstituted);
   });
 
   it("Can be deserialized from {}", () => {
-    const reconstituted = MetricDefinition.FromJSON(
+    const reconstituted = MetricDefinition.fromJSON(
       {} as unknown as MetricDefinitionSerialized
     );
     assert.equal(reconstituted.range.max, Number.MAX_VALUE);

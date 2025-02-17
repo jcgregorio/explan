@@ -35,7 +35,7 @@ export class DirectedEdge {
     };
   }
 
-  static FromJSON(des: DirectedEdgeSerialized): DirectedEdge {
+  static fromJSON(des: DirectedEdgeSerialized): DirectedEdge {
     return new DirectedEdge(des.i, des.j);
   }
 }

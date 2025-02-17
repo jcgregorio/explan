@@ -57,7 +57,7 @@ export class MetricRange {
     };
   }
 
-  static FromJSON(s: MetricRangeSerialized | undefined): MetricRange {
+  static fromJSON(s: MetricRangeSerialized | undefined): MetricRange {
     if (s === undefined) {
       return new MetricRange();
     }

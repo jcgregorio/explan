@@ -52,15 +52,15 @@ export class MetricDefinition {
     };
   }
 
-  static FromJSON(s: MetricDefinitionSerialized | undefined): MetricDefinition {
+  static fromJSON(s: MetricDefinitionSerialized | undefined): MetricDefinition {
     if (s === undefined) {
       return new MetricDefinition(0);
     }
     return new MetricDefinition(
       s.default || 0,
-      MetricRange.FromJSON(s.range),
+      MetricRange.fromJSON(s.range),
       false,
-      Precision.FromJSON(s.precision)
+      Precision.fromJSON(s.precision)
     );
   }
 }

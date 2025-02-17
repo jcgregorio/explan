@@ -95,7 +95,7 @@ describe("Task", () => {
   it("Round-trips through JSON", () => {
     const task = new Task();
     task.duration = 12;
-    const actual = Task.FromJSON(task.toJSON());
+    const actual = Task.fromJSON(task.toJSON());
     assert.deepEqual(actual, task);
   });
 });
@@ -104,7 +104,7 @@ describe("Chart", () => {
   it("Round-trips through JSON", () => {
     const c = new Chart();
     c.Vertices[0].duration = 10;
-    const actual = Chart.FromJSON(c.toJSON());
+    const actual = Chart.fromJSON(c.toJSON());
     assert.deepEqual(actual, c);
   });
 });

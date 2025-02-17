@@ -54,7 +54,7 @@ export class Task {
     };
   }
 
-  static FromJSON(taskSerialized: TaskSerialized): Task {
+  static fromJSON(taskSerialized: TaskSerialized): Task {
     const ret = new Task(taskSerialized.name);
     ret.id = taskSerialized.id;
     ret.resources = taskSerialized.resources;
@@ -132,14 +132,14 @@ export class Chart {
     };
   }
 
-  static FromJSON(chartSerialized: ChartSerialized): Chart {
+  static fromJSON(chartSerialized: ChartSerialized): Chart {
     const ret = new Chart();
     ret.Vertices = chartSerialized.vertices.map((ts: TaskSerialized) =>
-      Task.FromJSON(ts)
+      Task.fromJSON(ts)
     );
     ret.Edges = chartSerialized.edges.map(
       (directedEdgeSerialized: DirectedEdgeSerialized) =>
-        DirectedEdge.FromJSON(directedEdgeSerialized)
+        DirectedEdge.fromJSON(directedEdgeSerialized)
     );
     return ret;
   }

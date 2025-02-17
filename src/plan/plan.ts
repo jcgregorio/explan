@@ -167,9 +167,9 @@ export class Plan {
     };
   }
 
-  static FromJSON(planSerialized: PlanSerialized): Plan {
+  static fromJSON(planSerialized: PlanSerialized): Plan {
     const ret = new Plan();
-    ret.chart = Chart.FromJSON(planSerialized.chart);
+    ret.chart = Chart.fromJSON(planSerialized.chart);
     ret.started = planSerialized.started;
     ret.startDate = new Date(planSerialized.startDate);
 
@@ -177,7 +177,7 @@ export class Plan {
       Object.entries(planSerialized.metricDefinitions).map(
         ([key, serializedMetricDefinition]) => [
           key,
-          MetricDefinition.FromJSON(serializedMetricDefinition),
+          MetricDefinition.fromJSON(serializedMetricDefinition),
         ]
       )
     );
@@ -191,7 +191,7 @@ export class Plan {
       Object.entries(planSerialized.resourceDefinitions).map(
         ([key, serializedResourceDefinition]) => [
           key,
-          ResourceDefinition.FromJSON(serializedResourceDefinition),
+          ResourceDefinition.fromJSON(serializedResourceDefinition),
         ]
       )
     );
@@ -212,7 +212,7 @@ export class Plan {
 
   static FromJSONText = (text: string): Result<Plan> => {
     const planSerialized: PlanSerialized = JSON.parse(text);
-    const plan = Plan.FromJSON(planSerialized);
+    const plan = Plan.fromJSON(planSerialized);
 
     const ret = RationalizeEdgesOp().applyTo(plan);
     if (!ret.ok) {

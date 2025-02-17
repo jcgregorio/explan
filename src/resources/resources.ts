@@ -28,7 +28,7 @@ export class ResourceDefinition {
     };
   }
 
-  static FromJSON(s: ResourceDefinitionSerialized): ResourceDefinition {
+  static fromJSON(s: ResourceDefinitionSerialized): ResourceDefinition {
     return new ResourceDefinition(s.values);
   }
 }

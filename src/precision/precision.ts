@@ -31,7 +31,7 @@ export class Precision {
     };
   }
 
-  static FromJSON(s: PrecisionSerialized | undefined): Precision {
+  static fromJSON(s: PrecisionSerialized | undefined): Precision {
     if (s === undefined) {
       return new Precision();
     }

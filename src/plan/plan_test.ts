@@ -12,7 +12,7 @@ import { InsertNewEmptyTaskAfterOp, SetTaskNameOp } from "../ops/chart";
 describe("Plan", () => {
   it("Round trips via JSON", () => {
     const plan = new Plan();
-    const actual = Plan.FromJSON(plan.toJSON());
+    const actual = Plan.fromJSON(plan.toJSON());
     assert.deepEqual(actual, plan);
   });
 

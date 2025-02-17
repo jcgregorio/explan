@@ -222,7 +222,7 @@ export class EditMetricDefinition extends HTMLElement {
 
   private getDefinitionCopy(): MetricDefinition {
     const defn = this.explanMain?.plan.metricDefinitions[this.metricName];
-    return MetricDefinition.FromJSON(defn?.toJSON());
+    return MetricDefinition.fromJSON(defn?.toJSON());
   }
 
   private cancel() {
