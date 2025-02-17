@@ -56,6 +56,15 @@ export class Task {
     };
   }
 
+  static FromJSON(taskSerialized: TaskSerialized): Task {
+    const ret = new Task(taskSerialized.name);
+    ret.id = taskSerialized.id;
+    ret.resources = taskSerialized.resources;
+    ret.metrics = taskSerialized.metrics;
+
+    return ret;
+  }
+
   public get duration(): number {
     return this.getMetric("Duration")!;
   }

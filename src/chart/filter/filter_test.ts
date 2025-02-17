@@ -3,7 +3,7 @@ import { Plan } from "../../plan/plan";
 import { applyAllOpsToPlan } from "../../ops/ops";
 import { InsertNewEmptyTaskAfterOp, SetTaskNameOp } from "../../ops/chart";
 import { filter } from "./filter";
-import { Task, validateChart } from "../chart";
+import { ChartValidate, Task } from "../chart";
 import { DirectedEdge } from "../../dag/dag";
 import { Span } from "../../slack/slack";
 
@@ -37,7 +37,7 @@ describe("filter", () => {
     const ret = filter(plan.chart, null, [], [], [], -1);
     assert.isTrue(ret.ok);
     assert.deepEqual(plan.chart, ret.value.chartLike);
-    const vret = validateChart(plan.chart);
+    const vret = ChartValidate(plan.chart);
     assert.isTrue(vret.ok);
     assert.deepEqual(vret.value, ret.value.displayOrder);
 

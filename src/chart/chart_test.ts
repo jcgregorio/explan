@@ -91,4 +91,10 @@ describe("Task", () => {
     copy.setResource("Some new name", "wilma");
     assert.notDeepEqual(t, copy);
   });
+
+  it("Round-trips through JSON", () => {
+    const c = new Chart();
+    const actual = Task.FromJSON(c.Vertices[0].toJSON());
+    assert.deepEqual(actual, c.Vertices[0]);
+  });
 });
