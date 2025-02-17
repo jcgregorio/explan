@@ -26,7 +26,6 @@ import {
   UnitBuilders,
   UnitSerialized,
   UnitTypes,
-  Unitless,
 } from "../units/unit.ts";
 
 export type StaticMetricKeys = "Duration" | "Percent Complete";
@@ -51,7 +50,6 @@ export const StaticResourceDefinitions: Record<
 };
 
 export interface PlanSerialized {
-  // A value of 0 means unstared.
   startDate: number;
   started: boolean;
   durationUnits: UnitSerialized;
