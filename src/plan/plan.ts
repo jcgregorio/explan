@@ -176,6 +176,7 @@ export class Plan {
         const task = new Task(taskSerialized.name);
         task.metrics = taskSerialized.metrics;
         task.resources = taskSerialized.resources;
+        task.id = taskSerialized.id;
 
         return task;
       }

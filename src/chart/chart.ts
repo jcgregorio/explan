@@ -21,6 +21,7 @@ export interface TaskSerialized {
   resources: { [key: string]: string };
   metrics: MetricValues;
   name: string;
+  id: string;
 }
 
 // Do we create sub-classes and then serialize separately? Or do we have a
@@ -32,26 +33,26 @@ export interface TaskSerialized {
 
 /** Task is a Vertex with details about the Task to complete. */
 export class Task {
+  // Resource keys and values. The parent plan contains all the resource
+  // definitions.
+  resources: { [key: string]: string };
+  metrics: MetricValues;
+  name: string;
+  id: string;
+
   constructor(name: string = "") {
     this.name = name || DEFAULT_TASK_NAME;
     this.metrics = {};
     this.resources = {};
+    this.id = crypto.randomUUID();
   }
-
-  // Resource keys and values. The parent plan contains all the resource
-  // definitions.
-
-  resources: { [key: string]: string };
-
-  metrics: MetricValues;
-
-  name: string;
 
   toJSON(): TaskSerialized {
     return {
       resources: this.resources,
       metrics: this.metrics,
       name: this.name,
+      id: this.id,
     };
   }
 
