@@ -24,11 +24,14 @@ export class Slack {
 
 export type SlackResult = Result<Slack[]>;
 
+export type SlackEarlyStartOverride = (taskID: string) => number | undefined;
+
 // Calculate the slack for each Task in the Chart.
 export function ComputeSlack(
   c: Chart,
   taskDuration: TaskDuration | null = null,
-  round: Rounder
+  round: Rounder,
+  override: SlackEarlyStartOverride | null = null
 ): SlackResult {
   if (taskDuration === null) {
     taskDuration = (taskIndex: number) => c.Vertices[taskIndex].duration;
@@ -61,6 +64,10 @@ export function ComputeSlack(
         return predecessorSlack.early.finish;
       })
     );
+    const overrideValue = override?.(task.id);
+    if (overrideValue !== undefined) {
+      slack.early.start = overrideValue;
+    }
     slack.early.finish = round(slack.early.start + taskDuration(vertexIndex));
   });
 
