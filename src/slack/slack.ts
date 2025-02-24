@@ -84,14 +84,33 @@ export function ComputeSlack(
       slack.late.finish = slack.early.finish;
       slack.late.start = slack.early.start;
     } else {
-      slack.late.finish = Math.min(
-        ...edges.bySrc.get(vertexIndex)!.map((e: DirectedEdge): number => {
-          const successorSlack = slacks[e.j];
-          return successorSlack.late.start;
-        })
-      );
-      slack.late.start = round(slack.late.finish - taskDuration(vertexIndex));
-      slack.slack = round(slack.late.finish - slack.early.finish);
+      const overrideValue = override?.(task.id);
+      if (overrideValue !== undefined) {
+        // Since this task has been started, we set late
+        // start/finish to early start/finish.
+        slack.late = slack.early;
+        slack.slack = 0;
+      } else {
+        const lateStarts = edges.bySrc
+          .get(vertexIndex)!
+          .map((e: DirectedEdge): number | null => {
+            // Need to ignore values from started tasks?
+            if (override?.(c.Vertices[e.j].id) !== undefined) {
+              return null;
+            }
+
+            const successorSlack = slacks[e.j];
+            return successorSlack.late.start;
+          })
+          .filter((value) => value !== null);
+        if (lateStarts.length === 0) {
+          slack.late.finish = slack.early.finish;
+        } else {
+          slack.late.finish = Math.min(...lateStarts);
+        }
+        slack.late.start = round(slack.late.finish - taskDuration(vertexIndex));
+        slack.slack = round(slack.late.finish - slack.early.finish);
+      }
     }
   });
 
