@@ -18,25 +18,26 @@ export const toJSON = (p: PlanStatus): PlanStatusSerialized => {
     start: 0,
   };
   if (p.stage === "started") {
+    ret.stage = "started";
     ret.start = p.start.valueOf();
   }
   return ret;
 };
 
-export const fromJSON = (p: PlanStatusSerialized) : PlanStatus => {
-    const unstarted : PlanStatus = {stage: "unstarted"};
+export const fromJSON = (p: PlanStatusSerialized): PlanStatus => {
+  const unstarted: PlanStatus = { stage: "unstarted" };
 
-    if (p.stage === undefined) {
-        return unstarted;
+  if (p.stage === undefined) {
+    return unstarted;
+  }
+  if (p.stage === "started") {
+    if (p.start === undefined) {
+      return unstarted;
     }
-    if (p.stage === "started") {
-        if (p.start === undefined) {
-            return unstarted
-        }
-        return {
-            stage: "started",
-            start: new Date(p.start);
-        }
-    }
-    return unstarted
-}
+    return {
+      stage: "started",
+      start: new Date(p.start),
+    };
+  }
+  return unstarted;
+};
