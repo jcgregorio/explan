@@ -24,30 +24,6 @@ export class Slack {
 
 export type SlackResult = Result<Slack[]>;
 
-// This doesn't distiguish between just started, and
-// finished, which would affect early.finish.
-//
-
-// This can be serialized to JSON.
-//
-// The only way to move to 'started' is to set a non-zero
-// Percent Complete.
-//
-// Only then can the 'start' value be edited.
-//
-// The only way to move to 'finished' is to set a
-// Percent Complete of 100%.
-type TaskOverride =
-  | { stage: "unstarted" }
-  | {
-      stage: "started";
-      start: number;
-    }
-  | {
-      stage: "finished";
-      span: Span;
-    };
-
 export type SlackEarlyStartOverride = (taskID: string) => number | undefined;
 
 // Calculate the slack for each Task in the Chart.
