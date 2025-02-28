@@ -13,7 +13,7 @@ import { Span } from "../slack/slack";
 //
 // The only way to move to 'finished' is to set a
 // Percent Complete of 100%.
-type TaskCompletion =
+export type TaskCompletion =
   | { stage: "unstarted" }
   | {
       stage: "started";
@@ -59,17 +59,27 @@ export const toJSON = (
 export const fromJSON = (
   taskCompletionSerialized: TaskCompletionSerialized
 ): TaskCompletion => {
+  const unstarted: TaskCompletion = { stage: "unstarted" };
   switch (taskCompletionSerialized.stage) {
     case "unstarted":
       return {
         stage: "unstarted",
       };
     case "started":
+      if (taskCompletionSerialized.start === undefined) {
+        return unstarted;
+      }
       return {
         stage: "started",
         start: taskCompletionSerialized.start,
       };
     case "finished":
+      if (
+        taskCompletionSerialized.start === undefined ||
+        taskCompletionSerialized.finish === undefined
+      ) {
+        return unstarted;
+      }
       return {
         stage: "finished",
         span: new Span(
@@ -78,8 +88,6 @@ export const fromJSON = (
         ),
       };
     default:
-      return {
-        stage: "unstarted",
-      };
+      return unstarted;
   }
 };
