@@ -4,15 +4,8 @@
 
 import { Span } from "../slack/slack";
 
-// This can be serialized to JSON.
-//
-// The only way to move to 'started' is to set a non-zero
-// Percent Complete.
-//
-// Only then can the 'start' value be edited.
-//
-// The only way to move to 'finished' is to set a
-// Percent Complete of 100%.
+// The completion status of a Task. The value of `start` and values in `span`
+// and duration offsets, just like what are used in the Spans used in rendering.
 export type TaskCompletion =
   | { stage: "unstarted" }
   | {
