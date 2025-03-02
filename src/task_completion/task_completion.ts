@@ -18,6 +18,7 @@ export type TaskCompletion =
   | {
       stage: "started";
       start: number;
+      percentComplete: number;
     }
   | {
       stage: "finished";
@@ -27,6 +28,7 @@ export type TaskCompletion =
 export type TaskCompletionSerialized = {
   stage: string;
   start: number;
+  percentComplete: number;
   finish: number;
 };
 
@@ -37,6 +39,7 @@ export const toJSON = (
     stage: taskCompletion.stage as string,
     start: 0,
     finish: 0,
+    percentComplete: 0,
   };
 
   switch (taskCompletion.stage) {
@@ -44,6 +47,7 @@ export const toJSON = (
       break;
     case "started":
       ret.start = taskCompletion.start;
+      ret.percentComplete = taskCompletion.percentComplete;
       break;
     case "finished":
       ret.start = taskCompletion.span.start;
@@ -72,6 +76,7 @@ export const fromJSON = (
       return {
         stage: "started",
         start: taskCompletionSerialized.start,
+        percentComplete: taskCompletionSerialized.percentComplete,
       };
     case "finished":
       if (

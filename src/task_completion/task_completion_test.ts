@@ -19,6 +19,7 @@ describe("TaskCompletion", () => {
     roundTrips({
       stage: "started",
       start: 12,
+      percentComplete: 25,
     });
     roundTrips({
       stage: "finished",
