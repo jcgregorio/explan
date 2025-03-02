@@ -12,12 +12,12 @@ describe("PlanStatus", () => {
   };
 
   it("serialized to/from JSON", () => {
-    roundTrips({ stage: "unstarted" });
-    roundTrips({ stage: "started", start: new Date() });
+    roundTrips({ stage: "unstarted", start: 0 });
+    roundTrips({ stage: "started", start: 12 });
   });
 
   it("handles malformed JSON", () => {
-    const unstarted: PlanStatus = { stage: "unstarted" };
+    const unstarted: PlanStatus = { stage: "unstarted", start: 0 };
     assert.deepEqual(fromJSON({} as PlanStatusSerialized), unstarted);
     assert.deepEqual(
       fromJSON({ stage: "started" } as PlanStatusSerialized),

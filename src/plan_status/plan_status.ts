@@ -1,10 +1,10 @@
 import { Plan } from "../plan/plan";
 
 export type PlanStatus =
-  | { stage: "unstarted" }
+  | { stage: "unstarted"; start: 0 }
   | {
       stage: "started";
-      start: Date;
+      start: number;
     };
 
 export type PlanStatusSerialized = {
@@ -25,7 +25,7 @@ export const toJSON = (p: PlanStatus): PlanStatusSerialized => {
 };
 
 export const fromJSON = (p: PlanStatusSerialized): PlanStatus => {
-  const unstarted: PlanStatus = { stage: "unstarted" };
+  const unstarted: PlanStatus = { stage: "unstarted", start: 0 };
 
   if (p.stage === undefined) {
     return unstarted;
@@ -36,7 +36,7 @@ export const fromJSON = (p: PlanStatusSerialized): PlanStatus => {
     }
     return {
       stage: "started",
-      start: new Date(p.start),
+      start: p.start,
     };
   }
   return unstarted;

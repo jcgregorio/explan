@@ -1,3 +1,4 @@
+import { keyed } from "lit-html/directives/keyed.js";
 import {
   Chart,
   ChartSerialized,
@@ -14,12 +15,24 @@ import {
 import { MetricRange } from "../metrics/range.ts";
 import { RationalizeEdgesOp } from "../ops/chart.ts";
 import {
+  PlanStatus,
+  PlanStatusSerialized,
+  toJSON as statusToJSON,
+  fromJSON as statusFromJSON,
+} from "../plan_status/plan_status.ts";
+import {
   ResourceDefinition,
   ResourceDefinitions,
   ResourceDefinitionsSerialized,
 } from "../resources/resources.ts";
 import { Result, ok } from "../result.ts";
 import { UncertaintyToNum } from "../stats/cdf/triangular/jacobian.ts";
+import {
+  TaskCompletion,
+  TaskCompletionSerialized,
+  toJSON as taskCompletionToJSON,
+  fromJSON as taskCompletionFromJSON,
+} from "../task_completion/task_completion.ts";
 import {
   Days,
   UnitBase,
@@ -50,8 +63,8 @@ export const StaticResourceDefinitions: Record<
 };
 
 export interface PlanSerialized {
-  startDate: number;
-  started: boolean;
+  status: PlanStatusSerialized;
+  taskCompletion: { [key: string]: TaskCompletionSerialized };
   durationUnits: UnitSerialized;
   chart: ChartSerialized;
   resourceDefinitions: ResourceDefinitionsSerialized;
@@ -64,9 +77,9 @@ export class Plan {
   // Controls how time is displayed.
   durationUnits: UnitBase;
 
-  started: boolean = false;
+  status: PlanStatus = { stage: "unstarted", start: 0 };
 
-  startDate: Date = new Date(0);
+  taskCompletion: { [key: string]: TaskCompletion } = {};
 
   resourceDefinitions: ResourceDefinitions;
 
@@ -77,7 +90,7 @@ export class Plan {
     this.resourceDefinitions = Object.assign({}, StaticResourceDefinitions);
     this.metricDefinitions = Object.assign({}, StaticMetricDefinitions);
     this.durationUnits = new Days(
-      this.startDate,
+      new Date(this.status.start),
       this.getStaticMetricDefinition("Duration")
     );
 
@@ -86,7 +99,7 @@ export class Plan {
 
   setDurationUnits(unitType: UnitTypes) {
     this.durationUnits = UnitBuilders[unitType](
-      this.startDate,
+      new Date(this.status.start),
       this.getStaticMetricDefinition("Duration")
     );
   }
@@ -156,8 +169,13 @@ export class Plan {
 
   toJSON(): PlanSerialized {
     return {
-      started: this.started,
-      startDate: this.started ? this.startDate.getTime() : 0,
+      status: statusToJSON(this.status),
+      taskCompletion: Object.fromEntries(
+        Object.entries(this.taskCompletion).map(([key, taskCompletion]) => [
+          key,
+          taskCompletionToJSON(taskCompletion),
+        ])
+      ),
       durationUnits: this.durationUnits.toJSON(),
       chart: this.chart.toJSON(),
       resourceDefinitions: Object.fromEntries(
@@ -179,9 +197,15 @@ export class Plan {
   static fromJSON(planSerialized: PlanSerialized): Plan {
     const ret = new Plan();
     ret.chart = Chart.fromJSON(planSerialized.chart);
-    ret.started = planSerialized.started;
-    ret.startDate = new Date(planSerialized.startDate);
-
+    ret.status = statusFromJSON(planSerialized.status);
+    ret.taskCompletion = Object.fromEntries(
+      Object.entries(planSerialized.taskCompletion).map(
+        ([key, taskCompletionSerialized]) => [
+          key,
+          taskCompletionFromJSON(taskCompletionSerialized),
+        ]
+      )
+    );
     const deserializedMetricDefinitions = Object.fromEntries(
       Object.entries(planSerialized.metricDefinitions).map(
         ([key, serializedMetricDefinition]) => [
@@ -212,7 +236,7 @@ export class Plan {
 
     ret.durationUnits = UnitBase.fromJSON(
       planSerialized.durationUnits,
-      ret.startDate,
+      new Date(ret.status.start),
       ret.getStaticMetricDefinition("Duration")
     );
 
