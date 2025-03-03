@@ -25,6 +25,11 @@ export type TaskCompletionSerialized = {
   finish: number;
 };
 
+export type TaskCompletions = { [key: string]: TaskCompletion };
+export type TaskCompletionsSerialized = {
+  [key: string]: TaskCompletionSerialized;
+};
+
 export const toJSON = (
   taskCompletion: TaskCompletion
 ): TaskCompletionSerialized => {
@@ -88,4 +93,26 @@ export const fromJSON = (
     default:
       return unstarted;
   }
+};
+
+export const taskCompletionsToJSON = (
+  t: TaskCompletions
+): TaskCompletionsSerialized => {
+  return Object.fromEntries(
+    Object.entries(t).map(([key, taskCompletion]) => [
+      key,
+      toJSON(taskCompletion),
+    ])
+  );
+};
+
+export const taskCompletionsFromJSON = (
+  t: TaskCompletionsSerialized
+): TaskCompletions => {
+  return Object.fromEntries(
+    Object.entries(t).map(([key, taskCompletionSerialized]) => [
+      key,
+      fromJSON(taskCompletionSerialized),
+    ])
+  );
 };

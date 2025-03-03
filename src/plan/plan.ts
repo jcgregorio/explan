@@ -32,6 +32,10 @@ import {
   TaskCompletionSerialized,
   toJSON as taskCompletionToJSON,
   fromJSON as taskCompletionFromJSON,
+  TaskCompletions,
+  TaskCompletionsSerialized,
+  taskCompletionsToJSON,
+  taskCompletionsFromJSON,
 } from "../task_completion/task_completion.ts";
 import {
   Days,
@@ -64,7 +68,7 @@ export const StaticResourceDefinitions: Record<
 
 export interface PlanSerialized {
   status: PlanStatusSerialized;
-  taskCompletion: { [key: string]: TaskCompletionSerialized };
+  taskCompletion: TaskCompletionsSerialized;
   durationUnits: UnitSerialized;
   chart: ChartSerialized;
   resourceDefinitions: ResourceDefinitionsSerialized;
@@ -79,7 +83,7 @@ export class Plan {
 
   status: PlanStatus = { stage: "unstarted", start: 0 };
 
-  taskCompletion: { [key: string]: TaskCompletion } = {};
+  taskCompletion: TaskCompletions = {};
 
   resourceDefinitions: ResourceDefinitions;
 
@@ -170,12 +174,7 @@ export class Plan {
   toJSON(): PlanSerialized {
     return {
       status: statusToJSON(this.status),
-      taskCompletion: Object.fromEntries(
-        Object.entries(this.taskCompletion).map(([key, taskCompletion]) => [
-          key,
-          taskCompletionToJSON(taskCompletion),
-        ])
-      ),
+      taskCompletion: taskCompletionsToJSON(this.taskCompletion),
       durationUnits: this.durationUnits.toJSON(),
       chart: this.chart.toJSON(),
       resourceDefinitions: Object.fromEntries(
@@ -198,14 +197,7 @@ export class Plan {
     const ret = new Plan();
     ret.chart = Chart.fromJSON(planSerialized.chart);
     ret.status = statusFromJSON(planSerialized.status);
-    ret.taskCompletion = Object.fromEntries(
-      Object.entries(planSerialized.taskCompletion).map(
-        ([key, taskCompletionSerialized]) => [
-          key,
-          taskCompletionFromJSON(taskCompletionSerialized),
-        ]
-      )
-    );
+    ret.taskCompletion = taskCompletionsFromJSON(planSerialized.taskCompletion);
     const deserializedMetricDefinitions = Object.fromEntries(
       Object.entries(planSerialized.metricDefinitions).map(
         ([key, serializedMetricDefinition]) => [
