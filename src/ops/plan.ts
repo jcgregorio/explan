@@ -11,7 +11,6 @@ import {
 } from "../task_completion/task_completion";
 import { Op, SubOp, SubOpResult } from "./ops";
 
-// SetPlanStartState
 // UpdatePlanStartDate
 
 // SetTaskStartState
@@ -22,12 +21,12 @@ import { Op, SubOp, SubOpResult } from "./ops";
 export class SetPlanStartStateSubOp implements SubOp {
   stage: string;
   start: number;
-  taskCompletions: TaskCompletions;
+  taskCompletions: TaskCompletions | null;
 
   constructor(
     stage: string,
     start: number,
-    taskCompletions: TaskCompletions = {}
+    taskCompletions: TaskCompletions | null = null
   ) {
     this.stage = stage;
     this.start = start;
@@ -44,6 +43,10 @@ export class SetPlanStartStateSubOp implements SubOp {
     const taskCompletionsSnapshot = taskCompletionsFromJSON(
       taskCompletionsToJSON(plan.taskCompletion)
     );
+
+    if (this.taskCompletions !== null) {
+      plan.taskCompletion = this.taskCompletions;
+    }
 
     if (plan.status.stage === "unstarted") {
       // Now loop over every task and set the TaskCompletion to unstarted.

@@ -3,6 +3,8 @@ import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil";
 import { Plan } from "../plan/plan";
 import { SetPlanStartStateOp } from "./plan";
 import { unstarted } from "../plan_status/plan_status";
+import { InsertNewEmptyTaskAfterOp } from "./chart";
+import { TaskCompletion } from "../task_completion/task_completion";
 
 describe("SetPlanStartStateOp", () => {
   const today = new Date().getTime();
@@ -14,6 +16,44 @@ describe("SetPlanStartStateOp", () => {
       SetPlanStartStateOp("started", today),
       TOp((plan: Plan) => {
         assert.deepEqual(plan.status, { stage: "started", start: today });
+      }),
+    ]);
+  });
+
+  it("saves and restores TaskCompletion", () => {
+    const completion: TaskCompletion = {
+      stage: "started",
+      start: 12,
+      percentComplete: 50,
+    };
+
+    TestOpsForwardAndBack([
+      // AddTask
+      InsertNewEmptyTaskAfterOp(0),
+
+      TOp((plan: Plan) => {
+        // Plan is started and one Task is in the started state.
+        plan.status = {
+          start: today,
+          stage: "started",
+        };
+        const taskID = plan.chart.Vertices[1].id;
+        plan.taskCompletion[taskID] = completion;
+      }),
+      T2Op((plan: Plan, isForward: boolean) => {
+        assert.deepEqual(plan.status.stage, "started");
+        // assert task completion
+        const taskID = plan.chart.Vertices[1].id;
+        assert.deepEqual(plan.taskCompletion[taskID], completion);
+      }),
+      SetPlanStartStateOp("unstarted", 0),
+      TOp((plan: Plan) => {
+        // Plan moves to unstarted.
+        assert.deepEqual(plan.status, { stage: "unstarted", start: 0 });
+
+        // Started task moved to unstarted.
+        const taskID = plan.chart.Vertices[1].id;
+        assert.deepEqual(plan.taskCompletion[taskID], { stage: "unstarted" });
       }),
     ]);
   });
