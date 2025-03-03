@@ -7,6 +7,8 @@ export type PlanStatus =
       start: number;
     };
 
+export const unstarted: PlanStatus = { stage: "unstarted", start: 0 };
+
 export type PlanStatusSerialized = {
   stage: string;
   start: number;
