@@ -13,7 +13,7 @@ describe("SetPlanStartStateOp", () => {
       T2Op((plan: Plan) => {
         assert.deepEqual(plan.status, unstarted);
       }),
-      SetPlanStartStateOp("started", today),
+      SetPlanStartStateOp({ stage: "started", start: today }),
       TOp((plan: Plan) => {
         assert.deepEqual(plan.status, { stage: "started", start: today });
       }),
@@ -46,7 +46,7 @@ describe("SetPlanStartStateOp", () => {
         const taskID = plan.chart.Vertices[1].id;
         assert.deepEqual(plan.taskCompletion[taskID], completion);
       }),
-      SetPlanStartStateOp("unstarted", 0),
+      SetPlanStartStateOp(unstarted),
       TOp((plan: Plan) => {
         // Plan moves to unstarted.
         assert.deepEqual(plan.status, { stage: "unstarted", start: 0 });
@@ -64,6 +64,7 @@ describe("UpdatePlanStartDateOp", () => {
   const today = now.getTime();
   now.setDate(now.getDate() + 1);
   const tomorrow = now.getTime();
+
   it("Fails if the Plan isn't started.", () => {
     const res = UpdatePlanStartDateOp(today).applyTo(new Plan());
     assert.isFalse(res.ok);
@@ -71,7 +72,7 @@ describe("UpdatePlanStartDateOp", () => {
 
   it("sets the plan start date", () => {
     TestOpsForwardAndBack([
-      SetPlanStartStateOp("started", today),
+      SetPlanStartStateOp({ stage: "started", start: today }),
       T2Op((plan: Plan) => {
         assert.deepEqual(plan.status, { stage: "started", start: today });
       }),

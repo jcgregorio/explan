@@ -102,7 +102,7 @@ export function ComputeSlack(
             const successorSlack = slacks[e.j];
             return successorSlack.late.start;
           })
-          .filter((value) => value !== null);
+          .filter((value) => value !== null) as number[];
         if (lateStarts.length === 0) {
           slack.late.finish = slack.early.finish;
         } else {

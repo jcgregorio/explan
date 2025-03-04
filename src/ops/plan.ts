@@ -2,16 +2,19 @@
 
 import { Task } from "../chart/chart";
 import { Plan } from "../plan/plan";
-import { fromJSON, toJSON } from "../plan_status/plan_status";
+import { PlanStatus, fromJSON, toJSON } from "../plan_status/plan_status";
 import { Result, error, ok } from "../result";
 import {
+  TaskCompletion,
   TaskCompletions,
   taskCompletionsFromJSON,
   taskCompletionsToJSON,
 } from "../task_completion/task_completion";
 import { Op, SubOp, SubOpResult } from "./ops";
-
-// UpdatePlanStartDate
+import {
+  toJSON as taskToJSON,
+  fromJSON as taskFromJSON,
+} from "../task_completion/task_completion";
 
 // SetTaskStartState
 // UpdatePercentComplete
@@ -19,26 +22,20 @@ import { Op, SubOp, SubOpResult } from "./ops";
 // SetTaskFinishedState
 
 export class SetPlanStartStateSubOp implements SubOp {
-  stage: string;
-  start: number;
-  taskCompletions: TaskCompletions | null;
+  value: PlanStatus;
+  taskCompletions: TaskCompletions | null = null;
 
   constructor(
-    stage: string,
-    start: number,
+    value: PlanStatus,
     taskCompletions: TaskCompletions | null = null
   ) {
-    this.stage = stage;
-    this.start = start;
+    this.value = value;
     this.taskCompletions = taskCompletions;
   }
 
   applyTo(plan: Plan): Result<SubOpResult> {
     const oldStatus = fromJSON(toJSON(plan.status));
-    plan.status = fromJSON({
-      stage: this.stage,
-      start: this.start,
-    });
+    plan.status = this.value;
 
     const taskCompletionsSnapshot = taskCompletionsFromJSON(
       taskCompletionsToJSON(plan.taskCompletion)
@@ -57,11 +54,7 @@ export class SetPlanStartStateSubOp implements SubOp {
 
     return ok({
       plan: plan,
-      inverse: new SetPlanStartStateSubOp(
-        oldStatus.stage,
-        oldStatus.start,
-        taskCompletionsSnapshot
-      ),
+      inverse: new SetPlanStartStateSubOp(oldStatus, taskCompletionsSnapshot),
     });
   }
 }
@@ -87,8 +80,38 @@ export class UpdatePlanStartDateSubOp implements SubOp {
   }
 }
 
-export function SetPlanStartStateOp(stage: string, start: number): Op {
-  return new Op([new SetPlanStartStateSubOp(stage, start)]);
+export class SetTaskCompletionSubOp implements SubOp {
+  taskIndex: number;
+  value: TaskCompletion;
+
+  constructor(taskIndex: number, value: TaskCompletion) {
+    this.taskIndex = taskIndex;
+    this.value = value;
+  }
+
+  applyTo(plan: Plan): Result<SubOpResult> {
+    const task = plan.chart.Vertices[this.taskIndex];
+    const oldTaskStatus = taskFromJSON(
+      taskToJSON(plan.taskCompletion[task.id])
+    );
+    plan.taskCompletion[task.id] = this.value;
+
+    return ok({
+      plan: plan,
+      inverse: new SetTaskCompletionSubOp(this.taskIndex, oldTaskStatus),
+    });
+  }
+}
+
+export function SetTaskCompletionOp(
+  taskIndex: number,
+  value: TaskCompletion
+): Op {
+  return new Op([new SetTaskCompletionSubOp(taskIndex, value)]);
+}
+
+export function SetPlanStartStateOp(value: PlanStatus): Op {
+  return new Op([new SetPlanStartStateSubOp(value)]);
 }
 
 export function UpdatePlanStartDateOp(start: number): Op {
