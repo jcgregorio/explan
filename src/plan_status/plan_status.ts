@@ -5,6 +5,13 @@ export type PlanStatus =
       start: number;
     };
 
+export const statusToDate = (status: PlanStatus): Date => {
+  if (status.stage === "unstarted") {
+    return new Date();
+  }
+  return new Date(status.start);
+};
+
 export const unstarted: PlanStatus = { stage: "unstarted", start: 0 };
 
 export type PlanStatusSerialized = {

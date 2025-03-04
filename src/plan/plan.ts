@@ -1,12 +1,5 @@
 import { keyed } from "lit-html/directives/keyed.js";
-import {
-  Chart,
-  ChartSerialized,
-  ChartValidate,
-  Task,
-  TaskSerialized,
-} from "../chart/chart.ts";
-import { DirectedEdge, DirectedEdgeSerialized } from "../dag/dag.ts";
+import { Chart, ChartSerialized, ChartValidate, Task } from "../chart/chart.ts";
 import {
   MetricDefinition,
   MetricDefinitions,
@@ -19,6 +12,7 @@ import {
   PlanStatusSerialized,
   toJSON as statusToJSON,
   fromJSON as statusFromJSON,
+  statusToDate,
 } from "../plan_status/plan_status.ts";
 import {
   ResourceDefinition,
@@ -28,10 +22,6 @@ import {
 import { Result, ok } from "../result.ts";
 import { UncertaintyToNum } from "../stats/cdf/triangular/jacobian.ts";
 import {
-  TaskCompletion,
-  TaskCompletionSerialized,
-  toJSON as taskCompletionToJSON,
-  fromJSON as taskCompletionFromJSON,
   TaskCompletions,
   TaskCompletionsSerialized,
   taskCompletionsToJSON,
@@ -81,7 +71,7 @@ export class Plan {
   // Controls how time is displayed.
   durationUnits: UnitBase;
 
-  status: PlanStatus = { stage: "unstarted", start: 0 };
+  _status: PlanStatus = { stage: "unstarted", start: 0 };
 
   taskCompletion: TaskCompletions = {};
 
@@ -89,12 +79,24 @@ export class Plan {
 
   metricDefinitions: MetricDefinitions;
 
+  public get status(): PlanStatus {
+    return this._status;
+  }
+
+  public set status(value: PlanStatus) {
+    this._status = value;
+    this.durationUnits = new Days(
+      new Date(statusToDate(this.status)),
+      this.getStaticMetricDefinition("Duration")
+    );
+  }
+
   constructor() {
     this.chart = new Chart();
     this.resourceDefinitions = Object.assign({}, StaticResourceDefinitions);
     this.metricDefinitions = Object.assign({}, StaticMetricDefinitions);
     this.durationUnits = new Days(
-      new Date(this.status.start),
+      new Date(statusToDate(this.status)),
       this.getStaticMetricDefinition("Duration")
     );
 
@@ -103,7 +105,7 @@ export class Plan {
 
   setDurationUnits(unitType: UnitTypes) {
     this.durationUnits = UnitBuilders[unitType](
-      new Date(this.status.start),
+      new Date(statusToDate(this.status)),
       this.getStaticMetricDefinition("Duration")
     );
   }
@@ -228,7 +230,7 @@ export class Plan {
 
     ret.durationUnits = UnitBase.fromJSON(
       planSerialized.durationUnits,
-      new Date(ret.status.start),
+      new Date(statusToDate(ret.status)),
       ret.getStaticMetricDefinition("Duration")
     );
 
