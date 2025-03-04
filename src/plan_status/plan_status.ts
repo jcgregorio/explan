@@ -1,5 +1,3 @@
-import { Plan } from "../plan/plan";
-
 export type PlanStatus =
   | { stage: "unstarted"; start: 0 }
   | {

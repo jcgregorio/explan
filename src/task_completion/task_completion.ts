@@ -1,7 +1,3 @@
-// This doesn't distiguish between just started, and
-// finished, which would affect early.finish.
-//
-
 import { Span } from "../slack/slack";
 
 // The completion status of a Task. The value of `start` and values in `span`

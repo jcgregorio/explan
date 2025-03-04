@@ -17,11 +17,6 @@ import {
   fromJSON as taskFromJSON,
 } from "../task_completion/task_completion";
 
-// SetTaskStartState
-// UpdatePercentComplete
-// UpdateTaskStartDate
-// SetTaskFinishedState
-
 export class SetPlanStartStateSubOp implements SubOp {
   value: PlanStatus;
   taskCompletions: TaskCompletions | null = null;

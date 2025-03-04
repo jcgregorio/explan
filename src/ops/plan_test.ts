@@ -6,12 +6,9 @@ import {
   SetTaskCompletionOp,
   UpdatePlanStartDateOp,
 } from "./plan";
-import { toJSON, unstarted } from "../plan_status/plan_status";
+import { unstarted } from "../plan_status/plan_status";
 import { InsertNewEmptyTaskAfterOp } from "./chart";
-import {
-  TaskCompletion,
-  taskUnstarted,
-} from "../task_completion/task_completion";
+import { TaskCompletion } from "../task_completion/task_completion";
 import { Span } from "../slack/slack";
 
 describe("SetPlanStartStateOp", () => {
