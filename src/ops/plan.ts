@@ -9,6 +9,7 @@ import {
   TaskCompletions,
   taskCompletionsFromJSON,
   taskCompletionsToJSON,
+  taskUnstarted,
 } from "../task_completion/task_completion";
 import { Op, SubOp, SubOpResult } from "./ops";
 import {
@@ -90,9 +91,14 @@ export class SetTaskCompletionSubOp implements SubOp {
   }
 
   applyTo(plan: Plan): Result<SubOpResult> {
+    if (this.value.stage !== "unstarted" && plan.status.stage === "unstarted") {
+      return error(
+        new Error("Can't start a task if the plan hasn't been started.")
+      );
+    }
     const task = plan.chart.Vertices[this.taskIndex];
     const oldTaskStatus = taskFromJSON(
-      taskToJSON(plan.taskCompletion[task.id])
+      taskToJSON(plan.taskCompletion[task.id] || taskUnstarted)
     );
     plan.taskCompletion[task.id] = this.value;
 

@@ -25,6 +25,8 @@ export type TaskCompletionSerialized = {
   finish: number;
 };
 
+export const taskUnstarted = { stage: "unstarted" };
+
 export type TaskCompletions = { [key: string]: TaskCompletion };
 export type TaskCompletionsSerialized = {
   [key: string]: TaskCompletionSerialized;

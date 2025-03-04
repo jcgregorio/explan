@@ -1,10 +1,18 @@
 import { assert } from "@esm-bundle/chai";
 import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil";
 import { Plan } from "../plan/plan";
-import { SetPlanStartStateOp, UpdatePlanStartDateOp } from "./plan";
+import {
+  SetPlanStartStateOp,
+  SetTaskCompletionOp,
+  UpdatePlanStartDateOp,
+} from "./plan";
 import { toJSON, unstarted } from "../plan_status/plan_status";
 import { InsertNewEmptyTaskAfterOp } from "./chart";
-import { TaskCompletion } from "../task_completion/task_completion";
+import {
+  TaskCompletion,
+  taskUnstarted,
+} from "../task_completion/task_completion";
+import { Span } from "../slack/slack";
 
 describe("SetPlanStartStateOp", () => {
   const today = new Date().getTime();
@@ -79,6 +87,40 @@ describe("UpdatePlanStartDateOp", () => {
       UpdatePlanStartDateOp(tomorrow),
       TOp((plan: Plan) => {
         assert.deepEqual(plan.status, { stage: "started", start: tomorrow });
+      }),
+    ]);
+  });
+});
+
+describe("SetTaskCompletionOp", () => {
+  const today = new Date().getTime();
+
+  it("Fails if the plan isn't started", () => {
+    const res = SetTaskCompletionOp(1, {
+      stage: "started",
+      start: 13,
+      percentComplete: 10,
+    }).applyTo(new Plan());
+    assert.isFalse(res.ok);
+  });
+
+  it("sets a tasks completion", () => {
+    const finished: TaskCompletion = {
+      stage: "finished",
+      span: new Span(10, 12),
+    };
+    TestOpsForwardAndBack([
+      SetPlanStartStateOp({ stage: "started", start: today }),
+      InsertNewEmptyTaskAfterOp(0),
+      TOp((plan: Plan) => {
+        assert.equal(plan.taskCompletion[plan.chart.Vertices[1].id], undefined);
+      }),
+      SetTaskCompletionOp(1, finished),
+      TOp((plan: Plan) => {
+        assert.deepEqual(
+          plan.taskCompletion[plan.chart.Vertices[1].id],
+          finished
+        );
       }),
     ]);
   });
