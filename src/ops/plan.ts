@@ -3,7 +3,7 @@
 import { Task } from "../chart/chart";
 import { Plan } from "../plan/plan";
 import { fromJSON, toJSON } from "../plan_status/plan_status";
-import { Result, ok } from "../result";
+import { Result, error, ok } from "../result";
 import {
   TaskCompletions,
   taskCompletionsFromJSON,
@@ -66,6 +66,31 @@ export class SetPlanStartStateSubOp implements SubOp {
   }
 }
 
+export class UpdatePlanStartDateSubOp implements SubOp {
+  start: number;
+
+  constructor(start: number) {
+    this.start = start;
+  }
+
+  applyTo(plan: Plan): Result<SubOpResult> {
+    if (plan.status.stage !== "started") {
+      return error(new Error("Can't set start date on an unstarted plan."));
+    }
+    const oldStart = plan.status.start;
+    plan.status.start = this.start;
+
+    return ok({
+      plan: plan,
+      inverse: new UpdatePlanStartDateSubOp(oldStart),
+    });
+  }
+}
+
 export function SetPlanStartStateOp(stage: string, start: number): Op {
   return new Op([new SetPlanStartStateSubOp(stage, start)]);
+}
+
+export function UpdatePlanStartDateOp(start: number): Op {
+  return new Op([new UpdatePlanStartDateSubOp(start)]);
 }
