@@ -50,6 +50,7 @@ import { SimulationPanel } from "../simulation-panel/simulation-panel.ts";
 import { applyStoredTheme } from "../style/toggler/toggler.ts";
 import { EditResourcesDialog } from "../edit-resources-dialog/edit-resources-dialog.ts";
 import { EditMetricsDialog } from "../edit-metrics-dialog/edit-metrics-dialog.ts";
+import { EditPlanStartDialog } from "../edit-plan-start/edit-plan-start.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -296,6 +297,21 @@ export class ExplanMain extends HTMLElement {
         this
       );
     });
+
+    this.querySelector("#edit-plan-start")!.addEventListener(
+      "click",
+      async () => {
+        const ret = await this.querySelector<EditPlanStartDialog>(
+          "edit-plan-start"
+        )!.start(this.plan.status);
+        if (ret === undefined) {
+          return;
+        }
+        // TODO Change the status
+        this.plan.status = ret;
+        this.planDefinitionHasBeenChanged();
+      }
+    );
 
     this.plan = generateStarterPlan();
     this.updateTaskPanels(this.selectedTask);

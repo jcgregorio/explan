@@ -1,4 +1,5 @@
 import "./help/help.ts";
+import "./edit-plan-start/edit-plan-start.ts";
 import "./edit-resource-definition/edit-resource-definition.ts";
 import "./edit-metrics-dialog/edit-metrics-dialog.ts";
 import "./edit-metric-definition/edit-metric-definition.ts";
