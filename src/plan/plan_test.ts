@@ -8,7 +8,11 @@ import {
 import { Op, applyAllOpsToPlan } from "../ops/ops";
 import { SetMetricValueOp } from "../ops/metrics";
 import { InsertNewEmptyTaskAfterOp, SetTaskNameOp } from "../ops/chart";
-import { TaskCompletion } from "../task_completion/task_completion";
+import {
+  TaskCompletion,
+  taskUnstarted,
+} from "../task_completion/task_completion";
+import { unstarted } from "../plan_status/plan_status";
 
 describe("Plan", () => {
   it("Round trips via JSON", () => {
@@ -103,5 +107,16 @@ describe("Plan", () => {
     // Get fails if out of bounds.
     getRet = plan.getTaskCompletion(4);
     assert.isFalse(getRet.ok);
+  });
+
+  it("get task completion for a Task that doesn't have a task completion works", () => {
+    const ret = InsertNewEmptyTaskAfterOp(0).applyTo(new Plan());
+    assert.isTrue(ret.ok);
+    const plan = ret.value.plan;
+
+    // Get works
+    let getRet = plan.getTaskCompletion(1);
+    assert.isTrue(getRet.ok);
+    assert.deepEqual(getRet.value, taskUnstarted);
   });
 });
