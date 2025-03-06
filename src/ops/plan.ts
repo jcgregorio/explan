@@ -92,10 +92,16 @@ export class SetTaskCompletionSubOp implements SubOp {
       );
     }
     const task = plan.chart.Vertices[this.taskIndex];
-    const oldTaskStatus = taskFromJSON(
-      taskToJSON(plan.taskCompletion[task.id] || taskUnstarted)
-    );
-    plan.taskCompletion[task.id] = this.value;
+    const ret = plan.getTaskCompletion(this.taskIndex);
+    if (!ret.ok) {
+      return ret;
+    }
+
+    const oldTaskStatus = taskFromJSON(taskToJSON(ret.value));
+    const setRet = plan.setTaskCompletion(this.taskIndex, this.value);
+    if (!setRet.ok) {
+      return setRet;
+    }
 
     return ok({
       plan: plan,

@@ -121,4 +121,19 @@ describe("SetTaskCompletionOp", () => {
       }),
     ]);
   });
+
+  it("fails if index is out of range", () => {
+    const finished: TaskCompletion = {
+      stage: "finished",
+      span: new Span(10, 12),
+    };
+    let ret = SetPlanStartStateOp({ stage: "started", start: today }).applyTo(
+      new Plan()
+    );
+    assert.isTrue(ret.ok);
+    const plan = ret.value.plan;
+
+    ret = SetTaskCompletionOp(5, finished).applyTo(plan);
+    assert.isFalse(ret.ok);
+  });
 });
