@@ -19,13 +19,14 @@ import {
   ResourceDefinitions,
   ResourceDefinitionsSerialized,
 } from "../resources/resources.ts";
-import { Result, ok } from "../result.ts";
+import { Result, error, ok } from "../result.ts";
 import { UncertaintyToNum } from "../stats/cdf/triangular/jacobian.ts";
 import {
   TaskCompletions,
   TaskCompletionsSerialized,
   taskCompletionsToJSON,
   taskCompletionsFromJSON,
+  TaskCompletion,
 } from "../task_completion/task_completion.ts";
 import {
   Days,
@@ -89,6 +90,23 @@ export class Plan {
       new Date(statusToDate(this.status)),
       this.getStaticMetricDefinition("Duration")
     );
+  }
+
+  setTaskCompletion(index: number, value: TaskCompletion): Result<null> {
+    const task = this.chart.Vertices[index];
+    if (task === undefined) {
+      return error(new Error(`${index} is not a valid Task index.`));
+    }
+    this.taskCompletion[task.id] = value;
+    return ok(null);
+  }
+
+  getTaskCompletion(index: number): Result<TaskCompletion> {
+    const task = this.chart.Vertices[index];
+    if (task === undefined) {
+      return error(new Error(`${index} is not a valid Task index.`));
+    }
+    return ok(this.taskCompletion[task.id] || { stage: "unstarted" });
   }
 
   constructor() {

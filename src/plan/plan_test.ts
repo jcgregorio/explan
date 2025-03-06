@@ -8,6 +8,7 @@ import {
 import { Op, applyAllOpsToPlan } from "../ops/ops";
 import { SetMetricValueOp } from "../ops/metrics";
 import { InsertNewEmptyTaskAfterOp, SetTaskNameOp } from "../ops/chart";
+import { TaskCompletion } from "../task_completion/task_completion";
 
 describe("Plan", () => {
   it("Round trips via JSON", () => {
@@ -74,5 +75,33 @@ describe("Plan", () => {
     assert.equal("1/8/1970", p.durationUnits.displayTime(8, "en-US"));
     p.setDurationUnits("Weekdays");
     assert.equal("1/12/1970", p.durationUnits.displayTime(8, "en-US"));
+  });
+
+  it("can set and get task completions", () => {
+    const ret = InsertNewEmptyTaskAfterOp(0).applyTo(new Plan());
+    assert.isTrue(ret.ok);
+    const plan = ret.value.plan;
+
+    const completion: TaskCompletion = {
+      stage: "started",
+      start: 9,
+      percentComplete: 10,
+    };
+
+    // Set works
+    let setRet = plan.setTaskCompletion(1, completion);
+    assert.isTrue(setRet.ok);
+
+    // Get works
+    let getRet = plan.getTaskCompletion(1);
+    assert.isTrue(getRet.ok);
+
+    // Set fails if out of bounds.
+    setRet = plan.setTaskCompletion(4, completion);
+    assert.isFalse(setRet.ok);
+
+    // Get fails if out of bounds.
+    getRet = plan.getTaskCompletion(4);
+    assert.isFalse(getRet.ok);
   });
 });
