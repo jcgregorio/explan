@@ -21,8 +21,10 @@ export class DatePicker extends HTMLElement {
     this.render();
   }
 
+  // TODO - Dedup this from here and in edit-plan-start.ts.
   private dateControlValue(d: Date): string {
-    return `${d.getFullYear()}-${d.getMonth()}-${d.getDay()}`;
+    const ret = `${d.getFullYear()}-${("" + (d.getMonth() + 1)).padStart(2, "0")}-${("" + d.getDate()).padStart(2, "0")}`;
+    return ret;
   }
 
   private render() {
@@ -37,14 +39,14 @@ export class DatePicker extends HTMLElement {
     if (kind === "Unitless") {
       return html` <input
         type="text"
-        value=${this._value.dateOffset}
+        .value=${this._value.dateOffset}
         @input=${(e: InputEvent) => this.inputChanged(e)}
       />`;
     } else {
       return html`
         <input
           type="date"
-          value=${this.dateControlValue(
+          .value=${this.dateControlValue(
             this._value.unit.asDate(this._value.dateOffset)
           )}
           @input=${(e: InputEvent) => this.inputChanged(e)}

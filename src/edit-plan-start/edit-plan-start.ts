@@ -48,7 +48,8 @@ export class EditPlanStartDialog extends HTMLElement {
 
   private dateControlValue(): string {
     const d = new Date(this.status.start);
-    return `${d.getFullYear()}-${d.getMonth()}-${d.getDay()}`;
+    const ret = `${d.getFullYear()}-${("" + (d.getMonth() + 1)).padStart(2, "0")}-${("" + d.getDate()).padStart(2, "0")}`;
+    return ret;
   }
 
   private startChanged(e: InputEvent) {
