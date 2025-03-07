@@ -5,6 +5,7 @@ import { ExplanMain } from "../explanMain/explanMain";
 import { EditResourceDefinition } from "../edit-resource-definition/edit-resource-definition";
 import { icon } from "../icons/icons";
 import { PlanStatus, unstarted } from "../plan_status/plan_status";
+import { dateControlValue } from "../date-control-utils/date-control-utils";
 
 // Longest representation we'll show for all the options of a Resource.
 const MAX_SHORT_STRING = 80;
@@ -48,8 +49,7 @@ export class EditPlanStartDialog extends HTMLElement {
 
   private dateControlValue(): string {
     const d = new Date(this.status.start);
-    const ret = `${d.getFullYear()}-${("" + (d.getMonth() + 1)).padStart(2, "0")}-${("" + d.getDate()).padStart(2, "0")}`;
-    return ret;
+    return dateControlValue(d);
   }
 
   private startChanged(e: InputEvent) {

@@ -1,6 +1,7 @@
 import { TemplateResult, html, render } from "lit-html";
 import { Plan } from "../plan/plan.ts";
 import { UnitBase } from "../units/unit.ts";
+import { dateControlValue } from "../date-control-utils/date-control-utils.ts";
 
 declare global {
   interface GlobalEventHandlersEventMap {
@@ -19,12 +20,6 @@ export class DatePicker extends HTMLElement {
   public set value(v: DatePickerValue) {
     this._value = v;
     this.render();
-  }
-
-  // TODO - Dedup this from here and in edit-plan-start.ts.
-  private dateControlValue(d: Date): string {
-    const ret = `${d.getFullYear()}-${("" + (d.getMonth() + 1)).padStart(2, "0")}-${("" + d.getDate()).padStart(2, "0")}`;
-    return ret;
   }
 
   private render() {
@@ -46,7 +41,7 @@ export class DatePicker extends HTMLElement {
       return html`
         <input
           type="date"
-          .value=${this.dateControlValue(
+          .value=${dateControlValue(
             this._value.unit.asDate(this._value.dateOffset)
           )}
           @input=${(e: InputEvent) => this.inputChanged(e)}
