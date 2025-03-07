@@ -38,8 +38,16 @@ export class UnitBase implements Unit {
     throw new Error("Method implemented in subclasses.");
   }
 
+  asDate(t: number): Date {
+    throw new Error("Method implemented in subclasses.");
+  }
+
   parse(s: string): Result<number> {
     throw new Error("Method implemented in subclasses.");
+  }
+
+  kind(): UnitTypes {
+    return this.unitType;
   }
 
   toJSON(): UnitSerialized {
@@ -98,6 +106,11 @@ export class Unitless extends UnitBase implements Unit {
     return this.metricDefn.clampAndRound(t).toString();
   }
 
+  asDate(t: number): Date {
+    // Should never be called.
+    return this.start;
+  }
+
   parse(s: string): Result<number> {
     const parsed = +s;
     if (Number.isNaN(parsed)) {
@@ -113,9 +126,13 @@ export class Days extends UnitBase implements Unit {
   }
 
   displayTime(t: number, locale?: Intl.LocalesArgument): string {
+    return this.asDate(t).toLocaleDateString(locale);
+  }
+
+  asDate(t: number): Date {
     const d = new Date(this.start.getTime());
     d.setDate(d.getDate() + t);
-    return d.toLocaleDateString(locale);
+    return d;
   }
 
   parse(s: string): Result<number> {
@@ -137,9 +154,13 @@ export class WeekDays extends UnitBase implements Unit {
 
   // Locale only used for testing.
   displayTime(t: number, locale?: Intl.LocalesArgument): string {
+    return this.asDate(t).toLocaleDateString(locale);
+  }
+
+  asDate(t: number): Date {
     const d = new Date(this.start.getTime());
     d.setDate(d.getDate() + this.weekdays.weekdaysToDays(t));
-    return d.toLocaleDateString(locale);
+    return d;
   }
 
   parse(s: string): Result<number> {
