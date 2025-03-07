@@ -51,6 +51,7 @@ import { applyStoredTheme } from "../style/toggler/toggler.ts";
 import { EditResourcesDialog } from "../edit-resources-dialog/edit-resources-dialog.ts";
 import { EditMetricsDialog } from "../edit-metrics-dialog/edit-metrics-dialog.ts";
 import { EditPlanStartDialog } from "../edit-plan-start/edit-plan-start.ts";
+import { TaskCompletionPanel } from "../task-completion-panel/task-completion-panel.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -93,6 +94,8 @@ export class ExplanMain extends HTMLElement {
   downloadLink: HTMLAnchorElement | null = null;
 
   selectedTaskPanel: SelectedTaskPanel | null = null;
+
+  taskCompletionPanel: TaskCompletionPanel | null = null;
 
   alternateTaskDurations: number[] | null = null;
 
@@ -166,6 +169,8 @@ export class ExplanMain extends HTMLElement {
         reportOnError(await executeOp(op, "planDefinitionChanged", true, this));
       }
     );
+
+    this.taskCompletionPanel = this.querySelector("task-completion-panel");
 
     // Dragging on the radar.
     const radar = this.querySelector<HTMLElement>("#radar")!;
@@ -334,6 +339,7 @@ export class ExplanMain extends HTMLElement {
       this.plan,
       this.selectedTask
     );
+    this.taskCompletionPanel!.update(this.plan, this.selectedTask);
     const edges = edgesBySrcAndDstToMap(this.plan.chart.Edges);
     this.dependenciesPanel!.setTasksAndIndices(
       this.plan.chart.Vertices,

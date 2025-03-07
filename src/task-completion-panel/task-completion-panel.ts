@@ -4,11 +4,16 @@ import { TaskCompletion } from "../task_completion/task_completion.ts";
 
 export class TaskCompletionPanel extends HTMLElement {
   plan: Plan | null = null;
-  taskCompletion: TaskCompletion = { stage: "unstarted" };
+  taskIndex: number = 0;
+  taskCompletion: TaskCompletion | null = null;
 
-  update(plan: Plan, taskCompletion: TaskCompletion) {
+  update(plan: Plan, taskIndex: number) {
     this.plan = plan;
-    this.taskCompletion = taskCompletion;
+    this.taskIndex = taskIndex;
+    const ret = this.plan.getTaskCompletion(this.taskIndex);
+    if (ret.ok) {
+      this.taskCompletion = ret.value;
+    }
     this.render();
   }
 
@@ -17,12 +22,12 @@ export class TaskCompletionPanel extends HTMLElement {
   }
 
   private template(): TemplateResult {
-    if (this.plan === null) {
+    if (this.taskCompletion === null) {
       return html``;
     }
     switch (this.taskCompletion.stage) {
       case "unstarted":
-        html`<div>
+        return html`<div>
           <label>
             <input type="checkbox" @change=${() => this.start()} />
             Started
@@ -31,7 +36,7 @@ export class TaskCompletionPanel extends HTMLElement {
         break;
 
       case "started":
-        html`<div>
+        return html`<div>
           <label>
             <input type="checkbox" checked @change=${() => this.unstart()} />
             Started
@@ -39,7 +44,7 @@ export class TaskCompletionPanel extends HTMLElement {
 
           <date-picker
             .value=${{
-              unit: this.plan.durationUnits,
+              unit: this.plan!.durationUnits,
               dateOffset: this.taskCompletion.start,
             }}
             @date-picker-input=${(e: CustomEvent<number>) =>
@@ -62,14 +67,14 @@ export class TaskCompletionPanel extends HTMLElement {
         break;
 
       case "finished":
-        html`<div>
+        return html`<div>
           <label>
             <input type="checkbox" checked @change=${() => this.unstart()} />
             Started
           </label>
           <date-picker
             .value=${{
-              unit: this.plan.durationUnits,
+              unit: this.plan!.durationUnits,
               dateOffset: this.taskCompletion.span.start,
             }}
             @date-picker-input=${(e: CustomEvent<number>) =>
@@ -82,7 +87,7 @@ export class TaskCompletionPanel extends HTMLElement {
           </label>
           <date-picker
             .value=${{
-              unit: this.plan.durationUnits,
+              unit: this.plan!.durationUnits,
               dateOffset: this.taskCompletion.span.finish,
             }}
             @date-picker-input=${(e: CustomEvent<number>) =>
@@ -92,9 +97,11 @@ export class TaskCompletionPanel extends HTMLElement {
         break;
 
       default:
+        // Confirm we've covered all switch statement possibilites.
+        this.taskCompletion satisfies never;
+        return html``;
         break;
     }
-    return html``;
   }
 
   private start() {}
