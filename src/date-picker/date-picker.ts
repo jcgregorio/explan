@@ -41,11 +41,15 @@ export class DatePicker extends HTMLElement {
         @input=${(e: InputEvent) => this.inputChanged(e)}
       />`;
     } else {
-      return html` <input
+      return html`
+        <input
           type="date"
-          value=${this.dateControlValue(this._value.unit.asDate(this._value.dateOffset))}
+          value=${this.dateControlValue(
+            this._value.unit.asDate(this._value.dateOffset)
+          )}
           @input=${(e: InputEvent) => this.inputChanged(e)}
-        `;
+        />
+      `;
     }
   }
 

@@ -67,6 +67,7 @@ export class TaskCompletionPanel extends HTMLElement {
           ></date-picker>
 
           <label>
+            Percent Complete
             <input
               type="number"
               .value=${this.taskCompletion.percentComplete}
