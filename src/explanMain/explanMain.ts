@@ -339,7 +339,11 @@ export class ExplanMain extends HTMLElement {
       this.plan,
       this.selectedTask
     );
-    this.taskCompletionPanel!.update(this.plan, this.selectedTask);
+    this.taskCompletionPanel!.update(
+      this.plan,
+      this.selectedTask,
+      this.spans[this.selectedTask]
+    );
     const edges = edgesBySrcAndDstToMap(this.plan.chart.Edges);
     this.dependenciesPanel!.setTasksAndIndices(
       this.plan.chart.Vertices,
