@@ -1,6 +1,4 @@
 import { TemplateResult, html, render } from "lit-html";
-import { Task } from "../chart/chart.ts";
-import { icon } from "../icons/icons.ts";
 import { Plan } from "../plan/plan.ts";
 import { UnitBase } from "../units/unit.ts";
 
@@ -10,15 +8,16 @@ declare global {
   }
 }
 
-export class DatePicker extends HTMLElement {
-  plan: Plan | null = null;
-  dateOffset: number = 0;
-  unit: UnitBase | null = null;
+export interface DatePickerValue {
+  unit: UnitBase;
+  dateOffset: number;
+}
 
-  update(plan: Plan, dateOffset: number) {
-    this.plan = plan;
-    this.unit = plan.durationUnits;
-    this.dateOffset = dateOffset;
+export class DatePicker extends HTMLElement {
+  _value: DatePickerValue | null = null;
+
+  public set value(v: DatePickerValue) {
+    this._value = v;
     this.render();
   }
 
@@ -31,27 +30,29 @@ export class DatePicker extends HTMLElement {
   }
 
   private template(): TemplateResult {
-    if (this.plan === null) {
+    if (this._value === null) {
       return html``;
     }
-    const kind = this.unit!.kind();
+    const kind = this._value.unit.kind();
     if (kind === "Unitless") {
       return html` <input
         type="text"
-        value=${this.dateOffset}
+        value=${this._value.dateOffset}
         @input=${(e: InputEvent) => this.inputChanged(e)}
       />`;
     } else {
       return html` <input
           type="date"
-          value=${this.dateControlValue(this.unit!.asDate(this.dateOffset))}
+          value=${this.dateControlValue(this._value.unit.asDate(this._value.dateOffset))}
           @input=${(e: InputEvent) => this.inputChanged(e)}
         `;
     }
   }
 
   private inputChanged(e: InputEvent) {
-    const newOffset = this.unit!.parse((e.target as HTMLInputElement).value);
+    const newOffset = this._value!.unit.parse(
+      (e.target as HTMLInputElement).value
+    );
     this.dispatchEvent(
       new CustomEvent("date-picker-input", {
         bubbles: true,
