@@ -51,15 +51,17 @@ export class DatePicker extends HTMLElement {
   }
 
   private inputChanged(e: InputEvent) {
-    const newOffset = this._value!.unit.parse(
-      (e.target as HTMLInputElement).value
-    );
-    this.dispatchEvent(
-      new CustomEvent("date-picker-input", {
-        bubbles: true,
-        detail: newOffset,
-      })
-    );
+    const ret = this._value!.unit.parse((e.target as HTMLInputElement).value);
+    if (!ret.ok) {
+      console.log(ret.error);
+    } else {
+      this.dispatchEvent(
+        new CustomEvent<number>("date-picker-input", {
+          bubbles: true,
+          detail: ret.value,
+        })
+      );
+    }
   }
 }
 

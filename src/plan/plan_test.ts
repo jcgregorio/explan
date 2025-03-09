@@ -18,6 +18,9 @@ describe("Plan", () => {
   it("Round trips via JSON", () => {
     const plan = new Plan();
     const actual = Plan.fromJSON(plan.toJSON());
+
+    // Copy over the start in the units because it will change.
+    actual.durationUnits["start"] = plan.durationUnits["start"];
     assert.deepEqual(actual, plan);
   });
 

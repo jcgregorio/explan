@@ -1,5 +1,6 @@
 import { assert } from "@esm-bundle/chai";
 import { Weekdays } from "./weekdays.ts";
+import { Result } from "../result.ts";
 
 describe("Weekdays", () => {
   it("Converts properly starting on a weekday", () => {
@@ -27,5 +28,21 @@ describe("Weekdays", () => {
     assert.equal(w.weekdaysToDays(6), 9); // M
     assert.equal(w.weekdaysToDays(7), 10); // T
     assert.equal(w.weekdaysToDays(7), 10);
+  });
+
+  const unwrapIfOK = (r: Result<number>): number => {
+    assert.isTrue(r.ok);
+    return r.value;
+  };
+
+  it("Converts a date back into a date offset", () => {
+    const w = new Weekdays(new Date("2025-01-24T12:00:00")); // Fri
+    assert.equal(unwrapIfOK(w.dateToWeekday("2025-01-25")), 1); // Sat
+    assert.equal(unwrapIfOK(w.dateToWeekday("2025-01-26")), 1); // S
+    assert.equal(unwrapIfOK(w.dateToWeekday("2025-01-27")), 1); // M
+    assert.equal(unwrapIfOK(w.dateToWeekday("2025-01-28")), 2); // T
+    assert.equal(unwrapIfOK(w.dateToWeekday("2025-01-29")), 3); // W
+    assert.equal(unwrapIfOK(w.dateToWeekday("2025-01-30")), 4); // Th
+    assert.equal(unwrapIfOK(w.dateToWeekday("2025-01-31")), 5); // F
   });
 });

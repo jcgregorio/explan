@@ -13,6 +13,8 @@ import { Span } from "../slack/slack";
 
 describe("SetPlanStartStateOp", () => {
   const today = new Date().getTime();
+  const twoDaysAgo = new Date(today);
+  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
   it("sets the plan status", () => {
     TestOpsForwardAndBack([
       T2Op((plan: Plan) => {
@@ -28,7 +30,7 @@ describe("SetPlanStartStateOp", () => {
   it("saves and restores TaskCompletion", () => {
     const completion: TaskCompletion = {
       stage: "started",
-      start: 12,
+      start: twoDaysAgo.getTime(),
       percentComplete: 50,
     };
 

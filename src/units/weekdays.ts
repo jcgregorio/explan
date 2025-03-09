@@ -1,3 +1,9 @@
+import {
+  dateControlDateRe,
+  dateControlValue,
+} from "../date-control-utils/date-control-utils";
+import { Result, error, ok } from "../result";
+
 export class Weekdays {
   start: Date;
 
@@ -13,6 +19,36 @@ export class Weekdays {
     this.cache = new Map();
     this.cache.set(0, 0);
     this.lastCacheEntry = 0;
+  }
+
+  dateToWeekday(s: string): Result<number> {
+    if (!dateControlDateRe.test(s)) {
+      return error(new Error(`${s} is not a valid date`));
+    }
+    // This should be done faster, possibly w/caching.
+
+    const date = new Date(s);
+    if (date <= this.start) {
+      return error(new Error(`${date} comes before ${this.start}`));
+    }
+    let start = new Date(this.start.getTime());
+    let formattedDate = dateControlValue(start);
+    let weekDay = 0;
+    while (formattedDate < s) {
+      const oldDate = start.getDate();
+      start.setDate(oldDate + 1);
+
+      const dayOfWeek = start.getDay();
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        // Sun or Sat.
+        // TODO - Here is where holiday checks would go.
+        continue;
+      }
+
+      weekDay += 1;
+      formattedDate = dateControlValue(start);
+    }
+    return ok(weekDay);
   }
 
   weekdaysToDays(numWeekdays: number): number {

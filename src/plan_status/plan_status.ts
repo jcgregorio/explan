@@ -2,7 +2,7 @@ export type PlanStatus =
   | { stage: "unstarted"; start: 0 }
   | {
       stage: "started";
-      start: number;
+      start: number; // Number of milliseconds since the epoch.
     };
 
 export const statusToDate = (status: PlanStatus): Date => {

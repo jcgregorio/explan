@@ -1,3 +1,4 @@
+import { dateControlDateRe } from "../date-control-utils/date-control-utils";
 import { MetricDefinition } from "../metrics/metrics";
 import { Result, error, ok } from "../result";
 import { parseDuration } from "./parse";
@@ -136,11 +137,16 @@ export class Days extends UnitBase implements Unit {
   }
 
   parse(s: string): Result<number> {
-    const d = parseDuration(s, 7);
-    if (!d.ok) {
-      return d;
+    if (!dateControlDateRe.test(s)) {
+      return error(new Error(`${s} is not a valid date`));
     }
-    return ok(this.metricDefn.clampAndRound(d.value));
+    const d = new Date(s);
+
+    return ok(
+      this.metricDefn.clampAndRound(
+        (d.getTime() - this.start.getTime()) / (1000 * 60 * 60 * 24)
+      )
+    );
   }
 }
 
@@ -164,10 +170,6 @@ export class WeekDays extends UnitBase implements Unit {
   }
 
   parse(s: string): Result<number> {
-    const d = parseDuration(s, 5);
-    if (!d.ok) {
-      return d;
-    }
-    return ok(this.metricDefn.clampAndRound(d.value));
+    return this.weekdays.dateToWeekday(s);
   }
 }
