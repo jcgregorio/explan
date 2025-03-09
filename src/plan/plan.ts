@@ -72,7 +72,7 @@ export class Plan {
   // Controls how time is displayed.
   durationUnits: UnitBase;
 
-  _status: PlanStatus = { stage: "unstarted", start: 0 };
+  _status: PlanStatus = { stage: "started", start: 0 };
 
   taskCompletion: TaskCompletions = {};
 

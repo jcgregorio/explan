@@ -7,6 +7,7 @@ import {
   SplitTaskOp,
 } from "../../ops/chart";
 import { SetMetricValueOp } from "../../ops/metrics";
+import { SetTaskCompletionOp } from "../../ops/plan";
 import { error, ok, Result } from "../../result";
 import { Action, ActionFromOp, PostActonWork } from "../action";
 

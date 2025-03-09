@@ -6,33 +6,50 @@ import {
   toJSON,
 } from "../task_completion/task_completion.ts";
 import { Span } from "../slack/slack.ts";
+import { SetTaskCompletionOp } from "../ops/plan.ts";
+import { executeOp } from "../action/execute.ts";
+import { ExplanMain } from "../explanMain/explanMain.ts";
 
 export class TaskCompletionPanel extends HTMLElement {
-  plan: Plan | null = null;
+  explanMain: ExplanMain | null = null;
   span: Span | null = null;
   taskIndex: number = 0;
   taskCompletion: TaskCompletion | null = null;
+  planDefinitionChangedCallback: () => void;
 
-  update(plan: Plan, taskIndex: number, span: Span) {
-    this.plan = plan;
+  constructor() {
+    super();
+    this.planDefinitionChangedCallback = () => {
+      this.updateOnInput();
+    };
+  }
+
+  connectedCallback(): void {
+    document.addEventListener(
+      "plan-definition-changed",
+      this.planDefinitionChangedCallback
+    );
+  }
+
+  disconnectedCallback(): void {
+    document.removeEventListener(
+      "plan-definition-changed",
+      this.planDefinitionChangedCallback
+    );
+  }
+
+  update(explanMain: ExplanMain, taskIndex: number, span: Span) {
+    this.explanMain = explanMain;
     this.taskIndex = taskIndex;
     this.span = span;
-    const ret = this.plan.getTaskCompletion(this.taskIndex);
-    if (ret.ok) {
-      this.taskCompletion = ret.value;
-    }
-    this.render();
+    this.updateOnInput();
   }
 
   private updateOnInput() {
-    const ret = this.plan!.getTaskCompletion(this.taskIndex);
+    const ret = this.explanMain!.plan!.getTaskCompletion(this.taskIndex);
     if (ret.ok) {
       this.taskCompletion = ret.value;
     }
-    this.render();
-  }
-
-  private render() {
     render(this.template(), this);
   }
 
@@ -59,7 +76,7 @@ export class TaskCompletionPanel extends HTMLElement {
 
           <date-picker
             .value=${{
-              unit: this.plan!.durationUnits,
+              unit: this.explanMain!.plan!.durationUnits,
               dateOffset: this.taskCompletion.start,
             }}
             @date-picker-input=${(e: CustomEvent<number>) =>
@@ -90,7 +107,7 @@ export class TaskCompletionPanel extends HTMLElement {
           </label>
           <date-picker
             .value=${{
-              unit: this.plan!.durationUnits,
+              unit: this.explanMain!.plan!.durationUnits,
               dateOffset: this.taskCompletion.span.start,
             }}
             @date-picker-input=${(e: CustomEvent<number>) =>
@@ -98,12 +115,12 @@ export class TaskCompletionPanel extends HTMLElement {
           ></date-picker>
 
           <label>
-            <input type="checkbox" checked @change=${() => this.finish()} />
+            <input type="checkbox" checked @change=${() => this.unfinish()} />
             Finished
           </label>
           <date-picker
             .value=${{
-              unit: this.plan!.durationUnits,
+              unit: this.explanMain!.plan!.durationUnits,
               dateOffset: this.taskCompletion.span.finish,
             }}
             @date-picker-input=${(e: CustomEvent<number>) =>
@@ -120,53 +137,63 @@ export class TaskCompletionPanel extends HTMLElement {
     }
   }
 
-  private start() {
-    const ret = this.plan!.setTaskCompletion(this.taskIndex, {
+  private async taskCompletionChanged(t: TaskCompletion) {
+    const ret = await executeOp(
+      SetTaskCompletionOp(this.taskIndex, t),
+      "planDefinitionChanged",
+      true,
+      this.explanMain!
+    );
+    if (!ret.ok) {
+      console.log(ret.error);
+    }
+  }
+
+  private async start() {
+    this.taskCompletionChanged({
       stage: "started",
       start: this.span!.start,
       percentComplete: 10,
     });
-    if (!ret.ok) {
-      console.log(ret.error);
-    }
-    this.updateOnInput();
   }
 
   private unstart() {
-    const ret = this.plan!.setTaskCompletion(this.taskIndex, {
+    this.taskCompletionChanged({
       stage: "unstarted",
     });
-    if (!ret.ok) {
-      console.log(ret.error);
-    }
-    this.updateOnInput();
   }
 
   private finish() {
     if (this.taskCompletion!.stage === "started") {
-      const ret = this.plan!.setTaskCompletion(this.taskIndex, {
+      this.taskCompletionChanged({
         stage: "finished",
         // TODO Make sure finish > start.
         // TODO Make finish default to "today"?
         span: new Span(this.taskCompletion!.start, this.span!.finish),
       });
-      if (!ret.ok) {
-        console.log(ret.error);
-      }
-      this.updateOnInput();
     }
   }
+
+  private unfinish() {
+    if (this.taskCompletion!.stage === "finished") {
+      this.taskCompletionChanged({
+        stage: "started",
+        // TODO Make sure finish > start.
+        // TODO Make finish default to "today"?
+        percentComplete: 90,
+        start: this.taskCompletion!.span.start,
+      });
+    }
+  }
+
   private percentChange(e: InputEvent) {
     const dup = fromJSON(toJSON(this.taskCompletion!));
     if (dup.stage === "started") {
       dup.percentComplete = (e.target as HTMLInputElement).valueAsNumber;
-      const ret = this.plan!.setTaskCompletion(this.taskIndex, dup);
-      if (!ret.ok) {
-        console.log(ret.error);
-      }
-      this.updateOnInput();
+      this.taskCompletionChanged(dup);
     }
   }
+
   private startDateChanged(e: CustomEvent<number>) {}
   private finishDateChanged(e: CustomEvent<number>) {}
 }

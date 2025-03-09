@@ -340,7 +340,7 @@ export class ExplanMain extends HTMLElement {
       this.selectedTask
     );
     this.taskCompletionPanel!.update(
-      this.plan,
+      this,
       this.selectedTask,
       this.spans[this.selectedTask]
     );
