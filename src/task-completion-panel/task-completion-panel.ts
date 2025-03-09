@@ -57,6 +57,9 @@ export class TaskCompletionPanel extends HTMLElement {
     if (this.taskCompletion === null) {
       return html``;
     }
+    if (this.explanMain!.plan.status.stage === "unstarted") {
+      return html``;
+    }
     switch (this.taskCompletion.stage) {
       case "unstarted":
         return html`<div>
