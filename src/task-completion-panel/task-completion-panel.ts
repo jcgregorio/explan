@@ -194,8 +194,23 @@ export class TaskCompletionPanel extends HTMLElement {
     }
   }
 
-  private startDateChanged(e: CustomEvent<number>) {}
-  private finishDateChanged(e: CustomEvent<number>) {}
+  private startDateChanged(e: CustomEvent<number>) {
+    const dup = fromJSON(toJSON(this.taskCompletion!));
+    if (dup.stage === "finished") {
+      dup.span.start = e.detail;
+    } else if (dup.stage === "started") {
+      dup.start = e.detail;
+    }
+    this.taskCompletionChanged(dup);
+  }
+
+  private finishDateChanged(e: CustomEvent<number>) {
+    const dup = fromJSON(toJSON(this.taskCompletion!));
+    if (dup.stage === "finished") {
+      dup.span.finish = e.detail;
+    }
+    this.taskCompletionChanged(dup);
+  }
 }
 
 customElements.define("task-completion-panel", TaskCompletionPanel);
