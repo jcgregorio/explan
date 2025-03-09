@@ -52,6 +52,7 @@ import { EditResourcesDialog } from "../edit-resources-dialog/edit-resources-dia
 import { EditMetricsDialog } from "../edit-metrics-dialog/edit-metrics-dialog.ts";
 import { EditPlanStartDialog } from "../edit-plan-start/edit-plan-start.ts";
 import { TaskCompletionPanel } from "../task-completion-panel/task-completion-panel.ts";
+import { PlanConfigDialog } from "../plan-config-dialog/plan-config-dialog.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -295,6 +296,12 @@ export class ExplanMain extends HTMLElement {
       this.querySelector<EditResourcesDialog>(
         "edit-resources-dialog"
       )!.showModal(this);
+    });
+
+    this.querySelector("#plan-config")!.addEventListener("click", () => {
+      this.querySelector<PlanConfigDialog>("plan-config-dialog")!.showModal(
+        this
+      );
     });
 
     this.querySelector("#edit-metrics")!.addEventListener("click", () => {
