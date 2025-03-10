@@ -24,7 +24,7 @@ export class Slack {
 
 export type SlackResult = Result<Slack[]>;
 
-export type SlackEarlyStartOverride = (taskID: string) => number | undefined;
+export type SlackEarlyStartOverride = (taskIndex: number) => number | undefined;
 
 // Calculate the slack for each Task in the Chart.
 export function ComputeSlack(
@@ -64,7 +64,7 @@ export function ComputeSlack(
         return predecessorSlack.early.finish;
       })
     );
-    const overrideValue = override?.(task.id);
+    const overrideValue = override?.(vertexIndex);
     if (overrideValue !== undefined) {
       slack.early.start = overrideValue;
     }
@@ -84,7 +84,7 @@ export function ComputeSlack(
       slack.late.finish = slack.early.finish;
       slack.late.start = slack.early.start;
     } else {
-      const overrideValue = override?.(task.id);
+      const overrideValue = override?.(vertexIndex);
       if (overrideValue !== undefined) {
         // Since this task has been started, we set late
         // start/finish to early start/finish.
@@ -95,7 +95,7 @@ export function ComputeSlack(
           .get(vertexIndex)!
           .map((e: DirectedEdge): number | null => {
             // Need to ignore values from started tasks?
-            if (override?.(c.Vertices[e.j].id) !== undefined) {
+            if (override?.(e.j) !== undefined) {
               return null;
             }
 

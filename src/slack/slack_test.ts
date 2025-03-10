@@ -100,10 +100,13 @@ describe("ComputeSlack", () => {
     assert.deepEqual(ret.value, expected);
   });
   it("Correctly calculates early starts given an override.", () => {
-    const overrideEarlyStart: Map<string, number> = new Map();
-    overrideEarlyStart.set(chart.Vertices[3].id, 5);
-    const ret = ComputeSlack(chart, null, precision.rounder(), (id: string) =>
-      overrideEarlyStart.get(id)
+    const overrideEarlyStart: Map<number, number> = new Map();
+    overrideEarlyStart.set(3, 5);
+    const ret = ComputeSlack(
+      chart,
+      null,
+      precision.rounder(),
+      (taskIndex: number) => overrideEarlyStart.get(taskIndex)
     );
     assert.isTrue(ret.ok);
     const expected = [
