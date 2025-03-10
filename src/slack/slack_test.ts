@@ -99,6 +99,7 @@ describe("ComputeSlack", () => {
 
     assert.deepEqual(ret.value, expected);
   });
+
   it("Correctly calculates early starts given an override.", () => {
     const overrideEarlyStart: Map<number, number> = new Map();
     overrideEarlyStart.set(3, 5);

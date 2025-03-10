@@ -53,6 +53,7 @@ import { EditMetricsDialog } from "../edit-metrics-dialog/edit-metrics-dialog.ts
 import { EditPlanStartDialog } from "../edit-plan-start/edit-plan-start.ts";
 import { TaskCompletionPanel } from "../task-completion-panel/task-completion-panel.ts";
 import { PlanConfigDialog } from "../plan-config-dialog/plan-config-dialog.ts";
+import { TaskCompletion } from "../task_completion/task_completion.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -420,7 +421,28 @@ export class ExplanMain extends HTMLElement {
     const slackResult = ComputeSlack(
       this.plan.chart,
       this.getTaskDurationFunc(),
-      rounder
+      rounder,
+      (taskIndex: number): number | undefined => {
+        const ret = this.plan.getTaskCompletion(taskIndex);
+        if (!ret.ok) {
+          return undefined;
+        }
+        const completion = ret.value;
+        switch (completion.stage) {
+          case "unstarted":
+            return undefined;
+            break;
+          case "started":
+            return completion.start;
+            break;
+          case "finished":
+            return completion.span.start;
+            break;
+          default:
+            completion satisfies never;
+            break;
+        }
+      }
     );
     if (!slackResult.ok) {
       console.error(slackResult);
