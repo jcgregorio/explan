@@ -5,7 +5,10 @@ import { ExplanMain } from "../explanMain/explanMain";
 import { EditResourceDefinition } from "../edit-resource-definition/edit-resource-definition";
 import { icon } from "../icons/icons";
 import { PlanStatus, unstarted } from "../plan_status/plan_status";
-import { dateDisplay } from "../date-control-utils/date-control-utils";
+import {
+  dateDisplay,
+  parseDateString,
+} from "../date-control-utils/date-control-utils";
 
 // Longest representation we'll show for all the options of a Resource.
 const MAX_SHORT_STRING = 80;
@@ -62,12 +65,11 @@ export class EditPlanStartDialog extends HTMLElement {
   }
 
   private dateChanged(e: InputEvent) {
-    const date = (e.target as HTMLInputElement).valueAsDate;
-    if (date === null) {
+    const ret = parseDateString((e.target as HTMLInputElement).value);
+    if (!ret.ok) {
       this.status.start = 0;
     } else {
-      date.setHours(date.getHours() + 12);
-      this.status.start = date.getTime();
+      this.status.start = ret.value.getTime();
     }
     this.render();
   }

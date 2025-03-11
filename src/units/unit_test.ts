@@ -4,6 +4,7 @@ import { MetricRange } from "../metrics/range";
 import { Precision } from "../precision/precision";
 import { Days, UnitBase, Unitless, WeekDays } from "./unit.ts";
 import { Result } from "../result.ts";
+import { parseDateString } from "../date-control-utils/date-control-utils.ts";
 
 describe("Units", () => {
   const m = new MetricDefinition(
@@ -12,7 +13,10 @@ describe("Units", () => {
     false,
     new Precision(2)
   );
-  const start = new Date("2025-01-22T12:00:00.000Z");
+  const ret = parseDateString("2025-01-22");
+  assert.isTrue(ret.ok);
+
+  const start = ret.value;
 
   describe("Unitless", () => {
     const d = new Unitless(start, m);

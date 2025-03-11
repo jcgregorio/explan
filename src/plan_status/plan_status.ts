@@ -1,3 +1,5 @@
+import { todayAsUTC } from "../date-control-utils/date-control-utils";
+
 export type PlanStatus =
   | { stage: "unstarted"; start: 0 }
   | {
@@ -7,8 +9,9 @@ export type PlanStatus =
 
 export const statusToDate = (status: PlanStatus): Date => {
   if (status.stage === "unstarted") {
-    return new Date();
+    return todayAsUTC();
   }
+  // !!!!!!!! Store start as a string.
   return new Date(status.start);
 };
 
