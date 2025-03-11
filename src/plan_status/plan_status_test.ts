@@ -5,7 +5,10 @@ import {
   PlanStatusSerialized,
   toJSON,
 } from "./plan_status";
-import { todayAsUTC } from "../date-control-utils/date-control-utils";
+import {
+  parseDateString,
+  todayAsUTC,
+} from "../date-control-utils/date-control-utils";
 
 describe("PlanStatus", () => {
   const roundTrips = (p: PlanStatus) => {
@@ -23,6 +26,21 @@ describe("PlanStatus", () => {
     assert.deepEqual(
       fromJSON({ stage: "started" } as PlanStatusSerialized),
       unstarted
+    );
+  });
+
+  it("produces expected serialization", () => {
+    const ret = parseDateString("2025-01-22");
+    assert.isTrue(ret.ok);
+    assert.deepEqual(
+      toJSON({
+        stage: "started",
+        start: ret.value.getTime(),
+      }),
+      {
+        stage: "started",
+        start: "2025-01-22",
+      }
     );
   });
 });
