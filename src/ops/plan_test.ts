@@ -10,9 +10,10 @@ import { unstarted } from "../plan_status/plan_status";
 import { InsertNewEmptyTaskAfterOp } from "./chart";
 import { TaskCompletion } from "../task_completion/task_completion";
 import { Span } from "../slack/slack";
+import { todayAsUTC } from "../date-control-utils/date-control-utils";
 
 describe("SetPlanStartStateOp", () => {
-  const today = new Date().getTime();
+  const today = todayAsUTC().getTime();
   const twoDaysAgo = new Date(today);
   twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
   it("sets the plan status", () => {
@@ -67,7 +68,7 @@ describe("SetPlanStartStateOp", () => {
 });
 
 describe("UpdatePlanStartDateOp", () => {
-  const now = new Date();
+  const now = todayAsUTC();
   const today = now.getTime();
   now.setDate(now.getDate() + 1);
   const tomorrow = now.getTime();
@@ -92,7 +93,7 @@ describe("UpdatePlanStartDateOp", () => {
 });
 
 describe("SetTaskCompletionOp", () => {
-  const today = new Date().getTime();
+  const today = todayAsUTC();
 
   it("Fails if the plan isn't started", () => {
     const res = SetTaskCompletionOp(1, {
@@ -109,7 +110,7 @@ describe("SetTaskCompletionOp", () => {
       span: new Span(10, 12),
     };
     TestOpsForwardAndBack([
-      SetPlanStartStateOp({ stage: "started", start: today }),
+      SetPlanStartStateOp({ stage: "started", start: today.getTime() }),
       InsertNewEmptyTaskAfterOp(0),
       TOp((plan: Plan) => {
         assert.equal(plan.taskCompletion[plan.chart.Vertices[1].id], undefined);
@@ -129,9 +130,10 @@ describe("SetTaskCompletionOp", () => {
       stage: "finished",
       span: new Span(10, 12),
     };
-    let ret = SetPlanStartStateOp({ stage: "started", start: today }).applyTo(
-      new Plan()
-    );
+    let ret = SetPlanStartStateOp({
+      stage: "started",
+      start: today.getTime(),
+    }).applyTo(new Plan());
     assert.isTrue(ret.ok);
     const plan = ret.value.plan;
 

@@ -1,6 +1,7 @@
 import {
   dateControlDateRe,
   dateDisplay,
+  parseDateString,
 } from "../date-control-utils/date-control-utils";
 import { Result, error, ok } from "../result";
 
@@ -22,12 +23,11 @@ export class Weekdays {
   }
 
   dateToWeekday(s: string): Result<number> {
-    if (!dateControlDateRe.test(s)) {
-      return error(new Error(`${s} is not a valid date`));
+    const ret = parseDateString(s);
+    if (!ret.ok) {
+      return ret;
     }
-    // This should be done faster, possibly w/caching.
-
-    const date = new Date(s);
+    const date = ret.value;
     if (date <= this.start) {
       return error(new Error(`${date} comes before ${this.start}`));
     }

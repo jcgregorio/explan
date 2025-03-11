@@ -135,6 +135,7 @@ export class Days extends UnitBase implements Unit {
   }
 
   asDate(t: number): Date {
+    // Dup the start Date first.
     const d = new Date(this.start.getTime());
     d.setDate(d.getDate() + t);
     return d;
@@ -168,6 +169,7 @@ export class WeekDays extends UnitBase implements Unit {
   }
 
   asDate(t: number): Date {
+    // Dup the start Date first.
     const d = new Date(this.start.getTime());
     d.setDate(d.getDate() + this.weekdays.weekdaysToDays(t));
     return d;

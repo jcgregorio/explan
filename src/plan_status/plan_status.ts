@@ -8,14 +8,14 @@ export type PlanStatus =
   | { stage: "unstarted"; start: 0 }
   | {
       stage: "started";
-      start: number; // Number of milliseconds since the epoch.
+      start: number; // Number of milliseconds since the epoch. Could probably be changed to a Date.
     };
 
 export const statusToDate = (status: PlanStatus): Date => {
   if (status.stage === "unstarted") {
     return todayAsUTC();
   }
-  // !!!!!!!! Store start as a string.
+
   return new Date(status.start);
 };
 
