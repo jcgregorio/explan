@@ -24,14 +24,15 @@ export class Slack {
 
 export type SlackResult = Result<Slack[]>;
 
-export type SlackEarlyStartOverride = (taskIndex: number) => number | undefined;
+export type SlackOverride = (taskIndex: number) => number | undefined;
 
 // Calculate the slack for each Task in the Chart.
 export function ComputeSlack(
   c: Chart,
   taskDuration: TaskDuration | null = null,
   round: Rounder,
-  override: SlackEarlyStartOverride | null = null
+  earlyStartOverride: SlackOverride | null = null,
+  earlyFinishOverride: SlackOverride | null = null
 ): SlackResult {
   if (taskDuration === null) {
     taskDuration = (taskIndex: number) => c.Vertices[taskIndex].duration;
@@ -64,11 +65,16 @@ export function ComputeSlack(
         return predecessorSlack.early.finish;
       })
     );
-    const overrideValue = override?.(vertexIndex);
-    if (overrideValue !== undefined) {
-      slack.early.start = overrideValue;
+    const earlyStartOverrideValue = earlyStartOverride?.(vertexIndex);
+    if (earlyStartOverrideValue !== undefined) {
+      slack.early.start = earlyStartOverrideValue;
     }
-    slack.early.finish = round(slack.early.start + taskDuration(vertexIndex));
+    const earlyFinishOverrideValue = earlyFinishOverride?.(vertexIndex);
+    if (earlyFinishOverrideValue !== undefined) {
+      slack.early.finish = earlyFinishOverrideValue;
+    } else {
+      slack.early.finish = round(slack.early.start + taskDuration(vertexIndex));
+    }
   });
 
   // Now backwards through the topological sort and find the late finish of each
@@ -84,7 +90,7 @@ export function ComputeSlack(
       slack.late.finish = slack.early.finish;
       slack.late.start = slack.early.start;
     } else {
-      const overrideValue = override?.(vertexIndex);
+      const overrideValue = earlyStartOverride?.(vertexIndex);
       if (overrideValue !== undefined) {
         // Since this task has been started, we set late
         // start/finish to early start/finish.
@@ -95,7 +101,7 @@ export function ComputeSlack(
           .get(vertexIndex)!
           .map((e: DirectedEdge): number | null => {
             // Need to ignore values from started tasks?
-            if (override?.(e.j) !== undefined) {
+            if (earlyStartOverride?.(e.j) !== undefined) {
               return null;
             }
 

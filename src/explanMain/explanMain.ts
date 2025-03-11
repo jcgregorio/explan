@@ -442,6 +442,27 @@ export class ExplanMain extends HTMLElement {
             completion satisfies never;
             break;
         }
+      },
+      (taskIndex: number): number | undefined => {
+        const ret = this.plan.getTaskCompletion(taskIndex);
+        if (!ret.ok) {
+          return undefined;
+        }
+        const completion = ret.value;
+        switch (completion.stage) {
+          case "unstarted":
+            return undefined;
+            break;
+          case "started":
+            return undefined;
+            break;
+          case "finished":
+            return completion.span.finish;
+            break;
+          default:
+            completion satisfies never;
+            break;
+        }
       }
     );
     if (!slackResult.ok) {
