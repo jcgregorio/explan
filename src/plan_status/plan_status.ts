@@ -1,4 +1,8 @@
-import { todayAsUTC } from "../date-control-utils/date-control-utils";
+import {
+  dateDisplay,
+  parseDateString,
+  todayAsUTC,
+} from "../date-control-utils/date-control-utils";
 
 export type PlanStatus =
   | { stage: "unstarted"; start: 0 }
@@ -19,17 +23,17 @@ export const unstarted: PlanStatus = { stage: "unstarted", start: 0 };
 
 export type PlanStatusSerialized = {
   stage: string;
-  start: number;
+  start: string;
 };
 
 export const toJSON = (p: PlanStatus): PlanStatusSerialized => {
   const ret: PlanStatusSerialized = {
     stage: "unstarted",
-    start: 0,
+    start: "",
   };
   if (p.stage === "started") {
     ret.stage = "started";
-    ret.start = p.start.valueOf();
+    ret.start = dateDisplay(new Date(p.start));
   }
   return ret;
 };
@@ -44,9 +48,13 @@ export const fromJSON = (p: PlanStatusSerialized): PlanStatus => {
     if (p.start === undefined) {
       return unstarted;
     }
+    const ret = parseDateString(p.start);
+    if (!ret.ok) {
+      return unstarted;
+    }
     return {
       stage: "started",
-      start: p.start,
+      start: ret.value.getTime(),
     };
   }
   return unstarted;

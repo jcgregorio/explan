@@ -5,6 +5,7 @@ import {
   PlanStatusSerialized,
   toJSON,
 } from "./plan_status";
+import { todayAsUTC } from "../date-control-utils/date-control-utils";
 
 describe("PlanStatus", () => {
   const roundTrips = (p: PlanStatus) => {
@@ -13,7 +14,7 @@ describe("PlanStatus", () => {
 
   it("serialized to/from JSON", () => {
     roundTrips({ stage: "unstarted", start: 0 });
-    roundTrips({ stage: "started", start: 12 });
+    roundTrips({ stage: "started", start: todayAsUTC().getTime() });
   });
 
   it("handles malformed JSON", () => {
