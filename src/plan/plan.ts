@@ -35,6 +35,7 @@ import {
   UnitSerialized,
   UnitTypes,
 } from "../units/unit.ts";
+import { Precision } from "../precision/precision.ts";
 
 export type StaticMetricKeys = "Duration" | "Percent Complete";
 
@@ -43,7 +44,7 @@ export const StaticMetricDefinitions: Record<
   MetricDefinition
 > = {
   // How long a task will take, in days.
-  Duration: new MetricDefinition(0, new MetricRange(0), true),
+  Duration: new MetricDefinition(0, new MetricRange(0), true, new Precision(0)),
   // The percent complete for a task.
   "Percent Complete": new MetricDefinition(0, new MetricRange(0, 100), true),
 };
