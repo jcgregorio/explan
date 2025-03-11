@@ -1,6 +1,6 @@
 import { TemplateResult, html, render } from "lit-html";
 import { ExplanMain } from "../explanMain/explanMain";
-import { dateControlValue } from "../date-control-utils/date-control-utils";
+import { dateDisplay } from "../date-control-utils/date-control-utils";
 import { executeOp } from "../action/execute";
 import { SetPlanStartStateOp } from "../ops/plan";
 
@@ -77,9 +77,7 @@ export class PlanConfigDialog extends HTMLElement {
         </label>
         <input
           type="date"
-          .value=${dateControlValue(
-            new Date(this.explanMain!.plan.status.start)
-          )}
+          .value=${dateDisplay(new Date(this.explanMain!.plan.status.start))}
           @input=${(e: InputEvent) => this.dateChanged(e)}
         />
       `;

@@ -79,9 +79,9 @@ describe("Plan", () => {
   it("can set duration units", () => {
     const p = new Plan();
     p.status = { stage: "started", start: 0 };
-    assert.equal("1/8/1970", p.durationUnits.displayTime(8, "en-US"));
+    assert.equal("1970-01-09", p.durationUnits.displayTime(8));
     p.setDurationUnits("Weekdays");
-    assert.equal("1/12/1970", p.durationUnits.displayTime(8, "en-US"));
+    assert.equal("1970-01-13", p.durationUnits.displayTime(8));
   });
 
   it("can set and get task completions", () => {

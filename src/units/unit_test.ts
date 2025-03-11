@@ -12,7 +12,7 @@ describe("Units", () => {
     false,
     new Precision(2)
   );
-  const start = new Date("2025-01-22");
+  const start = new Date("2025-01-22T12:00:00.000Z");
 
   describe("Unitless", () => {
     const d = new Unitless(start, m);
@@ -74,8 +74,8 @@ describe("Units", () => {
     });
 
     it("displays durations correctly", () => {
-      assert.equal(d.displayTime(0, "en-US"), "1/21/2025");
-      assert.equal(d.displayTime(1.2, "en-US"), "1/22/2025");
+      assert.equal(d.displayTime(0), "2025-01-22");
+      assert.equal(d.displayTime(1.2), "2025-01-23");
     });
 
     it("roundtrips through JSON", () => {
@@ -98,12 +98,12 @@ describe("Units", () => {
     });
 
     it("parses dates correctly", () => {
-      assert.equal(isOK(d.parse("2025-01-25")), 4);
+      assert.equal(isOK(d.parse("2025-01-25")), 3);
     });
 
     it("displays durations correctly", () => {
-      assert.equal(d.displayTime(0, "en-US"), "1/21/2025");
-      assert.equal(d.displayTime(1.2, "en-US"), "1/22/2025");
+      assert.equal(d.displayTime(0), "2025-01-22");
+      assert.equal(d.displayTime(1.2), "2025-01-23");
     });
 
     it("roundtrips through JSON", () => {

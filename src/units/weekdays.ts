@@ -1,6 +1,6 @@
 import {
   dateControlDateRe,
-  dateControlValue,
+  dateDisplay,
 } from "../date-control-utils/date-control-utils";
 import { Result, error, ok } from "../result";
 
@@ -32,7 +32,7 @@ export class Weekdays {
       return error(new Error(`${date} comes before ${this.start}`));
     }
     let start = new Date(this.start.getTime());
-    let formattedDate = dateControlValue(start);
+    let formattedDate = dateDisplay(start);
     let weekDay = 0;
     while (formattedDate < s) {
       const oldDate = start.getDate();
@@ -46,7 +46,7 @@ export class Weekdays {
       }
 
       weekDay += 1;
-      formattedDate = dateControlValue(start);
+      formattedDate = dateDisplay(start);
     }
     return ok(weekDay);
   }

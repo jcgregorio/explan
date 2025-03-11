@@ -1,7 +1,7 @@
 import { TemplateResult, html, render } from "lit-html";
 import { Plan } from "../plan/plan.ts";
 import { UnitBase } from "../units/unit.ts";
-import { dateControlValue } from "../date-control-utils/date-control-utils.ts";
+import { dateDisplay } from "../date-control-utils/date-control-utils.ts";
 
 declare global {
   interface GlobalEventHandlersEventMap {
@@ -41,9 +41,7 @@ export class DatePicker extends HTMLElement {
       return html`
         <input
           type="date"
-          .value=${dateControlValue(
-            this._value.unit.asDate(this._value.dateOffset)
-          )}
+          .value=${dateDisplay(this._value.unit.asDate(this._value.dateOffset))}
           @input=${(e: InputEvent) => this.inputChanged(e)}
         />
       `;

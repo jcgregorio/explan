@@ -1,4 +1,8 @@
-import { dateControlDateRe } from "../date-control-utils/date-control-utils";
+import {
+  dateControlDateRe,
+  dateDisplay,
+  parseDateString,
+} from "../date-control-utils/date-control-utils";
 import { MetricDefinition } from "../metrics/metrics";
 import { Result, error, ok } from "../result";
 import { parseDuration } from "./parse";
@@ -35,7 +39,7 @@ export class UnitBase implements Unit {
     this.unitType = unitType;
   }
 
-  displayTime(t: number, locale?: Intl.LocalesArgument): string {
+  displayTime(t: number): string {
     throw new Error("Method implemented in subclasses.");
   }
 
@@ -126,8 +130,8 @@ export class Days extends UnitBase implements Unit {
     super(start, metricDefn, "Days");
   }
 
-  displayTime(t: number, locale?: Intl.LocalesArgument): string {
-    return this.asDate(t).toLocaleDateString(locale);
+  displayTime(t: number): string {
+    return dateDisplay(this.asDate(t));
   }
 
   asDate(t: number): Date {
@@ -137,14 +141,14 @@ export class Days extends UnitBase implements Unit {
   }
 
   parse(s: string): Result<number> {
-    if (!dateControlDateRe.test(s)) {
-      return error(new Error(`${s} is not a valid date`));
+    const ret = parseDateString(s);
+    if (!ret.ok) {
+      return ret;
     }
-    const d = new Date(s);
 
     return ok(
       this.metricDefn.clampAndRound(
-        (d.getTime() - this.start.getTime()) / (1000 * 60 * 60 * 24)
+        (ret.value.getTime() - this.start.getTime() + 1) / (1000 * 60 * 60 * 24)
       )
     );
   }
@@ -159,8 +163,8 @@ export class WeekDays extends UnitBase implements Unit {
   }
 
   // Locale only used for testing.
-  displayTime(t: number, locale?: Intl.LocalesArgument): string {
-    return this.asDate(t).toLocaleDateString(locale);
+  displayTime(t: number): string {
+    return dateDisplay(this.asDate(t));
   }
 
   asDate(t: number): Date {
