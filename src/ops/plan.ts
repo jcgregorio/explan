@@ -110,6 +110,31 @@ export class SetTaskCompletionSubOp implements SubOp {
         new Error("Can't start a task if the plan hasn't been started.")
       );
     }
+    if (this.value.stage === "started") {
+      if (this.value.start < 0) {
+        return error(
+          new Error(
+            "The start of a task can't come befoe the start of the plan."
+          )
+        );
+      }
+      if (this.value.percentComplete < 1 || this.value.percentComplete > 100) {
+        return error(new Error("Percent Complete must be in [1, 100]."));
+      }
+    }
+    if (this.value.stage === "finished") {
+      if (this.value.span.finish < this.value.span.start) {
+        return error(new Error("Finish can't come before Start."));
+      }
+      if (this.value.span.start < 0) {
+        return error(
+          new Error(
+            "The start of a task can't come befoe the start of the plan."
+          )
+        );
+      }
+    }
+
     const task = plan.chart.Vertices[this.taskIndex];
     const ret = plan.getTaskCompletion(this.taskIndex);
     if (!ret.ok) {

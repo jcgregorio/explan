@@ -148,6 +148,7 @@ export class TaskCompletionPanel extends HTMLElement {
       this.explanMain!
     );
     if (!ret.ok) {
+      this.updateOnInput();
       console.log(ret.error);
     }
   }

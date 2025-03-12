@@ -2,6 +2,7 @@ import { TemplateResult, html, render } from "lit-html";
 import { Plan } from "../plan/plan.ts";
 import { UnitBase } from "../units/unit.ts";
 import { dateDisplay } from "../date-control-utils/date-control-utils.ts";
+import { live } from "lit-html/directives/live.js";
 
 declare global {
   interface GlobalEventHandlersEventMap {
@@ -34,14 +35,16 @@ export class DatePicker extends HTMLElement {
     if (kind === "Unitless") {
       return html` <input
         type="text"
-        .value=${this._value.dateOffset}
-        @input=${(e: InputEvent) => this.inputChanged(e)}
+        .value=${live(this._value.dateOffset)}
+        @change=${(e: InputEvent) => this.inputChanged(e)}
       />`;
     } else {
       return html`
         <input
           type="date"
-          .value=${dateDisplay(this._value.unit.asDate(this._value.dateOffset))}
+          .value=${live(
+            dateDisplay(this._value.unit.asDate(this._value.dateOffset))
+          )}
           @input=${(e: InputEvent) => this.inputChanged(e)}
         />
       `;
@@ -51,6 +54,7 @@ export class DatePicker extends HTMLElement {
   private inputChanged(e: InputEvent) {
     const ret = this._value!.unit.parse((e.target as HTMLInputElement).value);
     if (!ret.ok) {
+      this.render();
       console.log(ret.error);
     } else {
       this.dispatchEvent(

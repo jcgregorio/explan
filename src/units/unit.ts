@@ -146,11 +146,13 @@ export class Days extends UnitBase implements Unit {
     if (!ret.ok) {
       return ret;
     }
+    const deltaInMilliseconds = ret.value.getTime() - this.start.getTime() + 1;
+    if (deltaInMilliseconds < 0) {
+      return error(new Error("Dates before the plan start are not allowed."));
+    }
 
     return ok(
-      this.metricDefn.clampAndRound(
-        (ret.value.getTime() - this.start.getTime() + 1) / (1000 * 60 * 60 * 24)
-      )
+      this.metricDefn.clampAndRound(deltaInMilliseconds / (1000 * 60 * 60 * 24))
     );
   }
 }
