@@ -2,7 +2,8 @@ import { TemplateResult, html, render } from "lit-html";
 import { ExplanMain } from "../explanMain/explanMain";
 import { dateDisplay } from "../date-control-utils/date-control-utils";
 import { executeOp } from "../action/execute";
-import { SetPlanStartStateOp } from "../ops/plan";
+import { SetPlanStartStateOp, SetPlanUnitsOp } from "../ops/plan";
+import { UNIT_TYPES, toUnit } from "../units/unit";
 
 export class PlanConfigDialog extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -49,11 +50,35 @@ export class PlanConfigDialog extends HTMLElement {
     return html`
       <dialog>
         ${this.unstartedContent()} ${this.startedContent()}
+        <div>
+          <select
+            size=${UNIT_TYPES.length}
+            @input=${(e: InputEvent) => this.unitChanged(e)}
+          >
+            ${UNIT_TYPES.map((unitType) => {
+              return html`<option value=${unitType}>${unitType}</option>`;
+            })}
+          </select>
+        </div>
         <div class="dialog-footer">
           <button @click=${() => this.cancel()}>Close</button>
         </div>
       </dialog>
     `;
+  }
+
+  private async unitChanged(e: InputEvent) {
+    const unitAsString = (e.target as HTMLInputElement).value;
+    const ret = await executeOp(
+      SetPlanUnitsOp(toUnit(unitAsString)),
+      "planDefinitionChanged",
+      true,
+      this.explanMain!
+    );
+    if (!ret.ok) {
+      console.log(ret.error);
+    }
+    this.render();
   }
 
   private unstartedContent(): TemplateResult {

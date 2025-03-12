@@ -61,7 +61,7 @@ export const StaticResourceDefinitions: Record<
 export interface PlanSerialized {
   status: PlanStatusSerialized;
   taskCompletion: TaskCompletionsSerialized;
-  durationUnits: UnitSerialized;
+  _durationUnits: UnitSerialized;
   chart: ChartSerialized;
   resourceDefinitions: ResourceDefinitionsSerialized;
   metricDefinitions: MetricDefinitionsSerialized;
@@ -71,7 +71,7 @@ export class Plan {
   chart: Chart;
 
   // Controls how time is displayed.
-  durationUnits: UnitBase;
+  _durationUnits: UnitBase;
 
   _status: PlanStatus = { stage: "unstarted", start: 0 };
 
@@ -85,9 +85,13 @@ export class Plan {
     return this._status;
   }
 
+  public get durationUnits(): UnitBase {
+    return this._durationUnits;
+  }
+
   public set status(value: PlanStatus) {
     this._status = value;
-    this.durationUnits = new Days(
+    this._durationUnits = new Days(
       new Date(statusToDate(this.status)),
       this.getStaticMetricDefinition("Duration")
     );
@@ -114,7 +118,7 @@ export class Plan {
     this.chart = new Chart();
     this.resourceDefinitions = Object.assign({}, StaticResourceDefinitions);
     this.metricDefinitions = Object.assign({}, StaticMetricDefinitions);
-    this.durationUnits = new Days(
+    this._durationUnits = new Days(
       new Date(statusToDate(this.status)),
       this.getStaticMetricDefinition("Duration")
     );
@@ -123,7 +127,7 @@ export class Plan {
   }
 
   setDurationUnits(unitType: UnitTypes) {
-    this.durationUnits = UnitBuilders[unitType](
+    this._durationUnits = UnitBuilders[unitType](
       new Date(statusToDate(this.status)),
       this.getStaticMetricDefinition("Duration")
     );
@@ -196,7 +200,7 @@ export class Plan {
     return {
       status: statusToJSON(this.status),
       taskCompletion: taskCompletionsToJSON(this.taskCompletion),
-      durationUnits: this.durationUnits.toJSON(),
+      _durationUnits: this._durationUnits.toJSON(),
       chart: this.chart.toJSON(),
       resourceDefinitions: Object.fromEntries(
         Object.entries(this.resourceDefinitions)
@@ -247,8 +251,8 @@ export class Plan {
       deserializedResourceDefinitions
     );
 
-    ret.durationUnits = UnitBase.fromJSON(
-      planSerialized.durationUnits,
+    ret._durationUnits = UnitBase.fromJSON(
+      planSerialized._durationUnits,
       new Date(statusToDate(ret.status)),
       ret.getStaticMetricDefinition("Duration")
     );

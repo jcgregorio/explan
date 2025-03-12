@@ -3,6 +3,7 @@ import { T2Op, TOp, TestOpsForwardAndBack } from "./opstestutil";
 import { Plan } from "../plan/plan";
 import {
   SetPlanStartStateOp,
+  SetPlanUnitsOp,
   SetTaskCompletionOp,
   UpdatePlanStartDateOp,
 } from "./plan";
@@ -139,5 +140,23 @@ describe("SetTaskCompletionOp", () => {
 
     ret = SetTaskCompletionOp(5, finished).applyTo(plan);
     assert.isFalse(ret.ok);
+  });
+});
+
+describe("SetPlanUnitsOp", () => {
+  it("sets the units", () => {
+    const p = new Plan();
+    assert.equal(p.durationUnits.kind(), "Days");
+
+    // Apply the Op.
+    const op = SetPlanUnitsOp("Weekdays");
+    let ret = op.applyTo(p);
+    assert.isTrue(ret.ok);
+    assert.equal(p.durationUnits.kind(), "Weekdays");
+
+    // Confirm the inverse works.
+    ret = ret.value.inverse.applyTo(p);
+    assert.isTrue(ret.ok);
+    assert.equal(p.durationUnits.kind(), "Days");
   });
 });

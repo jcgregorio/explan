@@ -68,7 +68,7 @@ export class UnitBase implements Unit {
   }
 }
 
-const UNIT_TYPES = ["Unitless", "Days", "Weekdays"] as const;
+export const UNIT_TYPES = ["Unitless", "Days", "Weekdays"] as const;
 
 // All types of duration units available.
 export type UnitTypes = (typeof UNIT_TYPES)[number];

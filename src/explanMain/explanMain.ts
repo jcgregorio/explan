@@ -418,52 +418,56 @@ export class ExplanMain extends HTMLElement {
       .getStaticMetricDefinition("Duration")
       .precision.rounder();
 
+    const earlyStartOverride = (taskIndex: number): number | undefined => {
+      const ret = this.plan.getTaskCompletion(taskIndex);
+      if (!ret.ok) {
+        return undefined;
+      }
+      const completion = ret.value;
+      switch (completion.stage) {
+        case "unstarted":
+          return undefined;
+          break;
+        case "started":
+          return completion.start;
+          break;
+        case "finished":
+          return completion.span.start;
+          break;
+        default:
+          completion satisfies never;
+          break;
+      }
+    };
+
+    const earlyFinishOverride = (taskIndex: number): number | undefined => {
+      const ret = this.plan.getTaskCompletion(taskIndex);
+      if (!ret.ok) {
+        return undefined;
+      }
+      const completion = ret.value;
+      switch (completion.stage) {
+        case "unstarted":
+          return undefined;
+          break;
+        case "started":
+          return undefined;
+          break;
+        case "finished":
+          return completion.span.finish;
+          break;
+        default:
+          completion satisfies never;
+          break;
+      }
+    };
+
     const slackResult = ComputeSlack(
       this.plan.chart,
       this.getTaskDurationFunc(),
       rounder,
-      (taskIndex: number): number | undefined => {
-        const ret = this.plan.getTaskCompletion(taskIndex);
-        if (!ret.ok) {
-          return undefined;
-        }
-        const completion = ret.value;
-        switch (completion.stage) {
-          case "unstarted":
-            return undefined;
-            break;
-          case "started":
-            return completion.start;
-            break;
-          case "finished":
-            return completion.span.start;
-            break;
-          default:
-            completion satisfies never;
-            break;
-        }
-      },
-      (taskIndex: number): number | undefined => {
-        const ret = this.plan.getTaskCompletion(taskIndex);
-        if (!ret.ok) {
-          return undefined;
-        }
-        const completion = ret.value;
-        switch (completion.stage) {
-          case "unstarted":
-            return undefined;
-            break;
-          case "started":
-            return undefined;
-            break;
-          case "finished":
-            return completion.span.finish;
-            break;
-          default:
-            completion satisfies never;
-            break;
-        }
-      }
+      earlyStartOverride,
+      earlyFinishOverride
     );
     if (!slackResult.ok) {
       console.error(slackResult);

@@ -16,6 +16,7 @@ import {
   toJSON as taskToJSON,
   fromJSON as taskFromJSON,
 } from "../task_completion/task_completion";
+import { UnitTypes } from "../units/unit";
 
 export class SetPlanStartStateSubOp implements SubOp {
   value: PlanStatus;
@@ -76,6 +77,24 @@ export class UpdatePlanStartDateSubOp implements SubOp {
   }
 }
 
+export class SetPlanUnitsSubOp implements SubOp {
+  unit: UnitTypes;
+
+  constructor(unit: UnitTypes) {
+    this.unit = unit;
+  }
+
+  applyTo(plan: Plan): Result<SubOpResult> {
+    const oldUnits = plan.durationUnits.kind();
+    plan.setDurationUnits(this.unit);
+
+    return ok({
+      plan: plan,
+      inverse: new SetPlanUnitsSubOp(oldUnits),
+    });
+  }
+}
+
 export class SetTaskCompletionSubOp implements SubOp {
   taskIndex: number;
   value: TaskCompletion;
@@ -115,6 +134,10 @@ export function SetTaskCompletionOp(
   value: TaskCompletion
 ): Op {
   return new Op([new SetTaskCompletionSubOp(taskIndex, value)]);
+}
+
+export function SetPlanUnitsOp(unit: UnitTypes): Op {
+  return new Op([new SetPlanUnitsSubOp(unit)]);
 }
 
 export function SetPlanStartStateOp(value: PlanStatus): Op {
