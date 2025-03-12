@@ -568,6 +568,14 @@ export class ExplanMain extends HTMLElement {
     const durationDisplay = (t: number) =>
       this.plan.durationUnits.displayTime(t);
 
+    const taskIsStarted = (taskIndex: number) => {
+      const ret = this.plan.getTaskCompletion(taskIndex);
+      if (!ret.ok) {
+        return false;
+      }
+      return ret.value.stage !== "unstarted";
+    };
+
     const radarOpts: RenderOptions = {
       fontSizePx: 6,
       hasText: false,
@@ -594,6 +602,7 @@ export class ExplanMain extends HTMLElement {
       highlightedTask: null,
       selectedTaskIndex: this.selectedTask,
       durationDisplay: durationDisplay,
+      taskIsStarted: taskIsStarted,
     };
 
     const zoomOpts: RenderOptions = {
@@ -622,6 +631,7 @@ export class ExplanMain extends HTMLElement {
       highlightedTask: 1,
       selectedTaskIndex: this.selectedTask,
       durationDisplay: durationDisplay,
+      taskIsStarted: taskIsStarted,
     };
 
     const timelineOpts: RenderOptions = {
@@ -650,6 +660,7 @@ export class ExplanMain extends HTMLElement {
       highlightedTask: null,
       selectedTaskIndex: this.selectedTask,
       durationDisplay: durationDisplay,
+      taskIsStarted: taskIsStarted,
     };
 
     const ret = this.paintOneChart("#radar", radarOpts);

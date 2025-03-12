@@ -100,6 +100,9 @@ export interface RenderOptions {
 
   /** Converts the times in a chart into a displayable string. */
   durationDisplay: (d: number) => string;
+
+  /** Returns true if the given task has been started. */
+  taskIsStarted: (taskIndex: number) => boolean;
 }
 
 const verticalArrowStartFeatureFromTaskDuration = (
@@ -429,6 +432,12 @@ export function renderTasksToCanvas(
     const highlightedEdges: DirectedEdge[] = [];
     const normalEdges: DirectedEdge[] = [];
     chartLike.Edges.forEach((e: DirectedEdge) => {
+      // Don't draw edges to a task if the task is unstarted.
+      const origTaskIndex = fromFilteredIndexToOriginalIndex.get(e.j);
+      if (origTaskIndex !== undefined && opts.taskIsStarted(origTaskIndex)) {
+        return;
+      }
+
       if (emphasizedTasks.has(e.i) && emphasizedTasks.has(e.j)) {
         highlightedEdges.push(e);
       } else {
