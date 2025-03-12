@@ -51,14 +51,17 @@ export class PlanConfigDialog extends HTMLElement {
       <dialog>
         ${this.unstartedContent()} ${this.startedContent()}
         <div>
-          <select
-            size=${UNIT_TYPES.length}
-            @input=${(e: InputEvent) => this.unitChanged(e)}
-          >
-            ${UNIT_TYPES.map((unitType) => {
-              return html`<option value=${unitType}>${unitType}</option>`;
-            })}
-          </select>
+          <label>
+            Units
+            <select
+              size=${UNIT_TYPES.length}
+              @input=${(e: InputEvent) => this.unitChanged(e)}
+            >
+              ${UNIT_TYPES.map((unitType) => {
+                return html`<option value=${unitType}>${unitType}</option>`;
+              })}
+            </select>
+          </label>
         </div>
         <div class="dialog-footer">
           <button @click=${() => this.cancel()}>Close</button>
