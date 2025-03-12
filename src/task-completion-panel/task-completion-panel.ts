@@ -9,6 +9,7 @@ import { Span } from "../slack/slack.ts";
 import { SetTaskCompletionOp } from "../ops/plan.ts";
 import { executeOp } from "../action/execute.ts";
 import { ExplanMain } from "../explanMain/explanMain.ts";
+import { live } from "lit-html/directives/live.js";
 
 export class TaskCompletionPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -90,8 +91,11 @@ export class TaskCompletionPanel extends HTMLElement {
             Percent Complete
             <input
               type="number"
-              .value=${this.taskCompletion.percentComplete}
-              @input=${(e: InputEvent) => this.percentChange(e)}
+              min="1"
+              max="99"
+              step="1"
+              .value=${live(this.taskCompletion.percentComplete)}
+              @change=${(e: InputEvent) => this.percentChange(e)}
             />
           </label>
 

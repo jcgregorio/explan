@@ -118,8 +118,8 @@ export class SetTaskCompletionSubOp implements SubOp {
           )
         );
       }
-      if (this.value.percentComplete < 1 || this.value.percentComplete > 100) {
-        return error(new Error("Percent Complete must be in [1, 100]."));
+      if (this.value.percentComplete < 1 || this.value.percentComplete > 99) {
+        return error(new Error("Percent Complete must be in [1, 99]."));
       }
     }
     if (this.value.stage === "finished") {
