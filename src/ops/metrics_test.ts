@@ -38,8 +38,8 @@ describe("AddMetricOp", () => {
         );
         assert.equal(
           Object.keys(plan.metricDefinitions).length,
-          3,
-          "Because a Plan always starts with two metrics."
+          2,
+          "Because a Plan always starts with one metric."
         );
         // Confirm each task was updated.
         plan.chart.Vertices.forEach((task: Task) => {
@@ -80,7 +80,7 @@ describe("DeleteMetricOp", () => {
   });
 
   it("will not delete a static metric", () => {
-    const res = DeleteMetricOp("Percent Complete").applyTo(new Plan());
+    const res = DeleteMetricOp("Duration").applyTo(new Plan());
     assert.isFalse(res.ok);
     assert.isTrue(res.error.message.includes("The static Metric"));
   });
@@ -132,7 +132,7 @@ describe("RenameMetricOp", () => {
       TOp((plan: Plan) => {
         assert.isTrue(plan.metricDefinitions[newMetricName] !== undefined);
         assert.isTrue(plan.metricDefinitions[oldMetricName] === undefined);
-        assert.equal(Object.keys(plan.chart.Vertices[1].metrics).length, 3);
+        assert.equal(Object.keys(plan.chart.Vertices[1].metrics).length, 2);
         assert.equal(
           plan.chart.Vertices[1].getMetric(newMetricName),
           defaultCostValue
@@ -151,7 +151,7 @@ describe("RenameMetricOp", () => {
         if (!isForward) {
           assert.isTrue(plan.metricDefinitions[newMetricName] === undefined);
           assert.isTrue(plan.metricDefinitions[oldMetricName] !== undefined);
-          assert.equal(Object.keys(plan.chart.Vertices[1].metrics).length, 3);
+          assert.equal(Object.keys(plan.chart.Vertices[1].metrics).length, 2);
           assert.equal(
             plan.chart.Vertices[1].getMetric(oldMetricName),
             defaultCostValue
