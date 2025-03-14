@@ -83,6 +83,31 @@
       position: absolute;
     }
 
+    error-popup {
+      padding: 16px;
+      border: solid 1px;
+      border-radius: 8px;
+      display: flex;
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      animation-name: popup;
+      animation-duration: 4s;
+    }
+
+    @keyframes popup {
+      from {
+        bottom: 0
+      }
+
+      to {
+        bottom: 16px;
+      }
+    }
+
     chart-parent,
     timeline-parent,
     radar-parent,
@@ -337,6 +362,7 @@
       <path d="m18 13-1.41-1.41L12 16.17l-4.59-4.58L6 13l6 6z" />
     </g>
     <path id="add-icon" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+    <path id="check" d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
   </svg>
   <explan-main>
     <header>
@@ -405,6 +431,8 @@
     </edit-plan-start>
     <plan-config-dialog>
     </plan-config-dialog>
+    <error-popup class="hidden">
+    </error-popup>
   </explan-main>
   <script type="module" src="./dst/page.js"></script>
 </body>

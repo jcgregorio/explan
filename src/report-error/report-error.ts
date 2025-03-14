@@ -1,8 +1,10 @@
+import { ErrorPopup } from "../error-popup/error-popup";
 import { Result } from "../result";
 
 // Displays the given error.
 // TODO - Make this a pop-up or something.
 export const reportError = (error: Error) => {
+  ErrorPopup.displayMessage(error.message);
   console.log(error);
 };
 

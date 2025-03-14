@@ -10,6 +10,7 @@ import { SetTaskCompletionOp } from "../ops/plan.ts";
 import { executeOp } from "../action/execute.ts";
 import { ExplanMain } from "../explanMain/explanMain.ts";
 import { live } from "lit-html/directives/live.js";
+import { reportError } from "../report-error/report-error.ts";
 
 export class TaskCompletionPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -153,7 +154,7 @@ export class TaskCompletionPanel extends HTMLElement {
     );
     if (!ret.ok) {
       this.updateOnInput();
-      console.log(ret.error);
+      reportError(ret.error);
     }
   }
 

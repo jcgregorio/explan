@@ -3,6 +3,7 @@ import { Plan } from "../plan/plan.ts";
 import { UnitBase } from "../units/unit.ts";
 import { dateDisplay } from "../date-control-utils/date-control-utils.ts";
 import { live } from "lit-html/directives/live.js";
+import { reportError } from "../report-error/report-error.ts";
 
 declare global {
   interface GlobalEventHandlersEventMap {
@@ -55,7 +56,7 @@ export class DatePicker extends HTMLElement {
     const ret = this._value!.unit.parse((e.target as HTMLInputElement).value);
     if (!ret.ok) {
       this.render();
-      console.log(ret.error);
+      reportError(ret.error);
     } else {
       this.dispatchEvent(
         new CustomEvent<number>("date-picker-input", {
