@@ -245,6 +245,31 @@ export function renderTasksToCanvas(
   const fromOriginalIndexToFilteredIndex =
     fret.value.fromOriginalIndexToFilteredIndex;
 
+  const fromFilteredIndexToPercentComplete = (
+    filteredIndex: number
+  ): number => {
+    const taskIndex = fromFilteredIndexToOriginalIndex.get(filteredIndex);
+    if (taskIndex === undefined) {
+      return 0;
+    }
+    const ret = plan.getTaskCompletion(taskIndex);
+    if (!ret.ok) {
+      return 0;
+    }
+    const tc = ret.value;
+    switch (tc.stage) {
+      case "unstarted":
+        return 0;
+      case "started":
+        return tc.percentComplete;
+      case "finished":
+        return 100;
+      default:
+        tc satisfies never;
+        return 0;
+    }
+  };
+
   // Selected task, as an index into the unfiltered Chart.
   let lastSelectedTaskIndex = opts.selectedTaskIndex;
 
@@ -278,6 +303,7 @@ export function renderTasksToCanvas(
   const arrowHeadHeight = scale.metric(Metric.arrowHeadHeight);
   const arrowHeadWidth = scale.metric(Metric.arrowHeadWidth);
   const minTaskWidthPx = scale.metric(Metric.minTaskWidthPx);
+  const percentCompleteHeight = scale.metric(Metric.percentHeight);
 
   const daysWithTimeMarkers: Set<number> = new Set();
   const tiret = taskIndexToRowFromGroupBy(
@@ -351,6 +377,7 @@ export function renderTasksToCanvas(
     const span = spans[taskIndex];
     const taskStart = scale.feature(row, span.start, Feature.taskLineStart);
     const taskEnd = scale.feature(row, span.finish, Feature.taskLineStart);
+    const percentComplete = fromFilteredIndexToPercentComplete(taskIndex);
 
     ctx.fillStyle = opts.colors.onSurfaceMuted;
     ctx.strokeStyle = opts.colors.onSurfaceMuted;
@@ -403,7 +430,14 @@ export function renderTasksToCanvas(
       if (taskStart.x === taskEnd.x) {
         drawMilestone(ctx, taskStart, diamondDiameter, percentHeight);
       } else {
-        drawTaskBar(ctx, taskStart, taskEnd, taskLineHeight);
+        drawTaskBar(
+          ctx,
+          taskStart,
+          taskEnd,
+          taskLineHeight,
+          percentComplete,
+          plan._status.stage === "started"
+        );
       }
 
       // Skip drawing the text of the Start and Finish tasks.
@@ -899,14 +933,34 @@ function drawTaskBar(
   ctx: CanvasRenderingContext2D,
   taskStart: Point,
   taskEnd: Point,
-  taskLineHeight: number
+  taskLineHeight: number,
+  percentComplete: number,
+  planStarted: boolean
 ) {
-  ctx.fillRect(
-    taskStart.x,
-    taskStart.y,
-    taskEnd.x - taskStart.x,
-    taskLineHeight
-  );
+  if (planStarted) {
+    ctx.strokeRect(
+      taskStart.x,
+      taskStart.y,
+      taskEnd.x - taskStart.x,
+      taskLineHeight
+    );
+
+    if (percentComplete !== 0) {
+      ctx.fillRect(
+        taskStart.x,
+        taskStart.y,
+        ((taskEnd.x - taskStart.x) * percentComplete) / 100,
+        taskLineHeight
+      );
+    }
+  } else {
+    ctx.fillRect(
+      taskStart.x,
+      taskStart.y,
+      taskEnd.x - taskStart.x,
+      taskLineHeight
+    );
+  }
 }
 
 function drawTaskHighlight(
