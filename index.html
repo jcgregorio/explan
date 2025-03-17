@@ -4,14 +4,113 @@
 <head>
   <style>
     body {
+      --font: Roboto, Arial, 'Bitstream Vera Sans', sans-serif;
+      --mono-font: Roboto Mono, monospace;
+
       background: var(--surface);
       color: var(--on-surface);
       margin: 0;
     }
 
+    * {
+      font-size: 14px;
+      font-family: var(--font);
+      box-sizing: border-box;
+    }
+
+    code,
+    pre {
+      font-family: var(--mono-font);
+    }
+
+
     body.resizing {
       user-select: none;
     }
+
+
+    .input-like,
+    input {
+      border: solid 1px var(--on-surface);
+      color: solid 1px var(--on-surface);
+      background: solid 1px var(--surface);
+      display: inline-block;
+    }
+
+    .button-like,
+    button {
+      align-items: center;
+      background: transparent;
+      border-radius: 4px;
+      border: solid 1px var(--primary);
+      box-shadow: none;
+      color: var(--primary);
+      display: inline-flex;
+      fill: var(--primary);
+      font-size: 14px;
+      height: 24px;
+      justify-content: center;
+      margin: 4px 2px;
+      min-width: auto;
+      padding: 0 4px;
+      text-align: center;
+      text-transform: none;
+
+      .icon-sk {
+        font-size: 20px;
+      }
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+
+    .button-like:hover,
+    button.hover,
+    button:hover,
+    .button-like:focus,
+    button.focus,
+    button:focus {
+      opacity: 0.85;
+      outline: none;
+      background-color: var(--surface-1dp);
+    }
+
+    .button-like:disabled,
+    button:disabled {
+      opacity: 0.85;
+      background: var(--on-disabled);
+      color: var(--disabled);
+      fill: var(--disabled);
+    }
+
+    .button-like-action,
+    .button-like.action,
+    button.action {
+      color: var(--on-primary);
+      fill: var(--on-primary);
+      border: none;
+      background-color: var(--primary);
+    }
+
+    .button-like.action:hover,
+    button.action.hover,
+    button.action:hover {
+      opacity: 0.85;
+    }
+
+    .button-like.action:disabled,
+    button.action.disabled,
+    button.action:disabled {
+      opacity: 0.85;
+      background: var(--on-disabled);
+      color: var(--disabled);
+      fill: var(--disabled);
+    }
+
+
 
     chart-parent {
       grid-area: chart;
