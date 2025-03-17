@@ -5,7 +5,7 @@
   <style>
     body {
       background: var(--surface);
-      color: var(--onSurface);
+      color: var(--on-surface);
       margin: 0;
     }
 
@@ -16,7 +16,7 @@
     chart-parent {
       grid-area: chart;
       overflow-y: scroll;
-      scrollbar-color: var(--overlay) rgb(0, 0, 0, 0);
+      scrollbar-color: var(--transparent-overlay) rgb(0, 0, 0, 0);
     }
 
     timeline-parent {
@@ -117,7 +117,7 @@
     }
 
     search-task-panel {
-      border-bottom: solid 1px var(--onSurfaceMuted);
+      border-bottom: solid 1px var(--on-surface-muted);
       display: block;
     }
 
@@ -138,8 +138,8 @@
     }
 
     button[disabled] {
-      color: var(--diabled);
-      fill: var(--diabled);
+      color: var(--disabled);
+      fill: var(--disabled);
       ;
     }
 
@@ -152,12 +152,12 @@
           font-family: 'Courier New', Courier, monospace;
 
           b {
-            color: var(--onSurfaceSecondary);
+            color: var(--primary);
           }
         }
 
         li[data-focus] {
-          color: var(--onSurfaceSecondary);
+          color: var(--primary);
         }
 
         li:hover {
@@ -185,14 +185,14 @@
         border-radius: 2px;
         border: solid 1px var(--surface);
         background: var(--surface);
-        color: var(--onSurface);
+        color: var(--on-surface);
 
         &:hover {
-          border: solid 1px var(--onSurfaceMuted);
+          border: solid 1px var(--on-surface-muted);
         }
 
         &:active {
-          background: var(--highlight);
+          background: var(--surface-1dp);
         }
       }
     }
@@ -226,22 +226,22 @@
       border-radius: 2px;
       border: solid 1px var(--surface);
       background: var(--surface);
-      color: var(--onSurface);
-      fill: var(--onSurfaceMuted);
+      color: var(--on-surface);
+      fill: var(--on-surface-muted);
 
       &:hover {
-        border: dashed 1px var(--onSurfaceMuted);
+        border: dashed 1px var(--on-surface-muted);
       }
 
       &:active {
-        background: var(--highlight);
+        background: var(--surface-1dp);
       }
     }
 
 
     dialog {
       background: var(--surface);
-      color: var(--onSurface);
+      color: var(--on-surface);
 
       .dialog-footer {
         display: flex;
@@ -251,90 +251,54 @@
       }
     }
 
-    @property --groupColor {
-      syntax: "<color>";
-      inherits: true;
-      initial-value: rgb(0, 0, 0, 0);
-    }
-
-    @property --surface {
-      syntax: "<color>";
-      inherits: true;
-      initial-value: #ddd;
-    }
-
-    @property --onSurface {
-      syntax: "<color>";
-      inherits: true;
-      initial-value: rgb(34, 34, 34);
-    }
-
-    @property --onSurfaceSecondary {
-      syntax: "<color>";
-      inherits: true;
-      initial-value: #2072c3;
-    }
-
-    @property --onSurfaceMuted {
-      syntax: "<color>";
-      inherits: true;
-      initial-value: rgba(34, 34, 34, 0.5);
-    }
-
-    @property --overlay {
-      syntax: "<color>";
-      inherits: true;
-      initial-value: rgb(0, 0, 0, 0.25);
-    }
-
-    @property --highlight {
-      syntax: "<color>";
-      inherits: true;
-      initial-value: rgba(132, 126, 24, 0.776);
-    }
-
-    @property --added {
-      syntax: "<color>";
-      inherits: true;
-      initial-value: rgba(24, 132, 47);
-    }
-
-    @property --removed {
-      syntax: "<color>";
-      inherits: true;
-      initial-value: rgba(175, 15, 29);
-    }
-
-    @property --diabled {
-      syntax: "<color>";
-      inherits: true;
-      initial-value: hsl(0, 0%, 46%);
-    }
-
     body {
-      --surface: #f5f5f5;
-      --onSurface: hsl(0, 0%, 15%);
-      --onSurfaceMuted: hsl(0, 0%, 24%);
-      --onSurfaceSecondary: #2067c3;
-      --overlay: rgb(0, 0, 0, 0.25);
-      --groupColor: rgba(90, 206, 6, 0.15);
-      --highlight: rgba(59, 114, 177, 0.2);
+      --primary: #2067c3;
+      --on-primary: #ffffff;
+      --primary-variant: rgba(59, 114, 177, 0.2);
+      --on-primary-variant: #000000;
+      --secondary: #d84315;
+      --on-secondary: #000000;
+      --background: #fafafa;
+      --on-background: #000000;
+      --surface: #ffffff;
+      --on-surface: #000000;
+      --on-surface-muted: hsl(0, 0%, 24%);
+      --surface-1dp: #eee;
+      --surface-2dp: #bdbdbd;
+      --disabled: #f5f5f5;
+      --on-disabled: #616161;
+      --error: #b71c1c;
+      --on-error: #ffffff;
+      --transparent-overlay: rgba(0, 0, 0, 0.25);
+      --group-color: rgba(90, 206, 6, 0.15);
+
       --added: rgba(24, 132, 47);
       --removed: rgba(175, 15, 29);
-      --disabled: hsl(0, 0%, 46%);
     }
 
     body.darkmode {
-      --surface: #000;
-      --onSurface: hsl(0, 0%, 87%);
-      --onSurfaceMuted: hsl(0, 0%, 74%);
-      --onSurfaceSecondary: rgb(32, 114, 195);
-      --overlay: rgb(255, 255, 255, 0.1);
-      --groupColor: rgba(89, 206, 6, 0.1);
-      --highlight: rgba(32, 114, 195, 0.393);
+      --primary: rgb(32, 114, 195);
+      --on-primary: #000000;
+      --primary-variant: rgba(59, 114, 177, 0.2);
+      --on-primary-variant: #ffffff;
+      --secondary: #80cbc4;
+      --on-secondary: #000000;
+      --background: #000000;
+      --on-background: #ffffff;
+      --surface: #0f0f0f;
+      --surface-1dp: #424242;
+      --surface-2dp: #616161;
+      --disabled: #757575;
+      --on-disabled: #e0e0e0;
+      --on-surface: #ffffff;
+      --on-surface-muted: hsl(0, 0%, 74%);
+      --error: #ec407a;
+      --on-error: #000000;
+      --transparent-overlay: rgba(255, 255, 255, 0.1);
+      --group-color: rgba(89, 206, 6, 0.1);
+
       --added: rgb(36, 180, 67);
       --removed: rgb(227, 22, 39);
-      --disabled: hsl(0, 0%, 36%);
     }
   </style>
 </head>

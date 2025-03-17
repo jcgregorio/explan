@@ -12,6 +12,7 @@ import { DisplayRange } from "./range/range.ts";
 import { Point, difference, pt } from "../point/point.ts";
 import { Feature, Metric, Scale } from "./scale/scale.ts";
 import { HitRect } from "../hitrect/hitrect.ts";
+import { Theme2 } from "../style/theme/theme.ts";
 
 type Direction = "up" | "down";
 
@@ -56,7 +57,7 @@ export interface RenderOptions {
   displayRangeUsage: DisplayRangeUsage;
 
   /** The color theme. */
-  colors: Colors;
+  colors: Theme2;
 
   /** If true then display times at the top of the chart. */
   hasTimeline: boolean;
@@ -335,8 +336,8 @@ export function renderTasksToCanvas(
     ctx.stroke(clipRegion);
   }
 
-  ctx.fillStyle = opts.colors.onSurface;
-  ctx.strokeStyle = opts.colors.onSurface;
+  ctx.fillStyle = opts.colors.get("on-surface");
+  ctx.strokeStyle = opts.colors.get("on-surface");
 
   if (rowRanges !== null) {
     if (opts.hasTasks) {
@@ -345,7 +346,7 @@ export function renderTasksToCanvas(
         scale,
         rowRanges,
         totalNumberOfDays,
-        opts.colors.groupColor
+        opts.colors.get("group-color")
       );
     }
 
@@ -354,8 +355,8 @@ export function renderTasksToCanvas(
     }
   }
 
-  ctx.fillStyle = opts.colors.onSurface;
-  ctx.strokeStyle = opts.colors.onSurface;
+  ctx.fillStyle = opts.colors.get("on-surface");
+  ctx.strokeStyle = opts.colors.get("on-surface");
 
   ctx.save();
   ctx.clip(clipRegion);
@@ -379,8 +380,8 @@ export function renderTasksToCanvas(
     const taskEnd = scale.feature(row, span.finish, Feature.taskLineStart);
     const percentComplete = fromFilteredIndexToPercentComplete(taskIndex);
 
-    ctx.fillStyle = opts.colors.onSurfaceMuted;
-    ctx.strokeStyle = opts.colors.onSurfaceMuted;
+    ctx.fillStyle = opts.colors.get("on-surface-muted");
+    ctx.strokeStyle = opts.colors.get("on-surface-muted");
 
     // Draw in time markers if displayed.
     // TODO - Make sure they don't overlap.
@@ -398,11 +399,11 @@ export function renderTasksToCanvas(
     }
 
     if (emphasizedTasks.has(taskIndex)) {
-      ctx.fillStyle = opts.colors.onSurfaceHighlight;
-      ctx.strokeStyle = opts.colors.onSurfaceHighlight;
+      ctx.fillStyle = opts.colors.get("primary");
+      ctx.strokeStyle = opts.colors.get("primary");
     } else {
-      ctx.fillStyle = opts.colors.onSurface;
-      ctx.strokeStyle = opts.colors.onSurface;
+      ctx.fillStyle = opts.colors.get("on-surface");
+      ctx.strokeStyle = opts.colors.get("on-surface");
     }
     const highlightTopLeft = scale.feature(
       row,
@@ -459,7 +460,7 @@ export function renderTasksToCanvas(
   });
 
   ctx.lineWidth = 1;
-  ctx.strokeStyle = opts.colors.onSurfaceMuted;
+  ctx.strokeStyle = opts.colors.get("on-surface-muted");
 
   // Now draw all the arrows, i.e. edges.
   if (opts.hasEdges && opts.hasTasks) {
@@ -479,7 +480,7 @@ export function renderTasksToCanvas(
       }
     });
 
-    ctx.strokeStyle = opts.colors.onSurfaceMuted;
+    ctx.strokeStyle = opts.colors.get("on-surface-muted");
     drawEdges(
       ctx,
       opts,
@@ -492,7 +493,7 @@ export function renderTasksToCanvas(
       arrowHeadHeight,
       emphasizedTasks
     );
-    ctx.strokeStyle = opts.colors.onSurfaceHighlight;
+    ctx.strokeStyle = opts.colors.get("primary");
     drawEdges(
       ctx,
       opts,
@@ -599,7 +600,7 @@ export function renderTasksToCanvas(
           overlayCtx,
           corners.topLeft,
           corners.bottomRight,
-          opts.colors.highlight,
+          opts.colors.get("primary-variant"),
           scale.metric(taskLineHeight)
         );
       }
@@ -613,7 +614,7 @@ export function renderTasksToCanvas(
           overlayCtx,
           corners.topLeft,
           corners.bottomRight,
-          opts.colors.highlight
+          opts.colors.get("primary-variant")
         );
       }
 
@@ -629,7 +630,7 @@ export function renderTasksToCanvas(
         overlayCtx,
         corners.topLeft,
         corners.bottomRight,
-        opts.colors.highlight
+        opts.colors.get("primary-variant")
       );
     }
   }
@@ -694,9 +695,9 @@ function drawEdges(
     const dstDay = dstSlack.start;
 
     if (taskHighlights.has(e.i) && taskHighlights.has(e.j)) {
-      ctx.strokeStyle = opts.colors.onSurfaceHighlight;
+      ctx.strokeStyle = opts.colors.get("primary");
     } else {
-      ctx.strokeStyle = opts.colors.onSurfaceMuted;
+      ctx.strokeStyle = opts.colors.get("on-surface-muted");
     }
 
     drawArrowBetweenTasks(
@@ -728,7 +729,7 @@ function drawRangeOverlay(
     endDay,
     Feature.taskRowBottom
   );
-  ctx.fillStyle = opts.colors.overlay;
+  ctx.fillStyle = opts.colors.get("transparent-overlay");
   ctx.fillRect(
     topLeft.x,
     topLeft.y,
@@ -784,8 +785,8 @@ function clearCanvas(
   opts: RenderOptions,
   canvas: HTMLCanvasElement
 ) {
-  ctx.fillStyle = opts.colors.surface;
-  ctx.strokeStyle = opts.colors.onSurface;
+  ctx.fillStyle = opts.colors.get("surface");
+  ctx.strokeStyle = opts.colors.get("on-surface");
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -921,7 +922,7 @@ function drawTaskText(
     }
   }
   ctx.lineWidth = 1;
-  ctx.fillStyle = opts.colors.onSurface;
+  ctx.fillStyle = opts.colors.get("on-surface");
   ctx.textBaseline = "top";
   const textStart = scale.feature(row, xStartInTime, Feature.textStart);
   const textX = textStart.x + xPixelDelta;
@@ -1042,7 +1043,7 @@ const drawTimeMarkerAtDayToTask = (
     verticalArrowDestFeatureFromTaskDuration(task, "down")
   );
   ctx.lineWidth = 0.5;
-  ctx.strokeStyle = opts.colors.overlay;
+  ctx.strokeStyle = opts.colors.get("transparent-overlay");
 
   ctx.moveTo(timeMarkStart.x + 0.5, timeMarkStart.y);
   ctx.lineTo(timeMarkStart.x + 0.5, timeMarkEnd.y);
@@ -1050,7 +1051,7 @@ const drawTimeMarkerAtDayToTask = (
 
   ctx.setLineDash([]);
 
-  ctx.fillStyle = opts.colors.onSurface;
+  ctx.fillStyle = opts.colors.get("on-surface");
   ctx.textBaseline = "top";
   const textStart = scale.feature(row, day, Feature.timeTextStart);
   const label = opts.durationDisplay(day);
@@ -1199,7 +1200,7 @@ const drawSwimLaneLabels = (
   rowRanges: Map<number, RowRange>
 ) => {
   if (rowRanges) ctx.lineWidth = 1;
-  ctx.fillStyle = opts.colors.onSurface;
+  ctx.fillStyle = opts.colors.get("on-surface");
   const groupByOrigin = scale.feature(0, 0, Feature.groupByOrigin);
 
   if (opts.hasTimeline) {

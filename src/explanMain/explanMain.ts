@@ -28,7 +28,7 @@ import { pt } from "../point/point.ts";
 import { Scale } from "../renderer/scale/scale.ts";
 import { Result } from "../result.ts";
 import { ComputeSlack, CriticalPath, Slack, Span } from "../slack/slack.ts";
-import { Theme, colorThemeFromElement } from "../style/theme/theme.ts";
+import { Theme, colorThemeFromElement, Theme2 } from "../style/theme/theme.ts";
 import {
   generateRandomPlan,
   generateStarterPlan,
@@ -525,6 +525,8 @@ export class ExplanMain extends HTMLElement {
     console.time("paintChart");
 
     const themeColors: Theme = colorThemeFromElement(document.body);
+    const theme2 = new Theme2();
+    theme2.loadFromElement(document.body);
 
     let filterFunc: FilterFunc | null = null;
     const startAndFinish = [0, this.plan.chart.Vertices.length - 1];
@@ -585,15 +587,7 @@ export class ExplanMain extends HTMLElement {
       hasText: false,
       displayRange: this.displayRange,
       displayRangeUsage: "highlight",
-      colors: {
-        surface: themeColors.surface,
-        onSurface: themeColors.onSurface,
-        onSurfaceMuted: themeColors.onSurfaceMuted,
-        onSurfaceHighlight: themeColors.onSurfaceSecondary,
-        overlay: themeColors.overlay,
-        groupColor: themeColors.groupColor,
-        highlight: themeColors.highlight,
-      },
+      colors: theme2,
       hasTimeline: false,
       hasTasks: true,
       hasEdges: false,
@@ -614,15 +608,7 @@ export class ExplanMain extends HTMLElement {
       hasText: true,
       displayRange: this.displayRange,
       displayRangeUsage: "restrict",
-      colors: {
-        surface: themeColors.surface,
-        onSurface: themeColors.onSurface,
-        onSurfaceMuted: themeColors.onSurfaceMuted,
-        onSurfaceHighlight: themeColors.onSurfaceSecondary,
-        overlay: themeColors.overlay,
-        groupColor: themeColors.groupColor,
-        highlight: themeColors.highlight,
-      },
+      colors: theme2,
       hasTimeline: this.topTimeline,
       hasTasks: true,
       hasEdges: true,
@@ -643,15 +629,7 @@ export class ExplanMain extends HTMLElement {
       hasText: true,
       displayRange: this.displayRange,
       displayRangeUsage: "restrict",
-      colors: {
-        surface: themeColors.surface,
-        onSurface: themeColors.onSurface,
-        onSurfaceMuted: themeColors.onSurfaceMuted,
-        onSurfaceHighlight: themeColors.onSurfaceSecondary,
-        overlay: themeColors.overlay,
-        groupColor: themeColors.groupColor,
-        highlight: themeColors.highlight,
-      },
+      colors: theme2,
       hasTimeline: true,
       hasTasks: false,
       hasEdges: true,
