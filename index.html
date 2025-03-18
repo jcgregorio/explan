@@ -28,13 +28,52 @@
       user-select: none;
     }
 
+    select,
+    option {
+      border-radius: 4px;
+      margin: 4px 2px;
+      padding: 4px 4px;
+      background-color: var(--surface);
+      color: var(--on-surface);
+      fill: var(--on-surface);
+      line-height: 20px;
+      vertical-align: middle;
+    }
+
+    select {
+      border: solid 1px var(--on-surface);
+      border-radius: 4px;
+    }
+
+    option:hover {
+      background-color: var(--surface-1dp);
+    }
+
+    option:focus {
+      background-color: var(--primary);
+      color: var(--on-primary);
+      transition: background-color 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    option:checked {
+      background-color: var(--primary);
+      color: var(--on-primary);
+      fill: var(--on-primary);
+    }
+
+    select {
+      overflow-y: auto;
+    }
 
     .input-like,
     input {
       border: solid 1px var(--on-surface);
-      color: solid 1px var(--on-surface);
-      background: solid 1px var(--surface);
+      color: var(--on-surface);
+      background: var(--surface);
       display: inline-block;
+      border-radius: 4px;
+      margin: 4px 2px;
+      padding: 4px 4px;
     }
 
     .button-like,
@@ -55,10 +94,6 @@
       padding: 0 4px;
       text-align: center;
       text-transform: none;
-
-      .icon-sk {
-        font-size: 20px;
-      }
 
       svg {
         width: 20px;
@@ -230,6 +265,7 @@
     nav {
       display: flex;
       padding: 8px;
+      justify-content: space-between;
     }
 
     .hidden {
@@ -408,6 +444,7 @@
     for actual icons via the <use> tag. See `/icons/icons.ts`.
 
     Icons copied from https://github.com/marella/material-design-icons/blob/main/svg/filled/.
+    View all icons here: https://fonts.google.com/icons
     -->
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="display: none;">
     <path id="delete-icon"
@@ -430,20 +467,27 @@
   <explan-main>
     <header>
       <nav>
-        <button id="dark-mode-toggle">Mode</button>
-        <button id="group-by-toggle">GroupBy</button>
-        <button id="radar-toggle">Radar</button>
-        <button id="top-timeline-toggle">Top Timeline</button>
-        <button id="critical-paths-toggle">Critical Paths</button>
-        <button id="reset-zoom">Reset Zoom</button>
-        <button id="focus-on-selected-task">Focus</button>
-        <button id="gen-random-plan">Generate</button>
-        <button id="edit-resources">Edit Resources</button>
-        <button id="edit-metrics">Edit Metrics</button>
-        <button id="edit-plan-start">Start</button>
-        <a id="download" download="plan.json" href="">Download</a>
-        <label> Upload <input type="file" id="file-upload" /></label>
-        <button id="plan-config">Config</button>
+        <span>
+          <button id="group-by-toggle">GroupBy</button>
+          <button id="radar-toggle">Radar</button>
+          <button id="top-timeline-toggle">Top Timeline</button>
+          <button id="critical-paths-toggle">Critical Paths</button>
+          <button id="reset-zoom">Reset Zoom</button>
+          <button id="focus-on-selected-task">Focus</button>
+          <button id="gen-random-plan">Generate</button>
+          <button id="edit-resources">Edit Resources</button>
+          <button id="edit-metrics">Edit Metrics</button>
+          <button id="edit-plan-start">Start</button>
+          <a id="download" download="plan.json" href="">Download</a>
+          <label> Upload <input type="file" id="file-upload" /></label>
+          <button id="plan-config">Config</button>
+        </span>
+        <button id="dark-mode-toggle" class="icon-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path id="invert-colors"
+              d="M12 4.81V19c-3.31 0-6-2.63-6-5.87 0-1.56.62-3.03 1.75-4.14L12 4.81M6.35 7.56C4.9 8.99 4 10.96 4 13.13 4 17.48 7.58 21 12 21s8-3.52 8-7.87c0-2.17-.9-4.14-2.35-5.57L12 2 6.35 7.56z" />
+          </svg>
+        </button>
       </nav>
       <radar-parent>
         <canvas id="radar" width="1000" height="1000"></canvas>
