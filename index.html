@@ -262,6 +262,28 @@
       padding: 8px;
     }
 
+    panels-parent {
+      display: block;
+
+      tab-buttons {
+        display: block;
+
+        button {
+          opacity: 0.7;
+        }
+
+        button.selected {
+          opacity: 1.0;
+        }
+      }
+
+      tab-panel {
+        display: block;
+        background-color: var(--surface);
+        margin-top: 0;
+      }
+    }
+
     nav {
       display: flex;
       padding: 8px;
@@ -504,18 +526,27 @@
       <divider-thumb></divider-thumb>
     </vertical-divider>
     <panels-parent>
-      <search-task-panel>
-        <task-search-control></task-search-control>
-      </search-task-panel>
-      <selected-task-panel>
-      </selected-task-panel>
-      <task-completion-panel>
-      </task-completion-panel>
-      <dependencies-panel>
-      </dependencies-panel>
-      <button id="simulate">Simulate</button>
-      <simulation-panel>
-      </simulation-panel>
+      <tab-buttons>
+        <button data-target="task-tab" class="selected">Task</button>
+        <button data-target="project-tab">Project</button>
+      </tab-buttons>
+      <tab-panel id="task-tab">
+        <search-task-panel>
+          <task-search-control></task-search-control>
+        </search-task-panel>
+        <selected-task-panel>
+        </selected-task-panel>
+        <task-completion-panel>
+        </task-completion-panel>
+        <dependencies-panel>
+        </dependencies-panel>
+        <button id="simulate">Simulate</button>
+        <simulation-panel>
+        </simulation-panel>
+      </tab-panel>
+      <tab-panel id="project-tab" class="hidden">
+        <h2>TBD</h2>
+      </tab-panel>
     </panels-parent>
     <footer>Footer</footer>
     <keyboard-map-dialog>

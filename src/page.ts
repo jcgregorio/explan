@@ -1,4 +1,5 @@
 import "./help/help.ts";
+import "./tab-buttons/tab-buttons.ts";
 import "./error-popup/error-popup.ts";
 import "./plan-config-dialog/plan-config-dialog.ts";
 import "./date-picker/date-picker.ts";
