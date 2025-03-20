@@ -180,4 +180,4 @@ export class EditResourcesPanel extends HTMLElement {
   }
 }
 
-customElements.define("edit-resources-dialog", EditResourcesPanel);
+customElements.define("edit-resources-panel", EditResourcesPanel);

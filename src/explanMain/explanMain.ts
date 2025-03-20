@@ -293,7 +293,7 @@ export class ExplanMain extends HTMLElement {
       this.planDefinitionHasBeenChanged();
     });
 
-    this.querySelector<EditResourcesPanel>("edit-resources-dialog")!.setConfig(
+    this.querySelector<EditResourcesPanel>("edit-resources-panel")!.setConfig(
       this
     );
 
