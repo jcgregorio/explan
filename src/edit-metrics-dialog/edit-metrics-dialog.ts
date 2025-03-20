@@ -38,14 +38,9 @@ export class EditMetricsDialog extends HTMLElement {
     render(this.template(), this);
   }
 
-  showModal(explanMain: ExplanMain) {
+  setConfig(explanMain: ExplanMain) {
     this.explanMain = explanMain;
     this.render();
-    this.querySelector<HTMLDialogElement>("dialog")!.showModal();
-  }
-
-  private cancel() {
-    this.querySelector<HTMLDialogElement>("dialog")!.close();
   }
 
   private template(): TemplateResult {
@@ -63,57 +58,51 @@ export class EditMetricsDialog extends HTMLElement {
         return 1;
       }
     );
-    return html` <dialog>
-      <table>
-        <tr>
-          <th>Name</th>
-          <th>Min</th>
-          <th>Max</th>
-          <th>Default</th>
-          <th></th>
-          <th></th>
-        </tr>
+    return html` <table>
+      <tr>
+        <th>Name</th>
+        <th>Min</th>
+        <th>Max</th>
+        <th>Default</th>
+        <th></th>
+        <th></th>
+      </tr>
 
-        ${allKeysSorted.map((metricName: string) => {
-          const metricDefn =
-            this.explanMain!.plan.metricDefinitions[metricName];
-          return html`
-            <tr>
-              <td>${metricName}</td>
-              <td>${displayValue(metricDefn.range.min)}</td>
-              <td>${displayValue(metricDefn.range.max)}</td>
-              <td>${metricDefn.default}</td>
-              <td>
-                ${this.delButtonIfNotStatic(metricName, metricDefn.isStatic)}
-              </td>
-              <td>
-                ${this.editButtonIfNotStatic(metricName, metricDefn.isStatic)}
-              </td>
-            </tr>
-          `;
-        })}
-        <tr>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td>
-            <button
-              class="icon-button"
-              title="Add a new Resource."
-              @click=${() => {
-                this.newMetric();
-              }}
-            >
-              ${icon("add-icon")}
-            </button>
-          </td>
-        </tr>
-      </table>
-      <div class="dialog-footer">
-        <button @click=${() => this.cancel()}>Close</button>
-      </div>
-    </dialog>`;
+      ${allKeysSorted.map((metricName: string) => {
+        const metricDefn = this.explanMain!.plan.metricDefinitions[metricName];
+        return html`
+          <tr>
+            <td>${metricName}</td>
+            <td>${displayValue(metricDefn.range.min)}</td>
+            <td>${displayValue(metricDefn.range.max)}</td>
+            <td>${metricDefn.default}</td>
+            <td>
+              ${this.delButtonIfNotStatic(metricName, metricDefn.isStatic)}
+            </td>
+            <td>
+              ${this.editButtonIfNotStatic(metricName, metricDefn.isStatic)}
+            </td>
+          </tr>
+        `;
+      })}
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>
+          <button
+            class="icon-button"
+            title="Add a new Resource."
+            @click=${() => {
+              this.newMetric();
+            }}
+          >
+            ${icon("add-icon")}
+          </button>
+        </td>
+      </tr>
+    </table>`;
   }
 
   private delButtonIfNotStatic(
@@ -162,7 +151,6 @@ export class EditMetricsDialog extends HTMLElement {
   }
 
   private editMetric(name: string) {
-    this.cancel();
     this.explanMain!.querySelector<EditMetricDefinition>(
       "edit-metric-definition"
     )!.showModal(this.explanMain!, name);

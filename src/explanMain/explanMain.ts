@@ -303,11 +303,9 @@ export class ExplanMain extends HTMLElement {
       );
     });
 
-    this.querySelector("#edit-metrics")!.addEventListener("click", () => {
-      this.querySelector<EditMetricsDialog>("edit-metrics-dialog")!.showModal(
-        this
-      );
-    });
+    this.querySelector<EditMetricsDialog>("edit-metrics-dialog")!.setConfig(
+      this
+    );
 
     this.querySelector("#edit-plan-start")!.addEventListener(
       "click",
