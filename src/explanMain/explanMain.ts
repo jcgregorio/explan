@@ -50,7 +50,6 @@ import { SimulationPanel } from "../simulation-panel/simulation-panel.ts";
 import { applyStoredTheme } from "../style/toggler/toggler.ts";
 import { EditResourcesPanel } from "../edit-resources-panel/edit-resources-panel.ts";
 import { EditMetricsPanel } from "../edit-metrics-panel/edit-metrics-panel.ts";
-import { EditPlanStartDialog } from "../edit-plan-start/edit-plan-start.ts";
 import { TaskCompletionPanel } from "../task-completion-panel/task-completion-panel.ts";
 import { PlanConfigPanel } from "../plan-config-panel/plan-config-panel.ts";
 import { TaskCompletion } from "../task_completion/task_completion.ts";
@@ -300,21 +299,6 @@ export class ExplanMain extends HTMLElement {
     this.querySelector<PlanConfigPanel>("plan-config-panel")!.setConfig(this);
 
     this.querySelector<EditMetricsPanel>("edit-metrics-panel")!.setConfig(this);
-
-    this.querySelector("#edit-plan-start")!.addEventListener(
-      "click",
-      async () => {
-        const ret = await this.querySelector<EditPlanStartDialog>(
-          "edit-plan-start"
-        )!.start(this.plan.status);
-        if (ret === undefined) {
-          return;
-        }
-        // TODO Change the status
-        this.plan.status = ret;
-        this.planDefinitionHasBeenChanged();
-      }
-    );
 
     this.plan = generateStarterPlan();
     this.updateTaskPanels(this.selectedTask);

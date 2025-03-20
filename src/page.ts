@@ -4,7 +4,6 @@ import "./error-popup/error-popup.ts";
 import "./plan-config-panel/plan-config-panel.ts";
 import "./date-picker/date-picker.ts";
 import "./task-completion-panel/task-completion-panel.ts";
-import "./edit-plan-start/edit-plan-start.ts";
 import "./edit-resource-definition/edit-resource-definition.ts";
 import "./edit-metrics-panel/edit-metrics-panel.ts";
 import "./edit-metric-definition/edit-metric-definition.ts";
