@@ -5,7 +5,7 @@ import { executeOp } from "../action/execute";
 import { SetPlanStartStateOp, SetPlanUnitsOp } from "../ops/plan";
 import { UNIT_TYPES, toUnit } from "../units/unit";
 
-export class PlanConfigDialog extends HTMLElement {
+export class PlanConfigPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
   planDefinitionChangedCallback: () => void;
 
@@ -43,6 +43,7 @@ export class PlanConfigDialog extends HTMLElement {
 
   private template(): TemplateResult {
     return html`
+      <h3>Plan Status</h3>
       ${this.unstartedContent()} ${this.startedContent()}
       <div>
         <label>
@@ -89,7 +90,6 @@ export class PlanConfigDialog extends HTMLElement {
   private startedContent(): TemplateResult {
     if (this.explanMain!.plan.status.stage === "started") {
       return html`
-        <h3>Plan Status</h3>
         <label>
           <input type="checkbox" checked @input=${() => this.unstart()} />
           Started
@@ -147,4 +147,4 @@ export class PlanConfigDialog extends HTMLElement {
   }
 }
 
-customElements.define("plan-config-dialog", PlanConfigDialog);
+customElements.define("plan-config-panel", PlanConfigPanel);

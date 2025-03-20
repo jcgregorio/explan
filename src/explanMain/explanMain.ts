@@ -52,7 +52,7 @@ import { EditResourcesPanel } from "../edit-resources-panel/edit-resources-panel
 import { EditMetricsPanel } from "../edit-metrics-panel/edit-metrics-panel.ts";
 import { EditPlanStartDialog } from "../edit-plan-start/edit-plan-start.ts";
 import { TaskCompletionPanel } from "../task-completion-panel/task-completion-panel.ts";
-import { PlanConfigDialog } from "../plan-config-dialog/plan-config-dialog.ts";
+import { PlanConfigPanel } from "../plan-config-panel/plan-config-panel.ts";
 import { TaskCompletion } from "../task_completion/task_completion.ts";
 
 const FONT_SIZE_PX = 32;
@@ -297,7 +297,7 @@ export class ExplanMain extends HTMLElement {
       this
     );
 
-    this.querySelector<PlanConfigDialog>("plan-config-dialog")!.setConfig(this);
+    this.querySelector<PlanConfigPanel>("plan-config-panel")!.setConfig(this);
 
     this.querySelector<EditMetricsPanel>("edit-metrics-panel")!.setConfig(this);
 
