@@ -297,11 +297,7 @@ export class ExplanMain extends HTMLElement {
       this
     );
 
-    this.querySelector("#plan-config")!.addEventListener("click", () => {
-      this.querySelector<PlanConfigDialog>("plan-config-dialog")!.showModal(
-        this
-      );
-    });
+    this.querySelector<PlanConfigDialog>("plan-config-dialog")!.setConfig(this);
 
     this.querySelector<EditMetricsPanel>("edit-metrics-panel")!.setConfig(this);
 

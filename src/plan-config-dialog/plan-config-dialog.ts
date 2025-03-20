@@ -36,37 +36,27 @@ export class PlanConfigDialog extends HTMLElement {
     render(this.template(), this);
   }
 
-  showModal(explanMain: ExplanMain) {
+  setConfig(explanMain: ExplanMain) {
     this.explanMain = explanMain;
     this.render();
-    this.querySelector<HTMLDialogElement>("dialog")!.showModal();
-  }
-
-  private cancel() {
-    this.querySelector<HTMLDialogElement>("dialog")!.close();
   }
 
   private template(): TemplateResult {
     return html`
-      <dialog>
-        ${this.unstartedContent()} ${this.startedContent()}
-        <div>
-          <label>
-            Units
-            <select
-              size=${UNIT_TYPES.length}
-              @input=${(e: InputEvent) => this.unitChanged(e)}
-            >
-              ${UNIT_TYPES.map((unitType) => {
-                return html`<option value=${unitType}>${unitType}</option>`;
-              })}
-            </select>
-          </label>
-        </div>
-        <div class="dialog-footer">
-          <button @click=${() => this.cancel()}>Close</button>
-        </div>
-      </dialog>
+      ${this.unstartedContent()} ${this.startedContent()}
+      <div>
+        <label>
+          Units
+          <select
+            size=${UNIT_TYPES.length}
+            @input=${(e: InputEvent) => this.unitChanged(e)}
+          >
+            ${UNIT_TYPES.map((unitType) => {
+              return html`<option value=${unitType}>${unitType}</option>`;
+            })}
+          </select>
+        </label>
+      </div>
     `;
   }
 
@@ -99,6 +89,7 @@ export class PlanConfigDialog extends HTMLElement {
   private startedContent(): TemplateResult {
     if (this.explanMain!.plan.status.stage === "started") {
       return html`
+        <h3>Plan Status</h3>
         <label>
           <input type="checkbox" checked @input=${() => this.unstart()} />
           Started
