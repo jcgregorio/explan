@@ -35,10 +35,9 @@ export class EditResourcesDialog extends HTMLElement {
     );
   }
 
-  showModal(explanMain: ExplanMain) {
+  setConfig(explanMain: ExplanMain) {
     this.explanMain = explanMain;
     this.render();
-    this.querySelector<HTMLDialogElement>("dialog")!.showModal();
   }
 
   private render() {
@@ -98,12 +97,7 @@ export class EditResourcesDialog extends HTMLElement {
     this.render();
   }
 
-  private close() {
-    this.querySelector<HTMLDialogElement>("dialog")!.close();
-  }
-
   private editResource(name: string) {
-    this.close();
     this.explanMain!.querySelector<EditResourceDefinition>(
       "edit-resource-definition"
     )!.showModal(
@@ -148,45 +142,40 @@ export class EditResourcesDialog extends HTMLElement {
     );
 
     return html`
-      <dialog>
-        <h3>Resources</h3>
-        <table>
-          <tr>
-            <th>Name</th>
-            <th>Values</th>
-            <th>Delete</th>
-            <th>Edit</th>
-          </tr>
-          ${allKeysSorted.map((name) => {
-            const defn = rd[name];
-            return html`<tr>
-              <td>${name}</td>
-              <td>${this.valuesToShortString(defn.values)}</td>
-              <td>${this.delButtonIfNotStatic(name, defn.isStatic)}</td>
-              <td>${this.editButtonIfNotStatic(name, defn.isStatic)}</td>
-            </tr>`;
-          })}
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td>
-              <button
-                class="icon-button"
-                title="Add a new Resource."
-                @click=${() => {
-                  this.newResource();
-                }}
-              >
-                ${icon("add-icon")}
-              </button>
-            </td>
-          </tr>
-        </table>
-        <div class="dialog-footer">
-          <button @click=${() => this.close()}>Close</button>
-        </div>
-      </dialog>
+      <h3>Resources</h3>
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Values</th>
+          <th>Delete</th>
+          <th>Edit</th>
+        </tr>
+        ${allKeysSorted.map((name) => {
+          const defn = rd[name];
+          return html`<tr>
+            <td>${name}</td>
+            <td>${this.valuesToShortString(defn.values)}</td>
+            <td>${this.delButtonIfNotStatic(name, defn.isStatic)}</td>
+            <td>${this.editButtonIfNotStatic(name, defn.isStatic)}</td>
+          </tr>`;
+        })}
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>
+            <button
+              class="icon-button"
+              title="Add a new Resource."
+              @click=${() => {
+                this.newResource();
+              }}
+            >
+              ${icon("add-icon")}
+            </button>
+          </td>
+        </tr>
+      </table>
     `;
   }
 }

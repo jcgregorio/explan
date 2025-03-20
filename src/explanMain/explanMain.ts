@@ -293,11 +293,9 @@ export class ExplanMain extends HTMLElement {
       this.planDefinitionHasBeenChanged();
     });
 
-    this.querySelector("#edit-resources")!.addEventListener("click", () => {
-      this.querySelector<EditResourcesDialog>(
-        "edit-resources-dialog"
-      )!.showModal(this);
-    });
+    this.querySelector<EditResourcesDialog>("edit-resources-dialog")!.setConfig(
+      this
+    );
 
     this.querySelector("#plan-config")!.addEventListener("click", () => {
       this.querySelector<PlanConfigDialog>("plan-config-dialog")!.showModal(
