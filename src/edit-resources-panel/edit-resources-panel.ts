@@ -8,7 +8,7 @@ import { icon } from "../icons/icons";
 // Longest representation we'll show for all the options of a Resource.
 const MAX_SHORT_STRING = 80;
 
-export class EditResourcesDialog extends HTMLElement {
+export class EditResourcesPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
   planDefinitionChangedCallback: () => void;
 
@@ -180,4 +180,4 @@ export class EditResourcesDialog extends HTMLElement {
   }
 }
 
-customElements.define("edit-resources-dialog", EditResourcesDialog);
+customElements.define("edit-resources-dialog", EditResourcesPanel);

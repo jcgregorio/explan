@@ -48,7 +48,7 @@ import { reportOnError } from "../report-error/report-error.ts";
 import { TaskDuration } from "../types/types.ts";
 import { SimulationPanel } from "../simulation-panel/simulation-panel.ts";
 import { applyStoredTheme } from "../style/toggler/toggler.ts";
-import { EditResourcesDialog } from "../edit-resources-dialog/edit-resources-dialog.ts";
+import { EditResourcesPanel } from "../edit-resources-panel/edit-resources-panel.ts";
 import { EditMetricsDialog } from "../edit-metrics-dialog/edit-metrics-dialog.ts";
 import { EditPlanStartDialog } from "../edit-plan-start/edit-plan-start.ts";
 import { TaskCompletionPanel } from "../task-completion-panel/task-completion-panel.ts";
@@ -293,7 +293,7 @@ export class ExplanMain extends HTMLElement {
       this.planDefinitionHasBeenChanged();
     });
 
-    this.querySelector<EditResourcesDialog>("edit-resources-dialog")!.setConfig(
+    this.querySelector<EditResourcesPanel>("edit-resources-dialog")!.setConfig(
       this
     );
 
@@ -398,6 +398,7 @@ export class ExplanMain extends HTMLElement {
 
     this.recalculateSpansAndCriticalPath();
     this.paintChart();
+    document.dispatchEvent(new CustomEvent("plan-definition-changed"));
   }
 
   getTaskDurationFunc(): TaskDuration {
