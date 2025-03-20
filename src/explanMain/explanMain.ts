@@ -49,7 +49,7 @@ import { TaskDuration } from "../types/types.ts";
 import { SimulationPanel } from "../simulation-panel/simulation-panel.ts";
 import { applyStoredTheme } from "../style/toggler/toggler.ts";
 import { EditResourcesPanel } from "../edit-resources-panel/edit-resources-panel.ts";
-import { EditMetricsDialog } from "../edit-metrics-dialog/edit-metrics-dialog.ts";
+import { EditMetricsPanel } from "../edit-metrics-panel/edit-metrics-panel.ts";
 import { EditPlanStartDialog } from "../edit-plan-start/edit-plan-start.ts";
 import { TaskCompletionPanel } from "../task-completion-panel/task-completion-panel.ts";
 import { PlanConfigDialog } from "../plan-config-dialog/plan-config-dialog.ts";
@@ -303,9 +303,7 @@ export class ExplanMain extends HTMLElement {
       );
     });
 
-    this.querySelector<EditMetricsDialog>("edit-metrics-dialog")!.setConfig(
-      this
-    );
+    this.querySelector<EditMetricsPanel>("edit-metrics-panel")!.setConfig(this);
 
     this.querySelector("#edit-plan-start")!.addEventListener(
       "click",

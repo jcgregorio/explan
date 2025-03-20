@@ -7,7 +7,7 @@ import { AddMetricOp, DeleteMetricOp } from "../ops/metrics";
 import { MetricDefinition } from "../metrics/metrics";
 import { EditMetricDefinition } from "../edit-metric-definition/edit-metric-definition";
 
-export class EditMetricsDialog extends HTMLElement {
+export class EditMetricsPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
   planDefinitionChangedCallback: () => void;
 
@@ -58,51 +58,53 @@ export class EditMetricsDialog extends HTMLElement {
         return 1;
       }
     );
-    return html` <table>
-      <tr>
-        <th>Name</th>
-        <th>Min</th>
-        <th>Max</th>
-        <th>Default</th>
-        <th></th>
-        <th></th>
-      </tr>
+    return html` <h3>Metrics</h3>
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Min</th>
+          <th>Max</th>
+          <th>Default</th>
+          <th></th>
+          <th></th>
+        </tr>
 
-      ${allKeysSorted.map((metricName: string) => {
-        const metricDefn = this.explanMain!.plan.metricDefinitions[metricName];
-        return html`
-          <tr>
-            <td>${metricName}</td>
-            <td>${displayValue(metricDefn.range.min)}</td>
-            <td>${displayValue(metricDefn.range.max)}</td>
-            <td>${metricDefn.default}</td>
-            <td>
-              ${this.delButtonIfNotStatic(metricName, metricDefn.isStatic)}
-            </td>
-            <td>
-              ${this.editButtonIfNotStatic(metricName, metricDefn.isStatic)}
-            </td>
-          </tr>
-        `;
-      })}
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td>
-          <button
-            class="icon-button"
-            title="Add a new Resource."
-            @click=${() => {
-              this.newMetric();
-            }}
-          >
-            ${icon("add-icon")}
-          </button>
-        </td>
-      </tr>
-    </table>`;
+        ${allKeysSorted.map((metricName: string) => {
+          const metricDefn =
+            this.explanMain!.plan.metricDefinitions[metricName];
+          return html`
+            <tr>
+              <td>${metricName}</td>
+              <td>${displayValue(metricDefn.range.min)}</td>
+              <td>${displayValue(metricDefn.range.max)}</td>
+              <td>${metricDefn.default}</td>
+              <td>
+                ${this.delButtonIfNotStatic(metricName, metricDefn.isStatic)}
+              </td>
+              <td>
+                ${this.editButtonIfNotStatic(metricName, metricDefn.isStatic)}
+              </td>
+            </tr>
+          `;
+        })}
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>
+            <button
+              class="icon-button"
+              title="Add a new Resource."
+              @click=${() => {
+                this.newMetric();
+              }}
+            >
+              ${icon("add-icon")}
+            </button>
+          </td>
+        </tr>
+      </table>`;
   }
 
   private delButtonIfNotStatic(
@@ -175,4 +177,4 @@ export class EditMetricsDialog extends HTMLElement {
   }
 }
 
-customElements.define("edit-metrics-dialog", EditMetricsDialog);
+customElements.define("edit-metrics-panel", EditMetricsPanel);
