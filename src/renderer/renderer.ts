@@ -775,8 +775,8 @@ function clearCanvas(
   opts: RenderOptions,
   canvas: HTMLCanvasElement
 ) {
-  ctx.fillStyle = opts.colors.get("surface");
-  ctx.strokeStyle = opts.colors.get("on-surface");
+  ctx.fillStyle = opts.colors.get("background");
+  ctx.strokeStyle = opts.colors.get("on-background");
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
