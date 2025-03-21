@@ -82,11 +82,12 @@ export class SelectedTaskPanel extends HTMLElement {
     return html`
       <table>
         <tr>
-          <td>Name</td>
+          <td class="underline-first-char">Name</td>
           <td>
             <input
               type="text"
               id="task-name"
+              accesskey="n"
               .value="${live(task.name)}"
               @change=${(e: Event) =>
                 this.dispatchEvent(
