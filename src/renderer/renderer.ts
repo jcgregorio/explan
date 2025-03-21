@@ -16,16 +16,6 @@ import { Theme2 } from "../style/theme/theme.ts";
 
 type Direction = "up" | "down";
 
-export interface Colors {
-  surface: string;
-  onSurface: string;
-  onSurfaceMuted: string;
-  onSurfaceHighlight: string;
-  overlay: string;
-  groupColor: string;
-  highlight: string;
-}
-
 export type TaskIndexToRow = Map<number, number>;
 
 /** Function use to produce a text label for a task and its slack. */
