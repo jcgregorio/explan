@@ -209,14 +209,6 @@ export class ExplanMain extends HTMLElement {
       execute("ToggleRadarAction", this);
     });
 
-    this.querySelector("#top-timeline-toggle")!.addEventListener(
-      "click",
-      () => {
-        this.topTimeline = !this.topTimeline;
-        this.paintChart();
-      }
-    );
-
     this.querySelector("#group-by-toggle")!.addEventListener("click", () => {
       this.toggleGroupBy();
       this.paintChart();
@@ -287,11 +279,6 @@ export class ExplanMain extends HTMLElement {
       }
     );
 
-    this.querySelector("#gen-random-plan")!.addEventListener("click", () => {
-      this.plan = generateRandomPlan();
-      this.planDefinitionHasBeenChanged();
-    });
-
     this.querySelector<EditResourcesPanel>("edit-resources-panel")!.setConfig(
       this
     );
@@ -306,6 +293,11 @@ export class ExplanMain extends HTMLElement {
 
     window.addEventListener("resize", () => this.paintChart());
     StartKeyboardHandling(this);
+  }
+
+  toggleTopTimeline() {
+    this.topTimeline = !this.topTimeline;
+    this.paintChart();
   }
 
   prepareDownload() {

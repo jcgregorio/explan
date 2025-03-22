@@ -15,3 +15,4 @@ import "./search/search-task-panel.ts";
 import "./search/task-search-controls.ts";
 import "./dependencies/dependencies-panel.ts";
 import "./explanMain/explanMain.ts";
+import "./developer-panel/developer-panel.ts";

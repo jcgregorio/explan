@@ -1,6 +1,7 @@
 import { Action } from "./action.ts";
 import { AddPredecessorAction } from "./actions/addPredecessor.ts";
 import { AddSuccessorAction } from "./actions/addSuccessor.ts";
+import { DeveloperPanelAction } from "./actions/developer.ts";
 import {
   GoToFullSearchAction,
   GoToSearchAction,
@@ -32,7 +33,8 @@ export type ActionNames =
   | "GoToFullSearchAction"
   | "AddPredecessorAction"
   | "AddSuccessorAction"
-  | "ToggleFocusAction";
+  | "ToggleFocusAction"
+  | "DeveloperPanelAction";
 
 export const ActionRegistry: Record<ActionNames, Action> = {
   ToggleDarkModeAction: new ToggleDarkModeAction(),
@@ -49,4 +51,5 @@ export const ActionRegistry: Record<ActionNames, Action> = {
   AddPredecessorAction: new AddPredecessorAction(),
   AddSuccessorAction: new AddSuccessorAction(),
   ToggleFocusAction: new ToggleFocusAction(),
+  DeveloperPanelAction: new DeveloperPanelAction(),
 };
