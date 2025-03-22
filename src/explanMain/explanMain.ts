@@ -214,13 +214,12 @@ export class ExplanMain extends HTMLElement {
       this.paintChart();
     });
 
-    this.querySelector("#critical-paths-toggle")!.addEventListener(
-      "click",
-      () => {
-        this.toggleCriticalPathsOnly();
-        this.paintChart();
-      }
-    );
+    this.querySelector<HTMLInputElement>(
+      "#critical-paths-toggle"
+    )!.addEventListener("input", (e: Event) => {
+      this.criticalPathsOnly = (e.target as HTMLInputElement).checked;
+      this.paintChart();
+    });
 
     const overlayCanvas = this.querySelector<HTMLCanvasElement>("#overlay")!;
     this.mouseMove = new MouseMove(overlayCanvas);
