@@ -202,9 +202,12 @@ export class ExplanMain extends HTMLElement {
     });
     applyStoredTheme();
 
-    this.querySelector("#radar-toggle")!.addEventListener("click", () => {
-      execute("ToggleRadarAction", this);
-    });
+    this.querySelector<HTMLInputElement>("#radar-toggle")!.addEventListener(
+      "input",
+      (e: Event) => {
+        this.setRadar((e.target as HTMLInputElement).checked);
+      }
+    );
 
     this.querySelector<HTMLInputElement>(
       "#critical-paths-toggle"
@@ -463,6 +466,10 @@ export class ExplanMain extends HTMLElement {
 
   toggleRadar() {
     this.querySelector("radar-parent")!.classList.toggle("hidden");
+  }
+
+  setRadar(on: boolean) {
+    this.querySelector("radar-parent")!.classList.toggle("hidden", !on);
   }
 
   toggleCriticalPathsOnly() {
