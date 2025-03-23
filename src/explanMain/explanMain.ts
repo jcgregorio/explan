@@ -265,14 +265,6 @@ export class ExplanMain extends HTMLElement {
       this.paintChart();
     });
 
-    this.querySelector("#focus-on-selected-task")!.addEventListener(
-      "click",
-      () => {
-        this.toggleFocusOnTask();
-        this.paintChart();
-      }
-    );
-
     this.querySelector<EditResourcesPanel>("edit-resources-panel")!.setConfig(
       this
     );
@@ -474,13 +466,6 @@ export class ExplanMain extends HTMLElement {
 
   toggleCriticalPathsOnly() {
     this.criticalPathsOnly = !this.criticalPathsOnly;
-  }
-
-  toggleFocusOnTask() {
-    this.focusOnTask = !this.focusOnTask;
-    if (!this.focusOnTask) {
-      this.displayRange = null;
-    }
   }
 
   forceFocusOnTask() {
