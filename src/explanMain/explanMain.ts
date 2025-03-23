@@ -53,6 +53,7 @@ import { EditMetricsPanel } from "../edit-metrics-panel/edit-metrics-panel.ts";
 import { TaskCompletionPanel } from "../task-completion-panel/task-completion-panel.ts";
 import { PlanConfigPanel } from "../plan-config-panel/plan-config-panel.ts";
 import { TaskCompletion } from "../task_completion/task_completion.ts";
+import { GroupByControl } from "../groupby-control/groupby-control.ts";
 
 const FONT_SIZE_PX = 32;
 
@@ -74,12 +75,8 @@ export class ExplanMain extends HTMLElement {
   /** Scale for the radar view, used for drag selecting a displayRange. */
   radarScale: Scale | null = null;
 
-  /** All of the types of resources in the plan. */
-  groupByOptions: string[] = [];
-
-  /** Which of the resources are we currently grouping by, where 0 means no
-   * grouping is done. */
-  groupByOptionsIndex: number = 0;
+  /** Which Resource to group by when drawing the chart. */
+  groupBySelection: string = "";
 
   /** The currently selected task, as an index. */
   selectedTask: number = -1;
@@ -209,11 +206,6 @@ export class ExplanMain extends HTMLElement {
       execute("ToggleRadarAction", this);
     });
 
-    this.querySelector("#group-by-toggle")!.addEventListener("click", () => {
-      this.toggleGroupBy();
-      this.paintChart();
-    });
-
     this.querySelector<HTMLInputElement>(
       "#critical-paths-toggle"
     )!.addEventListener("input", (e: Event) => {
@@ -285,6 +277,17 @@ export class ExplanMain extends HTMLElement {
     this.querySelector<PlanConfigPanel>("plan-config-panel")!.setConfig(this);
 
     this.querySelector<EditMetricsPanel>("edit-metrics-panel")!.setConfig(this);
+
+    const goupByControl =
+      this.querySelector<GroupByControl>("groupby-control")!;
+    goupByControl.setConfig(this);
+    goupByControl.addEventListener(
+      "group-by-resource-changed",
+      (e: CustomEvent<string>) => {
+        this.groupBySelection = e.detail;
+        this.planDefinitionHasBeenChanged();
+      }
+    );
 
     this.plan = generateStarterPlan();
     this.updateTaskPanels(this.selectedTask);
@@ -358,11 +361,6 @@ export class ExplanMain extends HTMLElement {
     this.radarScale = null;
     this.displayRange = null;
     this.alternateTaskDurations = null;
-    this.groupByOptions = ["", ...Object.keys(this.plan.resourceDefinitions)];
-    if (this.groupByOptionsIndex >= this.groupByOptions.length) {
-      this.groupByOptionsIndex = 0;
-    }
-
     this.recalculateSpansAndCriticalPath();
     this.paintChart();
     document.dispatchEvent(new CustomEvent("plan-definition-changed"));
@@ -467,11 +465,6 @@ export class ExplanMain extends HTMLElement {
     this.querySelector("radar-parent")!.classList.toggle("hidden");
   }
 
-  toggleGroupBy() {
-    this.groupByOptionsIndex =
-      (this.groupByOptionsIndex + 1) % this.groupByOptions.length;
-  }
-
   toggleCriticalPathsOnly() {
     this.criticalPathsOnly = !this.criticalPathsOnly;
   }
@@ -562,7 +555,7 @@ export class ExplanMain extends HTMLElement {
       taskDuration: this.getTaskDurationFunc(),
       taskEmphasize: this.criticalPath,
       filterFunc: null,
-      groupByResource: this.groupByOptions[this.groupByOptionsIndex],
+      groupByResource: this.groupBySelection,
       highlightedTask: null,
       selectedTaskIndex: this.selectedTask,
       durationDisplay: durationDisplay,
@@ -583,7 +576,7 @@ export class ExplanMain extends HTMLElement {
       taskDuration: this.getTaskDurationFunc(),
       taskEmphasize: this.criticalPath,
       filterFunc: filterFunc,
-      groupByResource: this.groupByOptions[this.groupByOptionsIndex],
+      groupByResource: this.groupBySelection,
       highlightedTask: 1,
       selectedTaskIndex: this.selectedTask,
       durationDisplay: durationDisplay,
@@ -604,7 +597,7 @@ export class ExplanMain extends HTMLElement {
       taskDuration: this.getTaskDurationFunc(),
       taskEmphasize: this.criticalPath,
       filterFunc: filterFunc,
-      groupByResource: this.groupByOptions[this.groupByOptionsIndex],
+      groupByResource: this.groupBySelection,
       highlightedTask: null,
       selectedTaskIndex: this.selectedTask,
       durationDisplay: durationDisplay,

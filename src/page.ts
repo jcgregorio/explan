@@ -1,4 +1,5 @@
 import "./help/help.ts";
+import "./groupby-control/groupby-control.ts";
 import "./tab-buttons/tab-buttons.ts";
 import "./error-popup/error-popup.ts";
 import "./plan-config-panel/plan-config-panel.ts";
