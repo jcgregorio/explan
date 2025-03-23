@@ -686,8 +686,10 @@ function drawEdges(
 
     if (taskHighlights.has(e.i) && taskHighlights.has(e.j)) {
       ctx.strokeStyle = opts.colors.get("primary");
+      ctx.fillStyle = opts.colors.get("primary");
     } else {
       ctx.strokeStyle = opts.colors.get("on-surface-muted");
+      ctx.fillStyle = opts.colors.get("on-surface-muted");
     }
 
     drawArrowBetweenTasks(
@@ -823,19 +825,21 @@ function drawLShapedArrowToTask(
   ctx.moveTo(vertLineStart.x + 0.5, horzLineStart.y);
   ctx.lineTo(horzLineEnd.x + 0.5, horzLineEnd.y);
 
+  ctx.stroke();
+
   // Draw the arrowhead. This arrow head will always point to the right
   // since that's how time flows.
+  ctx.beginPath();
   ctx.moveTo(horzLineEnd.x + 0.5, horzLineEnd.y);
   ctx.lineTo(
     horzLineEnd.x - arrowHeadHeight + 0.5,
     horzLineEnd.y + arrowHeadWidth
   );
-  ctx.moveTo(horzLineEnd.x + 0.5, horzLineEnd.y);
   ctx.lineTo(
     horzLineEnd.x - arrowHeadHeight + 0.5,
     horzLineEnd.y - arrowHeadWidth
   );
-  ctx.stroke();
+  ctx.fill();
 }
 
 function drawVerticalArrowToTask(
@@ -866,13 +870,15 @@ function drawVerticalArrowToTask(
   ctx.moveTo(arrowStart.x + 0.5, arrowStart.y);
   ctx.lineTo(arrowEnd.x + 0.5, arrowEnd.y);
 
+  ctx.stroke();
+
   // Draw the arrowhead.
+  ctx.beginPath();
   const deltaY = direction === "down" ? -arrowHeadHeight : arrowHeadHeight;
   ctx.moveTo(arrowEnd.x + 0.5, arrowEnd.y);
   ctx.lineTo(arrowEnd.x - arrowHeadWidth + 0.5, arrowEnd.y + deltaY);
-  ctx.moveTo(arrowEnd.x + 0.5, arrowEnd.y);
   ctx.lineTo(arrowEnd.x + arrowHeadWidth + 0.5, arrowEnd.y + deltaY);
-  ctx.stroke();
+  ctx.fill();
 }
 
 function drawTaskText(

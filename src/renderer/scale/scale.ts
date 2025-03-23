@@ -305,7 +305,7 @@ export class Scale {
       case Metric.percentHeight:
         return this.lineWidthPx;
       case Metric.arrowHeadHeight:
-        return this.taskHeightPx;
+        return this.taskHeightPx * 2;
       case Metric.arrowHeadWidth:
         return Math.ceil(this.taskHeightPx);
       case Metric.milestoneDiameter:
