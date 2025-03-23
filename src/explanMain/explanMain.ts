@@ -193,10 +193,6 @@ export class ExplanMain extends HTMLElement {
     }) as EventListener);
 
     // Buttons
-    this.querySelector("#reset-zoom")!.addEventListener("click", () => {
-      execute("ResetZoomAction", this);
-    });
-
     this.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
       execute("ToggleDarkModeAction", this);
     });
