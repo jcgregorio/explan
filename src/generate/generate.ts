@@ -16,8 +16,10 @@ import {
   SetResourceValueOp,
 } from "../ops/resources";
 import { Plan } from "../plan/plan";
+import { Uncertainty } from "../stats/cdf/triangular/jacobian";
 
 const people: string[] = ["Fred", "Barney", "Wilma", "Betty"];
+const uncertainties: Uncertainty[] = ["low", "moderate", "high"];
 
 const DURATION = 10;
 
@@ -28,6 +30,9 @@ const rndInt = (n: number): number => {
 const rndDuration = (): number => {
   return rndInt(DURATION);
 };
+
+const rndUncertainty = (): Uncertainty =>
+  uncertainties[rndInt(uncertainties.length)];
 
 export const generateStarterPlan = (): Plan => {
   const plan = new Plan();
@@ -62,7 +67,7 @@ export const generateRandomPlan = (): Plan => {
     SetMetricValueOp("Duration", rndDuration(), 1),
     SetTaskNameOp(1, randomTaskName()),
     SetResourceValueOp("Person", people[rndInt(people.length)], 1),
-    SetResourceValueOp("Uncertainty", "moderate", 1)
+    SetResourceValueOp("Uncertainty", rndUncertainty(), 1)
   );
 
   let numTasks = 1;
@@ -73,7 +78,7 @@ export const generateRandomPlan = (): Plan => {
       SetMetricValueOp("Duration", rndDuration(), index + 1),
       SetTaskNameOp(index + 1, randomTaskName()),
       SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
-      SetResourceValueOp("Uncertainty", "moderate", index + 1)
+      SetResourceValueOp("Uncertainty", rndUncertainty(), index + 1)
     );
     numTasks++;
     index = rndInt(numTasks) + 1;
@@ -82,7 +87,7 @@ export const generateRandomPlan = (): Plan => {
       SetMetricValueOp("Duration", rndDuration(), index + 1),
       SetTaskNameOp(index + 1, randomTaskName()),
       SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
-      SetResourceValueOp("Uncertainty", "moderate", index + 1)
+      SetResourceValueOp("Uncertainty", rndUncertainty(), index + 1)
     );
     numTasks++;
   }
