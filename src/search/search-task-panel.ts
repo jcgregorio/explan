@@ -14,6 +14,7 @@ export class SearchTaskPanel extends HTMLElement {
     this.taskSearchControl = this.querySelector("task-search-control");
     this.addEventListener("task-change", (e) => {
       this.explanMain!.setSelection(e.detail.taskIndex, e.detail.focus, true);
+      this.classList.add("hidden");
     });
     this.addEventListener("task-focus", (e) =>
       this.setKeyboardFocusToInput("full-info")
@@ -21,6 +22,7 @@ export class SearchTaskPanel extends HTMLElement {
   }
 
   setKeyboardFocusToInput(searchType: SearchType) {
+    this.classList.remove("hidden");
     this.taskSearchControl!.tasks = this.explanMain!.plan.chart.Vertices;
     this.taskSearchControl!.includedIndexes =
       this.explanMain!.plan.chart.Vertices.map(
