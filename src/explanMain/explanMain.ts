@@ -302,10 +302,7 @@ export class ExplanMain extends HTMLElement {
 
   updateTaskPanels(taskIndex: number) {
     this.selectedTask = taskIndex;
-    this.selectedTaskPanel!.updateSelectedTaskPanel(
-      this.plan,
-      this.selectedTask
-    );
+    this.selectedTaskPanel!.updateSelectedTaskPanel(this, this.selectedTask);
     this.taskCompletionPanel!.update(
       this,
       this.selectedTask,

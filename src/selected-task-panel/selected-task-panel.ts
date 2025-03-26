@@ -1,6 +1,9 @@
 import { TemplateResult, html, render } from "lit-html";
 import { Plan } from "../plan/plan";
 import { live } from "lit-html/directives/live.js";
+import { icon } from "../icons/icons";
+import { execute } from "../action/execute";
+import { ExplanMain } from "../explanMain/explanMain";
 
 export interface TaskNameChangeDetails {
   name: string;
@@ -28,6 +31,7 @@ declare global {
 }
 
 export class SelectedTaskPanel extends HTMLElement {
+  explanMain: ExplanMain | null = null;
   plan: Plan = new Plan();
   taskIndex: number = -1;
   planDefinitionChangedCallback: () => void;
@@ -54,8 +58,9 @@ export class SelectedTaskPanel extends HTMLElement {
     );
   }
 
-  updateSelectedTaskPanel(plan: Plan, taskIndex: number) {
-    this.plan = plan;
+  updateSelectedTaskPanel(explainMain: ExplanMain, taskIndex: number) {
+    this.explanMain = explainMain;
+    this.plan = explainMain.plan;
     this.taskIndex = taskIndex;
     this.render();
     /*
@@ -76,10 +81,45 @@ export class SelectedTaskPanel extends HTMLElement {
   template(): TemplateResult {
     const taskIndex = this.taskIndex;
     if (taskIndex === -1) {
-      return html`No task selected.`;
+      return html`
+        <button
+          @click=${async () => await execute("NewTaskAction", this.explanMain!)}
+          title="Add Task"
+        >
+          ${icon("add-icon")}
+        </button>
+        <div>No task selected.</div>
+      `;
+    }
+    if (this.explanMain === null) {
+      return html``;
     }
     const task = this.plan.chart.Vertices[taskIndex];
     return html`
+      <button
+        @click=${async () => await execute("NewTaskAction", this.explanMain!)}
+        title="Add Task"
+      >
+        ${icon("add-icon")}
+      </button>
+      <button
+        @click=${async () => await execute("DupTaskAction", this.explanMain!)}
+        title="Duplicate Task"
+      >
+        ${icon("dup")}
+      </button>
+      <button
+        @click=${async () => await execute("SplitTaskAction", this.explanMain!)}
+        title="Split Task"
+      >
+        ${icon("split")}
+      </button>
+      <button
+        @click=${async () => execute("DeleteTaskAction", this.explanMain!)}
+        title="Delete Task"
+      >
+        ${icon("delete-icon")}
+      </button>
       <table>
         <tr>
           <td class="underline-first-char">Name</td>
