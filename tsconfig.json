@@ -17,7 +17,8 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "isolatedModules": true,
-    "types": ["mocha"]
+    "types": ["mocha"],
+    "erasableSyntaxOnly": true
   },
   "include": ["src/**/*"],
   "exclude": ["**/*.spec.ts", "src/**/*_test.ts"]

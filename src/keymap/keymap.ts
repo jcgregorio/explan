@@ -16,7 +16,6 @@ export const KeyMap: Map<string, ActionNames> = new Map([
   ["shift-ctrl-F", "GoToFullSearchAction"],
   ["shift-ctrl-<", "AddPredecessorAction"],
   ["shift-ctrl->", "AddSuccessorAction"],
-  ["shift-ctrl-:", "ToggleFocusAction"],
   ["shift-ctrl-V", "DeveloperPanelAction"],
 ]);
 

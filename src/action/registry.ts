@@ -15,7 +15,6 @@ import {
   SplitTaskAction,
 } from "./actions/tasks.ts";
 import { ToggleDarkModeAction } from "./actions/toggleDarkMode.ts";
-import { ToggleFocusAction } from "./actions/toggleFocus.ts";
 import { ToggleRadarAction } from "./actions/toggleRadar.ts";
 import { UndoAction } from "./actions/undo.ts";
 
@@ -33,7 +32,6 @@ export type ActionNames =
   | "GoToFullSearchAction"
   | "AddPredecessorAction"
   | "AddSuccessorAction"
-  | "ToggleFocusAction"
   | "DeveloperPanelAction";
 
 export const ActionRegistry: Record<ActionNames, Action> = {
@@ -50,6 +48,5 @@ export const ActionRegistry: Record<ActionNames, Action> = {
   GoToFullSearchAction: new GoToFullSearchAction(),
   AddPredecessorAction: new AddPredecessorAction(),
   AddSuccessorAction: new AddSuccessorAction(),
-  ToggleFocusAction: new ToggleFocusAction(),
   DeveloperPanelAction: new DeveloperPanelAction(),
 };

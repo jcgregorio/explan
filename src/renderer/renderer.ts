@@ -99,7 +99,7 @@ export interface RenderOptions {
 const verticalArrowStartFeatureFromTaskDuration = (
   task: Task,
   direction: Direction
-): Feature => {
+): keyof typeof Feature => {
   if (task.duration === 0) {
     if (direction === "down") {
       return Feature.verticalArrowStartFromMilestoneBottom;
@@ -113,7 +113,7 @@ const verticalArrowStartFeatureFromTaskDuration = (
 const verticalArrowDestFeatureFromTaskDuration = (
   task: Task,
   direction: Direction
-): Feature => {
+): keyof typeof Feature => {
   if (task.duration === 0) {
     if (direction === "down") {
       return Feature.verticalArrowDestToMilestoneTop;
@@ -128,7 +128,9 @@ const verticalArrowDestFeatureFromTaskDuration = (
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const horizontalArrowStartFeatureFromTaskDuration = (task: Task): Feature => {
+const horizontalArrowStartFeatureFromTaskDuration = (
+  task: Task
+): keyof typeof Feature => {
   if (task.duration === 0) {
     return Feature.horizontalArrowStartFromMilestone;
   } else {
@@ -136,7 +138,9 @@ const horizontalArrowStartFeatureFromTaskDuration = (task: Task): Feature => {
   }
 };
 
-const horizontalArrowDestFeatureFromTaskDuration = (task: Task): Feature => {
+const horizontalArrowDestFeatureFromTaskDuration = (
+  task: Task
+): keyof typeof Feature => {
   if (task.duration === 0) {
     return Feature.horizontalArrowDestToMilestone;
   } else {
@@ -591,7 +595,7 @@ export function renderTasksToCanvas(
           corners.topLeft,
           corners.bottomRight,
           opts.colors.get("primary-variant"),
-          scale.metric(taskLineHeight)
+          taskLineHeight
         );
       }
 

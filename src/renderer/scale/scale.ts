@@ -10,51 +10,48 @@ export interface DayRow {
 /** Features of the chart we can ask for coordinates of, where the value returned is
  * the top left coordinate of the feature.
  */
-export enum Feature {
-  taskLineStart,
-  textStart,
-  groupTextStart,
-  percentStart,
-  verticalArrowDestTop,
-  verticalArrowDestBottom,
-  horizontalArrowDest,
-  verticalArrowStart,
-  horizontalArrowStart,
-  verticalArrowDestToMilestoneTop,
-  verticalArrowDestToMilestoneBottom,
-  horizontalArrowDestToMilestone,
-  verticalArrowStartFromMilestoneTop,
-  verticalArrowStartFromMilestoneBottom,
-  horizontalArrowStartFromMilestone,
-  groupEnvelopeStart,
-  taskEnvelopeTop,
-
-  displayRangeTop,
-  taskRowBottom,
-
-  timeMarkStart,
-  timeMarkEnd,
-  timeTextStart,
-
-  groupTitleTextStart,
-
-  tasksClipRectOrigin,
-  groupByOrigin,
-}
+export const Feature = {
+  taskLineStart: "taskLineStart",
+  textStart: "textStart",
+  groupTextStart: "groupTextStart",
+  percentStart: "percentStart",
+  verticalArrowDestTop: "verticalArrowDestTop",
+  verticalArrowDestBottom: "verticalArrowDestBottom",
+  horizontalArrowDest: "horizontalArrowDest",
+  verticalArrowStart: "verticalArrowStart",
+  horizontalArrowStart: "horizontalArrowStart",
+  verticalArrowDestToMilestoneTop: "verticalArrowDestToMilestoneTop",
+  verticalArrowDestToMilestoneBottom: "verticalArrowDestToMilestoneBottom",
+  horizontalArrowDestToMilestone: "horizontalArrowDestToMilestone",
+  verticalArrowStartFromMilestoneTop: "verticalArrowStartFromMilestoneTop",
+  verticalArrowStartFromMilestoneBottom:
+    "verticalArrowStartFromMilestoneBottom",
+  horizontalArrowStartFromMilestone: "horizontalArrowStartFromMilestone",
+  groupEnvelopeStart: "groupEnvelopeStart",
+  taskEnvelopeTop: "taskEnvelopeTop",
+  displayRangeTop: "displayRangeTop",
+  taskRowBottom: "taskRowBottom",
+  timeMarkStart: "timeMarkStart",
+  timeMarkEnd: "timeMarkEnd",
+  timeTextStart: "timeTextStart",
+  groupTitleTextStart: "groupTitleTextStart",
+  tasksClipRectOrigin: "tasksClipRectOrigin",
+  groupByOrigin: "groupByOrigin",
+} as const;
 
 /** Sizes of features of a rendered chart. */
-export enum Metric {
-  taskLineHeight,
-  percentHeight,
-  arrowHeadHeight,
-  arrowHeadWidth,
-  milestoneDiameter,
-  lineDashLine,
-  lineDashGap,
-  textXOffset,
-  minTaskWidthPx,
-  rowHeight,
-}
+export const Metric = {
+  taskLineHeight: "taskLineHeight",
+  percentHeight: "percentHeight",
+  arrowHeadHeight: "arrowHeadHeight",
+  arrowHeadWidth: "arrowHeadWidth",
+  milestoneDiameter: "milestoneDiameter",
+  lineDashLine: "lineDashLine",
+  lineDashGap: "lineDashGap",
+  textXOffset: "textXOffset",
+  minTaskWidthPx: "minTaskWidthPx",
+  rowHeight: "rowHeight",
+} as const;
 
 /** Makes a number odd, adds one if even. */
 const makeOdd = (n: number): number => {
@@ -204,7 +201,7 @@ export class Scale {
   }
 
   /** Returns the coordinate of the item */
-  feature(row: number, day: number, coord: Feature): Point {
+  feature(row: number, day: number, coord: keyof typeof Feature): Point {
     switch (coord) {
       case Feature.taskLineStart:
       case Feature.verticalArrowDestTop:
@@ -298,7 +295,7 @@ export class Scale {
     }
   }
 
-  metric(feature: Metric): number {
+  metric(feature: keyof typeof Metric): number {
     switch (feature) {
       case Metric.taskLineHeight:
         return this.taskHeightPx;
