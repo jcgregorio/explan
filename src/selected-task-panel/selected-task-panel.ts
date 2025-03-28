@@ -83,6 +83,7 @@ export class SelectedTaskPanel extends HTMLElement {
     if (taskIndex === -1) {
       return html`
         <button
+          class="icon-button"
           @click=${async () => await execute("NewTaskAction", this.explanMain!)}
           title="Add Task"
         >
@@ -97,24 +98,28 @@ export class SelectedTaskPanel extends HTMLElement {
     const task = this.plan.chart.Vertices[taskIndex];
     return html`
       <button
+        class="icon-button"
         @click=${async () => await execute("NewTaskAction", this.explanMain!)}
         title="Add Task"
       >
         ${icon("add-icon")}
       </button>
       <button
+        class="icon-button"
         @click=${async () => await execute("DupTaskAction", this.explanMain!)}
         title="Duplicate Task"
       >
         ${icon("dup")}
       </button>
       <button
+        class="icon-button"
         @click=${async () => await execute("SplitTaskAction", this.explanMain!)}
         title="Split Task"
       >
         ${icon("split")}
       </button>
       <button
+        class="icon-button"
         @click=${async () => execute("DeleteTaskAction", this.explanMain!)}
         title="Delete Task"
       >
