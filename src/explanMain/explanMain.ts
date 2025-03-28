@@ -28,11 +28,8 @@ import { pt } from "../point/point.ts";
 import { Scale } from "../renderer/scale/scale.ts";
 import { Result } from "../result.ts";
 import { ComputeSlack, CriticalPath, Slack, Span } from "../slack/slack.ts";
-import { Theme, colorThemeFromElement, Theme2 } from "../style/theme/theme.ts";
-import {
-  generateRandomPlan,
-  generateStarterPlan,
-} from "../generate/generate.ts";
+import { Theme2 } from "../style/theme/theme.ts";
+import { generateStarterPlan } from "../generate/generate.ts";
 import { execute, executeOp } from "../action/execute.ts";
 import { StartKeyboardHandling } from "../keymap/keymap.ts";
 import { RemoveEdgeOp, SetTaskNameOp } from "../ops/chart.ts";
@@ -52,7 +49,6 @@ import { EditResourcesPanel } from "../edit-resources-panel/edit-resources-panel
 import { EditMetricsPanel } from "../edit-metrics-panel/edit-metrics-panel.ts";
 import { TaskCompletionPanel } from "../task-completion-panel/task-completion-panel.ts";
 import { PlanConfigPanel } from "../plan-config-panel/plan-config-panel.ts";
-import { TaskCompletion } from "../task_completion/task_completion.ts";
 import { GroupByControl } from "../groupby-control/groupby-control.ts";
 
 const FONT_SIZE_PX = 32;
@@ -468,7 +464,6 @@ export class ExplanMain extends HTMLElement {
   paintChart(scrollToSelected: boolean = false) {
     console.time("paintChart");
 
-    const themeColors: Theme = colorThemeFromElement(document.body);
     const theme2 = new Theme2();
     theme2.loadFromElement(document.body);
 
@@ -548,7 +543,7 @@ export class ExplanMain extends HTMLElement {
     };
 
     const zoomOpts: RenderOptions = {
-      fontSizePx: FONT_SIZE_PX,
+      fontSizePx: theme2.fontSize(),
       hasText: true,
       displayRange: this.displayRange,
       displayRangeUsage: "restrict",
@@ -569,7 +564,7 @@ export class ExplanMain extends HTMLElement {
     };
 
     const timelineOpts: RenderOptions = {
-      fontSizePx: FONT_SIZE_PX,
+      fontSizePx: theme2.fontSize(),
       hasText: true,
       displayRange: this.displayRange,
       displayRangeUsage: "restrict",
