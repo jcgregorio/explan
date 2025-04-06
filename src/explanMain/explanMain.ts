@@ -30,7 +30,7 @@ import { Result } from "../result.ts";
 import { ComputeSlack, CriticalPath, Slack, Span } from "../slack/slack.ts";
 import { Theme2 } from "../style/theme/theme.ts";
 import { generateStarterPlan } from "../generate/generate.ts";
-import { execute, executeOp } from "../action/execute.ts";
+import { executeByName, executeOp } from "../action/execute.ts";
 import { StartKeyboardHandling } from "../keymap/keymap.ts";
 import { RemoveEdgeOp, SetTaskNameOp } from "../ops/chart.ts";
 import { DependenciesPanel } from "../dependencies/dependencies-panel.ts";
@@ -119,7 +119,7 @@ export class ExplanMain extends HTMLElement {
       if (e.detail.depType === "succ") {
         actionName = "AddSuccessorAction";
       }
-      const ret = await execute(actionName, this);
+      const ret = await executeByName(actionName, this);
       if (!ret.ok) {
         console.log(ret.error);
       }
@@ -190,7 +190,7 @@ export class ExplanMain extends HTMLElement {
 
     // Buttons
     this.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
-      execute("ToggleDarkModeAction", this);
+      executeByName("ToggleDarkModeAction", this);
     });
     applyStoredTheme();
 
@@ -228,7 +228,7 @@ export class ExplanMain extends HTMLElement {
         const taskIndex =
           this.updateHighlightFromMousePos(p, "mousedown") || -1;
         if (taskIndex === -1) {
-          execute("ResetZoomAction", this);
+          executeByName("ResetZoomAction", this);
         }
         this.setSelection(taskIndex, true, true);
       }

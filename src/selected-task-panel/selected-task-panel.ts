@@ -2,7 +2,7 @@ import { TemplateResult, html, render } from "lit-html";
 import { Plan } from "../plan/plan";
 import { live } from "lit-html/directives/live.js";
 import { icon } from "../icons/icons";
-import { execute } from "../action/execute";
+import { executeByName } from "../action/execute";
 import { ExplanMain } from "../explanMain/explanMain";
 
 export interface TaskNameChangeDetails {
@@ -84,7 +84,7 @@ export class SelectedTaskPanel extends HTMLElement {
       return html`
         <button
           class="icon-button"
-          @click=${async () => await execute("NewTaskAction", this.explanMain!)}
+          @click=${async () => await executeByName("NewTaskAction", this.explanMain!)}
           title="Add Task"
         >
           ${icon("add-icon")}
@@ -99,28 +99,28 @@ export class SelectedTaskPanel extends HTMLElement {
     return html`
       <button
         class="icon-button"
-        @click=${async () => await execute("NewTaskAction", this.explanMain!)}
+        @click=${async () => await executeByName("NewTaskAction", this.explanMain!)}
         title="Add Task"
       >
         ${icon("add-icon")}
       </button>
       <button
         class="icon-button"
-        @click=${async () => await execute("DupTaskAction", this.explanMain!)}
+        @click=${async () => await executeByName("DupTaskAction", this.explanMain!)}
         title="Duplicate Task"
       >
         ${icon("dup")}
       </button>
       <button
         class="icon-button"
-        @click=${async () => await execute("SplitTaskAction", this.explanMain!)}
+        @click=${async () => await executeByName("SplitTaskAction", this.explanMain!)}
         title="Split Task"
       >
         ${icon("split")}
       </button>
       <button
         class="icon-button"
-        @click=${async () => execute("DeleteTaskAction", this.explanMain!)}
+        @click=${async () => executeByName("DeleteTaskAction", this.explanMain!)}
         title="Delete Task"
       >
         ${icon("delete-icon")}

@@ -1,4 +1,4 @@
-import { execute } from "../action/execute";
+import { executeByName } from "../action/execute";
 import { ActionNames } from "../action/registry";
 import { ExplanMain } from "../explanMain/explanMain";
 
@@ -35,7 +35,7 @@ const onKeyDown = async (e: KeyboardEvent) => {
   }
   e.stopPropagation();
   e.preventDefault();
-  const ret = await execute(actionName, explanMain);
+  const ret = await executeByName(actionName, explanMain);
   if (!ret.ok) {
     console.log(ret.error);
   }
