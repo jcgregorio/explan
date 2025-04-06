@@ -52,6 +52,7 @@ export const executeAction = async (
   switch (action.postActionWork) {
     case "":
       break;
+
     case "paintChart":
       explanMain.paintChart();
       break;
@@ -66,17 +67,18 @@ export const executeAction = async (
     default:
       break;
   }
-  
+
   if (action.undo) {
     switch (typeOfAction) {
       case "normal":
-
         undoStack.push(ret.value);
         redoStack.length = 0;
         break;
+
       case "undo":
         redoStack.push(ret.value);
         break;
+
       case "redo":
         undoStack.push(ret.value);
         break;
@@ -84,8 +86,9 @@ export const executeAction = async (
       default:
         break;
     }
-    return ok(null);
   };
+  
+  return ok(null);
 }
 
 export const executeOp = async (
