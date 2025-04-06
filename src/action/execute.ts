@@ -87,7 +87,7 @@ export const executeAction = async (
         break;
     }
   };
-  
+
   return ok(null);
 }
 

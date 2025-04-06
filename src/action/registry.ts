@@ -16,13 +16,14 @@ import {
 } from "./actions/tasks.ts";
 import { ToggleDarkModeAction } from "./actions/toggleDarkMode.ts";
 import { ToggleRadarAction } from "./actions/toggleRadar.ts";
-import { UndoAction } from "./actions/undo.ts";
+import { RedoAction, UndoAction } from "./actions/undo.ts";
 
 export type ActionNames =
   | "ToggleDarkModeAction"
   | "ToggleRadarAction"
   | "ResetZoomAction"
   | "UndoAction"
+  | "RedoAction"
   | "HelpAction"
   | "SplitTaskAction"
   | "DupTaskAction"
@@ -39,6 +40,7 @@ export const ActionRegistry: Record<ActionNames, Action> = {
   ToggleRadarAction: new ToggleRadarAction(),
   ResetZoomAction: new ResetZoomAction(),
   UndoAction: new UndoAction(),
+  RedoAction: new RedoAction(),
   HelpAction: new HelpAction(),
   SplitTaskAction: new SplitTaskAction(),
   DupTaskAction: new DupTaskAction(),

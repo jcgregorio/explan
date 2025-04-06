@@ -7,6 +7,7 @@ export const KeyMap: Map<string, ActionNames> = new Map([
   ["shift-ctrl-M", "ToggleDarkModeAction"],
   ["shift-ctrl-Z", "ResetZoomAction"],
   ["ctrl-z", "UndoAction"],
+  ["ctrl-y", "RedoAction"],
   ["shift-ctrl-H", "HelpAction"],
   ["shift-ctrl-|", "SplitTaskAction"],
   ["shift-ctrl-_", "DupTaskAction"],
