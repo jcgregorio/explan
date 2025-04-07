@@ -3,15 +3,15 @@ import {
   DirectedGraph,
   edgesByDstToMap,
   edgesBySrcToMap,
-} from "../dag";
-import { depthFirstSearchFromIndex } from "./dfs";
+} from '../dag';
+import { depthFirstSearchFromIndex } from './dfs';
 
 /** Returns the indices of all the successors of the task at the given index.
  *  Note that includes the given index itself.
  */
 export const allSuccessors = (
   taskIndex: number,
-  directedGraph: DirectedGraph,
+  directedGraph: DirectedGraph
 ): number[] => {
   if (taskIndex >= directedGraph.Vertices.length - 1 || taskIndex <= 0) {
     return [];
@@ -20,10 +20,10 @@ export const allSuccessors = (
   depthFirstSearchFromIndex(
     directedGraph,
     taskIndex,
-    (_: any, index: number) => {
+    (_: unknown, index: number) => {
       allChildren.add(index);
       return true;
-    },
+    }
   );
   allChildren.delete(directedGraph.Vertices.length - 1);
   return [...allChildren.values()];
@@ -31,7 +31,7 @@ export const allSuccessors = (
 
 export const allPredecessors = (
   taskIndex: number,
-  directedGraph: DirectedGraph,
+  directedGraph: DirectedGraph
 ): number[] => {
   if (taskIndex >= directedGraph.Vertices.length - 1 || taskIndex <= 0) {
     return [];
@@ -68,7 +68,7 @@ export const difference = (a: number[], b: number[]): number[] => {
 
 export const allPotentialSuccessors = (
   taskIndex: number,
-  directedGraph: DirectedGraph,
+  directedGraph: DirectedGraph
 ): number[] => {
   // Remove all direct successors also.
   const bySrc = edgesBySrcToMap(directedGraph.Edges);
@@ -83,7 +83,7 @@ export const allPotentialSuccessors = (
 
 export const allPotentialPredecessors = (
   taskIndex: number,
-  directedGraph: DirectedGraph,
+  directedGraph: DirectedGraph
 ): number[] => {
   // Remove all direct predecessors also.
   const byDest = edgesByDstToMap(directedGraph.Edges);

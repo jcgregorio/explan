@@ -1,8 +1,8 @@
-import { ExplanMain } from "../explanMain/explanMain";
-import { Op } from "../ops/ops";
-import { ok, Result } from "../result";
+import { ExplanMain } from '../explanMain/explanMain';
+import { Op } from '../ops/ops';
+import { ok, Result } from '../result';
 
-export type PostActonWork = "" | "paintChart" | "planDefinitionChanged";
+export type PostActonWork = '' | 'paintChart' | 'planDefinitionChanged';
 
 export interface Action {
   description: string;
@@ -13,18 +13,19 @@ export interface Action {
 }
 
 export class NOOPAction implements Action {
-  description: string = "Does nothing";
-  postActionWork: PostActonWork = "";
+  description: string = 'Does nothing';
+  postActionWork: PostActonWork = '';
   undo: boolean = false;
 
-  async do(explanMain: ExplanMain): Promise<Result<Action>> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async do(_: ExplanMain): Promise<Result<Action>> {
     return ok(new NOOPAction());
   }
 }
 
 export class ActionFromOp {
-  name: string = "ActionFromOp";
-  description: string = "Action constructed directly from an Op.";
+  name: string = 'ActionFromOp';
+  description: string = 'Action constructed directly from an Op.';
   postActionWork: PostActonWork;
   undo: boolean;
 
@@ -43,7 +44,7 @@ export class ActionFromOp {
     }
     explanMain.plan = ret.value.plan;
     return ok(
-      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo),
+      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo)
     );
   }
 }

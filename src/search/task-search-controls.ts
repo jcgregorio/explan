@@ -1,6 +1,6 @@
-import { TemplateResult, html, render } from "lit-html";
-import fuzzysort from "fuzzysort";
-import { Task } from "../chart/chart.ts";
+import { TemplateResult, html, render } from 'lit-html';
+import fuzzysort from 'fuzzysort';
+import { Task } from '../chart/chart.ts';
 
 interface TaskChangeDetail {
   taskIndex: number;
@@ -9,8 +9,8 @@ interface TaskChangeDetail {
 
 declare global {
   interface GlobalEventHandlersEventMap {
-    "task-change": CustomEvent<TaskChangeDetail>;
-    "task-focus": CustomEvent<null>;
+    'task-change': CustomEvent<TaskChangeDetail>;
+    'task-focus': CustomEvent<null>;
   }
 }
 
@@ -45,7 +45,7 @@ declare global {
  */
 const indexesToRanges = (
   indexes: Readonly<number[]>,
-  len: number,
+  len: number
 ): number[] => {
   // Convert each index of a highlighted char into a pair of numbers we can pass
   // to slice, and then flatten.
@@ -87,7 +87,7 @@ const highlight = (ranges: number[], target: string): TemplateResult[] => {
  */
 const highlightedTarget = (
   indexes: Readonly<number[]>,
-  target: string,
+  target: string
 ): TemplateResult[] => {
   return highlight(indexesToRanges(indexes, target.length), target);
 };
@@ -97,13 +97,12 @@ const searchResults = (searchTaskPanel: TaskSearchControl): TemplateResult[] =>
     (task: SearchResult, index: number) =>
       html` <li
         tabindex="0"
-        @click="${(e: Event) =>
-          searchTaskPanel.selectSearchResult(index, false)}"
+        @click="${() => searchTaskPanel.selectSearchResult(index, false)}"
         ?data-focus=${index === searchTaskPanel.focusIndex}
         data-index=${index}
       >
         ${highlightedTarget(task.indexes, task.target)}
-      </li>`,
+      </li>`
   );
 
 const template = (searchTaskPanel: TaskSearchControl): TemplateResult => html`
@@ -123,34 +122,34 @@ const template = (searchTaskPanel: TaskSearchControl): TemplateResult => html`
   </ul>
 `;
 
-export type SearchType = "name-only" | "full-info";
+export type SearchType = 'name-only' | 'full-info';
 
 const searchStringFromTaskBuilder = (
   fullTaskList: Task[],
   searchType: SearchType,
   includedIndexes: Set<number>,
-  maxNameLength: number,
+  maxNameLength: number
 ): ((task: Task) => string) => {
-  if (searchType === "full-info") {
+  if (searchType === 'full-info') {
     return (task: Task): string => {
       if (includedIndexes.size !== 0) {
         const taskIndex = fullTaskList.indexOf(task);
         if (!includedIndexes.has(taskIndex)) {
-          return "";
+          return '';
         }
       }
       const resourceKeys = Object.keys(task.resources);
       resourceKeys.sort();
-      return `${task.name} ${"-".repeat(maxNameLength - task.name.length + 2)} ${resourceKeys
+      return `${task.name} ${'-'.repeat(maxNameLength - task.name.length + 2)} ${resourceKeys
         .map((key: string) => task.resources[key])
-        .join(" ")}`;
+        .join(' ')}`;
     };
   } else {
     return (task: Task): string => {
       if (includedIndexes.size !== 0) {
         const taskIndex = fullTaskList.indexOf(task);
         if (!includedIndexes.has(taskIndex)) {
-          return "";
+          return '';
         }
       }
       return task.name;
@@ -167,7 +166,7 @@ interface SearchResult {
 const taskListToSearchResults = (
   tasks: Task[],
   taskToSearchString: (task: Task) => string,
-  includedIndexes: Set<number>,
+  includedIndexes: Set<number>
 ): SearchResult[] => {
   return tasks
     .filter((_task: Task, index: number) => includedIndexes.has(index))
@@ -189,19 +188,19 @@ export class TaskSearchControl extends HTMLElement {
   _includedIndexes: Set<number> = new Set();
   focusIndex: number = 0;
   searchResults: ReadonlyArray<SearchResult> = [];
-  searchType: SearchType = "name-only";
-  taskToSearchString: (task: Task) => string = (task: Task) => "";
+  searchType: SearchType = 'name-only';
+  taskToSearchString: (task: Task) => string = () => '';
 
   connectedCallback(): void {
     render(template(this), this);
   }
 
   onInput(inputString: string) {
-    if (inputString === "") {
+    if (inputString === '') {
       this.searchResults = taskListToSearchResults(
         this._tasks,
         this.taskToSearchString,
-        this._includedIndexes,
+        this._includedIndexes
       );
     } else {
       this.searchResults = fuzzysort.go<Task>(
@@ -211,7 +210,7 @@ export class TaskSearchControl extends HTMLElement {
           key: this.taskToSearchString,
           limit: this._tasks.length,
           threshold: 0.2,
-        },
+        }
       );
     }
     this.focusIndex = 0;
@@ -223,21 +222,21 @@ export class TaskSearchControl extends HTMLElement {
       return;
     }
     // TODO - extract from the two places we do this.
-    const keyname = `${e.shiftKey ? "shift-" : ""}${e.ctrlKey ? "ctrl-" : ""}${e.metaKey ? "meta-" : ""}${e.altKey ? "alt-" : ""}${e.key}`;
+    const keyname = `${e.shiftKey ? 'shift-' : ''}${e.ctrlKey ? 'ctrl-' : ''}${e.metaKey ? 'meta-' : ''}${e.altKey ? 'alt-' : ''}${e.key}`;
     switch (keyname) {
-      case "ArrowDown":
+      case 'ArrowDown':
         this.focusIndex = (this.focusIndex + 1) % this.searchResults.length;
         e.stopPropagation();
         e.preventDefault();
         break;
-      case "ArrowUp":
+      case 'ArrowUp':
         this.focusIndex =
           (this.focusIndex - 1 + this.searchResults.length) %
           this.searchResults.length;
         e.stopPropagation();
         e.preventDefault();
         break;
-      case "Enter":
+      case 'Enter':
         if (this.searchResults.length === 0) {
           return;
         }
@@ -245,7 +244,7 @@ export class TaskSearchControl extends HTMLElement {
         e.stopPropagation();
         e.preventDefault();
         break;
-      case "ctrl-Enter":
+      case 'ctrl-Enter':
         if (this.searchResults.length === 0) {
           return;
         }
@@ -264,13 +263,13 @@ export class TaskSearchControl extends HTMLElement {
   selectSearchResult(index: number, focus: boolean) {
     const taskIndex = this._tasks.indexOf(this.searchResults[index].obj);
     this.dispatchEvent(
-      new CustomEvent<TaskChangeDetail>("task-change", {
+      new CustomEvent<TaskChangeDetail>('task-change', {
         bubbles: true,
         detail: {
           taskIndex: taskIndex,
           focus: focus,
         },
-      }),
+      })
     );
     this.searchResults = [];
     render(template(this), this);
@@ -278,15 +277,15 @@ export class TaskSearchControl extends HTMLElement {
 
   searchInputReceivedFocus() {
     this.dispatchEvent(
-      new CustomEvent<number>("task-focus", {
+      new CustomEvent<number>('task-focus', {
         bubbles: true,
-      }),
+      })
     );
   }
 
   setKeyboardFocusToInput(searchType: SearchType) {
     this.searchType = searchType;
-    const inputControl = this.querySelector<HTMLInputElement>("input")!;
+    const inputControl = this.querySelector<HTMLInputElement>('input')!;
     inputControl.focus();
     inputControl.select();
     this.onInput(inputControl.value);
@@ -307,16 +306,16 @@ export class TaskSearchControl extends HTMLElement {
     const maxNameLength = this._tasks.reduce<number>(
       (prev: number, task: Task): number =>
         task.name.length > prev ? task.name.length : prev,
-      0,
+      0
     );
     this.taskToSearchString = searchStringFromTaskBuilder(
       this._tasks,
       this.searchType,
       this._includedIndexes,
-      maxNameLength,
+      maxNameLength
     );
-    this.onInput("");
+    this.onInput('');
   }
 }
 
-customElements.define("task-search-control", TaskSearchControl);
+customElements.define('task-search-control', TaskSearchControl);

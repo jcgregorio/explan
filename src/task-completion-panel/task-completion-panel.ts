@@ -1,16 +1,15 @@
-import { TemplateResult, html, render } from "lit-html";
-import { Plan } from "../plan/plan.ts";
+import { TemplateResult, html, render } from 'lit-html';
 import {
   TaskCompletion,
   fromJSON,
   toJSON,
-} from "../task_completion/task_completion.ts";
-import { Span } from "../slack/slack.ts";
-import { SetTaskCompletionOp } from "../ops/plan.ts";
-import { executeOp } from "../action/execute.ts";
-import { ExplanMain } from "../explanMain/explanMain.ts";
-import { live } from "lit-html/directives/live.js";
-import { reportError } from "../report-error/report-error.ts";
+} from '../task_completion/task_completion.ts';
+import { Span } from '../slack/slack.ts';
+import { SetTaskCompletionOp } from '../ops/plan.ts';
+import { executeOp } from '../action/execute.ts';
+import { ExplanMain } from '../explanMain/explanMain.ts';
+import { live } from 'lit-html/directives/live.js';
+import { reportError } from '../report-error/report-error.ts';
 
 export class TaskCompletionPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -28,15 +27,15 @@ export class TaskCompletionPanel extends HTMLElement {
 
   connectedCallback(): void {
     document.addEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
@@ -59,11 +58,11 @@ export class TaskCompletionPanel extends HTMLElement {
     if (this.taskCompletion === null) {
       return html``;
     }
-    if (this.explanMain!.plan.status.stage === "unstarted") {
+    if (this.explanMain!.plan.status.stage === 'unstarted') {
       return html``;
     }
     switch (this.taskCompletion.stage) {
-      case "unstarted":
+      case 'unstarted':
         return html`<div>
           <label>
             <input type="checkbox" @change=${() => this.start()} />
@@ -72,7 +71,7 @@ export class TaskCompletionPanel extends HTMLElement {
         </div>`;
         break;
 
-      case "started":
+      case 'started':
         return html`<div>
           <label>
             <input type="checkbox" checked @change=${() => this.unstart()} />
@@ -107,7 +106,7 @@ export class TaskCompletionPanel extends HTMLElement {
         </div>`;
         break;
 
-      case "finished":
+      case 'finished':
         return html`<div>
           <label>
             <input type="checkbox" checked @change=${() => this.unstart()} />
@@ -148,9 +147,9 @@ export class TaskCompletionPanel extends HTMLElement {
   private async taskCompletionChanged(t: TaskCompletion) {
     const ret = await executeOp(
       SetTaskCompletionOp(this.taskIndex, t),
-      "planDefinitionChanged",
+      'planDefinitionChanged',
       true,
-      this.explanMain!,
+      this.explanMain!
     );
     if (!ret.ok) {
       this.updateOnInput();
@@ -160,7 +159,7 @@ export class TaskCompletionPanel extends HTMLElement {
 
   private async start() {
     this.taskCompletionChanged({
-      stage: "started",
+      stage: 'started',
       start: this.span!.start,
       percentComplete: 10,
     });
@@ -168,14 +167,14 @@ export class TaskCompletionPanel extends HTMLElement {
 
   private unstart() {
     this.taskCompletionChanged({
-      stage: "unstarted",
+      stage: 'unstarted',
     });
   }
 
   private finish() {
-    if (this.taskCompletion!.stage === "started") {
+    if (this.taskCompletion!.stage === 'started') {
       this.taskCompletionChanged({
-        stage: "finished",
+        stage: 'finished',
         // TODO Make sure finish > start.
         // TODO Make finish default to "today"?
         span: new Span(this.taskCompletion!.start, this.span!.finish),
@@ -184,9 +183,9 @@ export class TaskCompletionPanel extends HTMLElement {
   }
 
   private unfinish() {
-    if (this.taskCompletion!.stage === "finished") {
+    if (this.taskCompletion!.stage === 'finished') {
       this.taskCompletionChanged({
-        stage: "started",
+        stage: 'started',
         // TODO Make sure finish > start.
         // TODO Make finish default to "today"?
         percentComplete: 90,
@@ -197,7 +196,7 @@ export class TaskCompletionPanel extends HTMLElement {
 
   private percentChange(e: InputEvent) {
     const dup = fromJSON(toJSON(this.taskCompletion!));
-    if (dup.stage === "started") {
+    if (dup.stage === 'started') {
       dup.percentComplete = (e.target as HTMLInputElement).valueAsNumber;
       this.taskCompletionChanged(dup);
     }
@@ -205,9 +204,9 @@ export class TaskCompletionPanel extends HTMLElement {
 
   private startDateChanged(e: CustomEvent<number>) {
     const dup = fromJSON(toJSON(this.taskCompletion!));
-    if (dup.stage === "finished") {
+    if (dup.stage === 'finished') {
       dup.span.start = e.detail;
-    } else if (dup.stage === "started") {
+    } else if (dup.stage === 'started') {
       dup.start = e.detail;
     }
     this.taskCompletionChanged(dup);
@@ -215,11 +214,11 @@ export class TaskCompletionPanel extends HTMLElement {
 
   private finishDateChanged(e: CustomEvent<number>) {
     const dup = fromJSON(toJSON(this.taskCompletion!));
-    if (dup.stage === "finished") {
+    if (dup.stage === 'finished') {
       dup.span.finish = e.detail;
     }
     this.taskCompletionChanged(dup);
   }
 }
 
-customElements.define("task-completion-panel", TaskCompletionPanel);
+customElements.define('task-completion-panel', TaskCompletionPanel);

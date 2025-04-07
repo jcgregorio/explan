@@ -1,15 +1,18 @@
-import { ExplanMain } from "../../explanMain/explanMain";
-import { ok, Result } from "../../result";
-import { Action, NOOPAction, PostActonWork } from "../action";
-import { redo, undo } from "../execute";
+import { ExplanMain } from '../../explanMain/explanMain';
+import { ok, Result } from '../../result';
+import { Action, NOOPAction, PostActonWork } from '../action';
+import { redo, undo } from '../execute';
 
 export class UndoAction implements Action {
-  description: string = "Undoes the last action.";
-  postActionWork: PostActonWork = "";
+  description: string = 'Undoes the last action.';
+  postActionWork: PostActonWork = '';
   undo: boolean = false;
 
   async do(explanMain: ExplanMain): Promise<Result<Action>> {
-    const ret = undo(explanMain);
+    const ret = await undo(explanMain);
+    if (!ret.ok) {
+      return ret;
+    }
 
     // Undo is not a reversible action.
     return ok(new NOOPAction());
@@ -17,12 +20,15 @@ export class UndoAction implements Action {
 }
 
 export class RedoAction implements Action {
-  description: string = "Redoes the most recent undo action.";
-  postActionWork: PostActonWork = "";
+  description: string = 'Redoes the most recent undo action.';
+  postActionWork: PostActonWork = '';
   undo: boolean = false;
 
   async do(explanMain: ExplanMain): Promise<Result<Action>> {
-    const ret = redo(explanMain);
+    const ret = await redo(explanMain);
+    if (!ret.ok) {
+      return ret;
+    }
 
     // Redo is not a reversible action.
     return ok(new NOOPAction());

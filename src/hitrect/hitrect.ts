@@ -22,7 +22,7 @@ export class HitRect<R extends Rect> {
 
     while (start <= end) {
       // Find the mid index
-      let mid = Math.floor((start + end) / 2);
+      const mid = Math.floor((start + end) / 2);
 
       // If element is present at
       // mid, return True

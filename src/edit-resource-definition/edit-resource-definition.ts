@@ -1,23 +1,23 @@
-import { TemplateResult, html, render } from "lit-html";
-import { ResourceDefinition } from "../resources/resources";
-import { ExplanMain } from "../explanMain/explanMain";
-import { icon } from "../icons/icons";
-import { executeOp } from "../action/execute";
+import { TemplateResult, html, render } from 'lit-html';
+import { ResourceDefinition } from '../resources/resources';
+import { ExplanMain } from '../explanMain/explanMain';
+import { icon } from '../icons/icons';
+import { executeOp } from '../action/execute';
 import {
   AddResourceOptionOp,
   DeleteResourceOptionOp,
   MoveResourceOptionOp,
   RenameResourceOp,
   RenameResourceOptionOp,
-} from "../ops/resources";
-import { Op } from "../ops/ops";
-import { Result } from "../result";
-import { live } from "lit-html/directives/live.js";
+} from '../ops/resources';
+import { Op } from '../ops/ops';
+import { Result } from '../result';
+import { live } from 'lit-html/directives/live.js';
 
 export class EditResourceDefinition extends HTMLElement {
   explanMain: ExplanMain | null = null;
   resourceDefinition: ResourceDefinition = new ResourceDefinition();
-  name: string = "";
+  name: string = '';
   planDefinitionChangedCallback: () => void;
   newValueCounter = 0;
 
@@ -30,28 +30,28 @@ export class EditResourceDefinition extends HTMLElement {
 
   connectedCallback(): void {
     document.addEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
   showModal(
     explanMain: ExplanMain,
     name: string,
-    resourceDefinition: ResourceDefinition,
+    resourceDefinition: ResourceDefinition
   ) {
     this.explanMain = explanMain;
     this.resourceDefinition = resourceDefinition;
     this.name = name;
     this.render();
-    this.querySelector<HTMLDialogElement>("dialog")!.showModal();
+    this.querySelector<HTMLDialogElement>('dialog')!.showModal();
   }
 
   private render() {
@@ -59,15 +59,15 @@ export class EditResourceDefinition extends HTMLElement {
   }
 
   private cancel() {
-    this.querySelector<HTMLDialogElement>("dialog")!.close();
+    this.querySelector<HTMLDialogElement>('dialog')!.close();
   }
 
   private async executeOp(op: Op): Promise<Result<null>> {
     const ret = await executeOp(
       op,
-      "planDefinitionChanged",
+      'planDefinitionChanged',
       true,
-      this.explanMain!,
+      this.explanMain!
     );
     if (!ret.ok) {
       window.alert(ret.error);
@@ -88,10 +88,10 @@ export class EditResourceDefinition extends HTMLElement {
   private async changeResourceValueName(
     e: Event,
     newValue: string,
-    oldValue: string,
+    oldValue: string
   ) {
     const ret = await this.executeOp(
-      RenameResourceOptionOp(this.name, oldValue, newValue),
+      RenameResourceOptionOp(this.name, oldValue, newValue)
     );
     if (!ret.ok) {
       window.alert(ret.error);
@@ -112,7 +112,7 @@ export class EditResourceDefinition extends HTMLElement {
     let newResourceName = this.getProposedResourceName();
     while (
       this.explanMain!.plan.resourceDefinitions[this.name].values.findIndex(
-        (value: string) => value === newResourceName,
+        (value: string) => value === newResourceName
       ) != -1
     ) {
       newResourceName = this.getProposedResourceName();
@@ -120,29 +120,35 @@ export class EditResourceDefinition extends HTMLElement {
 
     await this.executeOp(AddResourceOptionOp(this.name, newResourceName));
   }
+
   private async moveUp(value: string, valueIndex: number) {
     await this.executeOp(
-      MoveResourceOptionOp(this.name, valueIndex, valueIndex - 1),
+      MoveResourceOptionOp(this.name, valueIndex, valueIndex - 1)
     );
   }
+
   private async moveDown(value: string, valueIndex: number) {
     await this.executeOp(
-      MoveResourceOptionOp(this.name, valueIndex, valueIndex + 1),
+      MoveResourceOptionOp(this.name, valueIndex, valueIndex + 1)
     );
   }
+
   private async moveToTop(value: string, valueIndex: number) {
     await this.executeOp(MoveResourceOptionOp(this.name, valueIndex, 0));
   }
+
   private async moveToBottom(value: string, valueIndex: number) {
     await this.executeOp(
       MoveResourceOptionOp(
         this.name,
         valueIndex,
-        this.explanMain!.plan.resourceDefinitions[this.name]!.values.length - 1,
-      ),
+        this.explanMain!.plan.resourceDefinitions[this.name]!.values.length - 1
+      )
     );
   }
-  private async deleteResourceValue(value: string, valueIndex: number) {
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async deleteResourceValue(value: string, _valueIndex: number) {
     await this.executeOp(DeleteResourceOptionOp(this.name, value));
   }
 
@@ -157,7 +163,7 @@ export class EditResourceDefinition extends HTMLElement {
             data-old-name=${this.name}
             @change=${(e: Event) => {
               const ele = e.target as HTMLInputElement;
-              this.changeResourceName(e, ele.value, ele.dataset.oldName || "");
+              this.changeResourceName(e, ele.value, ele.dataset.oldName || '');
             }}
           />
         </label>
@@ -173,7 +179,7 @@ export class EditResourceDefinition extends HTMLElement {
                       this.changeResourceValueName(
                         e,
                         ele.value,
-                        ele.dataset.oldValue || "",
+                        ele.dataset.oldValue || ''
                       );
                     }}
                     .value=${live(value)}
@@ -186,7 +192,7 @@ export class EditResourceDefinition extends HTMLElement {
                     class="icon-button"
                     .disabled=${valueIndex === 0}
                   >
-                    ${icon("keyboard-up-icon")}
+                    ${icon('keyboard-up-icon')}
                   </button>
                 </td>
                 <td>
@@ -196,7 +202,7 @@ export class EditResourceDefinition extends HTMLElement {
                     class="icon-button"
                     @click=${() => this.moveDown(value, valueIndex)}
                   >
-                    ${icon("keyboard-down-icon")}
+                    ${icon('keyboard-down-icon')}
                   </button>
                 </td>
                 <td>
@@ -206,7 +212,7 @@ export class EditResourceDefinition extends HTMLElement {
                     class="icon-button"
                     @click=${() => this.moveToBottom(value, valueIndex)}
                   >
-                    ${icon("keyboard-double-down-icon")}
+                    ${icon('keyboard-double-down-icon')}
                   </button>
                 </td>
                 <td>
@@ -215,7 +221,7 @@ export class EditResourceDefinition extends HTMLElement {
                     class="icon-button"
                     @click=${() => this.moveToTop(value, valueIndex)}
                   >
-                    ${icon("keyboard-double-up-icon")}
+                    ${icon('keyboard-double-up-icon')}
                   </button>
                 </td>
                 <td>
@@ -224,11 +230,11 @@ export class EditResourceDefinition extends HTMLElement {
                     class="icon-button"
                     @click=${() => this.deleteResourceValue(value, valueIndex)}
                   >
-                    ${icon("delete-icon")}
+                    ${icon('delete-icon')}
                   </button>
                 </td>
               </tr>`;
-            },
+            }
           )}
           <tr>
             <td></td>
@@ -255,4 +261,4 @@ export class EditResourceDefinition extends HTMLElement {
   }
 }
 
-customElements.define("edit-resource-definition", EditResourceDefinition);
+customElements.define('edit-resource-definition', EditResourceDefinition);

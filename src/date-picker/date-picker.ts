@@ -1,13 +1,12 @@
-import { TemplateResult, html, render } from "lit-html";
-import { Plan } from "../plan/plan.ts";
-import { UnitBase } from "../units/unit.ts";
-import { dateDisplay } from "../date-control-utils/date-control-utils.ts";
-import { live } from "lit-html/directives/live.js";
-import { reportError } from "../report-error/report-error.ts";
+import { TemplateResult, html, render } from 'lit-html';
+import { UnitBase } from '../units/unit.ts';
+import { dateDisplay } from '../date-control-utils/date-control-utils.ts';
+import { live } from 'lit-html/directives/live.js';
+import { reportError } from '../report-error/report-error.ts';
 
 declare global {
   interface GlobalEventHandlersEventMap {
-    "date-picker-input": CustomEvent<number>;
+    'date-picker-input': CustomEvent<number>;
   }
 }
 
@@ -33,7 +32,7 @@ export class DatePicker extends HTMLElement {
       return html``;
     }
     const kind = this._value.unit.kind();
-    if (kind === "Unitless") {
+    if (kind === 'Unitless') {
       return html` <input
         type="text"
         .value=${live(this._value.dateOffset)}
@@ -44,7 +43,7 @@ export class DatePicker extends HTMLElement {
         <input
           type="date"
           .value=${live(
-            dateDisplay(this._value.unit.asDate(this._value.dateOffset)),
+            dateDisplay(this._value.unit.asDate(this._value.dateOffset))
           )}
           @input=${(e: InputEvent) => this.inputChanged(e)}
         />
@@ -59,13 +58,13 @@ export class DatePicker extends HTMLElement {
       reportError(ret.error);
     } else {
       this.dispatchEvent(
-        new CustomEvent<number>("date-picker-input", {
+        new CustomEvent<number>('date-picker-input', {
           bubbles: true,
           detail: ret.value,
-        }),
+        })
       );
     }
   }
 }
 
-customElements.define("date-picker", DatePicker);
+customElements.define('date-picker', DatePicker);

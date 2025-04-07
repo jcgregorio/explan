@@ -1,53 +1,53 @@
-import { assert } from "@esm-bundle/chai";
+import { assert } from '@esm-bundle/chai';
 import {
   fromJSON,
   TaskCompletion,
   TaskCompletionSerialized,
   toJSON,
-} from "./task_completion";
-import { Span } from "../slack/slack";
+} from './task_completion';
+import { Span } from '../slack/slack';
 
-describe("TaskCompletion", () => {
+describe('TaskCompletion', () => {
   const roundTrips = (t: TaskCompletion) => {
     assert.deepEqual(fromJSON(toJSON(t)), t);
   };
 
-  it("serializes to/from JSON correctly", () => {
+  it('serializes to/from JSON correctly', () => {
     roundTrips({
-      stage: "unstarted",
+      stage: 'unstarted',
     });
     roundTrips({
-      stage: "started",
+      stage: 'started',
       start: 12,
       percentComplete: 25,
     });
     roundTrips({
-      stage: "finished",
+      stage: 'finished',
       span: new Span(10, 20),
     });
   });
 
-  it("handles malformed JSON inputs", () => {
-    const unstarted: TaskCompletion = { stage: "unstarted" };
+  it('handles malformed JSON inputs', () => {
+    const unstarted: TaskCompletion = { stage: 'unstarted' };
     assert.deepEqual(
       fromJSON({
-        bloop: "not a valid serialization",
-      } as any as TaskCompletionSerialized),
-      unstarted,
+        bloop: 'not a valid serialization',
+      } as unknown as TaskCompletionSerialized),
+      unstarted
     );
 
     assert.deepEqual(
       fromJSON({
-        stage: "started",
-      } as any as TaskCompletionSerialized),
-      unstarted,
+        stage: 'started',
+      } as unknown as TaskCompletionSerialized),
+      unstarted
     );
 
     assert.deepEqual(
       fromJSON({
-        stage: "finished",
-      } as any as TaskCompletionSerialized),
-      unstarted,
+        stage: 'finished',
+      } as unknown as TaskCompletionSerialized),
+      unstarted
     );
   });
 });

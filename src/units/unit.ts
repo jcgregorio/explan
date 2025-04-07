@@ -1,12 +1,10 @@
 import {
-  dateControlDateRe,
   dateDisplay,
   parseDateString,
-} from "../date-control-utils/date-control-utils";
-import { MetricDefinition } from "../metrics/metrics";
-import { Result, error, ok } from "../result";
-import { parseDuration } from "./parse";
-import { Weekdays } from "./weekdays";
+} from '../date-control-utils/date-control-utils';
+import { MetricDefinition } from '../metrics/metrics';
+import { Result, error, ok } from '../result';
+import { Weekdays } from './weekdays';
 
 // Unit describes how the duration values are to be interpreted.
 abstract class Unit {
@@ -39,16 +37,19 @@ export class UnitBase implements Unit {
     this.unitType = unitType;
   }
 
-  displayTime(t: number): string {
-    throw new Error("Method implemented in subclasses.");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  displayTime(_t: number): string {
+    throw new Error('Method implemented in subclasses.');
   }
 
-  asDate(t: number): Date {
-    throw new Error("Method implemented in subclasses.");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  asDate(_t: number): Date {
+    throw new Error('Method implemented in subclasses.');
   }
 
-  parse(s: string): Result<number> {
-    throw new Error("Method implemented in subclasses.");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  parse(_s: string): Result<number> {
+    throw new Error('Method implemented in subclasses.');
   }
 
   kind(): UnitTypes {
@@ -62,22 +63,22 @@ export class UnitBase implements Unit {
   static fromJSON(
     s: UnitSerialized,
     start: Date,
-    metricDefn: MetricDefinition,
+    metricDefn: MetricDefinition
   ): UnitBase {
     return UnitBuilders[toUnit(s.unitType)](start, metricDefn);
   }
 }
 
-export const UNIT_TYPES = ["Unitless", "Days", "Weekdays"] as const;
+export const UNIT_TYPES = ['Unitless', 'Days', 'Weekdays'] as const;
 
 // All types of duration units available.
 export type UnitTypes = (typeof UNIT_TYPES)[number];
 
 // Describes each type of Unit available.
 export const UnitDescriptions: Record<UnitTypes, string> = {
-  Unitless: "Unitless durations.",
-  Days: "Days, with 7 days a week.",
-  Weekdays: "Days, with 5 days a week.",
+  Unitless: 'Unitless durations.',
+  Days: 'Days, with 7 days a week.',
+  Weekdays: 'Days, with 5 days a week.',
 };
 
 // Builders for each type of Unit.
@@ -98,20 +99,22 @@ export const toUnit = (s: string): UnitTypes => {
   if (UNIT_TYPES.some((t: UnitTypes) => t === s)) {
     return s as UnitTypes;
   }
-  return "Unitless";
+  return 'Unitless';
 };
 
 // Unitless.
 export class Unitless extends UnitBase implements Unit {
   constructor(start: Date, metricDefn: MetricDefinition) {
-    super(start, metricDefn, "Unitless");
+    super(start, metricDefn, 'Unitless');
   }
 
-  displayTime(t: number, locale?: Intl.LocalesArgument): string {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  displayTime(t: number, _locale?: Intl.LocalesArgument): string {
     return this.metricDefn.clampAndRound(t).toString();
   }
 
-  asDate(t: number): Date {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  asDate(_t: number): Date {
     // Should never be called.
     return this.start;
   }
@@ -127,7 +130,7 @@ export class Unitless extends UnitBase implements Unit {
 
 export class Days extends UnitBase implements Unit {
   constructor(start: Date, metricDefn: MetricDefinition) {
-    super(start, metricDefn, "Days");
+    super(start, metricDefn, 'Days');
   }
 
   displayTime(t: number): string {
@@ -148,13 +151,11 @@ export class Days extends UnitBase implements Unit {
     }
     const deltaInMilliseconds = ret.value.getTime() - this.start.getTime() + 1;
     if (deltaInMilliseconds < 0) {
-      return error(new Error("Dates before the plan start are not allowed."));
+      return error(new Error('Dates before the plan start are not allowed.'));
     }
 
     return ok(
-      this.metricDefn.clampAndRound(
-        deltaInMilliseconds / (1000 * 60 * 60 * 24),
-      ),
+      this.metricDefn.clampAndRound(deltaInMilliseconds / (1000 * 60 * 60 * 24))
     );
   }
 }
@@ -163,7 +164,7 @@ export class WeekDays extends UnitBase implements Unit {
   weekdays: Weekdays;
 
   constructor(start: Date, metricDefn: MetricDefinition) {
-    super(start, metricDefn, "Weekdays");
+    super(start, metricDefn, 'Weekdays');
     this.weekdays = new Weekdays(start);
   }
 

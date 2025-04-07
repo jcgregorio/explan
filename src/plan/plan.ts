@@ -1,43 +1,42 @@
-import { keyed } from "lit-html/directives/keyed.js";
-import { Chart, ChartSerialized, ChartValidate, Task } from "../chart/chart.ts";
+import { Chart, ChartSerialized, ChartValidate, Task } from '../chart/chart.ts';
 import {
   MetricDefinition,
   MetricDefinitions,
   MetricDefinitionsSerialized,
-} from "../metrics/metrics.ts";
-import { MetricRange } from "../metrics/range.ts";
-import { RationalizeEdgesOp } from "../ops/chart.ts";
+} from '../metrics/metrics.ts';
+import { MetricRange } from '../metrics/range.ts';
+import { RationalizeEdgesOp } from '../ops/chart.ts';
 import {
   PlanStatus,
   PlanStatusSerialized,
   toJSON as statusToJSON,
   fromJSON as statusFromJSON,
   statusToDate,
-} from "../plan_status/plan_status.ts";
+} from '../plan_status/plan_status.ts';
 import {
   ResourceDefinition,
   ResourceDefinitions,
   ResourceDefinitionsSerialized,
-} from "../resources/resources.ts";
-import { Result, error, ok } from "../result.ts";
-import { UncertaintyToNum } from "../stats/cdf/triangular/jacobian.ts";
+} from '../resources/resources.ts';
+import { Result, error, ok } from '../result.ts';
+import { UncertaintyToNum } from '../stats/cdf/triangular/jacobian.ts';
 import {
   TaskCompletions,
   TaskCompletionsSerialized,
   taskCompletionsToJSON,
   taskCompletionsFromJSON,
   TaskCompletion,
-} from "../task_completion/task_completion.ts";
+} from '../task_completion/task_completion.ts';
 import {
   Days,
   UnitBase,
   UnitBuilders,
   UnitSerialized,
   UnitTypes,
-} from "../units/unit.ts";
-import { Precision } from "../precision/precision.ts";
+} from '../units/unit.ts';
+import { Precision } from '../precision/precision.ts';
 
-export type StaticMetricKeys = "Duration";
+export type StaticMetricKeys = 'Duration';
 
 export const StaticMetricDefinitions: Record<
   StaticMetricKeys,
@@ -47,7 +46,7 @@ export const StaticMetricDefinitions: Record<
   Duration: new MetricDefinition(0, new MetricRange(0), true, new Precision(0)),
 };
 
-export type StaticResourceKeys = "Uncertainty";
+export type StaticResourceKeys = 'Uncertainty';
 
 export const StaticResourceDefinitions: Record<
   StaticResourceKeys,
@@ -71,7 +70,7 @@ export class Plan {
   // Controls how time is displayed.
   _durationUnits: UnitBase;
 
-  _status: PlanStatus = { stage: "unstarted", start: 0 };
+  _status: PlanStatus = { stage: 'unstarted', start: 0 };
 
   taskCompletion: TaskCompletions = {};
 
@@ -91,7 +90,7 @@ export class Plan {
     this._status = value;
     this._durationUnits = new Days(
       new Date(statusToDate(this.status)),
-      this.getStaticMetricDefinition("Duration"),
+      this.getStaticMetricDefinition('Duration')
     );
   }
 
@@ -109,7 +108,7 @@ export class Plan {
     if (task === undefined) {
       return error(new Error(`${index} is not a valid Task index.`));
     }
-    return ok(this.taskCompletion[task.id] || { stage: "unstarted" });
+    return ok(this.taskCompletion[task.id] || { stage: 'unstarted' });
   }
 
   constructor() {
@@ -118,7 +117,7 @@ export class Plan {
     this.metricDefinitions = Object.assign({}, StaticMetricDefinitions);
     this._durationUnits = new Days(
       new Date(statusToDate(this.status)),
-      this.getStaticMetricDefinition("Duration"),
+      this.getStaticMetricDefinition('Duration')
     );
 
     this.applyMetricsAndResourcesToVertices();
@@ -127,7 +126,7 @@ export class Plan {
   setDurationUnits(unitType: UnitTypes) {
     this._durationUnits = UnitBuilders[unitType](
       new Date(statusToDate(this.status)),
-      this.getStaticMetricDefinition("Duration"),
+      this.getStaticMetricDefinition('Duration')
     );
   }
 
@@ -151,7 +150,7 @@ export class Plan {
         this.chart.Vertices.forEach((task: Task) => {
           task.setResource(key, resourceDefinition.values[0]);
         });
-      },
+      }
     );
   }
 
@@ -189,7 +188,7 @@ export class Plan {
     Object.entries(this.resourceDefinitions).forEach(
       ([key, resourceDefinition]) => {
         ret.setResource(key, resourceDefinition.values[0]);
-      },
+      }
     );
     return ret;
   }
@@ -202,16 +201,18 @@ export class Plan {
       chart: this.chart.toJSON(),
       resourceDefinitions: Object.fromEntries(
         Object.entries(this.resourceDefinitions)
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .filter(([_, resourceDefinition]) => !resourceDefinition.isStatic)
           .map(([key, resourceDefinition]) => [
             key,
             resourceDefinition.toJSON(),
-          ]),
+          ])
       ),
       metricDefinitions: Object.fromEntries(
         Object.entries(this.metricDefinitions)
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .filter(([_, metricDefinition]) => !metricDefinition.isStatic)
-          .map(([key, metricDefinition]) => [key, metricDefinition.toJSON()]),
+          .map(([key, metricDefinition]) => [key, metricDefinition.toJSON()])
       ),
     };
   }
@@ -226,13 +227,13 @@ export class Plan {
         ([key, serializedMetricDefinition]) => [
           key,
           MetricDefinition.fromJSON(serializedMetricDefinition),
-        ],
-      ),
+        ]
+      )
     );
     ret.metricDefinitions = Object.assign(
       {},
       StaticMetricDefinitions,
-      deserializedMetricDefinitions,
+      deserializedMetricDefinitions
     );
 
     const deserializedResourceDefinitions = Object.fromEntries(
@@ -240,19 +241,19 @@ export class Plan {
         ([key, serializedResourceDefinition]) => [
           key,
           ResourceDefinition.fromJSON(serializedResourceDefinition),
-        ],
-      ),
+        ]
+      )
     );
     ret.resourceDefinitions = Object.assign(
       {},
       StaticResourceDefinitions,
-      deserializedResourceDefinitions,
+      deserializedResourceDefinitions
     );
 
     ret._durationUnits = UnitBase.fromJSON(
       planSerialized._durationUnits,
       new Date(statusToDate(ret.status)),
-      ret.getStaticMetricDefinition("Duration"),
+      ret.getStaticMetricDefinition('Duration')
     );
 
     return ret;

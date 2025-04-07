@@ -1,13 +1,11 @@
-import { TemplateResult, html, render } from "lit-html";
-import { Plan } from "../plan/plan";
+import { TemplateResult, html, render } from 'lit-html';
 import {
-  CriticalPathEntry,
   CriticalPathTaskEntry,
   SimulationResults,
   simulation,
-} from "../simulation/simulation";
-import { Chart } from "../chart/chart";
-import { difference } from "../dag/algorithms/circular";
+} from '../simulation/simulation';
+import { Chart } from '../chart/chart';
+import { difference } from '../dag/algorithms/circular';
 
 export interface SimulationSelectDetails {
   durations: number[] | null;
@@ -16,7 +14,7 @@ export interface SimulationSelectDetails {
 
 declare global {
   interface GlobalEventHandlersEventMap {
-    "simulation-select": CustomEvent<SimulationSelectDetails>;
+    'simulation-select': CustomEvent<SimulationSelectDetails>;
   }
 }
 
@@ -36,7 +34,7 @@ export class SimulationPanel extends HTMLElement {
   simulate(
     chart: Chart,
     numSimulationLoops: number,
-    originalCriticalPath: number[],
+    originalCriticalPath: number[]
   ): number[] {
     this.results = simulation(chart, numSimulationLoops, originalCriticalPath);
     this.chart = chart;
@@ -45,7 +43,7 @@ export class SimulationPanel extends HTMLElement {
 
     this.render();
     return this.results.tasks.map(
-      (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex,
+      (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex
     );
   }
 
@@ -55,26 +53,26 @@ export class SimulationPanel extends HTMLElement {
       tasks: [],
     };
     this.dispatchEvent(
-      new CustomEvent<SimulationSelectDetails>("simulation-select", {
+      new CustomEvent<SimulationSelectDetails>('simulation-select', {
         bubbles: true,
         detail: {
           durations: null,
           criticalPath: [],
         },
-      }),
+      })
     );
     this.render();
   }
 
   pathClicked(key: string) {
     this.dispatchEvent(
-      new CustomEvent<SimulationSelectDetails>("simulation-select", {
+      new CustomEvent<SimulationSelectDetails>('simulation-select', {
         bubbles: true,
         detail: {
           durations: this.results.paths.get(key)!.durations,
           criticalPath: this.results.paths.get(key)!.criticalPath,
         },
-      }),
+      })
     );
   }
 
@@ -92,12 +90,12 @@ export class SimulationPanel extends HTMLElement {
       ${added.map(
         (taskIndex: number) => html`
           <span class="added">+${this.chart!.Vertices[taskIndex].name}</span>
-        `,
+        `
       )}
       ${removed.map(
         (taskIndex: number) => html`
           <span class="removed">-${this.chart!.Vertices[taskIndex].name}</span>
-        `,
+        `
       )}
     `;
   }
@@ -132,10 +130,10 @@ export class SimulationPanel extends HTMLElement {
               <td>${this.results.paths.get(key)!.count}</td>
               <td>
                 ${this.displayCriticalPathDifferences(
-                  this.results.paths.get(key)!.criticalPath,
+                  this.results.paths.get(key)!.criticalPath
                 )}
               </td>
-            </tr>`,
+            </tr>`
         )}
       </table>
       <table>
@@ -151,14 +149,14 @@ export class SimulationPanel extends HTMLElement {
               <td>${taskEntry.duration}</td>
               <td>
                 ${Math.floor(
-                  (100 * taskEntry.numTimesAppeared) / this.numSimulationLoops,
+                  (100 * taskEntry.numTimesAppeared) / this.numSimulationLoops
                 )}
               </td>
-            </tr>`,
+            </tr>`
         )}
       </table>
     `;
   }
 }
 
-customElements.define("simulation-panel", SimulationPanel);
+customElements.define('simulation-panel', SimulationPanel);

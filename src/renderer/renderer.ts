@@ -1,20 +1,19 @@
-import { ChartValidate, Task } from "../chart/chart.ts";
-import { ChartLike, filter, FilterFunc } from "../chart/filter/filter.ts";
-import { DirectedEdge, VertexIndices } from "../dag/dag.ts";
-import { Plan } from "../plan/plan.ts";
-import { ResourceDefinition } from "../resources/resources.ts";
-import { Result, ok } from "../result.ts";
-import { Span } from "../slack/slack.ts";
-import { TaskDuration } from "../types/types.ts";
-import { Rect } from "../rect/rect.ts";
-import { KDTree } from "./kd/kd.ts";
-import { DisplayRange } from "./range/range.ts";
-import { Point, difference, pt } from "../point/point.ts";
-import { Feature, Metric, Scale } from "./scale/scale.ts";
-import { HitRect } from "../hitrect/hitrect.ts";
-import { Theme2 } from "../style/theme/theme.ts";
+import { ChartValidate, Task } from '../chart/chart.ts';
+import { ChartLike, filter, FilterFunc } from '../chart/filter/filter.ts';
+import { DirectedEdge, VertexIndices } from '../dag/dag.ts';
+import { Plan } from '../plan/plan.ts';
+import { ResourceDefinition } from '../resources/resources.ts';
+import { Result, ok } from '../result.ts';
+import { Span } from '../slack/slack.ts';
+import { TaskDuration } from '../types/types.ts';
+import { Rect } from '../rect/rect.ts';
+import { DisplayRange } from './range/range.ts';
+import { Point, difference, pt } from '../point/point.ts';
+import { Feature, Metric, Scale } from './scale/scale.ts';
+import { HitRect } from '../hitrect/hitrect.ts';
+import { Theme2 } from '../style/theme/theme.ts';
 
-type Direction = "up" | "down";
+type Direction = 'up' | 'down';
 
 export type TaskIndexToRow = Map<number, number>;
 
@@ -27,7 +26,7 @@ export type TaskLabel = (taskIndex: number) => string;
  *
  *  "highlight": Display the full range of the data, but highlight the range.
  */
-export type DisplayRangeUsage = "restrict" | "highlight";
+export type DisplayRangeUsage = 'restrict' | 'highlight';
 
 export const defaultTaskLabel: TaskLabel = (taskIndex: number): string =>
   taskIndex.toFixed(0);
@@ -98,10 +97,10 @@ export interface RenderOptions {
 
 const verticalArrowStartFeatureFromTaskDuration = (
   task: Task,
-  direction: Direction,
+  direction: Direction
 ): keyof typeof Feature => {
   if (task.duration === 0) {
-    if (direction === "down") {
+    if (direction === 'down') {
       return Feature.verticalArrowStartFromMilestoneBottom;
     }
     return Feature.verticalArrowStartFromMilestoneTop;
@@ -112,15 +111,15 @@ const verticalArrowStartFeatureFromTaskDuration = (
 
 const verticalArrowDestFeatureFromTaskDuration = (
   task: Task,
-  direction: Direction,
+  direction: Direction
 ): keyof typeof Feature => {
   if (task.duration === 0) {
-    if (direction === "down") {
+    if (direction === 'down') {
       return Feature.verticalArrowDestToMilestoneTop;
     }
     return Feature.verticalArrowDestToMilestoneBottom;
   } else {
-    if (direction === "down") {
+    if (direction === 'down') {
       return Feature.verticalArrowDestTop;
     }
     return Feature.verticalArrowDestBottom;
@@ -129,7 +128,7 @@ const verticalArrowDestFeatureFromTaskDuration = (
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const horizontalArrowStartFeatureFromTaskDuration = (
-  task: Task,
+  task: Task
 ): keyof typeof Feature => {
   if (task.duration === 0) {
     return Feature.horizontalArrowStartFromMilestone;
@@ -139,7 +138,7 @@ const horizontalArrowStartFeatureFromTaskDuration = (
 };
 
 const horizontalArrowDestFeatureFromTaskDuration = (
-  task: Task,
+  task: Task
 ): keyof typeof Feature => {
   if (task.duration === 0) {
     return Feature.horizontalArrowDestToMilestone;
@@ -157,7 +156,7 @@ export function suggestedCanvasHeight(
   canvas: HTMLCanvasElement,
   spans: Span[],
   opts: RenderOptions,
-  maxRows: number,
+  maxRows: number
 ): number {
   if (!opts.hasTasks) {
     maxRows = 0;
@@ -165,7 +164,7 @@ export function suggestedCanvasHeight(
   return new Scale(
     opts,
     canvas.width,
-    spans[spans.length - 1].finish + 1,
+    spans[spans.length - 1].finish + 1
   ).height(maxRows);
 }
 
@@ -180,13 +179,13 @@ export interface TaskLocation {
   originalTaskIndex: number;
 }
 
-type UpdateType = "mousemove" | "mousedown";
+type UpdateType = 'mousemove' | 'mousedown';
 
 // A func that takes a Point and redraws the highlighted task if needed, returns
 // the index of the task that is highlighted.
 export type UpdateHighlightFromMousePos = (
   point: Point,
-  updateType: UpdateType,
+  updateType: UpdateType
 ) => number | null;
 
 export interface RenderResult {
@@ -208,7 +207,7 @@ export function renderTasksToCanvas(
   plan: Plan,
   spans: Span[],
   opts: RenderOptions,
-  overlay: HTMLCanvasElement | null = null,
+  overlay: HTMLCanvasElement | null = null
 ): Result<RenderResult> {
   const vret = ChartValidate(plan.chart);
   if (!vret.ok) {
@@ -216,7 +215,7 @@ export function renderTasksToCanvas(
   }
 
   const originalLabels = plan.chart.Vertices.map(
-    (task: Task, taskIndex: number) => opts.taskLabel(taskIndex),
+    (task: Task, taskIndex: number) => opts.taskLabel(taskIndex)
   );
 
   // Apply the filter and work with the ChartLike return from this point on.
@@ -227,7 +226,7 @@ export function renderTasksToCanvas(
     opts.taskEmphasize,
     spans,
     originalLabels,
-    opts.selectedTaskIndex,
+    opts.selectedTaskIndex
   );
   if (!fret.ok) {
     return fret;
@@ -241,7 +240,7 @@ export function renderTasksToCanvas(
     fret.value.fromOriginalIndexToFilteredIndex;
 
   const fromFilteredIndexToPercentComplete = (
-    filteredIndex: number,
+    filteredIndex: number
   ): number => {
     const taskIndex = fromFilteredIndexToOriginalIndex.get(filteredIndex);
     if (taskIndex === undefined) {
@@ -253,11 +252,11 @@ export function renderTasksToCanvas(
     }
     const tc = ret.value;
     switch (tc.stage) {
-      case "unstarted":
+      case 'unstarted':
         return 0;
-      case "started":
+      case 'started':
         return tc.percentComplete;
-      case "finished":
+      case 'finished':
         return 100;
       default:
         tc satisfies never;
@@ -274,7 +273,7 @@ export function renderTasksToCanvas(
 
   // Calculate how wide we need to make the groupBy column.
   let maxGroupNameLength = 0;
-  if (opts.groupByResource !== "" && opts.hasText) {
+  if (opts.groupByResource !== '' && opts.hasText) {
     maxGroupNameLength = opts.groupByResource.length;
     if (resourceDefinition !== undefined) {
       resourceDefinition.values.forEach((value: string) => {
@@ -289,7 +288,7 @@ export function renderTasksToCanvas(
     opts,
     canvas.width,
     totalNumberOfDays + 1,
-    maxGroupNameLength,
+    maxGroupNameLength
   );
 
   const taskLineHeight = scale.metric(Metric.taskLineHeight);
@@ -298,14 +297,13 @@ export function renderTasksToCanvas(
   const arrowHeadHeight = scale.metric(Metric.arrowHeadHeight);
   const arrowHeadWidth = scale.metric(Metric.arrowHeadWidth);
   const minTaskWidthPx = scale.metric(Metric.minTaskWidthPx);
-  const percentCompleteHeight = scale.metric(Metric.percentHeight);
 
   const daysWithTimeMarkers: Set<number> = new Set();
   const tiret = taskIndexToRowFromGroupBy(
     opts,
     resourceDefinition,
     chartLike,
-    fret.value.displayOrder,
+    fret.value.displayOrder
   );
   if (!tiret.ok) {
     return tiret;
@@ -324,14 +322,14 @@ export function renderTasksToCanvas(
 
   // Draw big red rect over where the clip region will be.
   if (0) {
-    ctx.strokeStyle = "red";
+    ctx.strokeStyle = 'red';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.stroke(clipRegion);
   }
 
-  ctx.fillStyle = opts.colors.get("on-surface");
-  ctx.strokeStyle = opts.colors.get("on-surface");
+  ctx.fillStyle = opts.colors.get('on-surface');
+  ctx.strokeStyle = opts.colors.get('on-surface');
 
   if (rowRanges !== null) {
     if (opts.hasTasks) {
@@ -340,7 +338,7 @@ export function renderTasksToCanvas(
         scale,
         rowRanges,
         totalNumberOfDays,
-        opts.colors.get("group-color"),
+        opts.colors.get('group-color')
       );
     }
 
@@ -349,8 +347,8 @@ export function renderTasksToCanvas(
     }
   }
 
-  ctx.fillStyle = opts.colors.get("on-surface");
-  ctx.strokeStyle = opts.colors.get("on-surface");
+  ctx.fillStyle = opts.colors.get('on-surface');
+  ctx.strokeStyle = opts.colors.get('on-surface');
 
   ctx.save();
   ctx.clip(clipRegion);
@@ -374,8 +372,8 @@ export function renderTasksToCanvas(
     const taskEnd = scale.feature(row, span.finish, Feature.taskLineStart);
     const percentComplete = fromFilteredIndexToPercentComplete(taskIndex);
 
-    ctx.fillStyle = opts.colors.get("on-surface-muted");
-    ctx.strokeStyle = opts.colors.get("on-surface-muted");
+    ctx.fillStyle = opts.colors.get('on-surface-muted');
+    ctx.strokeStyle = opts.colors.get('on-surface-muted');
 
     // Draw in time markers if displayed.
     // TODO - Make sure they don't overlap.
@@ -388,29 +386,30 @@ export function renderTasksToCanvas(
         opts,
         scale,
         daysWithTimeMarkers,
-        timeMarkerRanges,
+        timeMarkerRanges
       );
     }
 
     if (emphasizedTasks.has(taskIndex)) {
-      ctx.fillStyle = opts.colors.get("primary");
-      ctx.strokeStyle = opts.colors.get("primary");
+      ctx.fillStyle = opts.colors.get('primary');
+      ctx.strokeStyle = opts.colors.get('primary');
     } else {
-      ctx.fillStyle = opts.colors.get("on-surface");
-      ctx.strokeStyle = opts.colors.get("on-surface");
+      ctx.fillStyle = opts.colors.get('on-surface');
+      ctx.strokeStyle = opts.colors.get('on-surface');
     }
     const highlightTopLeft = scale.feature(
       row,
       span.start,
-      Feature.taskEnvelopeTop,
+      Feature.taskEnvelopeTop
     );
-    let highlightBottomRight = scale.feature(
+    const highlightBottomRight = scale.feature(
       row + 1,
       span.finish,
-      Feature.taskEnvelopeTop,
+      Feature.taskEnvelopeTop
     );
 
     // Pad highlightBottomRight if too small.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [width, _] = difference(highlightTopLeft, highlightBottomRight);
     if (width < minTaskWidthPx) {
       highlightBottomRight.x = highlightTopLeft.x + minTaskWidthPx;
@@ -431,7 +430,7 @@ export function renderTasksToCanvas(
           taskEnd,
           taskLineHeight,
           percentComplete,
-          plan._status.stage === "started",
+          plan._status.stage === 'started'
         );
       }
 
@@ -447,14 +446,14 @@ export function renderTasksToCanvas(
           taskIndex,
           fromFilteredIndexToOriginalIndex.get(taskIndex)!,
           clipWidth,
-          labels,
+          labels
         );
       }
     }
   });
 
   ctx.lineWidth = 1;
-  ctx.strokeStyle = opts.colors.get("on-surface-muted");
+  ctx.strokeStyle = opts.colors.get('on-surface-muted');
 
   // Now draw all the arrows, i.e. edges.
   if (opts.hasEdges && opts.hasTasks) {
@@ -474,7 +473,7 @@ export function renderTasksToCanvas(
       }
     });
 
-    ctx.strokeStyle = opts.colors.get("on-surface-muted");
+    ctx.strokeStyle = opts.colors.get('on-surface-muted');
     drawEdges(
       ctx,
       opts,
@@ -485,9 +484,9 @@ export function renderTasksToCanvas(
       taskIndexToRow,
       arrowHeadWidth,
       arrowHeadHeight,
-      emphasizedTasks,
+      emphasizedTasks
     );
-    ctx.strokeStyle = opts.colors.get("primary");
+    ctx.strokeStyle = opts.colors.get('primary');
     drawEdges(
       ctx,
       opts,
@@ -498,7 +497,7 @@ export function renderTasksToCanvas(
       taskIndexToRow,
       arrowHeadWidth,
       arrowHeadHeight,
-      emphasizedTasks,
+      emphasizedTasks
     );
   }
 
@@ -506,7 +505,7 @@ export function renderTasksToCanvas(
   ctx.restore();
 
   // Now draw the range highlights if required.
-  if (opts.displayRange !== null && opts.displayRangeUsage === "highlight") {
+  if (opts.displayRange !== null && opts.displayRangeUsage === 'highlight') {
     // Draw a rect over each side that isn't in the range.
     if (opts.displayRange.begin > 0) {
       drawRangeOverlay(
@@ -515,7 +514,7 @@ export function renderTasksToCanvas(
         scale,
         0,
         opts.displayRange.begin,
-        totalNumberOfRows,
+        totalNumberOfRows
       );
     }
     if (opts.displayRange.end < totalNumberOfDays) {
@@ -525,7 +524,7 @@ export function renderTasksToCanvas(
         scale,
         opts.displayRange.end,
         totalNumberOfDays + 1,
-        totalNumberOfRows,
+        totalNumberOfRows
       );
     }
   }
@@ -534,7 +533,7 @@ export function renderTasksToCanvas(
   let selectedTaskLocation: Point | null = null;
 
   if (overlay !== null) {
-    const overlayCtx = overlay.getContext("2d")!;
+    const overlayCtx = overlay.getContext('2d')!;
 
     const taskLocationKDTree = new HitRect<RectWithFilteredTaskIndex>([
       ...taskIndexToTaskHighlightCorners.values(),
@@ -545,7 +544,7 @@ export function renderTasksToCanvas(
 
     updateHighlightFromMousePos = (
       point: Point,
-      updateType: UpdateType,
+      updateType: UpdateType
     ): number | null => {
       // First convert point in offset coords into canvas coords.
       point.x = point.x * window.devicePixelRatio;
@@ -555,7 +554,7 @@ export function renderTasksToCanvas(
         taskLocation === null
           ? -1
           : fromFilteredIndexToOriginalIndex.get(
-              taskLocation!.filteredTaskIndex,
+              taskLocation!.filteredTaskIndex
             )!;
 
       // Do not allow highlighting or clicking the Start and Finish tasks.
@@ -565,7 +564,7 @@ export function renderTasksToCanvas(
       ) {
         return null;
       }
-      if (updateType === "mousemove") {
+      if (updateType === 'mousemove') {
         if (originalTaskIndex === lastHighlightedTaskIndex) {
           return originalTaskIndex;
         }
@@ -575,7 +574,7 @@ export function renderTasksToCanvas(
         }
       }
 
-      if (updateType === "mousemove") {
+      if (updateType === 'mousemove') {
         lastHighlightedTaskIndex = originalTaskIndex;
       } else {
         lastSelectedTaskIndex = originalTaskIndex;
@@ -587,28 +586,28 @@ export function renderTasksToCanvas(
 
       // Draw highlight.
       let corners = taskIndexToTaskHighlightCorners.get(
-        fromOriginalIndexToFilteredIndex.get(lastHighlightedTaskIndex)!,
+        fromOriginalIndexToFilteredIndex.get(lastHighlightedTaskIndex)!
       );
       if (corners !== undefined) {
         drawTaskHighlight(
           overlayCtx,
           corners.topLeft,
           corners.bottomRight,
-          opts.colors.get("primary-variant"),
-          taskLineHeight,
+          opts.colors.get('primary-variant'),
+          taskLineHeight
         );
       }
 
       // Draw selection.
       corners = taskIndexToTaskHighlightCorners.get(
-        fromOriginalIndexToFilteredIndex.get(lastSelectedTaskIndex)!,
+        fromOriginalIndexToFilteredIndex.get(lastSelectedTaskIndex)!
       );
       if (corners !== undefined) {
         drawSelectionHighlight(
           overlayCtx,
           corners.topLeft,
           corners.bottomRight,
-          opts.colors.get("primary-variant"),
+          opts.colors.get('primary-variant')
         );
       }
 
@@ -617,14 +616,14 @@ export function renderTasksToCanvas(
 
     // Draw selection.
     const corners = taskIndexToTaskHighlightCorners.get(
-      fromOriginalIndexToFilteredIndex.get(lastSelectedTaskIndex)!,
+      fromOriginalIndexToFilteredIndex.get(lastSelectedTaskIndex)!
     );
     if (corners !== undefined) {
       drawSelectionHighlight(
         overlayCtx,
         corners.topLeft,
         corners.bottomRight,
-        opts.colors.get("primary-variant"),
+        opts.colors.get('primary-variant')
       );
     }
   }
@@ -645,7 +644,7 @@ export function renderTasksToCanvas(
     fromOriginalIndexToFilteredIndex.has(opts.selectedTaskIndex)
   ) {
     selectedTaskLocation = taskIndexToTaskHighlightCorners.get(
-      fromOriginalIndexToFilteredIndex.get(opts.selectedTaskIndex)!, // Convert
+      fromOriginalIndexToFilteredIndex.get(opts.selectedTaskIndex)! // Convert
     )!.topLeft;
   }
 
@@ -655,7 +654,7 @@ export function renderTasksToCanvas(
   if (selectedTaskLocation !== null) {
     returnedLocation = pt(
       selectedTaskLocation.x / window.devicePixelRatio,
-      selectedTaskLocation.y / window.devicePixelRatio,
+      selectedTaskLocation.y / window.devicePixelRatio
     );
   }
 
@@ -676,7 +675,7 @@ function drawEdges(
   taskIndexToRow: TaskIndexToRow,
   arrowHeadWidth: number,
   arrowHeadHeight: number,
-  taskHighlights: Set<number>,
+  taskHighlights: Set<number>
 ) {
   edges.forEach((e: DirectedEdge) => {
     const srcSlack: Span = spans[e.i];
@@ -689,11 +688,11 @@ function drawEdges(
     const dstDay = dstSlack.start;
 
     if (taskHighlights.has(e.i) && taskHighlights.has(e.j)) {
-      ctx.strokeStyle = opts.colors.get("primary");
-      ctx.fillStyle = opts.colors.get("primary");
+      ctx.strokeStyle = opts.colors.get('primary');
+      ctx.fillStyle = opts.colors.get('primary');
     } else {
-      ctx.strokeStyle = opts.colors.get("on-surface-muted");
-      ctx.fillStyle = opts.colors.get("on-surface-muted");
+      ctx.strokeStyle = opts.colors.get('on-surface-muted');
+      ctx.fillStyle = opts.colors.get('on-surface-muted');
     }
 
     drawArrowBetweenTasks(
@@ -706,7 +705,7 @@ function drawEdges(
       dstRow,
       dstTask,
       arrowHeadWidth,
-      arrowHeadHeight,
+      arrowHeadHeight
     );
   });
 }
@@ -717,22 +716,22 @@ function drawRangeOverlay(
   scale: Scale,
   beginDay: number,
   endDay: number,
-  totalNumberOfRows: number,
+  totalNumberOfRows: number
 ) {
   const topLeft = scale.feature(0, beginDay, Feature.displayRangeTop);
   const bottomRight = scale.feature(
     totalNumberOfRows,
     endDay,
-    Feature.taskRowBottom,
+    Feature.taskRowBottom
   );
-  ctx.fillStyle = opts.colors.get("transparent-overlay");
+  ctx.fillStyle = opts.colors.get('transparent-overlay');
   ctx.fillRect(
     topLeft.x,
     topLeft.y,
     bottomRight.x - topLeft.x,
-    bottomRight.y - topLeft.y,
+    bottomRight.y - topLeft.y
   );
-  console.log("drawRangeOverlay", topLeft, bottomRight);
+  console.log('drawRangeOverlay', topLeft, bottomRight);
 }
 
 function drawArrowBetweenTasks(
@@ -745,7 +744,7 @@ function drawArrowBetweenTasks(
   dstRow: number,
   dstTask: Task,
   arrowHeadWidth: number,
-  arrowHeadHeight: number,
+  arrowHeadHeight: number
 ) {
   if (srcDay === dstDay) {
     drawVerticalArrowToTask(
@@ -758,7 +757,7 @@ function drawArrowBetweenTasks(
       dstDay,
       dstTask,
       arrowHeadWidth,
-      arrowHeadHeight,
+      arrowHeadHeight
     );
   } else {
     drawLShapedArrowToTask(
@@ -771,7 +770,7 @@ function drawArrowBetweenTasks(
       dstTask,
       dstDay,
       arrowHeadHeight,
-      arrowHeadWidth,
+      arrowHeadWidth
     );
   }
 }
@@ -779,10 +778,10 @@ function drawArrowBetweenTasks(
 function clearCanvas(
   ctx: CanvasRenderingContext2D,
   opts: RenderOptions,
-  canvas: HTMLCanvasElement,
+  canvas: HTMLCanvasElement
 ) {
-  ctx.fillStyle = opts.colors.get("background");
-  ctx.strokeStyle = opts.colors.get("on-background");
+  ctx.fillStyle = opts.colors.get('background');
+  ctx.strokeStyle = opts.colors.get('on-background');
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -801,20 +800,20 @@ function drawLShapedArrowToTask(
   dstTask: Task,
   dstDay: number,
   arrowHeadHeight: number,
-  arrowHeadWidth: number,
+  arrowHeadWidth: number
 ) {
   // Draw vertical part of the "L".
   ctx.beginPath();
-  const direction: Direction = srcRow < dstRow ? "down" : "up";
+  const direction: Direction = srcRow < dstRow ? 'down' : 'up';
   const vertLineStart = scale.feature(
     srcRow,
     srcDay,
-    verticalArrowStartFeatureFromTaskDuration(srcTask, direction),
+    verticalArrowStartFeatureFromTaskDuration(srcTask, direction)
   );
   const vertLineEnd = scale.feature(
     dstRow,
     srcDay,
-    horizontalArrowDestFeatureFromTaskDuration(dstTask),
+    horizontalArrowDestFeatureFromTaskDuration(dstTask)
   );
   ctx.moveTo(vertLineStart.x + 0.5, vertLineStart.y);
   ctx.lineTo(vertLineStart.x + 0.5, vertLineEnd.y);
@@ -824,7 +823,7 @@ function drawLShapedArrowToTask(
   const horzLineEnd = scale.feature(
     dstRow,
     dstDay,
-    horizontalArrowDestFeatureFromTaskDuration(dstTask),
+    horizontalArrowDestFeatureFromTaskDuration(dstTask)
   );
   ctx.moveTo(vertLineStart.x + 0.5, horzLineStart.y);
   ctx.lineTo(horzLineEnd.x + 0.5, horzLineEnd.y);
@@ -837,11 +836,11 @@ function drawLShapedArrowToTask(
   ctx.moveTo(horzLineEnd.x + 0.5, horzLineEnd.y);
   ctx.lineTo(
     horzLineEnd.x - arrowHeadHeight + 0.5,
-    horzLineEnd.y + arrowHeadWidth,
+    horzLineEnd.y + arrowHeadWidth
   );
   ctx.lineTo(
     horzLineEnd.x - arrowHeadHeight + 0.5,
-    horzLineEnd.y - arrowHeadWidth,
+    horzLineEnd.y - arrowHeadWidth
   );
   ctx.fill();
 }
@@ -856,18 +855,18 @@ function drawVerticalArrowToTask(
   dstDay: number,
   dstTask: Task,
   arrowHeadWidth: number,
-  arrowHeadHeight: number,
+  arrowHeadHeight: number
 ) {
-  const direction: Direction = srcRow < dstRow ? "down" : "up";
+  const direction: Direction = srcRow < dstRow ? 'down' : 'up';
   const arrowStart = scale.feature(
     srcRow,
     srcDay,
-    verticalArrowStartFeatureFromTaskDuration(srcTask, direction),
+    verticalArrowStartFeatureFromTaskDuration(srcTask, direction)
   );
   const arrowEnd = scale.feature(
     dstRow,
     dstDay,
-    verticalArrowDestFeatureFromTaskDuration(dstTask, direction),
+    verticalArrowDestFeatureFromTaskDuration(dstTask, direction)
   );
 
   ctx.beginPath();
@@ -878,7 +877,7 @@ function drawVerticalArrowToTask(
 
   // Draw the arrowhead.
   ctx.beginPath();
-  const deltaY = direction === "down" ? -arrowHeadHeight : arrowHeadHeight;
+  const deltaY = direction === 'down' ? -arrowHeadHeight : arrowHeadHeight;
   ctx.moveTo(arrowEnd.x + 0.5, arrowEnd.y);
   ctx.lineTo(arrowEnd.x - arrowHeadWidth + 0.5, arrowEnd.y + deltaY);
   ctx.lineTo(arrowEnd.x + arrowHeadWidth + 0.5, arrowEnd.y + deltaY);
@@ -895,7 +894,7 @@ function drawTaskText(
   taskIndex: number,
   originalTaskIndex: number,
   clipWidth: number,
-  labels: string[],
+  labels: string[]
 ) {
   if (!opts.hasText) {
     return;
@@ -905,7 +904,7 @@ function drawTaskText(
   let xStartInTime = span.start;
   let xPixelDelta = 0;
   // Determine where on the x-axis to start drawing the task text.
-  if (opts.displayRange !== null && opts.displayRangeUsage === "restrict") {
+  if (opts.displayRange !== null && opts.displayRangeUsage === 'restrict') {
     if (opts.displayRange.in(span.start)) {
       xStartInTime = span.start;
       xPixelDelta = 0;
@@ -922,11 +921,9 @@ function drawTaskText(
     }
   }
   ctx.lineWidth = 1;
-  ctx.fillStyle = opts.colors.get("on-surface");
-  ctx.textBaseline = "top";
+  ctx.fillStyle = opts.colors.get('on-surface');
+  ctx.textBaseline = 'top';
   const textStart = scale.feature(row, xStartInTime, Feature.textStart);
-  const textX = textStart.x + xPixelDelta;
-  const textY = textStart.y;
   ctx.fillText(label, textStart.x + xPixelDelta, textStart.y);
 }
 
@@ -936,14 +933,14 @@ function drawTaskBar(
   taskEnd: Point,
   taskLineHeight: number,
   percentComplete: number,
-  planStarted: boolean,
+  planStarted: boolean
 ) {
   if (planStarted) {
     ctx.strokeRect(
       taskStart.x,
       taskStart.y,
       taskEnd.x - taskStart.x,
-      taskLineHeight,
+      taskLineHeight
     );
 
     if (percentComplete !== 0) {
@@ -951,7 +948,7 @@ function drawTaskBar(
         taskStart.x,
         taskStart.y,
         ((taskEnd.x - taskStart.x) * percentComplete) / 100,
-        taskLineHeight,
+        taskLineHeight
       );
     }
   } else {
@@ -959,7 +956,7 @@ function drawTaskBar(
       taskStart.x,
       taskStart.y,
       taskEnd.x - taskStart.x,
-      taskLineHeight,
+      taskLineHeight
     );
   }
 }
@@ -969,7 +966,7 @@ function drawTaskHighlight(
   highlightStart: Point,
   highlightEnd: Point,
   color: string,
-  borderWidth: number,
+  borderWidth: number
 ) {
   ctx.strokeStyle = color;
   ctx.lineWidth = borderWidth;
@@ -977,7 +974,7 @@ function drawTaskHighlight(
     highlightStart.x,
     highlightStart.y,
     highlightEnd.x - highlightStart.x,
-    highlightEnd.y - highlightStart.y,
+    highlightEnd.y - highlightStart.y
   );
 }
 
@@ -985,14 +982,14 @@ function drawSelectionHighlight(
   ctx: CanvasRenderingContext2D,
   highlightStart: Point,
   highlightEnd: Point,
-  color: string,
+  color: string
 ) {
   ctx.fillStyle = color;
   ctx.fillRect(
     highlightStart.x,
     highlightStart.y,
     highlightEnd.x - highlightStart.x,
-    highlightEnd.y - highlightStart.y,
+    highlightEnd.y - highlightStart.y
   );
 }
 
@@ -1000,7 +997,7 @@ function drawMilestone(
   ctx: CanvasRenderingContext2D,
   taskStart: Point,
   diamondDiameter: number,
-  percentHeight: number,
+  percentHeight: number
 ) {
   ctx.beginPath();
   ctx.lineWidth = percentHeight / 2;
@@ -1020,7 +1017,7 @@ const drawTimeMarkerAtDayToTask = (
   opts: RenderOptions,
   scale: Scale,
   daysWithTimeMarkers: Set<number>,
-  timeMarkerRanges: xRange[],
+  timeMarkerRanges: xRange[]
 ) => {
   if (daysWithTimeMarkers.has(day)) {
     return;
@@ -1031,7 +1028,7 @@ const drawTimeMarkerAtDayToTask = (
   // Don't bother drawing the line if it's under an existing time label.
   if (
     timeMarkerRanges.findIndex(
-      ([begin, end]) => timeMarkStart.x >= begin && timeMarkStart.x <= end,
+      ([begin, end]) => timeMarkStart.x >= begin && timeMarkStart.x <= end
     ) !== -1
   ) {
     return;
@@ -1040,10 +1037,10 @@ const drawTimeMarkerAtDayToTask = (
   const timeMarkEnd = scale.feature(
     row,
     day,
-    verticalArrowDestFeatureFromTaskDuration(task, "down"),
+    verticalArrowDestFeatureFromTaskDuration(task, 'down')
   );
   ctx.lineWidth = 0.5;
-  ctx.strokeStyle = opts.colors.get("transparent-overlay");
+  ctx.strokeStyle = opts.colors.get('transparent-overlay');
 
   ctx.moveTo(timeMarkStart.x + 0.5, timeMarkStart.y);
   ctx.lineTo(timeMarkStart.x + 0.5, timeMarkEnd.y);
@@ -1051,8 +1048,8 @@ const drawTimeMarkerAtDayToTask = (
 
   ctx.setLineDash([]);
 
-  ctx.fillStyle = opts.colors.get("on-surface");
-  ctx.textBaseline = "top";
+  ctx.fillStyle = opts.colors.get('on-surface');
+  ctx.textBaseline = 'top';
   const textStart = scale.feature(row, day, Feature.timeTextStart);
   const label = opts.durationDisplay(day);
   const meas = ctx.measureText(label);
@@ -1093,13 +1090,13 @@ const taskIndexToRowFromGroupBy = (
   opts: RenderOptions,
   resourceDefinition: ResourceDefinition | undefined,
   chartLike: ChartLike,
-  displayOrder: VertexIndices,
+  displayOrder: VertexIndices
 ): Result<TaskIndexToRowReturn> => {
   // displayOrder maps from row to task index, this will produce the inverse mapping.
   const taskIndexToRow = new Map(
     // This looks backwards, but it isn't. Remember that the map callback takes
     // (value, index) as its arguments.
-    displayOrder.map((taskIndex: number, row: number) => [taskIndex, row]),
+    displayOrder.map((taskIndex: number, row: number) => [taskIndex, row])
   );
 
   if (resourceDefinition === undefined) {
@@ -1119,7 +1116,7 @@ const taskIndexToRowFromGroupBy = (
   const groups = new Map<string, number[]>();
   displayOrder.forEach((taskIndex: number) => {
     const resourceValue =
-      chartLike.Vertices[taskIndex].getResource(opts.groupByResource) || "";
+      chartLike.Vertices[taskIndex].getResource(opts.groupByResource) || '';
     const groupMembers = groups.get(resourceValue) || [];
     groupMembers.push(taskIndex);
     groups.set(resourceValue, groupMembers);
@@ -1146,7 +1143,7 @@ const taskIndexToRowFromGroupBy = (
         row++;
       });
       rowRanges.set(resourceIndex, { start: startOfRow, finish: row });
-    },
+    }
   );
   ret.set(finishTaskIndex, row);
 
@@ -1162,7 +1159,7 @@ const drawSwimLaneHighlights = (
   scale: Scale,
   rowRanges: Map<number, RowRange>,
   totalNumberOfDays: number,
-  groupColor: string,
+  groupColor: string
 ) => {
   ctx.fillStyle = groupColor;
 
@@ -1171,12 +1168,12 @@ const drawSwimLaneHighlights = (
     const topLeft = scale.feature(
       rowRange.start,
       0,
-      Feature.groupEnvelopeStart,
+      Feature.groupEnvelopeStart
     );
     const bottomRight = scale.feature(
       rowRange.finish,
       totalNumberOfDays + 1,
-      Feature.taskEnvelopeTop,
+      Feature.taskEnvelopeTop
     );
     group++;
     // Only highlight every other group backgroud with the groupColor.
@@ -1187,7 +1184,7 @@ const drawSwimLaneHighlights = (
       topLeft.x,
       topLeft.y,
       bottomRight.x - topLeft.x,
-      bottomRight.y - topLeft.y,
+      bottomRight.y - topLeft.y
     );
   });
 };
@@ -1197,19 +1194,19 @@ const drawSwimLaneLabels = (
   opts: RenderOptions,
   resourceDefinition: ResourceDefinition,
   scale: Scale,
-  rowRanges: Map<number, RowRange>,
+  rowRanges: Map<number, RowRange>
 ) => {
   if (rowRanges) ctx.lineWidth = 1;
-  ctx.fillStyle = opts.colors.get("on-surface");
+  ctx.fillStyle = opts.colors.get('on-surface');
   const groupByOrigin = scale.feature(0, 0, Feature.groupByOrigin);
 
   if (opts.hasTimeline) {
-    ctx.textBaseline = "bottom";
+    ctx.textBaseline = 'bottom';
     ctx.fillText(opts.groupByResource, groupByOrigin.x, groupByOrigin.y);
   }
 
   if (opts.hasTasks) {
-    ctx.textBaseline = "top";
+    ctx.textBaseline = 'top';
     rowRanges.forEach((rowRange: RowRange, resourceIndex: number) => {
       if (rowRange.start === rowRange.finish) {
         return;
@@ -1217,12 +1214,12 @@ const drawSwimLaneLabels = (
       const textStart = scale.feature(
         rowRange.start,
         0,
-        Feature.groupTextStart,
+        Feature.groupTextStart
       );
       ctx.fillText(
         resourceDefinition.values[resourceIndex],
         textStart.x,
-        textStart.y,
+        textStart.y
       );
     });
   }

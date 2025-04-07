@@ -1,22 +1,21 @@
 // Ops for updating a Plan's start status and the completion status of Tasks.
 
-import { Task } from "../chart/chart";
-import { Plan } from "../plan/plan";
-import { PlanStatus, fromJSON, toJSON } from "../plan_status/plan_status";
-import { Result, error, ok } from "../result";
+import { Task } from '../chart/chart';
+import { Plan } from '../plan/plan';
+import { PlanStatus, fromJSON, toJSON } from '../plan_status/plan_status';
+import { Result, error, ok } from '../result';
 import {
   TaskCompletion,
   TaskCompletions,
   taskCompletionsFromJSON,
   taskCompletionsToJSON,
-  taskUnstarted,
-} from "../task_completion/task_completion";
-import { Op, SubOp, SubOpResult } from "./ops";
+} from '../task_completion/task_completion';
+import { Op, SubOp, SubOpResult } from './ops';
 import {
   toJSON as taskToJSON,
   fromJSON as taskFromJSON,
-} from "../task_completion/task_completion";
-import { UnitTypes } from "../units/unit";
+} from '../task_completion/task_completion';
+import { UnitTypes } from '../units/unit';
 
 export class SetPlanStartStateSubOp implements SubOp {
   value: PlanStatus;
@@ -24,7 +23,7 @@ export class SetPlanStartStateSubOp implements SubOp {
 
   constructor(
     value: PlanStatus,
-    taskCompletions: TaskCompletions | null = null,
+    taskCompletions: TaskCompletions | null = null
   ) {
     this.value = value;
     this.taskCompletions = taskCompletions;
@@ -35,17 +34,17 @@ export class SetPlanStartStateSubOp implements SubOp {
     plan.status = this.value;
 
     const taskCompletionsSnapshot = taskCompletionsFromJSON(
-      taskCompletionsToJSON(plan.taskCompletion),
+      taskCompletionsToJSON(plan.taskCompletion)
     );
 
     if (this.taskCompletions !== null) {
       plan.taskCompletion = this.taskCompletions;
     }
 
-    if (plan.status.stage === "unstarted") {
+    if (plan.status.stage === 'unstarted') {
       // Now loop over every task and set the TaskCompletion to unstarted.
-      plan.chart.Vertices.forEach((task: Task, index: number) => {
-        plan.taskCompletion[task.id] = { stage: "unstarted" };
+      plan.chart.Vertices.forEach((task: Task) => {
+        plan.taskCompletion[task.id] = { stage: 'unstarted' };
       });
     }
 
@@ -64,7 +63,7 @@ export class UpdatePlanStartDateSubOp implements SubOp {
   }
 
   applyTo(plan: Plan): Result<SubOpResult> {
-    if (plan.status.stage !== "started") {
+    if (plan.status.stage !== 'started') {
       return error(new Error("Can't set start date on an unstarted plan."));
     }
     const oldStart = plan.status.start;
@@ -105,37 +104,36 @@ export class SetTaskCompletionSubOp implements SubOp {
   }
 
   applyTo(plan: Plan): Result<SubOpResult> {
-    if (this.value.stage !== "unstarted" && plan.status.stage === "unstarted") {
+    if (this.value.stage !== 'unstarted' && plan.status.stage === 'unstarted') {
       return error(
-        new Error("Can't start a task if the plan hasn't been started."),
+        new Error("Can't start a task if the plan hasn't been started.")
       );
     }
-    if (this.value.stage === "started") {
+    if (this.value.stage === 'started') {
       if (this.value.start < 0) {
         return error(
           new Error(
-            "The start of a task can't come befoe the start of the plan.",
-          ),
+            "The start of a task can't come befoe the start of the plan."
+          )
         );
       }
       if (this.value.percentComplete < 1 || this.value.percentComplete > 99) {
-        return error(new Error("Percent Complete must be in [1, 99]."));
+        return error(new Error('Percent Complete must be in [1, 99].'));
       }
     }
-    if (this.value.stage === "finished") {
+    if (this.value.stage === 'finished') {
       if (this.value.span.finish < this.value.span.start) {
         return error(new Error("Finish can't come before Start."));
       }
       if (this.value.span.start < 0) {
         return error(
           new Error(
-            "The start of a task can't come befoe the start of the plan.",
-          ),
+            "The start of a task can't come befoe the start of the plan."
+          )
         );
       }
     }
 
-    const task = plan.chart.Vertices[this.taskIndex];
     const ret = plan.getTaskCompletion(this.taskIndex);
     if (!ret.ok) {
       return ret;
@@ -156,7 +154,7 @@ export class SetTaskCompletionSubOp implements SubOp {
 
 export function SetTaskCompletionOp(
   taskIndex: number,
-  value: TaskCompletion,
+  value: TaskCompletion
 ): Op {
   return new Op([new SetTaskCompletionSubOp(taskIndex, value)]);
 }

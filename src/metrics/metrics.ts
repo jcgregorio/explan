@@ -1,7 +1,7 @@
 // Metrics define floating point values that are tracked per Task.
 
-import { Precision, PrecisionSerialized } from "../precision/precision.ts";
-import { clamp, MetricRange, MetricRangeSerialized } from "./range.ts";
+import { Precision, PrecisionSerialized } from '../precision/precision.ts';
+import { MetricRange, MetricRangeSerialized } from './range.ts';
 
 export interface MetricDefinitionSerialized {
   range: MetricRangeSerialized;
@@ -19,7 +19,7 @@ export class MetricDefinition {
     defaultValue: number,
     range: MetricRange = new MetricRange(),
     isStatic: boolean = false,
-    precision: Precision = new Precision(1),
+    precision: Precision = new Precision(1)
   ) {
     this.precision = precision;
     this.range = range;
@@ -33,7 +33,7 @@ export class MetricDefinition {
     // precision applied to the default.
     this.range = new MetricRange(
       this.precision.round(this.range.min),
-      this.precision.round(this.range.max),
+      this.precision.round(this.range.max)
     );
     // min and max should be rounded to precision first. and then clamp and
     // precision applied to the default.
@@ -60,7 +60,7 @@ export class MetricDefinition {
       s.default || 0,
       MetricRange.fromJSON(s.range),
       false,
-      Precision.fromJSON(s.precision),
+      Precision.fromJSON(s.precision)
     );
   }
 }

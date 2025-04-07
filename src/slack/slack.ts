@@ -1,7 +1,7 @@
-import { Result, ok, error } from "../result.ts";
-import { Task, Chart, ChartValidate } from "../chart/chart.ts";
-import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
-import { Rounder, TaskDuration } from "../types/types.ts";
+import { Result, ok, error } from '../result.ts';
+import { Chart, ChartValidate } from '../chart/chart.ts';
+import { DirectedEdge, edgesBySrcAndDstToMap } from '../dag/dag.ts';
+import { Rounder, TaskDuration } from '../types/types.ts';
 
 /** Span represents when a task will be done, i.e. it contains the time the task
  * is expected to begin and end. */
@@ -32,7 +32,7 @@ export function ComputeSlack(
   taskDuration: TaskDuration | null = null,
   round: Rounder,
   earlyStartOverride: SlackOverride | null = null,
-  earlyFinishOverride: SlackOverride | null = null,
+  earlyFinishOverride: SlackOverride | null = null
 ): SlackResult {
   if (taskDuration === null) {
     taskDuration = (taskIndex: number) => c.Vertices[taskIndex].duration;
@@ -57,13 +57,12 @@ export function ComputeSlack(
   // each task, which is the max of all the predecessors early finish values.
   // Since we know the duration we can also compute the early finish.
   topologicalOrder.slice(1).forEach((vertexIndex: number) => {
-    const task = c.Vertices[vertexIndex];
     const slack = slacks[vertexIndex];
     slack.early.start = Math.max(
       ...edges.byDst.get(vertexIndex)!.map((e: DirectedEdge): number => {
         const predecessorSlack = slacks[e.i];
         return predecessorSlack.early.finish;
-      }),
+      })
     );
     const earlyStartOverrideValue = earlyStartOverride?.(vertexIndex);
     if (earlyStartOverrideValue !== undefined) {
@@ -83,7 +82,6 @@ export function ComputeSlack(
   // now have all the early/late and start/finish values we can now calcuate the
   // slack.
   topologicalOrder.reverse().forEach((vertexIndex: number) => {
-    const task = c.Vertices[vertexIndex];
     const slack = slacks[vertexIndex];
     const successors = edges.bySrc.get(vertexIndex);
     if (!successors) {
