@@ -1,11 +1,46 @@
 {
-  "eslint.nodePath": "./node_modules",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.find.autoFindInSelection": "never",
+  "editor.find.seedSearchStringFromSelection": "always",
+  "editor.fontLigatures": false,
+  "editor.formatOnSave": true,
+  "editor.guides.bracketPairs": true,
+  "editor.wordWrap": "on",
+  "editor.wordWrapColumn": 80,
+  "editor.wrappingIndent": "same",
   "eslint.enable": true,
-  "eslint.experimental.useFlatConfig": true,
-  "eslint.quiet": false,
-  "eslint.run": "onType",
+  "eslint.format.enable": true,
+  "eslint.lintTask.enable": true,
+  "eslint.nodePath": "./node_modules",
   "eslint.onIgnoredFiles": "off",
+  "eslint.quiet": false,
+  "eslint.run": "onSave",
   "eslint.trace.server": "verbose",
+  "eslint.useFlatConfig": true,
+  "eslint.validate": ["javascript", "typescript"],
+  "excalidraw.theme": "dark",
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "files.saveConflictResolution": "overwriteFileOnDisk",
+  "git.enableSmartCommit": true,
+  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
+  "prettier.jsxSingleQuote": true,
+  "prettier.proseWrap": "always",
+  "prettier.singleQuote": true,
+  "rewrap.autoWrap.enabled": false,
+  "terminal.integrated.allowChords": false,
+  "terminal.integrated.enableMultiLinePasteWarning": "always",
+  "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
+  "typescript.format.semicolons": "insert",
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.suggest.completeFunctionCalls": true,
+  "window.zoomLevel": -1,
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.enablePreviewFromQuickOpen": false,
+
+  "eslint.codeAction.showDocumentation": {
+    "enable": true
+  },
   "eslint.probe": [
     "javascript",
     "javascriptreact",
@@ -20,5 +55,7 @@
     "exportWithBackground": true,
     "exportWithDarkMode": true
   },
-  "excalidraw.theme": "dark"
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  }
 }

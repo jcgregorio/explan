@@ -1,21 +1,21 @@
-import { Task } from "../chart/chart.ts";
-import { FilterFunc } from "../chart/filter/filter.ts";
-import { DirectedEdge, edgesBySrcAndDstToMap } from "../dag/dag.ts";
-import { SetMetricValueOp } from "../ops/metrics.ts";
-import { SetResourceValueOp } from "../ops/resources.ts";
-import { Plan } from "../plan/plan.ts";
+import { Task } from '../chart/chart.ts';
+import { FilterFunc } from '../chart/filter/filter.ts';
+import { DirectedEdge, edgesBySrcAndDstToMap } from '../dag/dag.ts';
+import { SetMetricValueOp } from '../ops/metrics.ts';
+import { SetResourceValueOp } from '../ops/resources.ts';
+import { Plan } from '../plan/plan.ts';
 import {
   DIVIDER_MOVE_EVENT,
   DividerMove,
   DividerMoveResult,
-} from "../renderer/dividermove/dividermove.ts";
+} from '../renderer/dividermove/dividermove.ts';
 import {
   DRAG_RANGE_EVENT,
   DragRange,
   MouseDrag,
-} from "../renderer/mousedrag/mousedrag.ts";
-import { MouseMove } from "../renderer/mousemove/mousemove.ts";
-import { DisplayRange } from "../renderer/range/range.ts";
+} from '../renderer/mousedrag/mousedrag.ts';
+import { MouseMove } from '../renderer/mousemove/mousemove.ts';
+import { DisplayRange } from '../renderer/range/range.ts';
 import {
   RenderOptions,
   RenderResult,
@@ -23,33 +23,33 @@ import {
   UpdateHighlightFromMousePos,
   renderTasksToCanvas,
   suggestedCanvasHeight,
-} from "../renderer/renderer.ts";
-import { pt } from "../point/point.ts";
-import { Scale } from "../renderer/scale/scale.ts";
-import { Result } from "../result.ts";
-import { ComputeSlack, CriticalPath, Slack, Span } from "../slack/slack.ts";
-import { Theme2 } from "../style/theme/theme.ts";
-import { generateStarterPlan } from "../generate/generate.ts";
-import { executeByName, executeOp } from "../action/execute.ts";
-import { StartKeyboardHandling } from "../keymap/keymap.ts";
-import { RemoveEdgeOp, SetTaskNameOp } from "../ops/chart.ts";
-import { DependenciesPanel } from "../dependencies/dependencies-panel.ts";
-import { ActionNames } from "../action/registry.ts";
+} from '../renderer/renderer.ts';
+import { pt } from '../point/point.ts';
+import { Scale } from '../renderer/scale/scale.ts';
+import { ok, Result } from '../result.ts';
+import { ComputeSlack, CriticalPath, Slack, Span } from '../slack/slack.ts';
+import { Theme2 } from '../style/theme/theme.ts';
+import { generateStarterPlan } from '../generate/generate.ts';
+import { executeByName, executeOp } from '../action/execute.ts';
+import { StartKeyboardHandling } from '../keymap/keymap.ts';
+import { RemoveEdgeOp, SetTaskNameOp } from '../ops/chart.ts';
+import { DependenciesPanel } from '../dependencies/dependencies-panel.ts';
+import { ActionNames } from '../action/registry.ts';
 import {
   SelectedTaskPanel,
   TaskMetricValueChangeDetails,
   TaskNameChangeDetails,
   TaskResourceValueChangeDetails,
-} from "../selected-task-panel/selected-task-panel.ts";
-import { reportOnError } from "../report-error/report-error.ts";
-import { TaskDuration } from "../types/types.ts";
-import { SimulationPanel } from "../simulation-panel/simulation-panel.ts";
-import { applyStoredTheme } from "../style/toggler/toggler.ts";
-import { EditResourcesPanel } from "../edit-resources-panel/edit-resources-panel.ts";
-import { EditMetricsPanel } from "../edit-metrics-panel/edit-metrics-panel.ts";
-import { TaskCompletionPanel } from "../task-completion-panel/task-completion-panel.ts";
-import { PlanConfigPanel } from "../plan-config-panel/plan-config-panel.ts";
-import { GroupByControl } from "../groupby-control/groupby-control.ts";
+} from '../selected-task-panel/selected-task-panel.ts';
+import { reportOnError } from '../report-error/report-error.ts';
+import { TaskDuration } from '../types/types.ts';
+import { SimulationPanel } from '../simulation-panel/simulation-panel.ts';
+import { applyStoredTheme } from '../style/toggler/toggler.ts';
+import { EditResourcesPanel } from '../edit-resources-panel/edit-resources-panel.ts';
+import { EditMetricsPanel } from '../edit-metrics-panel/edit-metrics-panel.ts';
+import { TaskCompletionPanel } from '../task-completion-panel/task-completion-panel.ts';
+import { PlanConfigPanel } from '../plan-config-panel/plan-config-panel.ts';
+import { GroupByControl } from '../groupby-control/groupby-control.ts';
 
 const FONT_SIZE_PX = 32;
 
@@ -72,7 +72,7 @@ export class ExplanMain extends HTMLElement {
   radarScale: Scale | null = null;
 
   /** Which Resource to group by when drawing the chart. */
-  groupBySelection: string = "";
+  groupBySelection: string = '';
 
   /** The currently selected task, as an index. */
   selectedTask: number = -1;
@@ -100,24 +100,24 @@ export class ExplanMain extends HTMLElement {
 
   connectedCallback() {
     this.simulationPanel =
-      this.querySelector<SimulationPanel>("simulation-panel");
-    this.simulationPanel!.addEventListener("simulation-select", (e) => {
+      this.querySelector<SimulationPanel>('simulation-panel');
+    this.simulationPanel!.addEventListener('simulation-select', (e) => {
       this.alternateTaskDurations = e.detail.durations;
       this.criticalPath = e.detail.criticalPath;
       this.recalculateSpansAndCriticalPath();
       this.paintChart();
     });
 
-    this.downloadLink = this.querySelector<HTMLAnchorElement>("#download")!;
-    this.downloadLink.addEventListener("click", () => {
+    this.downloadLink = this.querySelector<HTMLAnchorElement>('#download')!;
+    this.downloadLink.addEventListener('click', () => {
       this.prepareDownload();
     });
-    this.dependenciesPanel = this.querySelector("dependencies-panel")!;
+    this.dependenciesPanel = this.querySelector('dependencies-panel')!;
 
-    this.dependenciesPanel!.addEventListener("add-dependency", async (e) => {
-      let actionName: ActionNames = "AddPredecessorAction";
-      if (e.detail.depType === "succ") {
-        actionName = "AddSuccessorAction";
+    this.dependenciesPanel!.addEventListener('add-dependency', async (e) => {
+      let actionName: ActionNames = 'AddPredecessorAction';
+      if (e.detail.depType === 'succ') {
+        actionName = 'AddSuccessorAction';
       }
       const ret = await executeByName(actionName, this);
       if (!ret.ok) {
@@ -125,49 +125,49 @@ export class ExplanMain extends HTMLElement {
       }
     });
 
-    this.dependenciesPanel!.addEventListener("delete-dependency", async (e) => {
+    this.dependenciesPanel!.addEventListener('delete-dependency', async (e) => {
       let [i, j] = [e.detail.taskIndex, this.selectedTask];
-      if (e.detail.depType === "succ") {
+      if (e.detail.depType === 'succ') {
         [i, j] = [j, i];
       }
       const op = RemoveEdgeOp(i, j);
-      const ret = await executeOp(op, "planDefinitionChanged", true, this);
+      const ret = await executeOp(op, 'planDefinitionChanged', true, this);
       if (!ret.ok) {
         console.log(ret.error);
       }
     });
 
-    this.selectedTaskPanel = this.querySelector("selected-task-panel")!;
+    this.selectedTaskPanel = this.querySelector('selected-task-panel')!;
     this.selectedTaskPanel.addEventListener(
-      "task-name-change",
+      'task-name-change',
       async (e: CustomEvent<TaskNameChangeDetails>) => {
         const op = SetTaskNameOp(e.detail.taskIndex, e.detail.name);
-        reportOnError(await executeOp(op, "planDefinitionChanged", true, this));
+        reportOnError(await executeOp(op, 'planDefinitionChanged', true, this));
       }
     );
 
     this.selectedTaskPanel.addEventListener(
-      "task-resource-value-change",
+      'task-resource-value-change',
       async (e: CustomEvent<TaskResourceValueChangeDetails>) => {
         const { name, value, taskIndex } = e.detail;
         const op = SetResourceValueOp(name, value, taskIndex);
-        reportOnError(await executeOp(op, "planDefinitionChanged", true, this));
+        reportOnError(await executeOp(op, 'planDefinitionChanged', true, this));
       }
     );
 
     this.selectedTaskPanel.addEventListener(
-      "task-metric-value-change",
+      'task-metric-value-change',
       async (e: CustomEvent<TaskMetricValueChangeDetails>) => {
         const { name, value, taskIndex } = e.detail;
         const op = SetMetricValueOp(name, value, taskIndex);
-        reportOnError(await executeOp(op, "planDefinitionChanged", true, this));
+        reportOnError(await executeOp(op, 'planDefinitionChanged', true, this));
       }
     );
 
-    this.taskCompletionPanel = this.querySelector("task-completion-panel");
+    this.taskCompletionPanel = this.querySelector('task-completion-panel');
 
     // Dragging on the radar.
-    const radar = this.querySelector<HTMLElement>("#radar")!;
+    const radar = this.querySelector<HTMLElement>('#radar')!;
     new MouseDrag(radar);
     radar.addEventListener(
       DRAG_RANGE_EVENT,
@@ -175,60 +175,60 @@ export class ExplanMain extends HTMLElement {
     );
 
     // Divider dragging.
-    const divider = this.querySelector<HTMLElement>("vertical-divider")!;
-    new DividerMove(document.body, divider, "column");
+    const divider = this.querySelector<HTMLElement>('vertical-divider')!;
+    new DividerMove(document.body, divider, 'column');
 
     document.body.addEventListener(DIVIDER_MOVE_EVENT, ((
       e: CustomEvent<DividerMoveResult>
     ) => {
       this.style.setProperty(
-        "grid-template-columns",
+        'grid-template-columns',
         `calc(${e.detail.before}% - 15px) 10px auto`
       );
       this.paintChart();
     }) as EventListener);
 
     // Buttons
-    this.querySelector("#dark-mode-toggle")!.addEventListener("click", () => {
-      executeByName("ToggleDarkModeAction", this);
+    this.querySelector('#dark-mode-toggle')!.addEventListener('click', () => {
+      executeByName('ToggleDarkModeAction', this);
     });
     applyStoredTheme();
 
-    this.querySelector<HTMLInputElement>("#radar-toggle")!.addEventListener(
-      "input",
+    this.querySelector<HTMLInputElement>('#radar-toggle')!.addEventListener(
+      'input',
       (e: Event) => {
         this.setRadar((e.target as HTMLInputElement).checked);
       }
     );
 
     this.querySelector<HTMLInputElement>(
-      "#critical-paths-toggle"
-    )!.addEventListener("input", (e: Event) => {
+      '#critical-paths-toggle'
+    )!.addEventListener('input', (e: Event) => {
       this.criticalPathsOnly = (e.target as HTMLInputElement).checked;
       this.paintChart();
     });
 
-    const overlayCanvas = this.querySelector<HTMLCanvasElement>("#overlay")!;
+    const overlayCanvas = this.querySelector<HTMLCanvasElement>('#overlay')!;
     this.mouseMove = new MouseMove(overlayCanvas);
     window.requestAnimationFrame(this.onMouseMove.bind(this));
 
-    overlayCanvas.addEventListener("mousedown", (e: MouseEvent) => {
+    overlayCanvas.addEventListener('mousedown', (e: MouseEvent) => {
       const p = pt(e.offsetX, e.offsetY);
       if (this.updateHighlightFromMousePos !== null) {
         this.setSelection(
-          this.updateHighlightFromMousePos(p, "mousedown") || -1,
+          this.updateHighlightFromMousePos(p, 'mousedown') || -1,
           false
         );
       }
     });
 
-    overlayCanvas.addEventListener("dblclick", (e: MouseEvent) => {
+    overlayCanvas.addEventListener('dblclick', (e: MouseEvent) => {
       const p = pt(e.offsetX, e.offsetY);
       if (this.updateHighlightFromMousePos !== null) {
         const taskIndex =
-          this.updateHighlightFromMousePos(p, "mousedown") || -1;
+          this.updateHighlightFromMousePos(p, 'mousedown') || -1;
         if (taskIndex === -1) {
-          executeByName("ResetZoomAction", this);
+          executeByName('ResetZoomAction', this);
         }
         this.setSelection(taskIndex, true, true);
       }
@@ -236,8 +236,8 @@ export class ExplanMain extends HTMLElement {
 
     // React to the upload input.
     const fileUpload =
-      document.querySelector<HTMLInputElement>("#file-upload")!;
-    fileUpload.addEventListener("change", async () => {
+      document.querySelector<HTMLInputElement>('#file-upload')!;
+    fileUpload.addEventListener('change', async () => {
       const json = await fileUpload.files![0].text();
       const ret = Plan.FromJSONText(json);
       if (!ret.ok) {
@@ -247,7 +247,7 @@ export class ExplanMain extends HTMLElement {
       this.planDefinitionHasBeenChanged();
     });
 
-    this.querySelector("#simulate")!.addEventListener("click", () => {
+    this.querySelector('#simulate')!.addEventListener('click', () => {
       this.recalculateSpansAndCriticalPath();
       this.criticalPath = this.simulationPanel!.simulate(
         this.plan.chart,
@@ -257,19 +257,19 @@ export class ExplanMain extends HTMLElement {
       this.paintChart();
     });
 
-    this.querySelector<EditResourcesPanel>("edit-resources-panel")!.setConfig(
+    this.querySelector<EditResourcesPanel>('edit-resources-panel')!.setConfig(
       this
     );
 
-    this.querySelector<PlanConfigPanel>("plan-config-panel")!.setConfig(this);
+    this.querySelector<PlanConfigPanel>('plan-config-panel')!.setConfig(this);
 
-    this.querySelector<EditMetricsPanel>("edit-metrics-panel")!.setConfig(this);
+    this.querySelector<EditMetricsPanel>('edit-metrics-panel')!.setConfig(this);
 
     const goupByControl =
-      this.querySelector<GroupByControl>("groupby-control")!;
+      this.querySelector<GroupByControl>('groupby-control')!;
     goupByControl.setConfig(this);
     goupByControl.addEventListener(
-      "group-by-resource-changed",
+      'group-by-resource-changed',
       (e: CustomEvent<string>) => {
         this.groupBySelection = e.detail;
         this.planDefinitionHasBeenChanged();
@@ -280,7 +280,7 @@ export class ExplanMain extends HTMLElement {
     this.updateTaskPanels(this.selectedTask);
     this.planDefinitionHasBeenChanged();
 
-    window.addEventListener("resize", () => this.paintChart());
+    window.addEventListener('resize', () => this.paintChart());
     StartKeyboardHandling(this);
   }
 
@@ -290,10 +290,24 @@ export class ExplanMain extends HTMLElement {
   }
 
   prepareDownload() {
-    const downloadBlob = new Blob([JSON.stringify(this.plan, null, "  ")], {
-      type: "application/json",
+    const downloadBlob = new Blob([JSON.stringify(this.plan, null, '  ')], {
+      type: 'application/json',
     });
     this.downloadLink!.href = URL.createObjectURL(downloadBlob);
+  }
+
+  toJSON(): string {
+    return JSON.stringify(this.plan, null, '  ');
+  }
+
+  fromJSON(json: string): Result<null> {
+    const ret = Plan.FromJSONText(json);
+    if (!ret.ok) {
+      return ret;
+    }
+    this.plan = ret.value;
+    this.planDefinitionHasBeenChanged();
+    return ok(null);
   }
 
   updateTaskPanels(taskIndex: number) {
@@ -311,7 +325,7 @@ export class ExplanMain extends HTMLElement {
       (edges.bySrc.get(taskIndex) || []).map((e: DirectedEdge) => e.j)
     );
     this.dependenciesPanel!.classList.toggle(
-      "hidden",
+      'hidden',
       this.selectedTask === -1
     );
   }
@@ -336,7 +350,7 @@ export class ExplanMain extends HTMLElement {
   onMouseMove() {
     const location = this.mouseMove!.readLocation();
     if (location !== null && this.updateHighlightFromMousePos !== null) {
-      this.updateHighlightFromMousePos(location, "mousemove");
+      this.updateHighlightFromMousePos(location, 'mousemove');
     }
     window.requestAnimationFrame(this.onMouseMove.bind(this));
   }
@@ -347,7 +361,7 @@ export class ExplanMain extends HTMLElement {
     this.alternateTaskDurations = null;
     this.recalculateSpansAndCriticalPath();
     this.paintChart();
-    document.dispatchEvent(new CustomEvent("plan-definition-changed"));
+    document.dispatchEvent(new CustomEvent('plan-definition-changed'));
   }
 
   getTaskDurationFunc(): TaskDuration {
@@ -363,7 +377,7 @@ export class ExplanMain extends HTMLElement {
     let slacks: Slack[] = [];
 
     const rounder = this.plan
-      .getStaticMetricDefinition("Duration")
+      .getStaticMetricDefinition('Duration')
       .precision.rounder();
 
     const earlyStartOverride = (taskIndex: number): number | undefined => {
@@ -373,13 +387,13 @@ export class ExplanMain extends HTMLElement {
       }
       const completion = ret.value;
       switch (completion.stage) {
-        case "unstarted":
+        case 'unstarted':
           return undefined;
           break;
-        case "started":
+        case 'started':
           return completion.start;
           break;
-        case "finished":
+        case 'finished':
           return completion.span.start;
           break;
         default:
@@ -395,13 +409,13 @@ export class ExplanMain extends HTMLElement {
       }
       const completion = ret.value;
       switch (completion.stage) {
-        case "unstarted":
+        case 'unstarted':
           return undefined;
           break;
-        case "started":
+        case 'started':
           return undefined;
           break;
-        case "finished":
+        case 'finished':
           return completion.span.finish;
           break;
         default:
@@ -446,11 +460,11 @@ export class ExplanMain extends HTMLElement {
   }
 
   toggleRadar() {
-    this.querySelector("radar-parent")!.classList.toggle("hidden");
+    this.querySelector('radar-parent')!.classList.toggle('hidden');
   }
 
   setRadar(on: boolean) {
-    this.querySelector("radar-parent")!.classList.toggle("hidden", !on);
+    this.querySelector('radar-parent')!.classList.toggle('hidden', !on);
   }
 
   toggleCriticalPathsOnly() {
@@ -462,7 +476,7 @@ export class ExplanMain extends HTMLElement {
   }
 
   paintChart(scrollToSelected: boolean = false) {
-    console.time("paintChart");
+    console.time('paintChart');
 
     const theme2 = new Theme2();
     theme2.loadFromElement(document.body);
@@ -518,14 +532,14 @@ export class ExplanMain extends HTMLElement {
       if (!ret.ok) {
         return false;
       }
-      return ret.value.stage !== "unstarted";
+      return ret.value.stage !== 'unstarted';
     };
 
     const radarOpts: RenderOptions = {
       fontSizePx: 6,
       hasText: false,
       displayRange: this.displayRange,
-      displayRangeUsage: "highlight",
+      displayRangeUsage: 'highlight',
       colors: theme2,
       hasTimeline: false,
       hasTasks: true,
@@ -546,7 +560,7 @@ export class ExplanMain extends HTMLElement {
       fontSizePx: theme2.fontSize(),
       hasText: true,
       displayRange: this.displayRange,
-      displayRangeUsage: "restrict",
+      displayRangeUsage: 'restrict',
       colors: theme2,
       hasTimeline: this.topTimeline,
       hasTasks: true,
@@ -567,7 +581,7 @@ export class ExplanMain extends HTMLElement {
       fontSizePx: theme2.fontSize(),
       hasText: true,
       displayRange: this.displayRange,
-      displayRangeUsage: "restrict",
+      displayRangeUsage: 'restrict',
       colors: theme2,
       hasTimeline: true,
       hasTasks: false,
@@ -584,14 +598,14 @@ export class ExplanMain extends HTMLElement {
       taskIsStarted: taskIsStarted,
     };
 
-    const ret = this.paintOneChart("#radar", radarOpts);
+    const ret = this.paintOneChart('#radar', radarOpts);
     if (!ret.ok) {
       return;
     }
     this.radarScale = ret.value.scale;
 
-    this.paintOneChart("#timeline", timelineOpts);
-    const zoomRet = this.paintOneChart("#zoomed", zoomOpts, "#overlay");
+    this.paintOneChart('#timeline', timelineOpts);
+    const zoomRet = this.paintOneChart('#zoomed', zoomOpts, '#overlay');
     if (zoomRet.ok) {
       this.updateHighlightFromMousePos =
         zoomRet.value.updateHighlightFromMousePos;
@@ -600,15 +614,15 @@ export class ExplanMain extends HTMLElement {
         if (!this.focusOnTask) {
           top = zoomRet.value.selectedTaskLocation.y;
         }
-        document.querySelector("chart-parent")!.scrollTo({
+        document.querySelector('chart-parent')!.scrollTo({
           top: top,
           left: 0,
-          behavior: "smooth",
+          behavior: 'smooth',
         });
       }
     }
 
-    console.timeEnd("paintChart");
+    console.timeEnd('paintChart');
   }
 
   prepareCanvas(
@@ -623,7 +637,7 @@ export class ExplanMain extends HTMLElement {
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
 
-    const ctx = canvas.getContext("2d")!;
+    const ctx = canvas.getContext('2d')!;
     ctx.imageSmoothingEnabled = false;
 
     return ctx;
@@ -632,7 +646,7 @@ export class ExplanMain extends HTMLElement {
   paintOneChart(
     canvasID: string,
     opts: RenderOptions,
-    overlayID: string = ""
+    overlayID: string = ''
   ): Result<RenderResult> {
     const canvas = this.querySelector<HTMLCanvasElement>(canvasID)!;
     const parent = canvas!.parentElement!;
@@ -676,4 +690,4 @@ export class ExplanMain extends HTMLElement {
   }
 }
 
-customElements.define("explan-main", ExplanMain);
+customElements.define('explan-main', ExplanMain);
