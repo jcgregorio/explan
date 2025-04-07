@@ -29,7 +29,7 @@
   "prettier.singleQuote": true,
   "rewrap.autoWrap.enabled": false,
   "terminal.integrated.allowChords": false,
-  "terminal.integrated.enableMultiLinePasteWarning": "always",
+  "terminal.integrated.enableMultiLinePasteWarning": "never",
   "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
   "typescript.format.semicolons": "insert",
   "typescript.preferences.quoteStyle": "single",
