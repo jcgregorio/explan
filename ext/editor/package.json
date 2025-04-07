@@ -12,10 +12,15 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [
+    "customEditors": [
       {
-        "command": "editor.helloWorld",
-        "title": "Hello World"
+        "viewType": "explan.editor",
+        "displayName": "Explan",
+        "selector": [
+          {
+            "filenamePattern": "*.explan.json"
+          }
+        ]
       }
     ]
   },
