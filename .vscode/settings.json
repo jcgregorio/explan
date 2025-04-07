@@ -14,7 +14,7 @@
   "eslint.nodePath": "./node_modules",
   "eslint.onIgnoredFiles": "off",
   "eslint.quiet": false,
-  "eslint.run": "onSave",
+  "eslint.run": "onType",
   "eslint.trace.server": "verbose",
   "eslint.useFlatConfig": true,
   "eslint.validate": ["javascript", "typescript"],
