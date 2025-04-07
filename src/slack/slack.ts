@@ -32,7 +32,7 @@ export function ComputeSlack(
   taskDuration: TaskDuration | null = null,
   round: Rounder,
   earlyStartOverride: SlackOverride | null = null,
-  earlyFinishOverride: SlackOverride | null = null
+  earlyFinishOverride: SlackOverride | null = null,
 ): SlackResult {
   if (taskDuration === null) {
     taskDuration = (taskIndex: number) => c.Vertices[taskIndex].duration;
@@ -63,7 +63,7 @@ export function ComputeSlack(
       ...edges.byDst.get(vertexIndex)!.map((e: DirectedEdge): number => {
         const predecessorSlack = slacks[e.i];
         return predecessorSlack.early.finish;
-      })
+      }),
     );
     const earlyStartOverrideValue = earlyStartOverride?.(vertexIndex);
     if (earlyStartOverrideValue !== undefined) {

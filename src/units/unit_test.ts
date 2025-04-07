@@ -11,7 +11,7 @@ describe("Units", () => {
     0,
     new MetricRange(1),
     false,
-    new Precision(2)
+    new Precision(2),
   );
   const ret = parseDateString("2025-01-22");
   assert.isTrue(ret.ok);
@@ -38,7 +38,7 @@ describe("Units", () => {
       assert.equal(
         isOK(d.parse("1.123456")),
         1.12,
-        "rounded to precision of 2"
+        "rounded to precision of 2",
       );
     });
 

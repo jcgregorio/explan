@@ -99,7 +99,7 @@ export class DividerMove {
   constructor(
     parent: HTMLElement,
     divider: HTMLElement,
-    dividerType: DividerType = "column"
+    dividerType: DividerType = "column",
   ) {
     this.parent = parent;
     this.divider = divider;
@@ -136,7 +136,7 @@ export class DividerMove {
             before: diffPercent,
             after: 100 - diffPercent,
           },
-        })
+        }),
       );
       this.lastMoveSent = dup(this.currentMoveLocation);
     }

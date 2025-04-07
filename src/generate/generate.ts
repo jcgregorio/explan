@@ -42,7 +42,7 @@ export const generateStarterPlan = (): Plan => {
       SetMetricValueOp("Duration", 10, 1),
       SetResourceValueOp("Uncertainty", "low", 1),
     ],
-    plan
+    plan,
   );
 
   if (!res.ok) {
@@ -67,7 +67,7 @@ export const generateRandomPlan = (): Plan => {
     SetMetricValueOp("Duration", rndDuration(), 1),
     SetTaskNameOp(1, randomTaskName()),
     SetResourceValueOp("Person", people[rndInt(people.length)], 1),
-    SetResourceValueOp("Uncertainty", rndUncertainty(), 1)
+    SetResourceValueOp("Uncertainty", rndUncertainty(), 1),
   );
 
   let numTasks = 1;
@@ -78,7 +78,7 @@ export const generateRandomPlan = (): Plan => {
       SetMetricValueOp("Duration", rndDuration(), index + 1),
       SetTaskNameOp(index + 1, randomTaskName()),
       SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
-      SetResourceValueOp("Uncertainty", rndUncertainty(), index + 1)
+      SetResourceValueOp("Uncertainty", rndUncertainty(), index + 1),
     );
     numTasks++;
     index = rndInt(numTasks) + 1;
@@ -87,7 +87,7 @@ export const generateRandomPlan = (): Plan => {
       SetMetricValueOp("Duration", rndDuration(), index + 1),
       SetTaskNameOp(index + 1, randomTaskName()),
       SetResourceValueOp("Person", people[rndInt(people.length)], index + 1),
-      SetResourceValueOp("Uncertainty", rndUncertainty(), index + 1)
+      SetResourceValueOp("Uncertainty", rndUncertainty(), index + 1),
     );
     numTasks++;
   }

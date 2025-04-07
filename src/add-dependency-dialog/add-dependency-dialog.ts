@@ -30,7 +30,7 @@ export class AddDependencyDialog extends HTMLElement {
   public selectDependency(
     chart: Chart,
     taskIndex: number,
-    depType: DepType
+    depType: DepType,
   ): Promise<number | undefined> {
     this.titleElement!.textContent = depDisplayName[depType];
 

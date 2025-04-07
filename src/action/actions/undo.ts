@@ -16,7 +16,6 @@ export class UndoAction implements Action {
   }
 }
 
-
 export class RedoAction implements Action {
   description: string = "Redoes the most recent undo action.";
   postActionWork: PostActonWork = "";

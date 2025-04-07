@@ -24,14 +24,14 @@ export class EditResourcesPanel extends HTMLElement {
   connectedCallback(): void {
     document.addEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
@@ -54,7 +54,7 @@ export class EditResourcesPanel extends HTMLElement {
 
   private delButtonIfNotStatic(
     name: string,
-    isStatic: boolean
+    isStatic: boolean,
   ): TemplateResult {
     if (isStatic) {
       return html``;
@@ -70,7 +70,7 @@ export class EditResourcesPanel extends HTMLElement {
 
   private editButtonIfNotStatic(
     name: string,
-    isStatic: boolean
+    isStatic: boolean,
   ): TemplateResult {
     if (isStatic) {
       return html``;
@@ -89,7 +89,7 @@ export class EditResourcesPanel extends HTMLElement {
       DeleteResourceOp(name),
       "planDefinitionChanged",
       true,
-      this.explanMain!
+      this.explanMain!,
     );
     if (!ret.ok) {
       console.log(ret.error);
@@ -99,11 +99,11 @@ export class EditResourcesPanel extends HTMLElement {
 
   private editResource(name: string) {
     this.explanMain!.querySelector<EditResourceDefinition>(
-      "edit-resource-definition"
+      "edit-resource-definition",
     )!.showModal(
       this.explanMain!,
       name,
-      this.explanMain!.plan.resourceDefinitions[name]
+      this.explanMain!.plan.resourceDefinitions[name],
     );
   }
 
@@ -116,7 +116,7 @@ export class EditResourcesPanel extends HTMLElement {
       AddResourceOp(name),
       "planDefinitionChanged",
       true,
-      this.explanMain!
+      this.explanMain!,
     );
     if (!ret.ok) {
       window.alert(ret.error);
@@ -138,7 +138,7 @@ export class EditResourcesPanel extends HTMLElement {
           return -1;
         }
         return 1;
-      }
+      },
     );
 
     return html`

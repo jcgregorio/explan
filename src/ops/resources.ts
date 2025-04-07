@@ -19,7 +19,7 @@ export class AddResourceSubOp implements SubOp {
 
   constructor(
     name: string,
-    deleteResourceUndoState: deleteResourceUndoState | null = null
+    deleteResourceUndoState: deleteResourceUndoState | null = null,
   ) {
     this.key = name;
     this.deleteResourceUndoState = deleteResourceUndoState;
@@ -35,7 +35,7 @@ export class AddResourceSubOp implements SubOp {
       this.key,
       (this.deleteResourceUndoState &&
         this.deleteResourceUndoState.resourceDefinition) ||
-        new ResourceDefinition()
+        new ResourceDefinition(),
     );
 
     // Now loop over every task and add this key and set it to the default, unless
@@ -45,9 +45,9 @@ export class AddResourceSubOp implements SubOp {
         this.key,
         (this.deleteResourceUndoState &&
           this.deleteResourceUndoState.taskIndexToDeletedResourceValue.get(
-            index
+            index,
           )) ||
-          DEFAULT_RESOURCE_VALUE
+          DEFAULT_RESOURCE_VALUE,
       );
     });
 
@@ -75,7 +75,7 @@ export class DeleteResourceSupOp implements SubOp {
     const resourceDefinition = plan.getResourceDefinition(this.key);
     if (resourceDefinition === undefined) {
       return error(
-        `The resource with name ${this.key} does not exist and can't be deleted.`
+        `The resource with name ${this.key} does not exist and can't be deleted.`,
       );
     }
 
@@ -116,7 +116,7 @@ export class AddResourceOptionSubOp implements SubOp {
   constructor(
     key: string,
     value: string,
-    indicesOfTasksToChange: number[] = [] // This should only be supplied when being constructed as a inverse operation.
+    indicesOfTasksToChange: number[] = [], // This should only be supplied when being constructed as a inverse operation.
   ) {
     this.key = key;
     this.value = value;
@@ -129,11 +129,11 @@ export class AddResourceOptionSubOp implements SubOp {
       return error(`${this.key} doesn't exist as a Resource`);
     }
     const existingIndex = definition.values.findIndex(
-      (value: string) => value === this.value
+      (value: string) => value === this.value,
     );
     if (existingIndex !== -1) {
       return error(
-        `${this.value} already exists as a value in the Resource ${this.key}.`
+        `${this.value} already exists as a value in the Resource ${this.key}.`,
       );
     }
     definition.values.push(this.value);
@@ -151,7 +151,7 @@ export class AddResourceOptionSubOp implements SubOp {
     return new DeleteResourceOptionSubOp(
       this.key,
       this.value,
-      this.indicesOfTasksToChange
+      this.indicesOfTasksToChange,
     );
   }
 }
@@ -164,7 +164,7 @@ export class DeleteResourceOptionSubOp implements SubOp {
   constructor(
     key: string,
     value: string,
-    indicesOfTasksToChange: number[] = []
+    indicesOfTasksToChange: number[] = [],
   ) {
     this.key = key;
     this.value = value;
@@ -177,16 +177,16 @@ export class DeleteResourceOptionSubOp implements SubOp {
       return error(`${this.key} doesn't exist as a Resource`);
     }
     const valueIndex = definition.values.findIndex(
-      (value: string) => value === this.value
+      (value: string) => value === this.value,
     );
     if (valueIndex === -1) {
       return error(
-        `${this.value} does not exist as a value in the Resource ${this.key}.`
+        `${this.value} does not exist as a value in the Resource ${this.key}.`,
       );
     }
     if (definition.values.length === 1) {
       return error(
-        `Resources must have at least one value. ${this.value} only has one value, so it can't be deleted. `
+        `Resources must have at least one value. ${this.value} only has one value, so it can't be deleted. `,
       );
     }
 
@@ -224,7 +224,7 @@ export class DeleteResourceOptionSubOp implements SubOp {
     return new AddResourceOptionSubOp(
       this.key,
       this.value,
-      indicesOfTasksToChange
+      indicesOfTasksToChange,
     );
   }
 }
@@ -317,7 +317,7 @@ export class RenameResourceOptionSubOp implements SubOp {
     return new RenameResourceOptionSubOp(
       this.key,
       this.newValue,
-      this.oldValue
+      this.oldValue,
     );
   }
 }
@@ -345,12 +345,12 @@ export class MoveResourceOptionSubOp implements SubOp {
 
     if (this.oldIndex > definition.values.length - 1) {
       return error(
-        `${this.key} does not have a value at index ${this.oldIndex}`
+        `${this.key} does not have a value at index ${this.oldIndex}`,
       );
     }
     if (this.newIndex > definition.values.length - 1) {
       return error(
-        `${this.key} does not have a value at index ${this.newIndex}`
+        `${this.key} does not have a value at index ${this.newIndex}`,
       );
     }
 
@@ -428,7 +428,7 @@ export function DeleteResourceOptionOp(key: string, value: string): Op {
 export function RenameResourceOptionOp(
   key: string,
   oldValue: string,
-  newValue: string
+  newValue: string,
 ): Op {
   return new Op([new RenameResourceOptionSubOp(key, oldValue, newValue)]);
 }
@@ -440,7 +440,7 @@ export function RenameResourceOp(oldValue: string, newValue: string): Op {
 export function MoveResourceOptionOp(
   key: string,
   oldIndex: number,
-  newIndex: number
+  newIndex: number,
 ): Op {
   return new Op([new MoveResourceOptionSubOp(key, oldIndex, newIndex)]);
 }
@@ -448,7 +448,7 @@ export function MoveResourceOptionOp(
 export function SetResourceValueOp(
   key: string,
   value: string,
-  taskIndex: number
+  taskIndex: number,
 ): Op {
   return new Op([new SetResourceValueSubOp(key, value, taskIndex)]);
 }

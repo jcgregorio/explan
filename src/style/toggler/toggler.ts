@@ -5,13 +5,13 @@ const darkModeLocalStorageKey = "explan-darkmode";
 export const toggleTheme = () => {
   window.localStorage.setItem(
     darkModeLocalStorageKey,
-    document.body.classList.toggle("darkmode") ? "1" : "0"
+    document.body.classList.toggle("darkmode") ? "1" : "0",
   );
 };
 
 export const applyStoredTheme = () => {
   document.body.classList.toggle(
     "darkmode",
-    window.localStorage.getItem(darkModeLocalStorageKey) === "1"
+    window.localStorage.getItem(darkModeLocalStorageKey) === "1",
   );
 };

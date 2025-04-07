@@ -120,7 +120,7 @@ describe("SetTaskCompletionOp", () => {
       TOp((plan: Plan) => {
         assert.deepEqual(
           plan.taskCompletion[plan.chart.Vertices[1].id],
-          finished
+          finished,
         );
       }),
     ]);

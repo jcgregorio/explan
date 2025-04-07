@@ -29,14 +29,14 @@ export class TaskCompletionPanel extends HTMLElement {
   connectedCallback(): void {
     document.addEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
@@ -150,7 +150,7 @@ export class TaskCompletionPanel extends HTMLElement {
       SetTaskCompletionOp(this.taskIndex, t),
       "planDefinitionChanged",
       true,
-      this.explanMain!
+      this.explanMain!,
     );
     if (!ret.ok) {
       this.updateOnInput();

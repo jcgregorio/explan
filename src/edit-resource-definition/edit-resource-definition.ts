@@ -31,21 +31,21 @@ export class EditResourceDefinition extends HTMLElement {
   connectedCallback(): void {
     document.addEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
   showModal(
     explanMain: ExplanMain,
     name: string,
-    resourceDefinition: ResourceDefinition
+    resourceDefinition: ResourceDefinition,
   ) {
     this.explanMain = explanMain;
     this.resourceDefinition = resourceDefinition;
@@ -67,7 +67,7 @@ export class EditResourceDefinition extends HTMLElement {
       op,
       "planDefinitionChanged",
       true,
-      this.explanMain!
+      this.explanMain!,
     );
     if (!ret.ok) {
       window.alert(ret.error);
@@ -88,10 +88,10 @@ export class EditResourceDefinition extends HTMLElement {
   private async changeResourceValueName(
     e: Event,
     newValue: string,
-    oldValue: string
+    oldValue: string,
   ) {
     const ret = await this.executeOp(
-      RenameResourceOptionOp(this.name, oldValue, newValue)
+      RenameResourceOptionOp(this.name, oldValue, newValue),
     );
     if (!ret.ok) {
       window.alert(ret.error);
@@ -112,7 +112,7 @@ export class EditResourceDefinition extends HTMLElement {
     let newResourceName = this.getProposedResourceName();
     while (
       this.explanMain!.plan.resourceDefinitions[this.name].values.findIndex(
-        (value: string) => value === newResourceName
+        (value: string) => value === newResourceName,
       ) != -1
     ) {
       newResourceName = this.getProposedResourceName();
@@ -122,12 +122,12 @@ export class EditResourceDefinition extends HTMLElement {
   }
   private async moveUp(value: string, valueIndex: number) {
     await this.executeOp(
-      MoveResourceOptionOp(this.name, valueIndex, valueIndex - 1)
+      MoveResourceOptionOp(this.name, valueIndex, valueIndex - 1),
     );
   }
   private async moveDown(value: string, valueIndex: number) {
     await this.executeOp(
-      MoveResourceOptionOp(this.name, valueIndex, valueIndex + 1)
+      MoveResourceOptionOp(this.name, valueIndex, valueIndex + 1),
     );
   }
   private async moveToTop(value: string, valueIndex: number) {
@@ -138,8 +138,8 @@ export class EditResourceDefinition extends HTMLElement {
       MoveResourceOptionOp(
         this.name,
         valueIndex,
-        this.explanMain!.plan.resourceDefinitions[this.name]!.values.length - 1
-      )
+        this.explanMain!.plan.resourceDefinitions[this.name]!.values.length - 1,
+      ),
     );
   }
   private async deleteResourceValue(value: string, valueIndex: number) {
@@ -173,7 +173,7 @@ export class EditResourceDefinition extends HTMLElement {
                       this.changeResourceValueName(
                         e,
                         ele.value,
-                        ele.dataset.oldValue || ""
+                        ele.dataset.oldValue || "",
                       );
                     }}
                     .value=${live(value)}
@@ -228,7 +228,7 @@ export class EditResourceDefinition extends HTMLElement {
                   </button>
                 </td>
               </tr>`;
-            }
+            },
           )}
           <tr>
             <td></td>

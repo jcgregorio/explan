@@ -83,7 +83,7 @@ export class Scale {
     opts: RenderOptions,
     canvasWidthPx: number,
     totalNumberOfDays: number,
-    maxGroupNameLength: number = 0
+    maxGroupNameLength: number = 0,
   ) {
     this.totalNumberOfDays = totalNumberOfDays;
     this.groupByColumnWidthPx = maxGroupNameLength * opts.fontSizePx;
@@ -116,19 +116,19 @@ export class Scale {
         (canvasWidthPx - this.groupByColumnWidthPx - 2 * this.marginSizePx) /
         opts.displayRange.rangeInDays;
       beginOffset = Math.floor(
-        this.dayWidthPx * opts.displayRange.begin + this.marginSizePx
+        this.dayWidthPx * opts.displayRange.begin + this.marginSizePx,
       );
       this.origin = pt(-beginOffset + this.marginSizePx, 0);
     }
 
     this.tasksOrigin = pt(
       this.groupByColumnWidthPx - beginOffset + milestoneRadius,
-      this.timelineHeightPx + milestoneRadius
+      this.timelineHeightPx + milestoneRadius,
     );
 
     this.tasksClipRectOrigin = pt(
       this.groupByColumnWidthPx,
-      this.timelineHeightPx
+      this.timelineHeightPx,
     );
 
     if (opts.hasText) {
@@ -154,17 +154,17 @@ export class Scale {
             this.origin.x -
             this.marginSizePx -
             this.groupByColumnWidthPx) /
-            this.dayWidthPx
+            this.dayWidthPx,
         ),
         0,
-        this.totalNumberOfDays
+        this.totalNumberOfDays,
       ),
       row: Math.floor(
         (window.devicePixelRatio * point.y -
           this.origin.y -
           this.marginSizePx -
           this.timelineHeightPx) /
-          this.rowHeightPx
+          this.rowHeightPx,
       ),
     };
   }
@@ -173,10 +173,10 @@ export class Scale {
   private taskRowEnvelopeStart(row: number, day: number): Point {
     return add(this.origin, [
       Math.floor(
-        day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx
+        day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx,
       ),
       Math.floor(
-        row * this.rowHeightPx + this.marginSizePx + this.timelineHeightPx
+        row * this.rowHeightPx + this.marginSizePx + this.timelineHeightPx,
       ),
     ]);
   }

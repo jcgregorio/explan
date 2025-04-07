@@ -23,7 +23,7 @@ describe("filter", () => {
         InsertNewEmptyTaskAfterOp(0),
         SetTaskNameOp(1, "Barney"),
       ],
-      plan
+      plan,
     );
 
     assert.isTrue(res.ok);
@@ -73,7 +73,7 @@ describe("filter", () => {
       [2], // Fred is highlighted, test that this moves to [1] after filtering.
       [new Span(0, 0), new Span(0, 7), new Span(5, 9), new Span(9, 9)], // Confirm the (0,7) for Fred gets removed.
       ["Start", "Barney", "Fred", "Finish"],
-      2
+      2,
     );
     assert.isTrue(ret.ok);
     assert.deepEqual(ret.value.chartLike.Edges, [

@@ -41,14 +41,14 @@ export class GroupByControl extends HTMLElement {
   connectedCallback(): void {
     document.addEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
@@ -72,7 +72,7 @@ export class GroupByControl extends HTMLElement {
       new CustomEvent("group-by-resource-changed", {
         bubbles: true,
         detail: this.selectedGroupBy,
-      })
+      }),
     );
   }
 

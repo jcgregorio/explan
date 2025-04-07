@@ -14,7 +14,7 @@ describe("MetricDefinition", () => {
       2.22222,
       new MetricRange(-1.1234, 1.1234),
       false,
-      new Precision(2)
+      new Precision(2),
     );
     assert.equal(m.default, 1.12);
     assert.equal(m.range.min, -1.12);
@@ -26,7 +26,7 @@ describe("MetricDefinition", () => {
       50,
       new MetricRange(0, 100),
       false,
-      new Precision(2)
+      new Precision(2),
     );
     const reconstituted = MetricDefinition.fromJSON(m.toJSON());
     assert.deepEqual(m, reconstituted);
@@ -34,7 +34,7 @@ describe("MetricDefinition", () => {
 
   it("Can be deserialized from {}", () => {
     const reconstituted = MetricDefinition.fromJSON(
-      {} as unknown as MetricDefinitionSerialized
+      {} as unknown as MetricDefinitionSerialized,
     );
     assert.equal(reconstituted.range.max, Number.MAX_VALUE);
   });

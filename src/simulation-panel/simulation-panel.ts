@@ -36,7 +36,7 @@ export class SimulationPanel extends HTMLElement {
   simulate(
     chart: Chart,
     numSimulationLoops: number,
-    originalCriticalPath: number[]
+    originalCriticalPath: number[],
   ): number[] {
     this.results = simulation(chart, numSimulationLoops, originalCriticalPath);
     this.chart = chart;
@@ -45,7 +45,7 @@ export class SimulationPanel extends HTMLElement {
 
     this.render();
     return this.results.tasks.map(
-      (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex
+      (taskEntry: CriticalPathTaskEntry) => taskEntry.taskIndex,
     );
   }
 
@@ -61,7 +61,7 @@ export class SimulationPanel extends HTMLElement {
           durations: null,
           criticalPath: [],
         },
-      })
+      }),
     );
     this.render();
   }
@@ -74,7 +74,7 @@ export class SimulationPanel extends HTMLElement {
           durations: this.results.paths.get(key)!.durations,
           criticalPath: this.results.paths.get(key)!.criticalPath,
         },
-      })
+      }),
     );
   }
 
@@ -92,12 +92,12 @@ export class SimulationPanel extends HTMLElement {
       ${added.map(
         (taskIndex: number) => html`
           <span class="added">+${this.chart!.Vertices[taskIndex].name}</span>
-        `
+        `,
       )}
       ${removed.map(
         (taskIndex: number) => html`
           <span class="removed">-${this.chart!.Vertices[taskIndex].name}</span>
-        `
+        `,
       )}
     `;
   }
@@ -132,10 +132,10 @@ export class SimulationPanel extends HTMLElement {
               <td>${this.results.paths.get(key)!.count}</td>
               <td>
                 ${this.displayCriticalPathDifferences(
-                  this.results.paths.get(key)!.criticalPath
+                  this.results.paths.get(key)!.criticalPath,
                 )}
               </td>
-            </tr>`
+            </tr>`,
         )}
       </table>
       <table>
@@ -151,10 +151,10 @@ export class SimulationPanel extends HTMLElement {
               <td>${taskEntry.duration}</td>
               <td>
                 ${Math.floor(
-                  (100 * taskEntry.numTimesAppeared) / this.numSimulationLoops
+                  (100 * taskEntry.numTimesAppeared) / this.numSimulationLoops,
                 )}
               </td>
-            </tr>`
+            </tr>`,
         )}
       </table>
     `;

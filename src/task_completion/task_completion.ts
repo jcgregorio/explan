@@ -29,7 +29,7 @@ export type TaskCompletionsSerialized = {
 };
 
 export const toJSON = (
-  taskCompletion: TaskCompletion
+  taskCompletion: TaskCompletion,
 ): TaskCompletionSerialized => {
   const ret: TaskCompletionSerialized = {
     stage: taskCompletion.stage as string,
@@ -57,7 +57,7 @@ export const toJSON = (
 };
 
 export const fromJSON = (
-  taskCompletionSerialized: TaskCompletionSerialized
+  taskCompletionSerialized: TaskCompletionSerialized,
 ): TaskCompletion => {
   const unstarted: TaskCompletion = { stage: "unstarted" };
   switch (taskCompletionSerialized.stage) {
@@ -85,7 +85,7 @@ export const fromJSON = (
         stage: "finished",
         span: new Span(
           taskCompletionSerialized.start,
-          taskCompletionSerialized.finish
+          taskCompletionSerialized.finish,
         ),
       };
     default:
@@ -94,23 +94,23 @@ export const fromJSON = (
 };
 
 export const taskCompletionsToJSON = (
-  t: TaskCompletions
+  t: TaskCompletions,
 ): TaskCompletionsSerialized => {
   return Object.fromEntries(
     Object.entries(t).map(([key, taskCompletion]) => [
       key,
       toJSON(taskCompletion),
-    ])
+    ]),
   );
 };
 
 export const taskCompletionsFromJSON = (
-  t: TaskCompletionsSerialized
+  t: TaskCompletionsSerialized,
 ): TaskCompletions => {
   return Object.fromEntries(
     Object.entries(t).map(([key, taskCompletionSerialized]) => [
       key,
       fromJSON(taskCompletionSerialized),
-    ])
+    ]),
   );
 };

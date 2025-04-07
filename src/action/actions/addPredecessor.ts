@@ -21,7 +21,7 @@ export class AddPredecessorAction implements Action {
       return error(new Error("No predecessor was selected."));
     }
     const ret = AddEdgeOp(predTaskIndex, explanMain.selectedTask).applyTo(
-      explanMain.plan
+      explanMain.plan,
     );
     if (!ret.ok) {
       return ret;
@@ -30,8 +30,8 @@ export class AddPredecessorAction implements Action {
       new ActionFromOp(
         ret.value.inverse,
         (this.postActionWork = this.postActionWork),
-        true
-      )
+        true,
+      ),
     );
   }
 }

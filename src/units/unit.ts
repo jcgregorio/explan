@@ -62,7 +62,7 @@ export class UnitBase implements Unit {
   static fromJSON(
     s: UnitSerialized,
     start: Date,
-    metricDefn: MetricDefinition
+    metricDefn: MetricDefinition,
   ): UnitBase {
     return UnitBuilders[toUnit(s.unitType)](start, metricDefn);
   }
@@ -152,7 +152,9 @@ export class Days extends UnitBase implements Unit {
     }
 
     return ok(
-      this.metricDefn.clampAndRound(deltaInMilliseconds / (1000 * 60 * 60 * 24))
+      this.metricDefn.clampAndRound(
+        deltaInMilliseconds / (1000 * 60 * 60 * 24),
+      ),
     );
   }
 }

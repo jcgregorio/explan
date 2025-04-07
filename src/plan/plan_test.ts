@@ -47,7 +47,7 @@ describe("Plan", () => {
       SetMetricValueOp("Duration", 10, 1),
       SetTaskNameOp(1, "MyFirstTask"),
       SetResourceValueOp("Person", people[1], 1),
-      SetResourceValueOp("Uncertainty", "moderate", 1)
+      SetResourceValueOp("Uncertainty", "moderate", 1),
     );
 
     const ret = applyAllOpsToPlan(ops, new Plan());
@@ -68,11 +68,11 @@ describe("Plan", () => {
     assert.equal(deserialized.chart.Vertices[1].getMetric("Duration"), 10);
     assert.equal(
       deserialized.chart.Vertices[1].getResource("Person"),
-      people[1]
+      people[1],
     );
     assert.equal(
       deserialized.chart.Vertices[1].getResource("Uncertainty"),
-      "moderate"
+      "moderate",
     );
   });
 

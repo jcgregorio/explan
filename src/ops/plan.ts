@@ -24,7 +24,7 @@ export class SetPlanStartStateSubOp implements SubOp {
 
   constructor(
     value: PlanStatus,
-    taskCompletions: TaskCompletions | null = null
+    taskCompletions: TaskCompletions | null = null,
   ) {
     this.value = value;
     this.taskCompletions = taskCompletions;
@@ -35,7 +35,7 @@ export class SetPlanStartStateSubOp implements SubOp {
     plan.status = this.value;
 
     const taskCompletionsSnapshot = taskCompletionsFromJSON(
-      taskCompletionsToJSON(plan.taskCompletion)
+      taskCompletionsToJSON(plan.taskCompletion),
     );
 
     if (this.taskCompletions !== null) {
@@ -107,15 +107,15 @@ export class SetTaskCompletionSubOp implements SubOp {
   applyTo(plan: Plan): Result<SubOpResult> {
     if (this.value.stage !== "unstarted" && plan.status.stage === "unstarted") {
       return error(
-        new Error("Can't start a task if the plan hasn't been started.")
+        new Error("Can't start a task if the plan hasn't been started."),
       );
     }
     if (this.value.stage === "started") {
       if (this.value.start < 0) {
         return error(
           new Error(
-            "The start of a task can't come befoe the start of the plan."
-          )
+            "The start of a task can't come befoe the start of the plan.",
+          ),
         );
       }
       if (this.value.percentComplete < 1 || this.value.percentComplete > 99) {
@@ -129,8 +129,8 @@ export class SetTaskCompletionSubOp implements SubOp {
       if (this.value.span.start < 0) {
         return error(
           new Error(
-            "The start of a task can't come befoe the start of the plan."
-          )
+            "The start of a task can't come befoe the start of the plan.",
+          ),
         );
       }
     }
@@ -156,7 +156,7 @@ export class SetTaskCompletionSubOp implements SubOp {
 
 export function SetTaskCompletionOp(
   taskIndex: number,
-  value: TaskCompletion
+  value: TaskCompletion,
 ): Op {
   return new Op([new SetTaskCompletionSubOp(taskIndex, value)]);
 }

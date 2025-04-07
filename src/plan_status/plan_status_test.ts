@@ -25,7 +25,7 @@ describe("PlanStatus", () => {
     assert.deepEqual(fromJSON({} as PlanStatusSerialized), unstarted);
     assert.deepEqual(
       fromJSON({ stage: "started" } as PlanStatusSerialized),
-      unstarted
+      unstarted,
     );
   });
 
@@ -40,7 +40,7 @@ describe("PlanStatus", () => {
       {
         stage: "started",
         start: "2025-01-22",
-      }
+      },
     );
   });
 });

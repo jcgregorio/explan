@@ -43,7 +43,7 @@ export class ActionFromOp {
     }
     explanMain.plan = ret.value.plan;
     return ok(
-      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo)
+      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo),
     );
   }
 }

@@ -107,7 +107,7 @@ describe("ComputeSlack", () => {
       chart,
       null,
       precision.rounder(),
-      (taskIndex: number) => overrideEarlyStart.get(taskIndex)
+      (taskIndex: number) => overrideEarlyStart.get(taskIndex),
     );
     assert.isTrue(ret.ok);
     const expected = [

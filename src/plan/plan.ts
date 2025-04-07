@@ -91,7 +91,7 @@ export class Plan {
     this._status = value;
     this._durationUnits = new Days(
       new Date(statusToDate(this.status)),
-      this.getStaticMetricDefinition("Duration")
+      this.getStaticMetricDefinition("Duration"),
     );
   }
 
@@ -118,7 +118,7 @@ export class Plan {
     this.metricDefinitions = Object.assign({}, StaticMetricDefinitions);
     this._durationUnits = new Days(
       new Date(statusToDate(this.status)),
-      this.getStaticMetricDefinition("Duration")
+      this.getStaticMetricDefinition("Duration"),
     );
 
     this.applyMetricsAndResourcesToVertices();
@@ -127,7 +127,7 @@ export class Plan {
   setDurationUnits(unitType: UnitTypes) {
     this._durationUnits = UnitBuilders[unitType](
       new Date(statusToDate(this.status)),
-      this.getStaticMetricDefinition("Duration")
+      this.getStaticMetricDefinition("Duration"),
     );
   }
 
@@ -151,7 +151,7 @@ export class Plan {
         this.chart.Vertices.forEach((task: Task) => {
           task.setResource(key, resourceDefinition.values[0]);
         });
-      }
+      },
     );
   }
 
@@ -189,7 +189,7 @@ export class Plan {
     Object.entries(this.resourceDefinitions).forEach(
       ([key, resourceDefinition]) => {
         ret.setResource(key, resourceDefinition.values[0]);
-      }
+      },
     );
     return ret;
   }
@@ -206,12 +206,12 @@ export class Plan {
           .map(([key, resourceDefinition]) => [
             key,
             resourceDefinition.toJSON(),
-          ])
+          ]),
       ),
       metricDefinitions: Object.fromEntries(
         Object.entries(this.metricDefinitions)
           .filter(([_, metricDefinition]) => !metricDefinition.isStatic)
-          .map(([key, metricDefinition]) => [key, metricDefinition.toJSON()])
+          .map(([key, metricDefinition]) => [key, metricDefinition.toJSON()]),
       ),
     };
   }
@@ -226,13 +226,13 @@ export class Plan {
         ([key, serializedMetricDefinition]) => [
           key,
           MetricDefinition.fromJSON(serializedMetricDefinition),
-        ]
-      )
+        ],
+      ),
     );
     ret.metricDefinitions = Object.assign(
       {},
       StaticMetricDefinitions,
-      deserializedMetricDefinitions
+      deserializedMetricDefinitions,
     );
 
     const deserializedResourceDefinitions = Object.fromEntries(
@@ -240,19 +240,19 @@ export class Plan {
         ([key, serializedResourceDefinition]) => [
           key,
           ResourceDefinition.fromJSON(serializedResourceDefinition),
-        ]
-      )
+        ],
+      ),
     );
     ret.resourceDefinitions = Object.assign(
       {},
       StaticResourceDefinitions,
-      deserializedResourceDefinitions
+      deserializedResourceDefinitions,
     );
 
     ret._durationUnits = UnitBase.fromJSON(
       planSerialized._durationUnits,
       new Date(statusToDate(ret.status)),
-      ret.getStaticMetricDefinition("Duration")
+      ret.getStaticMetricDefinition("Duration"),
     );
 
     return ret;

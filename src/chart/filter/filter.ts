@@ -34,7 +34,7 @@ export const filter = (
   emphasizedTasks: number[],
   spans: Span[],
   labels: string[],
-  selectedTaskIndex: number
+  selectedTaskIndex: number,
 ): Result<FilterResult> => {
   const vret = ChartValidate(chart);
   if (!vret.ok) {
@@ -88,8 +88,8 @@ export const filter = (
     edges.push(
       new DirectedEdge(
         fromOriginalToFilteredIndex.get(directedEdge.i),
-        fromOriginalToFilteredIndex.get(directedEdge.j)
-      )
+        fromOriginalToFilteredIndex.get(directedEdge.j),
+      ),
     );
   });
 
@@ -105,7 +105,7 @@ export const filter = (
   // Re-index highlighted tasks.
   const updatedEmphasizedTasks = emphasizedTasks.map(
     (originalTaskIndex: number): number =>
-      fromOriginalToFilteredIndex.get(originalTaskIndex)!
+      fromOriginalToFilteredIndex.get(originalTaskIndex)!,
   );
 
   return ok({

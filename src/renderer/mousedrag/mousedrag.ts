@@ -49,7 +49,7 @@ export class MouseDrag {
             begin: dup(this.begin!),
             end: dup(this.currentMoveLocation),
           },
-        })
+        }),
       );
       this.lastMoveSent = dup(this.currentMoveLocation);
     }

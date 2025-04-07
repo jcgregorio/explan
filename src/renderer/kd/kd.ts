@@ -169,7 +169,7 @@ export class KDTree<Point extends KDPoint> {
   private _buildTree(
     points: Point[],
     depth: number,
-    parent: Node<Point> | null
+    parent: Node<Point> | null,
   ): Node<Point> | null {
     // Every step deeper into the tree we switch to using another axis.
     const dim = depth % this.dimensions.length;

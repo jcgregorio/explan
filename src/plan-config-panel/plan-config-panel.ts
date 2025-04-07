@@ -21,14 +21,14 @@ export class PlanConfigPanel extends HTMLElement {
   connectedCallback(): void {
     document.addEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
@@ -67,7 +67,7 @@ export class PlanConfigPanel extends HTMLElement {
       SetPlanUnitsOp(toUnit(unitAsString)),
       "planDefinitionChanged",
       true,
-      this.explanMain!
+      this.explanMain!,
     );
     if (!ret.ok) {
       console.log(ret.error);
@@ -111,7 +111,7 @@ export class PlanConfigPanel extends HTMLElement {
       SetPlanStartStateOp({ stage: "started", start: start }),
       "planDefinitionChanged",
       true,
-      this.explanMain!
+      this.explanMain!,
     );
     if (!ret.ok) {
       console.log(ret.error);
@@ -125,7 +125,7 @@ export class PlanConfigPanel extends HTMLElement {
       SetPlanStartStateOp({ stage: "started", start: start }),
       "planDefinitionChanged",
       true,
-      this.explanMain!
+      this.explanMain!,
     );
     if (!ret.ok) {
       console.log(ret.error);
@@ -138,7 +138,7 @@ export class PlanConfigPanel extends HTMLElement {
       SetPlanStartStateOp({ stage: "unstarted", start: 0 }),
       "planDefinitionChanged",
       true,
-      this.explanMain!
+      this.explanMain!,
     );
     if (!ret.ok) {
       console.log(ret.error);

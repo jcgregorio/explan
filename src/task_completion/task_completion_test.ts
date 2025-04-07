@@ -33,21 +33,21 @@ describe("TaskCompletion", () => {
       fromJSON({
         bloop: "not a valid serialization",
       } as any as TaskCompletionSerialized),
-      unstarted
+      unstarted,
     );
 
     assert.deepEqual(
       fromJSON({
         stage: "started",
       } as any as TaskCompletionSerialized),
-      unstarted
+      unstarted,
     );
 
     assert.deepEqual(
       fromJSON({
         stage: "finished",
       } as any as TaskCompletionSerialized),
-      unstarted
+      unstarted,
     );
   });
 });

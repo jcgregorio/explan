@@ -25,7 +25,7 @@ export class SplitTaskAction implements Action {
       return ret;
     }
     return ok(
-      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo)
+      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo),
     );
   }
 }
@@ -44,7 +44,7 @@ export class DupTaskAction implements Action {
       return ret;
     }
     return ok(
-      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo)
+      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo),
     );
   }
 }
@@ -60,7 +60,7 @@ export class NewTaskAction implements Action {
       return ret;
     }
     return ok(
-      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo)
+      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo),
     );
   }
 }
@@ -80,7 +80,7 @@ export class DeleteTaskAction implements Action {
     }
     explanMain.selectedTask = -1;
     return ok(
-      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo)
+      new ActionFromOp(ret.value.inverse, this.postActionWork, this.undo),
     );
   }
 }

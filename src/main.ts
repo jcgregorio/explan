@@ -44,15 +44,15 @@ if (!slacksRet.ok) {
 }
 console.log(
   "Tasks on the critical path:",
-  CriticalPath(slacksRet.value, precision.rounder())
+  CriticalPath(slacksRet.value, precision.rounder()),
 );
 console.log(
   "Tasks on the critical path for in the first quartile:",
   ComputeSlack(
     C,
     (taskIndex: number) => jacobians[taskIndex].sample(0.25),
-    precision.rounder()
-  )
+    precision.rounder(),
+  ),
 );
 
 console.log(ChartValidate(plan.chart));

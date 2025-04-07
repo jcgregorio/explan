@@ -20,7 +20,7 @@ export class AddSuccessorAction implements Action {
       return error(new Error("No successor was selected."));
     }
     const ret = AddEdgeOp(explanMain.selectedTask, succTaskIndex).applyTo(
-      explanMain.plan
+      explanMain.plan,
     );
     if (!ret.ok) {
       return ret;
@@ -29,8 +29,8 @@ export class AddSuccessorAction implements Action {
       new ActionFromOp(
         ret.value.inverse,
         (this.postActionWork = this.postActionWork),
-        true
-      )
+        true,
+      ),
     );
   }
 }

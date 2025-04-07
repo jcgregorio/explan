@@ -17,7 +17,7 @@ export class ResourceDefinition {
 
   constructor(
     values: string[] = [DEFAULT_RESOURCE_VALUE],
-    isStatic: boolean = false
+    isStatic: boolean = false,
   ) {
     this.values = values;
     this.isStatic = isStatic;

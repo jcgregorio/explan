@@ -47,7 +47,7 @@ describe("Scale", () => {
     assert.deepEqual(
       // marginWidthPx + dayWidthPx, marginWidthPx + rowHeight + 5*blockSize
       pt(3 + 12, 3 + 6 * 4 + 5 * 4),
-      s.feature(1, 1, Feature.taskLineStart)
+      s.feature(1, 1, Feature.taskLineStart),
     );
   });
 
@@ -64,7 +64,7 @@ describe("Scale", () => {
     assert.deepEqual(
       s.feature(1, 1, Feature.taskLineStart),
       // margin + dayWidthPx, margin + rowHeight + 5*blockSize
-      pt(7 + 12, 7 + 6 * 8 + 5 * 8)
+      pt(7 + 12, 7 + 6 * 8 + 5 * 8),
     );
   });
 
@@ -86,19 +86,19 @@ describe("Scale", () => {
     assert.deepEqual(
       s.feature(1, 5, Feature.taskLineStart),
       // margin + dayWidthPx + origin.x, margin + rowHeight + 5*blockSize + origin.y
-      pt(3, 3 + 6 * 4 + 5 * 4)
+      pt(3, 3 + 6 * 4 + 5 * 4),
     );
     // And earlier days will be drawn in the negative range.
     assert.deepEqual(
       s.feature(1, 4, Feature.taskLineStart),
       // margin + dayWidthPx + origin.x, margin + rowHeight + 5*blockSize + origin.y
-      pt(3 - 25, 3 + 6 * 4 + 5 * 4)
+      pt(3 - 25, 3 + 6 * 4 + 5 * 4),
     );
     // And tasks to the right will be larger than 236 = 265 - 2*10, the canvas width in pixels.
     assert.deepEqual(
       s.feature(1, 15, Feature.taskLineStart),
       // margin + dayWidthPx + origin.x, margin + rowHeight + 5*blockSize + origin.y
-      pt(3 + 15 * 25 - 125, 3 + 6 * 4 + 5 * 4)
+      pt(3 + 15 * 25 - 125, 3 + 6 * 4 + 5 * 4),
     );
   });
 });

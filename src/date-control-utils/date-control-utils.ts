@@ -18,6 +18,6 @@ export const parseDateString = (s: string): Result<Date> => {
 export const todayAsUTC = (): Date => {
   const d = new Date();
   return new Date(
-    Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0)
+    Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0),
   );
 };

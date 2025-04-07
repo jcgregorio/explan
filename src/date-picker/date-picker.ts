@@ -44,7 +44,7 @@ export class DatePicker extends HTMLElement {
         <input
           type="date"
           .value=${live(
-            dateDisplay(this._value.unit.asDate(this._value.dateOffset))
+            dateDisplay(this._value.unit.asDate(this._value.dateOffset)),
           )}
           @input=${(e: InputEvent) => this.inputChanged(e)}
         />
@@ -62,7 +62,7 @@ export class DatePicker extends HTMLElement {
         new CustomEvent<number>("date-picker-input", {
           bubbles: true,
           detail: ret.value,
-        })
+        }),
       );
     }
   }

@@ -23,14 +23,14 @@ export class EditMetricsPanel extends HTMLElement {
   connectedCallback(): void {
     document.addEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
@@ -56,7 +56,7 @@ export class EditMetricsPanel extends HTMLElement {
           return -1;
         }
         return 1;
-      }
+      },
     );
     return html` <h3>Metrics</h3>
       <table>
@@ -109,7 +109,7 @@ export class EditMetricsPanel extends HTMLElement {
 
   private delButtonIfNotStatic(
     name: string,
-    isStatic: boolean
+    isStatic: boolean,
   ): TemplateResult {
     if (isStatic) {
       return html``;
@@ -128,7 +128,7 @@ export class EditMetricsPanel extends HTMLElement {
       DeleteMetricOp(name),
       "planDefinitionChanged",
       true,
-      this.explanMain!
+      this.explanMain!,
     );
     if (!ret.ok) {
       console.log(ret.error);
@@ -138,7 +138,7 @@ export class EditMetricsPanel extends HTMLElement {
 
   private editButtonIfNotStatic(
     name: string,
-    isStatic: boolean
+    isStatic: boolean,
   ): TemplateResult {
     if (isStatic) {
       return html``;
@@ -154,7 +154,7 @@ export class EditMetricsPanel extends HTMLElement {
 
   private editMetric(name: string) {
     this.explanMain!.querySelector<EditMetricDefinition>(
-      "edit-metric-definition"
+      "edit-metric-definition",
     )!.showModal(this.explanMain!, name);
   }
 
@@ -167,7 +167,7 @@ export class EditMetricsPanel extends HTMLElement {
       AddMetricOp(name, new MetricDefinition(0)),
       "planDefinitionChanged",
       true,
-      this.explanMain!
+      this.explanMain!,
     );
     if (!ret.ok) {
       window.alert(ret.error);

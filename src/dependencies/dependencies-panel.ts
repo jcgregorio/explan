@@ -24,7 +24,7 @@ declare global {
 const kindTemplate = (
   dependenciesControl: DependenciesPanel,
   depType: DepType,
-  indexes: number[]
+  indexes: number[],
 ): TemplateResult => html`
   <tr>
     <th>${depDisplayName[depType]}</th>
@@ -60,18 +60,18 @@ const kindTemplate = (
 `;
 
 const template = (
-  dependenciesControl: DependenciesPanel
+  dependenciesControl: DependenciesPanel,
 ): TemplateResult => html`
   <table>
     ${kindTemplate(
       dependenciesControl,
       "pred",
-      dependenciesControl.predIndexes
+      dependenciesControl.predIndexes,
     )}
     ${kindTemplate(
       dependenciesControl,
       "succ",
-      dependenciesControl.succIndexes
+      dependenciesControl.succIndexes,
     )}
   </table>
 `;
@@ -88,7 +88,7 @@ export class DependenciesPanel extends HTMLElement {
   public setTasksAndIndices(
     tasks: Task[],
     predIndexes: number[],
-    succIndexes: number[]
+    succIndexes: number[],
   ) {
     this.tasks = tasks;
     this.predIndexes = predIndexes;
@@ -104,7 +104,7 @@ export class DependenciesPanel extends HTMLElement {
           taskIndex: taskIndex,
           depType: depType,
         },
-      })
+      }),
     );
   }
 
@@ -116,7 +116,7 @@ export class DependenciesPanel extends HTMLElement {
           taskIndex: -1,
           depType: depType,
         },
-      })
+      }),
     );
   }
 }

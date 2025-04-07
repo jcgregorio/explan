@@ -14,7 +14,7 @@ import { DirectedEdge } from "../dag/dag.ts";
 const arrowSummary = (plan: Plan): string[] =>
   plan.chart.Edges.map(
     (d: DirectedEdge) =>
-      `${plan.chart.Vertices[d.i].name}->${plan.chart.Vertices[d.j].name}`
+      `${plan.chart.Vertices[d.i].name}->${plan.chart.Vertices[d.j].name}`,
   ).sort();
 
 describe("InsertNewEmptyTaskAfterOp", () => {
@@ -114,7 +114,7 @@ describe("SplitTaskOp", () => {
             "Start->B",
             "Start->C",
           ],
-          `Direction: ${forward ? "forward" : "backward"}`
+          `Direction: ${forward ? "forward" : "backward"}`,
         );
         assert.equal(plan.chart.Vertices.length, 5);
       }),
@@ -209,7 +209,7 @@ describe("DupTaskOp", () => {
             "Start->B",
             "Start->C",
           ],
-          `Direction: ${forward ? "forward" : "backward"}`
+          `Direction: ${forward ? "forward" : "backward"}`,
         );
         assert.equal(plan.chart.Vertices.length, 5);
       }),

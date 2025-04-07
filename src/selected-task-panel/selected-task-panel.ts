@@ -47,14 +47,14 @@ export class SelectedTaskPanel extends HTMLElement {
     this.render();
     document.addEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
       "plan-definition-changed",
-      this.planDefinitionChangedCallback
+      this.planDefinitionChangedCallback,
     );
   }
 
@@ -84,7 +84,8 @@ export class SelectedTaskPanel extends HTMLElement {
       return html`
         <button
           class="icon-button"
-          @click=${async () => await executeByName("NewTaskAction", this.explanMain!)}
+          @click=${async () =>
+            await executeByName("NewTaskAction", this.explanMain!)}
           title="Add Task"
         >
           ${icon("add-icon")}
@@ -99,28 +100,32 @@ export class SelectedTaskPanel extends HTMLElement {
     return html`
       <button
         class="icon-button"
-        @click=${async () => await executeByName("NewTaskAction", this.explanMain!)}
+        @click=${async () =>
+          await executeByName("NewTaskAction", this.explanMain!)}
         title="Add Task"
       >
         ${icon("add-icon")}
       </button>
       <button
         class="icon-button"
-        @click=${async () => await executeByName("DupTaskAction", this.explanMain!)}
+        @click=${async () =>
+          await executeByName("DupTaskAction", this.explanMain!)}
         title="Duplicate Task"
       >
         ${icon("dup")}
       </button>
       <button
         class="icon-button"
-        @click=${async () => await executeByName("SplitTaskAction", this.explanMain!)}
+        @click=${async () =>
+          await executeByName("SplitTaskAction", this.explanMain!)}
         title="Split Task"
       >
         ${icon("split")}
       </button>
       <button
         class="icon-button"
-        @click=${async () => executeByName("DeleteTaskAction", this.explanMain!)}
+        @click=${async () =>
+          executeByName("DeleteTaskAction", this.explanMain!)}
         title="Delete Task"
       >
         ${icon("delete-icon")}
@@ -142,7 +147,7 @@ export class SelectedTaskPanel extends HTMLElement {
                       taskIndex: taskIndex,
                       name: (e.target as HTMLInputElement).value,
                     },
-                  })
+                  }),
                 )}
             />
           </td>
@@ -165,7 +170,7 @@ export class SelectedTaskPanel extends HTMLElement {
                           value: (e.target as HTMLInputElement).value,
                           name: resourceKey,
                         },
-                      })
+                      }),
                     )}
                 >
                   ${defn.values.map(
@@ -176,11 +181,11 @@ export class SelectedTaskPanel extends HTMLElement {
                         resourceValue}
                       >
                         ${resourceValue}
-                      </option>`
+                      </option>`,
                   )}
                 </select>
               </td>
-            </tr>`
+            </tr>`,
         )}
         ${Object.keys(this.plan.metricDefinitions).map(
           (key: string) =>
@@ -200,11 +205,11 @@ export class SelectedTaskPanel extends HTMLElement {
                           value: +(e.target as HTMLInputElement).value,
                           name: key,
                         },
-                      })
+                      }),
                     )}
                 />
               </td>
-            </tr>`
+            </tr>`,
         )}
       </table>
     `;

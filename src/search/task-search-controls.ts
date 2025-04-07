@@ -45,7 +45,7 @@ declare global {
  */
 const indexesToRanges = (
   indexes: Readonly<number[]>,
-  len: number
+  len: number,
 ): number[] => {
   // Convert each index of a highlighted char into a pair of numbers we can pass
   // to slice, and then flatten.
@@ -87,7 +87,7 @@ const highlight = (ranges: number[], target: string): TemplateResult[] => {
  */
 const highlightedTarget = (
   indexes: Readonly<number[]>,
-  target: string
+  target: string,
 ): TemplateResult[] => {
   return highlight(indexesToRanges(indexes, target.length), target);
 };
@@ -103,7 +103,7 @@ const searchResults = (searchTaskPanel: TaskSearchControl): TemplateResult[] =>
         data-index=${index}
       >
         ${highlightedTarget(task.indexes, task.target)}
-      </li>`
+      </li>`,
   );
 
 const template = (searchTaskPanel: TaskSearchControl): TemplateResult => html`
@@ -129,7 +129,7 @@ const searchStringFromTaskBuilder = (
   fullTaskList: Task[],
   searchType: SearchType,
   includedIndexes: Set<number>,
-  maxNameLength: number
+  maxNameLength: number,
 ): ((task: Task) => string) => {
   if (searchType === "full-info") {
     return (task: Task): string => {
@@ -167,7 +167,7 @@ interface SearchResult {
 const taskListToSearchResults = (
   tasks: Task[],
   taskToSearchString: (task: Task) => string,
-  includedIndexes: Set<number>
+  includedIndexes: Set<number>,
 ): SearchResult[] => {
   return tasks
     .filter((_task: Task, index: number) => includedIndexes.has(index))
@@ -201,7 +201,7 @@ export class TaskSearchControl extends HTMLElement {
       this.searchResults = taskListToSearchResults(
         this._tasks,
         this.taskToSearchString,
-        this._includedIndexes
+        this._includedIndexes,
       );
     } else {
       this.searchResults = fuzzysort.go<Task>(
@@ -211,7 +211,7 @@ export class TaskSearchControl extends HTMLElement {
           key: this.taskToSearchString,
           limit: this._tasks.length,
           threshold: 0.2,
-        }
+        },
       );
     }
     this.focusIndex = 0;
@@ -270,7 +270,7 @@ export class TaskSearchControl extends HTMLElement {
           taskIndex: taskIndex,
           focus: focus,
         },
-      })
+      }),
     );
     this.searchResults = [];
     render(template(this), this);
@@ -280,7 +280,7 @@ export class TaskSearchControl extends HTMLElement {
     this.dispatchEvent(
       new CustomEvent<number>("task-focus", {
         bubbles: true,
-      })
+      }),
     );
   }
 
@@ -307,13 +307,13 @@ export class TaskSearchControl extends HTMLElement {
     const maxNameLength = this._tasks.reduce<number>(
       (prev: number, task: Task): number =>
         task.name.length > prev ? task.name.length : prev,
-      0
+      0,
     );
     this.taskToSearchString = searchStringFromTaskBuilder(
       this._tasks,
       this.searchType,
       this._includedIndexes,
-      maxNameLength
+      maxNameLength,
     );
     this.onInput("");
   }

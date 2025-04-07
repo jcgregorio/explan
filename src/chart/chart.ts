@@ -135,11 +135,11 @@ export class Chart {
   static fromJSON(chartSerialized: ChartSerialized): Chart {
     const ret = new Chart();
     ret.Vertices = chartSerialized.vertices.map((ts: TaskSerialized) =>
-      Task.fromJSON(ts)
+      Task.fromJSON(ts),
     );
     ret.Edges = chartSerialized.edges.map(
       (directedEdgeSerialized: DirectedEdgeSerialized) =>
-        DirectedEdge.fromJSON(directedEdgeSerialized)
+        DirectedEdge.fromJSON(directedEdgeSerialized),
     );
     return ret;
   }
@@ -153,7 +153,7 @@ export type ValidateResult = Result<TopologicalOrder>;
 export function validateDirectedGraph(g: DirectedGraph): ValidateResult {
   if (g.Vertices.length < 2) {
     return error(
-      "Chart must contain at least two node, the start and finish tasks."
+      "Chart must contain at least two node, the start and finish tasks.",
     );
   }
 
@@ -169,7 +169,7 @@ export function validateDirectedGraph(g: DirectedGraph): ValidateResult {
   for (let i = 1; i < g.Vertices.length; i++) {
     if (edgesByDst.get(i) === undefined) {
       return error(
-        `Found node that isn't (0) that has no incoming edges: ${i}`
+        `Found node that isn't (0) that has no incoming edges: ${i}`,
       );
     }
   }
@@ -177,7 +177,7 @@ export function validateDirectedGraph(g: DirectedGraph): ValidateResult {
   // The last Vertex, T_finish, the Finish Milestone, must have 0 outgoing edges.
   if (edgesBySrc.get(g.Vertices.length - 1) !== undefined) {
     return error(
-      "The last node, which should be the Finish Milestone, has an outgoing edge."
+      "The last node, which should be the Finish Milestone, has an outgoing edge.",
     );
   }
 
@@ -185,7 +185,7 @@ export function validateDirectedGraph(g: DirectedGraph): ValidateResult {
   for (let i = 0; i < g.Vertices.length - 1; i++) {
     if (edgesBySrc.get(i) === undefined) {
       return error(
-        `Found node that isn't T_finish that has no outgoing edges: ${i}`
+        `Found node that isn't T_finish that has no outgoing edges: ${i}`,
       );
     }
   }
@@ -217,7 +217,7 @@ export function validateDirectedGraph(g: DirectedGraph): ValidateResult {
 
 export function ChartValidate(
   c: Chart,
-  taskDuration: TaskDuration | null = null
+  taskDuration: TaskDuration | null = null,
 ): ValidateResult {
   if (taskDuration === null) {
     taskDuration = (taskIndex: number) => c.Vertices[taskIndex].duration;
@@ -228,14 +228,14 @@ export function ChartValidate(
   }
   if (taskDuration(0) !== 0) {
     return error(
-      `Start Milestone must have duration of 0, instead got ${taskDuration(0)}`
+      `Start Milestone must have duration of 0, instead got ${taskDuration(0)}`,
     );
   }
   if (taskDuration(c.Vertices.length - 1) !== 0) {
     return error(
       `Finish Milestone must have duration of 0, instead got ${taskDuration(
-        c.Vertices.length - 1
-      )}`
+        c.Vertices.length - 1,
+      )}`,
     );
   }
   const allIDs = new Set();

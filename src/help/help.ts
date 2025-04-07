@@ -15,12 +15,12 @@ class KeyboardMapDialog extends HTMLElement {
                 html`<tr>
                   <td>${key}</td>
                   <td>${ActionRegistry[actionName].description}</td>
-                </tr>`
+                </tr>`,
             )}
           </table>
         </dialog>
       `,
-      this
+      this,
     );
   }
 

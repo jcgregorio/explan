@@ -17,7 +17,7 @@ export class SearchTaskPanel extends HTMLElement {
       this.classList.add("hidden");
     });
     this.addEventListener("task-focus", (e) =>
-      this.setKeyboardFocusToInput("full-info")
+      this.setKeyboardFocusToInput("full-info"),
     );
   }
 
@@ -26,7 +26,7 @@ export class SearchTaskPanel extends HTMLElement {
     this.taskSearchControl!.tasks = this.explanMain!.plan.chart.Vertices;
     this.taskSearchControl!.includedIndexes =
       this.explanMain!.plan.chart.Vertices.map(
-        (_, index: number) => index
+        (_, index: number) => index,
       ).slice(1, -1);
     this.taskSearchControl!.setKeyboardFocusToInput(searchType);
   }

@@ -36,7 +36,7 @@ export interface SimulationResults {
 export const simulation = (
   chart: Chart,
   numSimulationLoops: number,
-  originalCriticalPath: number[]
+  originalCriticalPath: number[],
 ): SimulationResults => {
   const allCriticalPaths = new Map<string, CriticalPathEntry>();
   allCriticalPaths.set(`${originalCriticalPath}`, {
@@ -50,7 +50,7 @@ export const simulation = (
     const durations = chart.Vertices.map((t: Task) => {
       const rawDuration = new Jacobian(
         t.duration, // Acceptable direct access to duration.
-        t.getResource("Uncertainty") as Uncertainty
+        t.getResource("Uncertainty") as Uncertainty,
       ).sample(rndInt(MAX_RANDOM) / MAX_RANDOM);
       return precision.round(rawDuration);
     });
@@ -59,7 +59,7 @@ export const simulation = (
     const slacksRet = ComputeSlack(
       chart,
       (taskIndex: number) => durations[taskIndex],
-      precision.rounder()
+      precision.rounder(),
     );
     if (!slacksRet.ok) {
       throw slacksRet.error;
@@ -87,7 +87,7 @@ export const simulation = (
 
 export const criticalTaskFrequencies = (
   allCriticalPaths: Map<string, CriticalPathEntry>,
-  chart: Chart
+  chart: Chart,
 ): CriticalPathTaskEntry[] => {
   const critialTasks: Map<number, CriticalPathTaskEntry> = new Map();
 
@@ -109,6 +109,6 @@ export const criticalTaskFrequencies = (
   return [...critialTasks.values()].sort(
     (a: CriticalPathTaskEntry, b: CriticalPathTaskEntry): number => {
       return b.duration - a.duration;
-    }
+    },
   );
 };

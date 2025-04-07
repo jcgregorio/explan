@@ -35,7 +35,7 @@ export const redo = async (explanMain: ExplanMain): Promise<Result<null>> => {
 
 export const executeByName = async (
   name: ActionNames,
-  explanMain: ExplanMain
+  explanMain: ExplanMain,
 ): Promise<Result<null>> => {
   return executeAction(ActionRegistry[name], explanMain);
 };
@@ -86,17 +86,16 @@ export const executeAction = async (
       default:
         break;
     }
-  };
+  }
 
   return ok(null);
-}
+};
 
 export const executeOp = async (
   op: Op,
   postActionWork: PostActonWork,
   undo: boolean,
-  explanMain: ExplanMain
+  explanMain: ExplanMain,
 ): Promise<Result<null>> => {
   return executeAction(new ActionFromOp(op, postActionWork, undo), explanMain);
 };
-
