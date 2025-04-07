@@ -25,6 +25,8 @@ describe('Scale', () => {
     taskEmphasize: [],
     highlightedTask: null,
     selectedTaskIndex: 0,
+    durationDisplay: () => '',
+    taskIsStarted: (): boolean => true,
   };
 
   it('Calculates metrics correctly for 12px font', () => {

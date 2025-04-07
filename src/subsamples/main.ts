@@ -1,11 +1,11 @@
-import { Chart, ChartValidate, Task } from "./chart/chart.ts";
-import { InsertNewEmptyMilestoneAfterOp, SetTaskNameOp } from "./ops/chart.ts";
-import { SetMetricValueOp } from "./ops/metrics.ts";
-import { Op, applyAllOpsToPlan } from "./ops/ops.ts";
-import { Plan } from "./plan/plan.ts";
-import { Precision } from "./precision/precision.ts";
-import { ComputeSlack, CriticalPath } from "./slack/slack.ts";
-import { Jacobian } from "./stats/cdf/triangular/jacobian.ts";
+import { Chart, ChartValidate, Task } from "../chart/chart.ts";
+import { InsertNewEmptyMilestoneAfterOp, SetTaskNameOp } from "../ops/chart.ts";
+import { SetMetricValueOp } from "../ops/metrics.ts";
+import { Op, applyAllOpsToPlan } from "../ops/ops.ts";
+import { Plan } from "../plan/plan.ts";
+import { Precision } from "../precision/precision.ts";
+import { ComputeSlack, CriticalPath } from "../slack/slack.ts";
+import { Jacobian } from "../stats/cdf/triangular/jacobian.ts";
 
 const taskA = new Task("A");
 taskA.setMetric("Duration", 10);
