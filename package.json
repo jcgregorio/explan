@@ -8,7 +8,7 @@
     "test:cont": "npx web-test-runner \"./src/**/*_test.ts\" --puppeteer --watch",
     "lint": "npx eslint",
     "compile": "npx tsc",
-    "build": "npx esbuild ./src/page.ts --bundle --outdir=dst --sourcemap=inline && cp index.html ./dst",
+    "build": "npx esbuild ./src/page.ts --bundle --outdir=dst --sourcemap=inline && cp index.html ./dst && node ./build/merge.ts",
     "build:prod": "npx esbuild ./src/page.ts --bundle --outdir=dst --minify --target=es2022",
     "build:sim": "npx esbuild ./src/sim.ts --bundle --outdir=dst --sourcemap=inline",
     "build:main": "npx esbuild ./src/main.ts --bundle --outdir=dst --sourcemap=inline",
