@@ -130,6 +130,7 @@ class ExplanEditorProvider {
         background: var(--background);
         color: var(--on-background);
         margin: 0;
+		padding: 0;
       }
 
       * {

@@ -112,6 +112,7 @@ export class ExplanEditorProvider implements vscode.CustomTextEditorProvider {
         background: var(--background);
         color: var(--on-background);
         margin: 0;
+		padding: 0;
       }
 
       * {
