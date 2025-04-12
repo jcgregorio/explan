@@ -293,7 +293,7 @@ class ExplanEditorProvider {
      * Get the static html used for the editor webviews.
      */
     async getHtmlForWebview(webview) {
-        const body = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(this._context.extensionUri, 'src', 'media', 'merged.html'));
+        const body = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(this._context.extensionUri, 'out', 'index.html'));
         return body.toString();
     }
     _requestId = 1;

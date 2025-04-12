@@ -282,6 +282,9 @@ export class ExplanMain extends HTMLElement {
 
     window.addEventListener('resize', () => this.paintChart());
     StartKeyboardHandling(this);
+
+    console.log('Finished Init');
+    document.dispatchEvent(new CustomEvent('finished-init'));
   }
 
   toggleTopTimeline() {

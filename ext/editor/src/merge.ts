@@ -7,7 +7,7 @@ const [before, after] = data.split(
   '<div id="extensions"></div>'
 );
 
-const script = fs.readFileSync('./out/bridge.js', 'utf8');
+const script = fs.readFileSync('./src/media/bridge.js', 'utf8');
 
 fs.writeFileSync(
   './out/index.html',
