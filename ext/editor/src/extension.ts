@@ -249,8 +249,7 @@ export class ExplanEditorProvider implements vscode.CustomEditorProvider<ExplanD
 				const panel = webviewsForDocument[0];
 				const response = await this.postMessageWithResponse<number[]>(panel, 'getFileData', {});
 				const encoder = new TextEncoder();
-			//	return new Uint8Array(response);
-				return encoder.encode("{}");
+				return new Uint8Array(response);
 			}
 		});
 
@@ -308,7 +307,6 @@ export class ExplanEditorProvider implements vscode.CustomEditorProvider<ExplanD
 
 					this.postMessage(webviewPanel, 'init', {
 						value: document.documentData,
-						editable,
 					});
 				}
 			}

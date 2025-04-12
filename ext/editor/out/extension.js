@@ -222,8 +222,7 @@ class ExplanEditorProvider {
                 const panel = webviewsForDocument[0];
                 const response = await this.postMessageWithResponse(panel, 'getFileData', {});
                 const encoder = new TextEncoder();
-                //	return new Uint8Array(response);
-                return encoder.encode("{}");
+                return new Uint8Array(response);
             }
         });
         const listeners = [];
@@ -268,7 +267,6 @@ class ExplanEditorProvider {
                     const editable = vscode.workspace.fs.isWritableFileSystem(document.uri.scheme);
                     this.postMessage(webviewPanel, 'init', {
                         value: document.documentData,
-                        editable,
                     });
                 }
             }
