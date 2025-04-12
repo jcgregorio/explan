@@ -340,7 +340,7 @@ export class ExplanEditorProvider implements vscode.CustomEditorProvider<ExplanD
 	 */
 	private async getHtmlForWebview(webview: vscode.Webview): Promise<string> {
 		const body = await  vscode.workspace.fs.readFile(vscode.Uri.joinPath(
-			this._context.extensionUri, 'out', 'index.html'));
+			this._context.extensionUri, 'src','media', 'merged.html'));
 		return body.toString();
 	}
 

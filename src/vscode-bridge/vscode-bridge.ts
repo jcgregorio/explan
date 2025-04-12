@@ -4,12 +4,5 @@ const vscode = acquireVsCodeApi();
 console.log('Bridge run.');
 document.addEventListener('finished-init', () => {
   console.log('About to send ready event.');
+  vscode.postMessage({ type: 'ready' });
 });
-
-window.setInterval(() => {
-  console.log('Interval');
-}, 200);
-
-// Signal to VS Code that the webview is initialized.
-vscode.postMessage({ type: 'ready' });
-//# sourceMappingURL=bridge.js.map
