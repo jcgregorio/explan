@@ -1,0 +1,1 @@
+{"version":3,"file":"bridge.js","sourceRoot":"","sources":["../src/bridge.ts"],"names":[],"mappings":";;AACA,+CAA+C;AAC/C,CAAC;IACA,aAAa;IACb,MAAM,MAAM,GAAG,gBAAgB,EAAE,CAAC;IAElC,qDAAqD;IACrD,MAAM,CAAC,WAAW,CAAC,EAAE,IAAI,EAAE,OAAO,EAAE,CAAC,CAAC;AACvC,CAAC,EAAE,CAAC,CAAC"}
