@@ -13,7 +13,7 @@
     "build:prod": "npx esbuild ./src/page.ts --bundle --outdir=dst --minify --target=es2022",
     "build:sim": "npx esbuild ./src/sim.ts --bundle --outdir=dst --sourcemap=inline",
     "build:main": "npx esbuild ./src/main.ts --bundle --outdir=dst --sourcemap=inline",
-    "watch": "git ls-files | entr npm run build && npm run build:ext",
+    "watch": "git ls-files | entr bash -c \"npm run build && npm run build:ext\"",
     "serve": "npx http-server -c-1 -a localhost",
     "format": "npx prettier -w \"./src/**/*.ts\""
   },
