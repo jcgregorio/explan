@@ -3,7 +3,6 @@ import { ExplanMain } from '../explanMain/explanMain';
 // @ts-expect-error Need to add types.
 const vscode = acquireVsCodeApi();
 
-console.log('Bridge run.');
 document.addEventListener('finished-init', () => {
   const explanMain = document.querySelector<ExplanMain>('explan-main')!;
 
@@ -16,12 +15,19 @@ document.addEventListener('finished-init', () => {
         } else {
           // Load the initial image into the canvas.
           const decoder = new TextDecoder();
-          explanMain?.fromJSON(decoder.decode(body.value).toString());
+          try {
+            explanMain?.fromJSON(decoder.decode(body.value).toString());
+          } catch (error) {
+            console.log('File was not valid JSON, plan unchanged.', error);
+          }
+
           return;
         }
       }
       case 'getFileData': {
-        // Get the image data for the canvas and post it back to the extension.
+        // Get the data for the plan and post it back to the extension. Always
+        // send as Uint8Array because in the future we will also be able to save
+        // as a PNG.
         vscode.postMessage({
           type: 'response',
           requestId,
@@ -32,6 +38,5 @@ document.addEventListener('finished-init', () => {
     }
   });
 
-  console.log('About to send ready event.');
   vscode.postMessage({ type: 'ready' });
 });
