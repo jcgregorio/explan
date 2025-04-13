@@ -38,25 +38,23 @@ exports.activate = activate;
 const vscode = __importStar(require("vscode"));
 const dispose_1 = require("./dispose");
 /**
- * Define the document (the data model) used for paw draw files.
+ * Define the document (the data model) used for Explan files.
  */
 class ExplanDocument extends dispose_1.Disposable {
     static async create(uri, backupId, delegate) {
         // If we have a backup, read that. Otherwise read the resource from the workspace
-        const dataFile = typeof backupId === 'string' ? vscode.Uri.parse(backupId) : uri;
+        const dataFile = typeof backupId === "string" ? vscode.Uri.parse(backupId) : uri;
         const fileData = await ExplanDocument.readFile(dataFile);
         return new ExplanDocument(uri, fileData, delegate);
     }
     static async readFile(uri) {
-        if (uri.scheme === 'untitled') {
+        if (uri.scheme === "untitled") {
             return new Uint8Array();
         }
         return new Uint8Array(await vscode.workspace.fs.readFile(uri));
     }
     _uri;
     _documentData;
-    _edits = [];
-    _savedEdits = [];
     _delegate;
     constructor(uri, initialContent, delegate) {
         super();
@@ -64,8 +62,12 @@ class ExplanDocument extends dispose_1.Disposable {
         this._documentData = initialContent;
         this._delegate = delegate;
     }
-    get uri() { return this._uri; }
-    get documentData() { return this._documentData; }
+    get uri() {
+        return this._uri;
+    }
+    get documentData() {
+        return this._documentData;
+    }
     _onDidDispose = this._register(new vscode.EventEmitter());
     /**
      * Fired when the document is disposed of.
@@ -97,22 +99,17 @@ class ExplanDocument extends dispose_1.Disposable {
      *
      * This fires an event to notify VS Code that the document has been edited.
      */
-    makeEdit(edit) {
-        this._edits.push(edit);
+    makeEdit(undo, redo) {
         this._onDidChange.fire({
-            label: 'Stroke',
+            label: "Edit",
             undo: async () => {
-                this._edits.pop();
-                this._onDidChangeDocument.fire({
-                    edits: this._edits,
-                });
+                await undo();
+                this._onDidChangeDocument.fire({});
             },
             redo: async () => {
-                this._edits.push(edit);
-                this._onDidChangeDocument.fire({
-                    edits: this._edits,
-                });
-            }
+                await redo();
+                this._onDidChangeDocument.fire({});
+            },
         });
     }
     /**
@@ -120,7 +117,6 @@ class ExplanDocument extends dispose_1.Disposable {
      */
     async save(cancellation) {
         await this.saveAs(this.uri, cancellation);
-        this._savedEdits = Array.from(this._edits);
     }
     /**
      * Called by VS Code when the user saves the document to a new location.
@@ -138,10 +134,8 @@ class ExplanDocument extends dispose_1.Disposable {
     async revert(_cancellation) {
         const diskContent = await ExplanDocument.readFile(this.uri);
         this._documentData = diskContent;
-        this._edits = this._savedEdits;
         this._onDidChangeDocument.fire({
             content: diskContent,
-            edits: this._edits,
         });
     }
     /**
@@ -160,7 +154,7 @@ class ExplanDocument extends dispose_1.Disposable {
                 catch {
                     // noop
                 }
-            }
+            },
         };
     }
 }
@@ -181,17 +175,16 @@ class ExplanDocument extends dispose_1.Disposable {
  */
 class ExplanEditorProvider {
     _context;
-    static newPawDrawFileId = 1;
+    static newExplanFileId = 1;
     static register(context) {
-        vscode.commands.registerCommand(ExplanEditorProvider.viewType + '.new', () => {
+        vscode.commands.registerCommand(ExplanEditorProvider.viewType + ".new", () => {
             const workspaceFolders = vscode.workspace.workspaceFolders;
             if (!workspaceFolders) {
-                vscode.window.showErrorMessage("Creating new Paw Draw files currently requires opening a workspace");
+                vscode.window.showErrorMessage("Creating new Explan files requires opening a workspace");
                 return;
             }
-            const uri = vscode.Uri.joinPath(workspaceFolders[0].uri, `new-${ExplanEditorProvider.newPawDrawFileId++}.explan.json`)
-                .with({ scheme: 'untitled' });
-            vscode.commands.executeCommand('vscode.openWith', uri, ExplanEditorProvider.viewType);
+            const uri = vscode.Uri.joinPath(workspaceFolders[0].uri, `new-${ExplanEditorProvider.newExplanFileId++}.explan.json`).with({ scheme: "untitled" });
+            vscode.commands.executeCommand("vscode.openWith", uri, ExplanEditorProvider.viewType);
         });
         return vscode.window.registerCustomEditorProvider(ExplanEditorProvider.viewType, new ExplanEditorProvider(context), {
             // For this demo extension, we enable `retainContextWhenHidden` which keeps the
@@ -203,7 +196,7 @@ class ExplanEditorProvider {
             supportsMultipleEditorsPerDocument: false,
         });
     }
-    static viewType = 'explan.editor';
+    static viewType = "explan.editor";
     /**
      * Tracks all known webviews
      */
@@ -217,27 +210,26 @@ class ExplanEditorProvider {
             getFileData: async () => {
                 const webviewsForDocument = Array.from(this.webviews.get(document.uri));
                 if (!webviewsForDocument.length) {
-                    throw new Error('Could not find webview to save for');
+                    throw new Error("Could not find webview to save for");
                 }
                 const panel = webviewsForDocument[0];
-                const response = await this.postMessageWithResponse(panel, 'getFileData', {});
+                const response = await this.postMessageWithResponse(panel, "getFileData", {});
                 const encoder = new TextEncoder();
                 return new Uint8Array(response);
-            }
+            },
         });
         const listeners = [];
-        listeners.push(document.onDidChange(e => {
+        listeners.push(document.onDidChange((e) => {
             // Tell VS Code that the document has been edited by the use.
             this._onDidChangeCustomDocument.fire({
                 document,
                 ...e,
             });
         }));
-        listeners.push(document.onDidChangeContent(e => {
+        listeners.push(document.onDidChangeContent((e) => {
             // Update all webviews when the document changes
             for (const webviewPanel of this.webviews.get(document.uri)) {
-                this.postMessage(webviewPanel, 'update', {
-                    edits: e.edits,
+                this.postMessage(webviewPanel, "update", {
                     content: e.content,
                 });
             }
@@ -253,20 +245,21 @@ class ExplanEditorProvider {
             enableScripts: true,
         };
         webviewPanel.webview.html = await this.getHtmlForWebview(webviewPanel.webview);
-        webviewPanel.webview.onDidReceiveMessage(e => this.onMessage(document, e));
+        webviewPanel.webview.onDidReceiveMessage((e) => this.onMessage(document, e));
         // Wait for the webview to be properly ready before we init
-        webviewPanel.webview.onDidReceiveMessage(e => {
-            if (e.type === 'ready') {
-                if (document.uri.scheme === 'untitled') {
-                    this.postMessage(webviewPanel, 'init', {
+        webviewPanel.webview.onDidReceiveMessage((e) => {
+            if (e.type === "ready") {
+                if (document.uri.scheme === "untitled") {
+                    this.postMessage(webviewPanel, "init", {
                         untitled: true,
                         editable: true,
                     });
                 }
                 else {
                     const editable = vscode.workspace.fs.isWritableFileSystem(document.uri.scheme);
-                    this.postMessage(webviewPanel, 'init', {
+                    this.postMessage(webviewPanel, "init", {
                         value: document.documentData,
+                        editable: editable,
                     });
                 }
             }
@@ -291,31 +284,45 @@ class ExplanEditorProvider {
      * Get the static html used for the editor webviews.
      */
     async getHtmlForWebview(webview) {
-        const body = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(this._context.extensionUri, 'src', 'media', 'merged.html'));
+        const body = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(this._context.extensionUri, "src", "media", "merged.html"));
         return body.toString();
     }
     _requestId = 1;
     _callbacks = new Map();
     postMessageWithResponse(panel, type, body) {
         const requestId = this._requestId++;
-        const p = new Promise(resolve => this._callbacks.set(requestId, resolve));
+        const p = new Promise((resolve) => this._callbacks.set(requestId, resolve));
         panel.webview.postMessage({ type, requestId, body });
         return p;
     }
     postMessage(panel, type, body) {
         panel.webview.postMessage({ type, body });
     }
+    getPanel(document) {
+        const webviewsForDocument = Array.from(this.webviews.get(document.uri));
+        if (!webviewsForDocument.length) {
+            throw new Error("Could not find webview to save for");
+        }
+        return webviewsForDocument[0];
+    }
     onMessage(document, message) {
         switch (message.type) {
-            case 'stroke':
-                document.makeEdit(message);
+            case "edit":
+                const undo = async () => {
+                    const panel = this.getPanel(document);
+                    const response = await this.postMessageWithResponse(panel, "undo", {});
+                };
+                const redo = async () => {
+                    const panel = this.getPanel(document);
+                    const response = await this.postMessageWithResponse(panel, "redo", {});
+                };
+                document.makeEdit(undo, redo);
                 return;
-            case 'response':
-                {
-                    const callback = this._callbacks.get(message.requestId);
-                    callback?.(message.body);
-                    return;
-                }
+            case "response": {
+                const callback = this._callbacks.get(message.requestId);
+                callback?.(message.body);
+                return;
+            }
         }
     }
 }

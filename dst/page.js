@@ -2037,6 +2037,7 @@
         case "normal":
           undoStack.push(ret.value);
           redoStack.length = 0;
+          document.dispatchEvent(new CustomEvent("edit-action"));
           break;
         case "undo":
           redoStack.push(ret.value);
@@ -7398,6 +7399,18 @@
         type: "application/json"
       });
       this.downloadLink.href = URL.createObjectURL(downloadBlob);
+    }
+    async undo() {
+      const res = await executeByName("UndoAction", this);
+      if (!res.ok) {
+        console.log(res.error);
+      }
+    }
+    async redo() {
+      const res = await executeByName("RedoAction", this);
+      if (!res.ok) {
+        console.log(res.error);
+      }
     }
     toJSON() {
       return JSON.stringify(this.plan, null, "  ");

@@ -35,8 +35,28 @@ document.addEventListener('finished-init', () => {
         });
         return;
       }
+      case 'undo': {
+        await explanMain.undo();
+        vscode.postMessage({
+          type: 'response',
+          requestId,
+        });
+        return;
+      }
+      case 'redo': {
+        await explanMain.redo();
+        vscode.postMessage({
+          type: 'response',
+          requestId,
+        });
+        return;
+      }
     }
   });
 
   vscode.postMessage({ type: 'ready' });
+});
+
+document.addEventListener('edit-action', () => {
+  vscode.postMessage({ type: 'edit' });
 });

@@ -299,6 +299,20 @@ export class ExplanMain extends HTMLElement {
     this.downloadLink!.href = URL.createObjectURL(downloadBlob);
   }
 
+  async undo(): Promise<void> {
+    const res = await executeByName('UndoAction', this);
+    if (!res.ok) {
+      console.log(res.error);
+    }
+  }
+
+  async redo(): Promise<void> {
+    const res = await executeByName('RedoAction', this);
+    if (!res.ok) {
+      console.log(res.error);
+    }
+  }
+
   toJSON(): string {
     return JSON.stringify(this.plan, null, '  ');
   }
