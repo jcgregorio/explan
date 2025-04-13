@@ -2092,6 +2092,10 @@
       console.log(ret.error);
     }
   };
+  var unmapUndoAndRedo = () => {
+    KeyMap.delete("ctrl-z");
+    KeyMap.delete("ctrl-y");
+  };
 
   // src/help/help.ts
   var KeyboardMapDialog = class extends HTMLElement {
@@ -7411,6 +7415,12 @@
       if (!res.ok) {
         console.log(res.error);
       }
+    }
+    // Call this if explanMain is embedded in another context.
+    embedded() {
+      unmapUndoAndRedo();
+      document.querySelector("#download").classList.add("hidden");
+      document.querySelector("#upload").classList.add("hidden");
     }
     toJSON() {
       return JSON.stringify(this.plan, null, "  ");

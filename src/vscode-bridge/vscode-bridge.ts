@@ -5,6 +5,7 @@ const vscode = acquireVsCodeApi();
 
 document.addEventListener('finished-init', () => {
   const explanMain = document.querySelector<ExplanMain>('explan-main')!;
+  explanMain.embedded();
 
   window.addEventListener('message', async (e) => {
     const { type, body, requestId } = e.data;

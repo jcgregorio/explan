@@ -31,7 +31,7 @@ import { ComputeSlack, CriticalPath, Slack, Span } from '../slack/slack.ts';
 import { Theme2 } from '../style/theme/theme.ts';
 import { generateStarterPlan } from '../generate/generate.ts';
 import { executeByName, executeOp } from '../action/execute.ts';
-import { StartKeyboardHandling } from '../keymap/keymap.ts';
+import { unmapUndoAndRedo, StartKeyboardHandling } from '../keymap/keymap.ts';
 import { RemoveEdgeOp, SetTaskNameOp } from '../ops/chart.ts';
 import { DependenciesPanel } from '../dependencies/dependencies-panel.ts';
 import { ActionNames } from '../action/registry.ts';
@@ -311,6 +311,15 @@ export class ExplanMain extends HTMLElement {
     if (!res.ok) {
       console.log(res.error);
     }
+  }
+
+  // Call this if explanMain is embedded in another context.
+  embedded(): void {
+    // Disable the key bindings for undo and redo.
+    unmapUndoAndRedo();
+
+    document.querySelector('#download')!.classList.add('hidden');
+    document.querySelector('#upload')!.classList.add('hidden');
   }
 
   toJSON(): string {
