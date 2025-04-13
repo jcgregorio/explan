@@ -4,16 +4,17 @@
   "description": "Project planning software.",
   "type": "module",
   "scripts": {
-    "test": "npx web-test-runner \"./src/**/*_test.ts\" --puppeteer",
-    "test:cont": "npx web-test-runner \"./src/**/*_test.ts\" --puppeteer --watch",
-    "lint": "npx eslint",
-    "compile": "npx tsc",
-    "build": "npx esbuild ./src/page.ts --bundle --outdir=dst",
+    "build:ext:prod": "npx esbuild ./src/vscodeext.ts --bundle --outdir=dst --minify && node ./build/merge.ts",
     "build:ext": "npx esbuild ./src/vscodeext.ts --bundle --outdir=dst --sourcemap=inline && node ./build/merge.ts",
     "build:prod": "npx esbuild ./src/page.ts --bundle --outdir=dst --minify --target=es2022",
-    "watch": "git ls-files | entr bash -c \"npm run build && npm run build:ext\"",
+    "build": "npx esbuild ./src/page.ts --bundle --outdir=dst",
+    "compile": "npx tsc",
+    "format": "npx prettier -w \"./src/**/*.ts\"",
+    "lint": "npx eslint",
     "serve": "npx http-server -c-1 -a localhost",
-    "format": "npx prettier -w \"./src/**/*.ts\""
+    "test:cont": "npx web-test-runner \"./src/**/*_test.ts\" --puppeteer --watch",
+    "test": "npx web-test-runner \"./src/**/*_test.ts\" --puppeteer",
+    "watch": "git ls-files | entr bash -c \"npm run build && npm run build:ext\""
   },
   "keywords": [
     "gantt",

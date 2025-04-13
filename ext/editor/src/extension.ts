@@ -175,19 +175,7 @@ class ExplanDocument extends Disposable implements vscode.CustomDocument {
 }
 
 /**
- * Provider for paw draw editors.
- *
- * Paw draw editors are used for `.pawDraw` files, which are just `.png` files with a different file extension.
- *
- * This provider demonstrates:
- *
- * - How to implement a custom editor for binary files.
- * - Setting up the initial webview for a custom editor.
- * - Loading scripts and styles in a custom editor.
- * - Communication between VS Code and the custom editor.
- * - Using CustomDocuments to store information that is shared between multiple custom editors.
- * - Implementing save, undo, redo, and revert.
- * - Backing up a custom editor.
+ * Provider for Explan editors.
  */
 export class ExplanEditorProvider
   implements vscode.CustomEditorProvider<ExplanDocument>
@@ -242,8 +230,6 @@ export class ExplanEditorProvider
   private readonly webviews = new WebviewCollection();
 
   constructor(private readonly _context: vscode.ExtensionContext) {}
-
-  //#region CustomEditorProvider
 
   async openCustomDocument(
     uri: vscode.Uri,
@@ -379,7 +365,6 @@ export class ExplanEditorProvider
     return document.backup(context.destination, cancellation);
   }
 
-  //#endregion
   /**
    * Get the static html used for the editor webviews.
    */
