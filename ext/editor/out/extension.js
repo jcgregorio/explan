@@ -144,6 +144,8 @@ class ExplanDocument extends dispose_1.Disposable {
      * These backups are used to implement hot exit.
      */
     async backup(destination, cancellation) {
+        // TODO: Once we implement saving as a PNG this should be modified to only
+        // do backups as JSON which should be must faster.
         await this.saveAs(destination, cancellation);
         return {
             id: destination.toString(),
