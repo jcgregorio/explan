@@ -3014,8 +3014,8 @@
     template() {
       return x`
       <h3>Plan Status</h3>
-      ${this.unstartedContent()} ${this.startedContent()}
       <div>
+        <div>${this.unstartedContent()} ${this.startedContent()}</div>
         <label>
           Units
           <select

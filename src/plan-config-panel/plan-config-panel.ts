@@ -1,9 +1,9 @@
-import { TemplateResult, html, render } from "lit-html";
-import { ExplanMain } from "../explanMain/explanMain";
-import { dateDisplay } from "../date-control-utils/date-control-utils";
-import { executeOp } from "../action/execute";
-import { SetPlanStartStateOp, SetPlanUnitsOp } from "../ops/plan";
-import { UNIT_TYPES, toUnit } from "../units/unit";
+import { TemplateResult, html, render } from 'lit-html';
+import { ExplanMain } from '../explanMain/explanMain';
+import { dateDisplay } from '../date-control-utils/date-control-utils';
+import { executeOp } from '../action/execute';
+import { SetPlanStartStateOp, SetPlanUnitsOp } from '../ops/plan';
+import { UNIT_TYPES, toUnit } from '../units/unit';
 
 export class PlanConfigPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -20,15 +20,15 @@ export class PlanConfigPanel extends HTMLElement {
 
   connectedCallback(): void {
     document.addEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
@@ -44,8 +44,8 @@ export class PlanConfigPanel extends HTMLElement {
   private template(): TemplateResult {
     return html`
       <h3>Plan Status</h3>
-      ${this.unstartedContent()} ${this.startedContent()}
       <div>
+        <div>${this.unstartedContent()} ${this.startedContent()}</div>
         <label>
           Units
           <select
@@ -65,9 +65,9 @@ export class PlanConfigPanel extends HTMLElement {
     const unitAsString = (e.target as HTMLInputElement).value;
     const ret = await executeOp(
       SetPlanUnitsOp(toUnit(unitAsString)),
-      "planDefinitionChanged",
+      'planDefinitionChanged',
       true,
-      this.explanMain!,
+      this.explanMain!
     );
     if (!ret.ok) {
       console.log(ret.error);
@@ -76,7 +76,7 @@ export class PlanConfigPanel extends HTMLElement {
   }
 
   private unstartedContent(): TemplateResult {
-    if (this.explanMain!.plan.status.stage === "unstarted") {
+    if (this.explanMain!.plan.status.stage === 'unstarted') {
       return html`
         <label>
           <input type="checkbox" @input=${() => this.start()} /> Started
@@ -88,7 +88,7 @@ export class PlanConfigPanel extends HTMLElement {
   }
 
   private startedContent(): TemplateResult {
-    if (this.explanMain!.plan.status.stage === "started") {
+    if (this.explanMain!.plan.status.stage === 'started') {
       return html`
         <label>
           <input type="checkbox" checked @input=${() => this.unstart()} />
@@ -108,10 +108,10 @@ export class PlanConfigPanel extends HTMLElement {
   private async dateChanged(e: InputEvent) {
     const start = (e.target as HTMLInputElement).valueAsDate!.getTime();
     const ret = await executeOp(
-      SetPlanStartStateOp({ stage: "started", start: start }),
-      "planDefinitionChanged",
+      SetPlanStartStateOp({ stage: 'started', start: start }),
+      'planDefinitionChanged',
       true,
-      this.explanMain!,
+      this.explanMain!
     );
     if (!ret.ok) {
       console.log(ret.error);
@@ -122,10 +122,10 @@ export class PlanConfigPanel extends HTMLElement {
   private async start() {
     const start = Date.now();
     const ret = await executeOp(
-      SetPlanStartStateOp({ stage: "started", start: start }),
-      "planDefinitionChanged",
+      SetPlanStartStateOp({ stage: 'started', start: start }),
+      'planDefinitionChanged',
       true,
-      this.explanMain!,
+      this.explanMain!
     );
     if (!ret.ok) {
       console.log(ret.error);
@@ -135,10 +135,10 @@ export class PlanConfigPanel extends HTMLElement {
 
   private async unstart() {
     const ret = await executeOp(
-      SetPlanStartStateOp({ stage: "unstarted", start: 0 }),
-      "planDefinitionChanged",
+      SetPlanStartStateOp({ stage: 'unstarted', start: 0 }),
+      'planDefinitionChanged',
       true,
-      this.explanMain!,
+      this.explanMain!
     );
     if (!ret.ok) {
       console.log(ret.error);
@@ -147,4 +147,4 @@ export class PlanConfigPanel extends HTMLElement {
   }
 }
 
-customElements.define("plan-config-panel", PlanConfigPanel);
+customElements.define('plan-config-panel', PlanConfigPanel);
