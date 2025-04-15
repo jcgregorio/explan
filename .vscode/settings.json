@@ -57,5 +57,8 @@
   },
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "always"
+  },
+  "[snippets]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
   }
 }
