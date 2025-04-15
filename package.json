@@ -13,6 +13,8 @@
     "lint": "npx eslint",
     "serve": "npx http-server -c-1 -a localhost",
     "test:cont": "npx web-test-runner \"./src/**/*_test.ts\" --puppeteer --watch",
+    "jest": "npx jest",
+    "jest:cont": "npx jest --watchAll",
     "test": "npx web-test-runner \"./src/**/*_test.ts\" --puppeteer",
     "watch": "git ls-files | entr bash -c \"npm run build && npm run build:ext\""
   },
@@ -28,6 +30,9 @@
     "@esm-bundle/chai": "4.3.4-fix.0",
     "@tsconfig/recommended": "1.0.6",
     "@types/mocha": "10.0.6",
+    "@types/vscode": "^1.99.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.5.2",
     "@web/dev-server-esbuild": "1.0.2",
     "@web/test-runner": "0.18.2",
     "@web/test-runner-puppeteer": "0.16.0",
@@ -35,8 +40,11 @@
     "eslint": "^9.11.1",
     "globals": "15.4.0",
     "http-server": "14.1.1",
+    "jest": "^29.7.0",
     "prettier": "^3.3.3",
-    "typescript": "5.8.2"
+    "ts-jest": "^29.3.2",
+    "typescript": "5.8.2",
+    "vscode": "^1.1.37"
   },
   "dependencies": {
     "fuzzysort": "^3.1.0",

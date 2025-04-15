@@ -24,12 +24,12 @@
       }
     ],
     "commands": [
-			{
-				"command": "explan.editor.new",
-				"title": "Create new Explan Document",
-				"category": "Explan"
-			}
-		]
+      {
+        "command": "explan.editor.new",
+        "title": "Create new Explan Document",
+        "category": "Explan"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
