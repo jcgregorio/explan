@@ -1,6 +1,11 @@
 import { Chunk, PngMetadata } from '../vendor/png-metadata/src/png-metadata';
 import { assert } from '@esm-bundle/chai';
-import { b642str, str2b64 } from './image';
+import {
+  addExplanJSONChunkToPNG,
+  b642str,
+  getExplanJSONChunkFromPNG,
+  str2b64,
+} from './image';
 
 describe('PngMetadata', () => {
   it('can determine an empty file is not a PNG', () => {
@@ -69,6 +74,14 @@ describe('PngMetadata', () => {
       chunks2.map((chunk: Chunk) => chunk.type),
       ['IHDR', 'sRGB', 'IDAT', 'tEXt', 'IEND']
     );
+  });
+
+  it('roundtrips JSON through PNG', async () => {
+    const blob = await loadImageAsBlob();
+    const updatedBlob = await addExplanJSONChunkToPNG('{}', blob);
+    const ret = await getExplanJSONChunkFromPNG(updatedBlob);
+    assert.isTrue(ret.ok);
+    assert.equal(ret.value, '{}');
   });
 });
 

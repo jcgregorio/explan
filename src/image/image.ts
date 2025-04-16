@@ -41,13 +41,13 @@ export const getExplanJSONChunkFromPNG = async (
 
   const matches = chunks
     .filter((chunk: Chunk) => chunk.type === 'tEXt')
-    .filter((chunk: Chunk) => {
+    .filter((chunk: Chunk) =>
       chunk.data
         .slice(0, explanJSONKeywordAndNullTerminator.length)
         .every((x: number, index: number) => {
           return x === explanJSONKeywordAndNullTerminator[index];
-        });
-    });
+        })
+    );
 
   if (matches.length === 0) {
     return error(new Error('No tEXt chunks found.'));
