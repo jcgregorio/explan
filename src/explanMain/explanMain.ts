@@ -26,7 +26,7 @@ import {
 } from '../renderer/renderer.ts';
 import { pt } from '../point/point.ts';
 import { Scale } from '../renderer/scale/scale.ts';
-import { ok, Result } from '../result.ts';
+import { error, ok, Result } from '../result.ts';
 import { ComputeSlack, CriticalPath, Slack, Span } from '../slack/slack.ts';
 import { Theme2 } from '../style/theme/theme.ts';
 import { generateStarterPlan } from '../generate/generate.ts';
@@ -50,6 +50,7 @@ import { EditMetricsPanel } from '../edit-metrics-panel/edit-metrics-panel.ts';
 import { TaskCompletionPanel } from '../task-completion-panel/task-completion-panel.ts';
 import { PlanConfigPanel } from '../plan-config-panel/plan-config-panel.ts';
 import { GroupByControl } from '../groupby-control/groupby-control.ts';
+import { addExplanJSONChunkToPNG } from '../image/image.ts';
 
 const FONT_SIZE_PX = 32;
 
@@ -109,8 +110,8 @@ export class ExplanMain extends HTMLElement {
     });
 
     this.downloadLink = this.querySelector<HTMLAnchorElement>('#download')!;
-    this.downloadLink.addEventListener('click', () => {
-      this.prepareDownload();
+    this.downloadLink.addEventListener('click', async () => {
+      await this.prepareDownload();
     });
     this.dependenciesPanel = this.querySelector('dependencies-panel')!;
 
@@ -292,10 +293,16 @@ export class ExplanMain extends HTMLElement {
     this.paintChart();
   }
 
-  prepareDownload() {
-    const downloadBlob = new Blob([JSON.stringify(this.plan, null, '  ')], {
-      type: 'application/json',
-    });
+  async prepareDownload() {
+    //  const downloadBlob = new Blob([JSON.stringify(this.plan, null, '  ')], {
+    //    type: 'application/json',
+    //  });
+    const ret = await this.toPNG();
+    if (!ret.ok) {
+      reportOnError(ret);
+      return;
+    }
+    const downloadBlob = ret.value;
     this.downloadLink!.href = URL.createObjectURL(downloadBlob);
   }
 
@@ -334,6 +341,92 @@ export class ExplanMain extends HTMLElement {
     this.plan = ret.value;
     this.planDefinitionHasBeenChanged();
     return ok(null);
+  }
+
+  async toPNG(): Promise<Result<Blob>> {
+    // First render the current plan to a canvas with the given render options.
+    const ret = await this.renderChartToPNG();
+    if (!ret.ok) {
+      return ret;
+    }
+
+    // Attach JSON to PNG and return updated PNG as Blob.
+    return ok(await addExplanJSONChunkToPNG(this.toJSON(), ret.value));
+  }
+
+  private async renderChartToPNG(): Promise<Result<Blob>> {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1000;
+
+    const theme2 = new Theme2();
+    theme2.loadFromElement(document.body);
+
+    const durationDisplay = (t: number) =>
+      this.plan.durationUnits.displayTime(t);
+
+    const taskIsStarted = (taskIndex: number) => {
+      const ret = this.plan.getTaskCompletion(taskIndex);
+      if (!ret.ok) {
+        return false;
+      }
+      return ret.value.stage !== 'unstarted';
+    };
+
+    const opts: RenderOptions = {
+      fontSizePx: 15,
+      hasText: true,
+      displayRange: null,
+      displayRangeUsage: 'restrict',
+      colors: theme2,
+      hasTimeline: true,
+      hasTasks: true,
+      hasEdges: true,
+      drawTimeMarkersOnTasks: true,
+      taskLabel: this.getTaskLabeller(),
+      taskDuration: this.getTaskDurationFunc(),
+      taskEmphasize: this.criticalPath,
+      filterFunc: null,
+      groupByResource: '',
+      highlightedTask: null,
+      selectedTaskIndex: -1,
+      durationDisplay: durationDisplay,
+      taskIsStarted: taskIsStarted,
+    };
+
+    const newHeight = suggestedCanvasHeight(
+      canvas,
+      this.spans,
+      opts,
+      this.plan.chart.Vertices.length + 2 // TODO - Why do we need the +2 here!?
+    );
+    canvas.height = newHeight;
+    const ctx = canvas.getContext('2d')!;
+    const ret = renderTasksToCanvas(
+      null,
+      canvas,
+      ctx,
+      this.plan,
+      this.spans,
+      opts,
+      null
+    );
+    if (!ret.ok) {
+      return error(ret.error);
+    }
+    let resolveOutside: (value: Blob | PromiseLike<Blob>) => void;
+    let rejectOutside: () => void;
+    const p = new Promise<Blob>((resolve, reject) => {
+      resolveOutside = resolve;
+      rejectOutside = reject;
+    });
+    canvas.toBlob((blob: Blob | null) => {
+      if (blob === null) {
+        rejectOutside();
+      } else {
+        resolveOutside(blob);
+      }
+    }, 'image/png');
+    return ok(await p);
   }
 
   updateTaskPanels(taskIndex: number) {

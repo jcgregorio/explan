@@ -201,7 +201,7 @@ type xRange = [number, number];
 // because two different tasks might be placed on the same row. Also we should
 // pass in max rows? Or should that come from the above mapping?
 export function renderTasksToCanvas(
-  parent: HTMLElement,
+  parent: HTMLElement | null,
   canvas: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D,
   plan: Plan,

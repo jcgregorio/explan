@@ -247,7 +247,7 @@
           preparedCache.clear();
           preparedSearchCache.clear();
         };
-        class Result27 {
+        class Result28 {
           get ["indexes"]() {
             return this._indexes.slice(0, this._indexes.len).sort((a2, b2) => a2 - b2);
           }
@@ -273,7 +273,7 @@
           }
         }
         var new_result = (target, options) => {
-          const result = new Result27();
+          const result = new Result28();
           result["target"] = target;
           result["obj"] = options.obj ?? NULL;
           result._score = options._score ?? NEGATIVE_INFINITY;
@@ -482,7 +482,7 @@
           prepared._score = score;
           for (var i3 = 0; i3 < searchLen; ++i3) prepared._indexes[i3] = matchesBest[i3];
           prepared._indexes.len = searchLen;
-          const result = new Result27();
+          const result = new Result28();
           result.target = prepared.target;
           result._score = prepared._score;
           result._indexes = prepared._indexes;
@@ -7210,6 +7210,149 @@
   var partsLength = parts.length;
   var randomTaskName = () => `${parts[rndInt2(partsLength)]} ${parts[rndInt2(partsLength)]}`;
 
+  // src/vendor/png-metadata/src/png-metadata.ts
+  var PNG_SIG = new Uint8Array([
+    137,
+    80,
+    78,
+    71,
+    13,
+    10,
+    26,
+    10
+  ]);
+  var PngMetadata = class _PngMetadata {
+    static textDecoder = new TextDecoder();
+    static textEncoder = new TextEncoder();
+    static isPNG(data) {
+      const signature = new Uint8Array(data.slice(0, 8));
+      if (signature.byteLength < 8) {
+        return false;
+      }
+      return signature.every((byte, index) => byte === PNG_SIG[index]);
+    }
+    static splitChunks(data) {
+      const view = new DataView(data instanceof ArrayBuffer ? data : data.buffer);
+      let offset = PNG_SIG.length;
+      const chunks = [];
+      while (offset < view.byteLength) {
+        if (offset + 8 > view.byteLength) break;
+        const size = view.getUint32(offset);
+        offset += 4;
+        const type = _PngMetadata.textDecoder.decode(
+          new Uint8Array(data.slice(offset, offset + 4))
+        );
+        offset += 4;
+        if (offset + size + 4 > view.byteLength) break;
+        const chunkData = new Uint8Array(data.slice(offset, offset + size));
+        offset += size;
+        const crc = view.getUint32(offset);
+        offset += 4;
+        chunks.push({ size, type, data: chunkData, crc });
+      }
+      return chunks;
+    }
+    static joinChunks(chunks) {
+      const totalSize = PNG_SIG.length + chunks.reduce((sum, chunk) => sum + 12 + chunk.size, 0);
+      const buffer = new ArrayBuffer(totalSize);
+      const view = new DataView(buffer);
+      const uint8Array = new Uint8Array(buffer);
+      uint8Array.set(PNG_SIG, 0);
+      let offset = PNG_SIG.length;
+      for (const chunk of chunks) {
+        view.setUint32(offset, chunk.size);
+        offset += 4;
+        uint8Array.set(_PngMetadata.textEncoder.encode(chunk.type), offset);
+        offset += 4;
+        uint8Array.set(chunk.data, offset);
+        offset += chunk.size;
+        view.setUint32(offset, chunk.crc);
+        offset += 4;
+      }
+      return buffer;
+    }
+    static createChunk(type, data) {
+      const typeArray = _PngMetadata.textEncoder.encode(type);
+      const crc = _PngMetadata.crc32(new Uint8Array([...typeArray, ...data]));
+      return { size: data.length, type, data, crc };
+    }
+    static crc32(data) {
+      let crc = -1;
+      for (let i3 = 0; i3 < data.length; i3++) {
+        crc = crc >>> 8 ^ _PngMetadata.crcTable[(crc ^ data[i3]) & 255];
+      }
+      return (crc ^ -1) >>> 0;
+    }
+    static crcTable = (() => {
+      const table = new Array(256);
+      for (let i3 = 0; i3 < 256; i3++) {
+        let c2 = i3;
+        for (let j2 = 0; j2 < 8; j2++) {
+          c2 = c2 & 1 ? 3988292384 ^ c2 >>> 1 : c2 >>> 1;
+        }
+        table[i3] = c2;
+      }
+      return table;
+    })();
+  };
+
+  // src/image/image.ts
+  var explanJSONKeywordAndNullTerminator = [
+    97,
+    112,
+    112,
+    108,
+    105,
+    99,
+    97,
+    116,
+    105,
+    111,
+    110,
+    47,
+    118,
+    110,
+    100,
+    46,
+    101,
+    120,
+    112,
+    108,
+    97,
+    110,
+    46,
+    111,
+    114,
+    103,
+    43,
+    106,
+    115,
+    111,
+    110,
+    0
+  ];
+  var addExplanJSONChunkToPNG = async (json, blob) => {
+    const bin = new Uint8Array(await blob.arrayBuffer());
+    const chunks = PngMetadata.splitChunks(bin);
+    const contentEncoded = new TextEncoder().encode(str2b64(json));
+    const data = new Uint8Array(
+      new ArrayBuffer(
+        explanJSONKeywordAndNullTerminator.length + contentEncoded.length
+      )
+    );
+    data.set(explanJSONKeywordAndNullTerminator, 0);
+    data.set(contentEncoded, explanJSONKeywordAndNullTerminator.length);
+    const textChunk = PngMetadata.createChunk("tEXt", data);
+    chunks.splice(-1, 0, textChunk);
+    return new Blob([PngMetadata.joinChunks(chunks)]);
+  };
+  var str2b64 = (str) => btoa(
+    encodeURIComponent(str).replace(
+      /%([0-9A-F]{2})/g,
+      (_match, p1) => String.fromCharCode(parseInt(p1, 16))
+    )
+  );
+
   // src/explanMain/explanMain.ts
   var FONT_SIZE_PX = 32;
   var NUM_SIMULATION_LOOPS = 100;
@@ -7250,8 +7393,8 @@
         this.paintChart();
       });
       this.downloadLink = this.querySelector("#download");
-      this.downloadLink.addEventListener("click", () => {
-        this.prepareDownload();
+      this.downloadLink.addEventListener("click", async () => {
+        await this.prepareDownload();
       });
       this.dependenciesPanel = this.querySelector("dependencies-panel");
       this.dependenciesPanel.addEventListener("add-dependency", async (e3) => {
@@ -7398,10 +7541,13 @@
       this.topTimeline = !this.topTimeline;
       this.paintChart();
     }
-    prepareDownload() {
-      const downloadBlob = new Blob([JSON.stringify(this.plan, null, "  ")], {
-        type: "application/json"
-      });
+    async prepareDownload() {
+      const ret = await this.toPNG();
+      if (!ret.ok) {
+        reportOnError(ret);
+        return;
+      }
+      const downloadBlob = ret.value;
       this.downloadLink.href = URL.createObjectURL(downloadBlob);
     }
     async undo() {
@@ -7433,6 +7579,82 @@
       this.plan = ret.value;
       this.planDefinitionHasBeenChanged();
       return ok(null);
+    }
+    async toPNG() {
+      const ret = await this.renderChartToPNG();
+      if (!ret.ok) {
+        return ret;
+      }
+      return ok(await addExplanJSONChunkToPNG(this.toJSON(), ret.value));
+    }
+    async renderChartToPNG() {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1e3;
+      const theme2 = new Theme2();
+      theme2.loadFromElement(document.body);
+      const durationDisplay = (t4) => this.plan.durationUnits.displayTime(t4);
+      const taskIsStarted = (taskIndex) => {
+        const ret2 = this.plan.getTaskCompletion(taskIndex);
+        if (!ret2.ok) {
+          return false;
+        }
+        return ret2.value.stage !== "unstarted";
+      };
+      const opts = {
+        fontSizePx: 15,
+        hasText: true,
+        displayRange: null,
+        displayRangeUsage: "restrict",
+        colors: theme2,
+        hasTimeline: true,
+        hasTasks: true,
+        hasEdges: true,
+        drawTimeMarkersOnTasks: true,
+        taskLabel: this.getTaskLabeller(),
+        taskDuration: this.getTaskDurationFunc(),
+        taskEmphasize: this.criticalPath,
+        filterFunc: null,
+        groupByResource: "",
+        highlightedTask: null,
+        selectedTaskIndex: -1,
+        durationDisplay,
+        taskIsStarted
+      };
+      const newHeight = suggestedCanvasHeight(
+        canvas,
+        this.spans,
+        opts,
+        this.plan.chart.Vertices.length + 2
+        // TODO - Why do we need the +2 here!?
+      );
+      canvas.height = newHeight;
+      const ctx = canvas.getContext("2d");
+      const ret = renderTasksToCanvas(
+        null,
+        canvas,
+        ctx,
+        this.plan,
+        this.spans,
+        opts,
+        null
+      );
+      if (!ret.ok) {
+        return error(ret.error);
+      }
+      let resolveOutside;
+      let rejectOutside;
+      const p2 = new Promise((resolve, reject) => {
+        resolveOutside = resolve;
+        rejectOutside = reject;
+      });
+      canvas.toBlob((blob) => {
+        if (blob === null) {
+          rejectOutside();
+        } else {
+          resolveOutside(blob);
+        }
+      }, "image/png");
+      return ok(await p2);
     }
     updateTaskPanels(taskIndex) {
       this.selectedTask = taskIndex;
