@@ -33,11 +33,9 @@ export const addExplanJSONChunkToPNG = async (
 };
 
 export const getExplanJSONChunkFromPNG = async (
-  blob: Blob
+  bytes: Uint8Array
 ): Promise<Result<string>> => {
-  const chunks = PngMetadata.splitChunks(
-    new Uint8Array(await blob.arrayBuffer())
-  );
+  const chunks = PngMetadata.splitChunks(bytes);
 
   const matches = chunks
     .filter((chunk: Chunk) => chunk.type === 'tEXt')

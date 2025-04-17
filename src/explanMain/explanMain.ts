@@ -50,7 +50,11 @@ import { EditMetricsPanel } from '../edit-metrics-panel/edit-metrics-panel.ts';
 import { TaskCompletionPanel } from '../task-completion-panel/task-completion-panel.ts';
 import { PlanConfigPanel } from '../plan-config-panel/plan-config-panel.ts';
 import { GroupByControl } from '../groupby-control/groupby-control.ts';
-import { addExplanJSONChunkToPNG } from '../image/image.ts';
+import {
+  addExplanJSONChunkToPNG,
+  getExplanJSONChunkFromPNG,
+} from '../image/image.ts';
+import { PngMetadata } from '../vendor/png-metadata/src/png-metadata.ts';
 
 const FONT_SIZE_PX = 32;
 
@@ -243,7 +247,18 @@ export class ExplanMain extends HTMLElement {
     const fileUpload =
       document.querySelector<HTMLInputElement>('#file-upload')!;
     fileUpload.addEventListener('change', async () => {
-      const json = await fileUpload.files![0].text();
+      const blob = fileUpload.files![0];
+      const bytes = await blob.arrayBuffer();
+      let json: string = '';
+      if (PngMetadata.isPNG(bytes)) {
+        const ret = await getExplanJSONChunkFromPNG(new Uint8Array(bytes));
+        if (!ret.ok) {
+          throw ret.error;
+        }
+        json = ret.value;
+      } else {
+        json = new TextDecoder('utf-8').decode(bytes);
+      }
       const ret = Plan.FromJSONText(json);
       if (!ret.ok) {
         throw ret.error;

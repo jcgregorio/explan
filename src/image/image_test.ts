@@ -79,7 +79,9 @@ describe('PngMetadata', () => {
   it('roundtrips JSON through PNG', async () => {
     const blob = await loadImageAsBlob();
     const updatedBlob = await addExplanJSONChunkToPNG('{}', blob);
-    const ret = await getExplanJSONChunkFromPNG(updatedBlob);
+    const ret = await getExplanJSONChunkFromPNG(
+      new Uint8Array(await updatedBlob.arrayBuffer())
+    );
     assert.isTrue(ret.ok);
     assert.equal(ret.value, '{}');
   });

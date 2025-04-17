@@ -7,7 +7,7 @@
     "build:ext:prod": "npx esbuild ./src/vscodeext.ts --bundle --outdir=dst --minify && node ./build/merge.ts",
     "build:ext": "npx esbuild ./src/vscodeext.ts --bundle --outdir=dst --sourcemap=inline && node ./build/merge.ts",
     "build:prod": "npx esbuild ./src/page.ts --bundle --outdir=dst --minify --target=es2022",
-    "build": "npx esbuild ./src/page.ts --bundle --outdir=dst",
+    "build": "npx esbuild ./src/page.ts --bundle --sourcemap=inline --outdir=dst",
     "compile": "npx tsc",
     "format": "npx prettier -w \"./src/**/*.ts\"",
     "lint": "npx eslint",
