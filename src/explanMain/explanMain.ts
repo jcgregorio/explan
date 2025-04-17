@@ -121,6 +121,12 @@ export class ExplanMain extends HTMLElement {
         await this.prepareDownload();
       }
     );
+    this.querySelector('#download-json')!.addEventListener(
+      'click',
+      async () => {
+        await this.prepareJSONDownload();
+      }
+    );
     this.dependenciesPanel = this.querySelector('dependencies-panel')!;
 
     this.dependenciesPanel!.addEventListener('add-dependency', async (e) => {
@@ -323,6 +329,16 @@ export class ExplanMain extends HTMLElement {
     }
     const downloadBlob = ret.value;
     this.downloadLink!.href = URL.createObjectURL(downloadBlob);
+    this.downloadLink!.download = 'plan.png';
+    this.downloadLink!.click();
+  }
+
+  async prepareJSONDownload() {
+    const downloadBlob = new Blob([JSON.stringify(this.plan, null, '  ')], {
+      type: 'application/json',
+    });
+    this.downloadLink!.href = URL.createObjectURL(downloadBlob);
+    this.downloadLink!.download = 'plan.json';
     this.downloadLink!.click();
   }
 
