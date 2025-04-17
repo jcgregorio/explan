@@ -7392,10 +7392,13 @@
         this.recalculateSpansAndCriticalPath();
         this.paintChart();
       });
-      this.downloadLink = this.querySelector("#download");
-      this.downloadLink.addEventListener("click", async () => {
-        await this.prepareDownload();
-      });
+      this.downloadLink = this.querySelector("#download-link");
+      this.querySelector("#download-button").addEventListener(
+        "click",
+        async () => {
+          await this.prepareDownload();
+        }
+      );
       this.dependenciesPanel = this.querySelector("dependencies-panel");
       this.dependenciesPanel.addEventListener("add-dependency", async (e3) => {
         let actionName = "AddPredecessorAction";
@@ -7549,6 +7552,7 @@
       }
       const downloadBlob = ret.value;
       this.downloadLink.href = URL.createObjectURL(downloadBlob);
+      this.downloadLink.click();
     }
     async undo() {
       const res = await executeByName("UndoAction", this);
@@ -7565,7 +7569,7 @@
     // Call this if explanMain is embedded in another context.
     embedded() {
       unmapUndoAndRedo();
-      document.querySelector("#download").classList.add("hidden");
+      document.querySelector("#download-controls").classList.add("hidden");
       document.querySelector("#upload").classList.add("hidden");
     }
     toJSON() {

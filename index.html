@@ -553,7 +553,12 @@
               <input type="checkbox" id="critical-paths-toggle" />
               Only show critical paths
             </label>
-            <a id="download" download="plan.png" href="">Download</a>
+            <span id="download-controls">
+              <button id="download-button">Download</button>
+              <a id="download-link" download="plan.png" class="hidden" href=""
+                >Download</a
+              >
+            </span>
             <label id="upload">
               Upload <input type="file" id="file-upload"
             /></label>

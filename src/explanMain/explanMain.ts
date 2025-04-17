@@ -109,10 +109,14 @@ export class ExplanMain extends HTMLElement {
       this.paintChart();
     });
 
-    this.downloadLink = this.querySelector<HTMLAnchorElement>('#download')!;
-    this.downloadLink.addEventListener('click', async () => {
-      await this.prepareDownload();
-    });
+    this.downloadLink =
+      this.querySelector<HTMLAnchorElement>('#download-link')!;
+    this.querySelector('#download-button')!.addEventListener(
+      'click',
+      async () => {
+        await this.prepareDownload();
+      }
+    );
     this.dependenciesPanel = this.querySelector('dependencies-panel')!;
 
     this.dependenciesPanel!.addEventListener('add-dependency', async (e) => {
@@ -304,6 +308,7 @@ export class ExplanMain extends HTMLElement {
     }
     const downloadBlob = ret.value;
     this.downloadLink!.href = URL.createObjectURL(downloadBlob);
+    this.downloadLink!.click();
   }
 
   async undo(): Promise<void> {
@@ -325,7 +330,7 @@ export class ExplanMain extends HTMLElement {
     // Disable the key bindings for undo and redo.
     unmapUndoAndRedo();
 
-    document.querySelector('#download')!.classList.add('hidden');
+    document.querySelector('#download-controls')!.classList.add('hidden');
     document.querySelector('#upload')!.classList.add('hidden');
   }
 
