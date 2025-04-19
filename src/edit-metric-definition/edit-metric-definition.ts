@@ -1,18 +1,18 @@
-import { TemplateResult, html, render } from "lit-html";
-import { ExplanMain } from "../explanMain/explanMain";
-import { live } from "lit-html/directives/live.js";
-import { MetricRange, displayValue } from "../metrics/range";
-import { RenameMetricOp, UpdateMetricOp } from "../ops/metrics";
-import { MetricDefinition } from "../metrics/metrics";
-import { Result } from "../result";
-import { Op } from "../ops/ops";
-import { executeOp } from "../action/execute";
-import { reportError } from "../report-error/report-error";
-import { Precision } from "../precision/precision";
+import { TemplateResult, html, render } from 'lit-html';
+import { ExplanMain } from '../explanMain/explanMain';
+import { live } from 'lit-html/directives/live.js';
+import { MetricRange, displayValue } from '../metrics/range';
+import { RenameMetricOp, UpdateMetricOp } from '../ops/metrics';
+import { MetricDefinition } from '../metrics/metrics';
+import { Result } from '../result';
+import { Op } from '../ops/ops';
+import { executeOp } from '../action/execute';
+import { reportError } from '../report-error/report-error';
+import { Precision } from '../precision/precision';
 
 export class EditMetricDefinition extends HTMLElement {
   explanMain: ExplanMain | null = null;
-  metricName: string = "";
+  metricName: string = '';
   planDefinitionChangedCallback: () => void;
 
   constructor() {
@@ -24,15 +24,15 @@ export class EditMetricDefinition extends HTMLElement {
 
   connectedCallback(): void {
     document.addEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
@@ -135,9 +135,9 @@ export class EditMetricDefinition extends HTMLElement {
   private async executeOp(op: Op): Promise<Result<null>> {
     const ret = await executeOp(
       op,
-      "planDefinitionChanged",
+      'planDefinitionChanged',
       true,
-      this.explanMain!,
+      this.explanMain!
     );
     if (!ret.ok) {
       window.alert(ret.error);
@@ -226,15 +226,15 @@ export class EditMetricDefinition extends HTMLElement {
   }
 
   private cancel() {
-    this.querySelector<HTMLDialogElement>("dialog")!.close();
+    this.querySelector<HTMLDialogElement>('dialog')!.close();
   }
 
   public showModal(explanMain: ExplanMain, metricName: string) {
     this.explanMain = explanMain;
     this.metricName = metricName;
     this.render();
-    this.querySelector<HTMLDialogElement>("dialog")!.showModal();
+    this.querySelector<HTMLDialogElement>('dialog')!.showModal();
   }
 }
 
-customElements.define("edit-metric-definition", EditMetricDefinition);
+customElements.define('edit-metric-definition', EditMetricDefinition);

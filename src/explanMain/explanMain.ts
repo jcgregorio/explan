@@ -60,6 +60,8 @@ const FONT_SIZE_PX = 32;
 
 const NUM_SIMULATION_LOOPS = 100;
 
+const EXPORT_IMAGE_DEFAULT_PX = 1000;
+
 export class ExplanMain extends HTMLElement {
   /** The Plan being edited. */
   plan: Plan = new Plan();
@@ -99,6 +101,9 @@ export class ExplanMain extends HTMLElement {
   alternateTaskDurations: number[] | null = null;
 
   simulationPanel: SimulationPanel | null = null;
+
+  // TODO should be saved in localStorage.
+  imageExportWidthPx: number = EXPORT_IMAGE_DEFAULT_PX;
 
   /** Callback to call when a mouse moves over the chart. */
   updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
@@ -407,7 +412,7 @@ export class ExplanMain extends HTMLElement {
 
   private async renderChartToPNG(): Promise<Result<Blob>> {
     const canvas = document.createElement('canvas');
-    canvas.width = 1000;
+    canvas.width = this.imageExportWidthPx;
 
     const theme2 = new Theme2();
     theme2.loadFromElement(document.body);
