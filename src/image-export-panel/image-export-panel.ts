@@ -60,7 +60,6 @@ export class ImageExportPanel extends HTMLElement {
     </div>
     <div>
         <label>
-        Transparent Background
         <input 
             type=checkbox 
             .checked=${this.explanMain.imageExportBackgroundTransparent}
@@ -68,6 +67,7 @@ export class ImageExportPanel extends HTMLElement {
               this.transparentChange(e);
             }}
         >
+        Transparent Background
         </label>
     </div>
     `;
