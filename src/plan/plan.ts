@@ -260,18 +260,22 @@ export class Plan {
   }
 
   static FromJSONText = (text: string): Result<Plan> => {
-    const planSerialized: PlanSerialized = JSON.parse(text);
-    const plan = Plan.fromJSON(planSerialized);
+    try {
+      const planSerialized: PlanSerialized = JSON.parse(text);
+      const plan = Plan.fromJSON(planSerialized);
 
-    const ret = RationalizeEdgesOp().applyTo(plan);
-    if (!ret.ok) {
-      return ret;
-    }
+      const ret = RationalizeEdgesOp().applyTo(plan);
+      if (!ret.ok) {
+        return ret;
+      }
 
-    const retVal = ChartValidate(plan.chart);
-    if (!retVal.ok) {
-      return retVal;
+      const retVal = ChartValidate(plan.chart);
+      if (!retVal.ok) {
+        return retVal;
+      }
+      return ok(plan);
+    } catch (e) {
+      return error(e as unknown as Error);
     }
-    return ok(plan);
   };
 }

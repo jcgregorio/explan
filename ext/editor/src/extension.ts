@@ -172,8 +172,8 @@ class ExplanDocument extends Disposable implements vscode.CustomDocument {
     destination: vscode.Uri,
     cancellation: vscode.CancellationToken
   ): Promise<vscode.CustomDocumentBackup> {
-    // Since that backup URI has no file extension this will default // to
-    // saving as JSON.
+    // Since that backup URI has no file extension this will default to saving
+    // as JSON.
     await this.saveAs(destination, cancellation);
 
     return {

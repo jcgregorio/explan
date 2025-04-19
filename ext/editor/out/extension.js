@@ -157,8 +157,8 @@ class ExplanDocument extends dispose_1.Disposable {
      * These backups are used to implement hot exit.
      */
     async backup(destination, cancellation) {
-        // Since that backup URI has no file extension this will default // to
-        // saving as JSON.
+        // Since that backup URI has no file extension this will default to saving
+        // as JSON.
         await this.saveAs(destination, cancellation);
         return {
             id: destination.toString(),
