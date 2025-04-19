@@ -55,6 +55,7 @@ import {
   getExplanJSONChunkFromPNG,
 } from '../image/image.ts';
 import { PngMetadata } from '../vendor/png-metadata/src/png-metadata.ts';
+import { ImageExportPanel } from '../image-export-panel/image-export-panel.ts';
 
 const FONT_SIZE_PX = 32;
 
@@ -281,6 +282,8 @@ export class ExplanMain extends HTMLElement {
     this.querySelector<PlanConfigPanel>('plan-config-panel')!.setConfig(this);
 
     this.querySelector<EditMetricsPanel>('edit-metrics-panel')!.setConfig(this);
+
+    this.querySelector<ImageExportPanel>('image-export-panel')!.setConfig(this);
 
     const goupByControl =
       this.querySelector<GroupByControl>('groupby-control')!;

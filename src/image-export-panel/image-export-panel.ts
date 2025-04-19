@@ -53,6 +53,7 @@ export class ImageExportPanel extends HTMLElement {
         min=100
         max=1000000
         step=1
+        required
       >
     </lable>
     `;

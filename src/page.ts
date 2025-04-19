@@ -1,4 +1,5 @@
 import './help/help.ts';
+import './image-export-panel/image-export-panel.ts';
 import './groupby-control/groupby-control.ts';
 import './tab-buttons/tab-buttons.ts';
 import './error-popup/error-popup.ts';
@@ -17,4 +18,3 @@ import './search/task-search-controls.ts';
 import './dependencies/dependencies-panel.ts';
 import './explanMain/explanMain.ts';
 import './developer-panel/developer-panel.ts';
-import './image-export-panel/image-export-panel.ts';
