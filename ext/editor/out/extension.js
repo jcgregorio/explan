@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ExplanEditorProvider = void 0;
 exports.activate = activate;
 const vscode = __importStar(require("vscode"));
+const path = __importStar(require("path"));
 const dispose_1 = require("./dispose");
 /**
  * Define the document (the data model) used for Explan files.
@@ -56,11 +57,23 @@ class ExplanDocument extends dispose_1.Disposable {
     _uri;
     _documentData;
     _delegate;
+    contentType = "application/json";
+    getContentType() {
+        switch (path.parse(this.uri.fsPath).ext) {
+            case ".svg":
+                return "image/svg+xml";
+            case ".png":
+                return "image/png";
+            default:
+                return "application/json";
+        }
+    }
     constructor(uri, initialContent, delegate) {
         super();
         this._uri = uri;
         this._documentData = initialContent;
         this._delegate = delegate;
+        this.contentType = this.getContentType();
     }
     get uri() {
         return this._uri;
@@ -122,7 +135,7 @@ class ExplanDocument extends dispose_1.Disposable {
      * Called by VS Code when the user saves the document to a new location.
      */
     async saveAs(targetResource, cancellation) {
-        const fileData = await this._delegate.getFileData();
+        const fileData = await this._delegate.getFileData(targetResource);
         if (cancellation.isCancellationRequested) {
             return;
         }
@@ -194,15 +207,25 @@ class ExplanEditorProvider {
     constructor(_context) {
         this._context = _context;
     }
+    getContentType(targetResource) {
+        switch (path.parse(targetResource.fsPath).ext) {
+            case ".png":
+                return "image/png";
+            default:
+                return "application/json";
+        }
+    }
     async openCustomDocument(uri, openContext, _token) {
         const document = await ExplanDocument.create(uri, openContext.backupId, {
-            getFileData: async () => {
+            getFileData: async (targetResource) => {
                 const webviewsForDocument = Array.from(this.webviews.get(document.uri));
                 if (!webviewsForDocument.length) {
                     throw new Error("Could not find webview to save for");
                 }
                 const panel = webviewsForDocument[0];
-                const response = await this.postMessageWithResponse(panel, "getFileData", {});
+                const response = await this.postMessageWithResponse(panel, "getFileData", {
+                    "contentType": this.getContentType(targetResource)
+                });
                 const encoder = new TextEncoder();
                 return new Uint8Array(response);
             },

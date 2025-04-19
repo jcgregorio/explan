@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
+import * as path from "path";
 import { Disposable, disposeAll } from "./dispose";
 
 interface ExplanDocumentDelegate {
-  getFileData(): Promise<Uint8Array>;
+  getFileData(targetResource: vscode.Uri): Promise<Uint8Array>;
 }
 
 /**
@@ -34,6 +35,19 @@ class ExplanDocument extends Disposable implements vscode.CustomDocument {
 
   private readonly _delegate: ExplanDocumentDelegate;
 
+  public readonly contentType: string = "application/json";
+
+  getContentType(): string {
+    switch (path.parse(this.uri.fsPath).ext) {
+      case ".svg":
+        return "image/svg+xml";
+      case ".png":
+        return "image/png";
+      default:
+        return "application/json";
+    }
+  }
+
   private constructor(
     uri: vscode.Uri,
     initialContent: Uint8Array,
@@ -43,6 +57,7 @@ class ExplanDocument extends Disposable implements vscode.CustomDocument {
     this._uri = uri;
     this._documentData = initialContent;
     this._delegate = delegate;
+    this.contentType = this.getContentType();
   }
 
   public get uri() {
@@ -106,11 +121,11 @@ class ExplanDocument extends Disposable implements vscode.CustomDocument {
     this._onDidChange.fire({
       label: "Edit",
       undo: async () => {
-		await undo();
+        await undo();
         this._onDidChangeDocument.fire({});
       },
       redo: async () => {
-		await redo();
+        await redo();
         this._onDidChangeDocument.fire({});
       },
     });
@@ -130,7 +145,7 @@ class ExplanDocument extends Disposable implements vscode.CustomDocument {
     targetResource: vscode.Uri,
     cancellation: vscode.CancellationToken
   ): Promise<void> {
-    const fileData = await this._delegate.getFileData();
+    const fileData = await this._delegate.getFileData(targetResource);
     if (cancellation.isCancellationRequested) {
       return;
     }
@@ -157,8 +172,8 @@ class ExplanDocument extends Disposable implements vscode.CustomDocument {
     destination: vscode.Uri,
     cancellation: vscode.CancellationToken
   ): Promise<vscode.CustomDocumentBackup> {
-	// TODO: Once we implement saving as a PNG this should be modified to only
-	// do backups as JSON which should be must faster.
+    // TODO: Once we implement saving as a PNG this should be modified to only
+    // do backups as JSON which should be must faster.
     await this.saveAs(destination, cancellation);
 
     return {
@@ -231,6 +246,16 @@ export class ExplanEditorProvider
 
   constructor(private readonly _context: vscode.ExtensionContext) {}
 
+
+  private getContentType(targetResource: vscode.Uri): string {
+    switch (path.parse(targetResource.fsPath).ext) {
+      case ".png":
+        return "image/png";
+      default:
+        return "application/json";
+    }
+  }
+
   async openCustomDocument(
     uri: vscode.Uri,
     openContext: { backupId?: string },
@@ -240,7 +265,7 @@ export class ExplanEditorProvider
       uri,
       openContext.backupId,
       {
-        getFileData: async () => {
+        getFileData: async (targetResource: vscode.Uri) => {
           const webviewsForDocument = Array.from(
             this.webviews.get(document.uri)
           );
@@ -251,7 +276,9 @@ export class ExplanEditorProvider
           const response = await this.postMessageWithResponse<number[]>(
             panel,
             "getFileData",
-            {}
+            {
+              "contentType": this.getContentType(targetResource)
+            }
           );
           const encoder = new TextEncoder();
           return new Uint8Array(response);
@@ -423,15 +450,15 @@ export class ExplanEditorProvider
             {}
           );
         };
-		const redo = async () => {
-			const panel = this.getPanel(document);
-			const response = await this.postMessageWithResponse<null>(
-			  panel,
-			  "redo",
-			  {}
-			);
-		  };
-  
+        const redo = async () => {
+          const panel = this.getPanel(document);
+          const response = await this.postMessageWithResponse<null>(
+            panel,
+            "redo",
+            {}
+          );
+        };
+
         document.makeEdit(undo, redo);
         return;
 

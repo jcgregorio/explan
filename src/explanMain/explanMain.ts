@@ -255,22 +255,8 @@ export class ExplanMain extends HTMLElement {
     fileUpload.addEventListener('change', async () => {
       const blob = fileUpload.files![0];
       const bytes = await blob.arrayBuffer();
-      let json: string = '';
-      if (PngMetadata.isPNG(bytes)) {
-        const ret = await getExplanJSONChunkFromPNG(new Uint8Array(bytes));
-        if (!ret.ok) {
-          throw ret.error;
-        }
-        json = ret.value;
-      } else {
-        json = new TextDecoder('utf-8').decode(bytes);
-      }
-      const ret = Plan.FromJSONText(json);
-      if (!ret.ok) {
-        throw ret.error;
-      }
-      this.plan = ret.value;
-      this.planDefinitionHasBeenChanged();
+      const ret = await this.fromUint8Array(new Uint8Array(bytes));
+      reportOnError(ret);
     });
 
     this.querySelector('#simulate')!.addEventListener('click', () => {
@@ -377,6 +363,35 @@ export class ExplanMain extends HTMLElement {
     this.plan = ret.value;
     this.planDefinitionHasBeenChanged();
     return ok(null);
+  }
+
+  async fromUint8Array(bytes: Uint8Array): Promise<Result<null>> {
+    let json: string = '';
+    if (PngMetadata.isPNG(bytes)) {
+      const ret = await getExplanJSONChunkFromPNG(new Uint8Array(bytes));
+      if (!ret.ok) {
+        return ret;
+      }
+      json = ret.value;
+    } else {
+      json = new TextDecoder('utf-8').decode(bytes);
+    }
+    const ret = this.fromJSON(json);
+    if (!ret.ok) {
+      return ret;
+    }
+    return ok(null);
+  }
+
+  async toUnit8Array(contentType: string): Promise<Result<Uint8Array>> {
+    if (contentType === 'image/png') {
+      const ret = await this.toPNG();
+      if (!ret.ok) {
+        return ret;
+      }
+      return ok(new Uint8Array(await ret.value.arrayBuffer()));
+    }
+    return ok(new TextEncoder().encode(this.toJSON()));
   }
 
   async toPNG(): Promise<Result<Blob>> {

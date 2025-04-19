@@ -13,7 +13,7 @@ export class PngMetadata {
   private static textDecoder = new TextDecoder();
   private static textEncoder = new TextEncoder();
 
-  static isPNG(data: ArrayBuffer | Uint8Array): boolean {
+  static isPNG(data: Uint8Array): boolean {
     const signature = new Uint8Array(data.slice(0, 8));
     if (signature.byteLength < 8) {
       return false;

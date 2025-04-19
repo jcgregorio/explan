@@ -18,7 +18,13 @@
         "displayName": "Explan",
         "selector": [
           {
+            "filenamePattern": "*.explan"
+          },
+          {
             "filenamePattern": "*.explan.json"
+          },
+          {
+            "filenamePattern": "*.explan.png"
           }
         ]
       }

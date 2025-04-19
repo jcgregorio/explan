@@ -1,7 +1,12 @@
 import { ExplanMain } from '../explanMain/explanMain';
+import { reportOnError } from '../report-error/report-error';
 
 // @ts-expect-error Need to add types.
 const vscode = acquireVsCodeApi();
+
+interface getFileDataBody {
+  contentType: string;
+}
 
 document.addEventListener('finished-init', () => {
   const explanMain = document.querySelector<ExplanMain>('explan-main')!;
@@ -14,25 +19,23 @@ document.addEventListener('finished-init', () => {
         if (body.untitled) {
           return;
         } else {
-          // Load the initial image into the canvas.
-          const decoder = new TextDecoder();
-          try {
-            explanMain?.fromJSON(decoder.decode(body.value).toString());
-          } catch (error) {
-            console.log('File was not valid JSON, plan unchanged.', error);
-          }
-
+          const ret = await explanMain.fromUint8Array(body.value as Uint8Array);
+          reportOnError(ret);
           return;
         }
       }
       case 'getFileData': {
-        // Get the data for the plan and post it back to the extension. Always
-        // send as Uint8Array because in the future we will also be able to save
-        // as a PNG.
+        const contentType = (body as getFileDataBody).contentType;
+        const ret = await explanMain.toUnit8Array(contentType);
+        if (!ret.ok) {
+          reportError(e);
+          return;
+        }
+
         vscode.postMessage({
           type: 'response',
           requestId,
-          body: new TextEncoder().encode(explanMain.toJSON()),
+          body: ret.value,
         });
         return;
       }
