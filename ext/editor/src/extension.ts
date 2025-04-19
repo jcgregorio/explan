@@ -172,8 +172,8 @@ class ExplanDocument extends Disposable implements vscode.CustomDocument {
     destination: vscode.Uri,
     cancellation: vscode.CancellationToken
   ): Promise<vscode.CustomDocumentBackup> {
-    // TODO: Once we implement saving as a PNG this should be modified to only
-    // do backups as JSON which should be must faster.
+    // Since that backup URI has no file extension this will default // to
+    // saving as JSON.
     await this.saveAs(destination, cancellation);
 
     return {
