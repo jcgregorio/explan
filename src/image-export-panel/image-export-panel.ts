@@ -44,18 +44,32 @@ export class ImageExportPanel extends HTMLElement {
     const imageExportWidth = this.explanMain.imageExportWidthPx;
     return html` <h3>Image Export</h3>
     
-    <label>
-      Width (px) 
-      <input 
-        type=number 
-        .value=${imageExportWidth}
-        @change=${(e: InputEvent) => this.widthChange(e)}
-        min=100
-        max=1000000
-        step=1
-        required
-      >
-    </lable>
+    <div>
+        <label>
+        Width (px) 
+        <input 
+            type=number 
+            .value=${imageExportWidth}
+            @change=${(e: InputEvent) => this.widthChange(e)}
+            min=100
+            max=1000000
+            step=1
+            required
+        >
+        </lable>
+    </div>
+    <div>
+        <label>
+        Transparent Background
+        <input 
+            type=checkbox 
+            .checked=${this.explanMain.imageExportBackgroundTransparent}
+            @input=${(e: InputEvent) => {
+              this.transparentChange(e);
+            }}
+        >
+        </label>
+    </div>
     `;
   }
 
@@ -64,6 +78,11 @@ export class ImageExportPanel extends HTMLElement {
     if (newWidth > 0 && newWidth < 1000000) {
       this.explanMain!.imageExportWidthPx = newWidth;
     }
+  }
+
+  private transparentChange(e: InputEvent) {
+    const b: boolean = (e.target as HTMLInputElement).checked;
+    this.explanMain!.imageExportBackgroundTransparent = b;
   }
 }
 

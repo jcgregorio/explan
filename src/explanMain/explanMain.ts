@@ -106,6 +106,8 @@ export class ExplanMain extends HTMLElement {
   // TODO should be saved in localStorage.
   imageExportWidthPx: number = EXPORT_IMAGE_DEFAULT_PX;
 
+  imageExportBackgroundTransparent: boolean = false;
+
   /** Callback to call when a mouse moves over the chart. */
   updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
 
@@ -419,6 +421,9 @@ export class ExplanMain extends HTMLElement {
 
     const theme2 = new Theme2();
     theme2.loadFromElement(document.body);
+    if (this.imageExportBackgroundTransparent) {
+      theme2.values.set('background', 'rgba(0,0,0,0)');
+    }
 
     const durationDisplay = (t: number) =>
       this.plan.durationUnits.displayTime(t);
