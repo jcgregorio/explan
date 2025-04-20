@@ -455,6 +455,7 @@ export class ExplanMain extends HTMLElement {
       selectedTaskIndex: -1,
       durationDisplay: durationDisplay,
       taskIsStarted: taskIsStarted,
+      today: -1,
     };
 
     const newHeight = suggestedCanvasHeight(
@@ -718,6 +719,19 @@ export class ExplanMain extends HTMLElement {
       return ret.value.stage !== 'unstarted';
     };
 
+    let today: number = -1;
+    if (
+      this.plan.status.stage === 'started' &&
+      this.plan.durationUnits.kind() !== 'Unitless'
+    ) {
+      const ret = this.plan.durationUnits.parse(
+        new Date().toISOString().slice(0, 10)
+      );
+      if (ret.ok) {
+        today = ret.value;
+      }
+    }
+
     const radarOpts: RenderOptions = {
       fontSizePx: 6,
       hasText: false,
@@ -737,6 +751,7 @@ export class ExplanMain extends HTMLElement {
       selectedTaskIndex: this.selectedTask,
       durationDisplay: durationDisplay,
       taskIsStarted: taskIsStarted,
+      today: today,
     };
 
     const zoomOpts: RenderOptions = {
@@ -758,6 +773,7 @@ export class ExplanMain extends HTMLElement {
       selectedTaskIndex: this.selectedTask,
       durationDisplay: durationDisplay,
       taskIsStarted: taskIsStarted,
+      today: today,
     };
 
     const timelineOpts: RenderOptions = {
@@ -779,6 +795,7 @@ export class ExplanMain extends HTMLElement {
       selectedTaskIndex: this.selectedTask,
       durationDisplay: durationDisplay,
       taskIsStarted: taskIsStarted,
+      today: today,
     };
 
     const ret = this.paintOneChart('#radar', radarOpts);

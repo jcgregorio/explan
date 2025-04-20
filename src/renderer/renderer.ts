@@ -93,6 +93,9 @@ export interface RenderOptions {
 
   /** Returns true if the given task has been started. */
   taskIsStarted: (taskIndex: number) => boolean;
+
+  /** The offset from the start of the project to today. */
+  today: number;
 }
 
 const verticalArrowStartFeatureFromTaskDuration = (
@@ -451,6 +454,11 @@ export function renderTasksToCanvas(
       }
     }
   });
+
+  // Draw the "today" marker.
+  if (opts.today !== -1) {
+    drawTodayMarker(ctx, opts.today, opts.colors, scale);
+  }
 
   ctx.lineWidth = 1;
   ctx.strokeStyle = opts.colors.get('on-surface-muted');
@@ -1008,6 +1016,23 @@ function drawMilestone(
   ctx.closePath();
   ctx.stroke();
 }
+
+const drawTodayMarker = (
+  ctx: CanvasRenderingContext2D,
+  today: number,
+  colors: Theme2,
+  scale: Scale
+) => {
+  const timeMarkStart = scale.feature(0, today, Feature.timeMarkStart);
+  const rowHeight = scale.metric(Metric.rowHeight);
+
+  ctx.beginPath();
+  ctx.lineWidth = scale.metric('percentHeight') * 4;
+  ctx.strokeStyle = colors.get('error');
+  ctx.moveTo(timeMarkStart.x, timeMarkStart.y);
+  ctx.lineTo(timeMarkStart.x, timeMarkStart.y + rowHeight);
+  ctx.stroke();
+};
 
 const drawTimeMarkerAtDayToTask = (
   ctx: CanvasRenderingContext2D,
