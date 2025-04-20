@@ -106,7 +106,7 @@ export class ExplanMain extends HTMLElement {
   // TODO should be saved in localStorage.
   _imageExportWidthPx: number = EXPORT_IMAGE_DEFAULT_PX;
 
-  imageExportBackgroundTransparent: boolean = false;
+  _imageExportBackgroundTransparent: boolean = false;
 
   /** Callback to call when a mouse moves over the chart. */
   updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
@@ -321,6 +321,19 @@ export class ExplanMain extends HTMLElement {
 
   set imageExportWidthPx(val: number) {
     window.localStorage.setItem('imageExportWidthPx', val.toString());
+  }
+
+  public get imageExportBackgroundTransparent(): boolean {
+    const bAsString =
+      window.localStorage.getItem('imageExportBackgroundTransparent') || '';
+    return bAsString === 'true';
+  }
+
+  public set imageExportBackgroundTransparent(v: boolean) {
+    window.localStorage.setItem(
+      'imageExportBackgroundTransparent',
+      v.toString()
+    );
   }
 
   toggleTopTimeline() {
