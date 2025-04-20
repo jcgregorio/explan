@@ -104,7 +104,7 @@ export class ExplanMain extends HTMLElement {
   simulationPanel: SimulationPanel | null = null;
 
   // TODO should be saved in localStorage.
-  imageExportWidthPx: number = EXPORT_IMAGE_DEFAULT_PX;
+  _imageExportWidthPx: number = EXPORT_IMAGE_DEFAULT_PX;
 
   imageExportBackgroundTransparent: boolean = false;
 
@@ -307,6 +307,20 @@ export class ExplanMain extends HTMLElement {
 
     console.log('Finished Init');
     document.dispatchEvent(new CustomEvent('finished-init'));
+  }
+
+  /** @prop  {string}  */
+  get imageExportWidthPx(): number {
+    const widthAsString =
+      window.localStorage.getItem('imageExportWidthPx') || '';
+    if (widthAsString === '') {
+      return EXPORT_IMAGE_DEFAULT_PX;
+    }
+    return +widthAsString;
+  }
+
+  set imageExportWidthPx(val: number) {
+    window.localStorage.setItem('imageExportWidthPx', val.toString());
   }
 
   toggleTopTimeline() {
