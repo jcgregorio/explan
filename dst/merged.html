@@ -612,6 +612,7 @@
           <button data-target="task-tab" class="selected">Task</button>
           <button data-target="project-tab">Project</button>
           <button data-target="simulate-tab">Simulation</button>
+          <button data-target="config-tab">Config</button>
         </tab-buttons>
         <tab-panel id="task-tab">
           <search-task-panel class="hidden">
@@ -625,11 +626,13 @@
           <plan-config-panel> </plan-config-panel>
           <edit-resources-panel> </edit-resources-panel>
           <edit-metrics-panel> </edit-metrics-panel>
-          <image-export-panel> </image-export-panel>
         </tab-panel>
         <tab-panel id="simulate-tab" class="hidden">
           <button id="simulate">Simulate</button>
           <simulation-panel> </simulation-panel>
+        </tab-panel>
+        <tab-panel id="config-tab" class="hidden">
+          <image-export-panel> </image-export-panel>
         </tab-panel>
       </panels-parent>
       <footer>Footer</footer>
