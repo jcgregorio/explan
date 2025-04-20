@@ -269,10 +269,19 @@ export class ExplanMain extends HTMLElement {
 
     this.querySelector('#simulate')!.addEventListener('click', () => {
       this.recalculateSpansAndCriticalPath();
+
+      // Build a set of tasks that are finished.
+      const finishedTasks: Set<number> = new Set();
+      this.plan.chart.Vertices.filter((task: Task, index: number) => {
+        if (this.plan.taskCompletion[task.id]?.stage === 'finished') {
+          finishedTasks.add(index);
+        }
+      });
       this.criticalPath = this.simulationPanel!.simulate(
         this.plan.chart,
         NUM_SIMULATION_LOOPS,
-        this.criticalPath
+        this.criticalPath,
+        finishedTasks
       );
       this.paintChart();
     });

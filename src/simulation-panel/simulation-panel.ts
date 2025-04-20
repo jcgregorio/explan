@@ -34,9 +34,15 @@ export class SimulationPanel extends HTMLElement {
   simulate(
     chart: Chart,
     numSimulationLoops: number,
-    originalCriticalPath: number[]
+    originalCriticalPath: number[],
+    finishedTasks: Set<number>
   ): number[] {
-    this.results = simulation(chart, numSimulationLoops, originalCriticalPath);
+    this.results = simulation(
+      chart,
+      numSimulationLoops,
+      originalCriticalPath,
+      finishedTasks
+    );
     this.chart = chart;
     this.numSimulationLoops = numSimulationLoops;
     this.originalCriticalPath = originalCriticalPath;

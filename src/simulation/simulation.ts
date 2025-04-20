@@ -11,12 +11,16 @@ const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
 };
 
+// The results of one step of the simulation will produce a critical path. This
+// interface is used to store the number of times a critical path appeared. and
+// a sample of task durations that caused the critical path to appear.
 export interface CriticalPathEntry {
   count: number;
   criticalPath: number[];
   durations: number[];
 }
 
+// For each task record how many times it appeared on a critical path.
 export interface CriticalPathTaskEntry {
   taskIndex: number;
   duration: number;
@@ -24,7 +28,10 @@ export interface CriticalPathTaskEntry {
 }
 
 export interface SimulationResults {
+  // Maps critical path to the entry describing it.
   paths: Map<string, CriticalPathEntry>;
+
+  // Information about each task and how often it appeared on a critical path.
   tasks: CriticalPathTaskEntry[];
 }
 
@@ -35,7 +42,8 @@ export interface SimulationResults {
 export const simulation = (
   chart: Chart,
   numSimulationLoops: number,
-  originalCriticalPath: number[]
+  originalCriticalPath: number[],
+  finishedTasks: Set<number>
 ): SimulationResults => {
   const allCriticalPaths = new Map<string, CriticalPathEntry>();
   allCriticalPaths.set(`${originalCriticalPath}`, {
@@ -46,7 +54,11 @@ export const simulation = (
 
   for (let i = 0; i < numSimulationLoops; i++) {
     // Generate random durations based on each Tasks uncertainty.
-    const durations = chart.Vertices.map((t: Task) => {
+    const durations = chart.Vertices.map((t: Task, index: number) => {
+      if (finishedTasks.has(index)) {
+        return t.duration;
+      }
+
       const rawDuration = new Jacobian(
         t.duration, // Acceptable direct access to duration.
         t.getResource('Uncertainty') as Uncertainty
