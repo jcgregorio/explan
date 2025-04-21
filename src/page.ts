@@ -1,5 +1,6 @@
 import './help/help.ts';
 import './image-export-panel/image-export-panel.ts';
+import './prompt-dialog/prompt-dialog.ts';
 import './groupby-control/groupby-control.ts';
 import './tab-buttons/tab-buttons.ts';
 import './error-popup/error-popup.ts';

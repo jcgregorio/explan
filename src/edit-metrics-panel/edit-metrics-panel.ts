@@ -6,7 +6,8 @@ import { executeOp } from '../action/execute';
 import { AddMetricOp, DeleteMetricOp } from '../ops/metrics';
 import { MetricDefinition } from '../metrics/metrics';
 import { EditMetricDefinition } from '../edit-metric-definition/edit-metric-definition';
-import { reportIfError } from '../report-error/report-error';
+import { reportErrorMsg, reportIfError } from '../report-error/report-error';
+import { PromptDialog } from '../prompt-dialog/prompt-dialog';
 
 export class EditMetricsPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -158,10 +159,22 @@ export class EditMetricsPanel extends HTMLElement {
   }
 
   private async newMetric() {
-    const name = window.prompt('Metric name:', '');
+    let name = await document
+      .querySelector<PromptDialog>('prompt-dialog')!
+      .prompt('Metric Name');
     if (name === null) {
       return;
     }
+    name = name.trim();
+    if (name === '') {
+      reportErrorMsg(
+        new Error(
+          'Metric names cannot be empty and must contain more than whitespace characters.'
+        )
+      );
+      return;
+    }
+
     const ret = await executeOp(
       AddMetricOp(name, new MetricDefinition(0)),
       'planDefinitionChanged',

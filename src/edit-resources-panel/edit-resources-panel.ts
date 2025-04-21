@@ -4,7 +4,8 @@ import { executeOp } from '../action/execute';
 import { ExplanMain } from '../explanMain/explanMain';
 import { EditResourceDefinition } from '../edit-resource-definition/edit-resource-definition';
 import { icon } from '../icons/icons';
-import { reportIfError } from '../report-error/report-error';
+import { reportErrorMsg, reportIfError } from '../report-error/report-error';
+import { PromptDialog } from '../prompt-dialog/prompt-dialog';
 
 // Longest representation we'll show for all the options of a Resource.
 const MAX_SHORT_STRING = 80;
@@ -107,8 +108,19 @@ export class EditResourcesPanel extends HTMLElement {
   }
 
   private async newResource() {
-    const name = window.prompt('Resource name:', '');
+    let name = await document
+      .querySelector<PromptDialog>('prompt-dialog')!
+      .prompt('Metric Name');
     if (name === null) {
+      return;
+    }
+    name = name.trim();
+    if (name === '') {
+      reportErrorMsg(
+        new Error(
+          'Resource names cannot be empty and must contain more than whitespace characters.'
+        )
+      );
       return;
     }
     const ret = await executeOp(
