@@ -1,11 +1,12 @@
-import { TemplateResult, html, render } from "lit-html";
-import { ExplanMain } from "../explanMain/explanMain";
-import { icon } from "../icons/icons";
-import { displayValue } from "../metrics/range";
-import { executeOp } from "../action/execute";
-import { AddMetricOp, DeleteMetricOp } from "../ops/metrics";
-import { MetricDefinition } from "../metrics/metrics";
-import { EditMetricDefinition } from "../edit-metric-definition/edit-metric-definition";
+import { TemplateResult, html, render } from 'lit-html';
+import { ExplanMain } from '../explanMain/explanMain';
+import { icon } from '../icons/icons';
+import { displayValue } from '../metrics/range';
+import { executeOp } from '../action/execute';
+import { AddMetricOp, DeleteMetricOp } from '../ops/metrics';
+import { MetricDefinition } from '../metrics/metrics';
+import { EditMetricDefinition } from '../edit-metric-definition/edit-metric-definition';
+import { reportIfError } from '../report-error/report-error';
 
 export class EditMetricsPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -22,15 +23,15 @@ export class EditMetricsPanel extends HTMLElement {
 
   connectedCallback(): void {
     document.addEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
@@ -56,7 +57,7 @@ export class EditMetricsPanel extends HTMLElement {
           return -1;
         }
         return 1;
-      },
+      }
     );
     return html` <h3>Metrics</h3>
       <table>
@@ -100,7 +101,7 @@ export class EditMetricsPanel extends HTMLElement {
                 this.newMetric();
               }}
             >
-              ${icon("add-icon")}
+              ${icon('add-icon')}
             </button>
           </td>
         </tr>
@@ -109,7 +110,7 @@ export class EditMetricsPanel extends HTMLElement {
 
   private delButtonIfNotStatic(
     name: string,
-    isStatic: boolean,
+    isStatic: boolean
   ): TemplateResult {
     if (isStatic) {
       return html``;
@@ -119,26 +120,24 @@ export class EditMetricsPanel extends HTMLElement {
       title="Delete this metric."
       @click=${() => this.deleteMetric(name)}
     >
-      ${icon("delete-icon")}
+      ${icon('delete-icon')}
     </button>`;
   }
 
   private async deleteMetric(name: string) {
     const ret = await executeOp(
       DeleteMetricOp(name),
-      "planDefinitionChanged",
+      'planDefinitionChanged',
       true,
-      this.explanMain!,
+      this.explanMain!
     );
-    if (!ret.ok) {
-      console.log(ret.error);
-    }
+    reportIfError(ret);
     this.render();
   }
 
   private editButtonIfNotStatic(
     name: string,
-    isStatic: boolean,
+    isStatic: boolean
   ): TemplateResult {
     if (isStatic) {
       return html``;
@@ -148,33 +147,30 @@ export class EditMetricsPanel extends HTMLElement {
       title="Edit the resource definition."
       @click=${() => this.editMetric(name)}
     >
-      ${icon("edit-icon")}
+      ${icon('edit-icon')}
     </button>`;
   }
 
   private editMetric(name: string) {
     this.explanMain!.querySelector<EditMetricDefinition>(
-      "edit-metric-definition",
+      'edit-metric-definition'
     )!.showModal(this.explanMain!, name);
   }
 
   private async newMetric() {
-    const name = window.prompt("Metric name:", "");
+    const name = window.prompt('Metric name:', '');
     if (name === null) {
       return;
     }
     const ret = await executeOp(
       AddMetricOp(name, new MetricDefinition(0)),
-      "planDefinitionChanged",
+      'planDefinitionChanged',
       true,
-      this.explanMain!,
+      this.explanMain!
     );
-    if (!ret.ok) {
-      window.alert(ret.error);
-      console.log(ret.error);
-    }
+    reportIfError(ret);
     this.render();
   }
 }
 
-customElements.define("edit-metrics-panel", EditMetricsPanel);
+customElements.define('edit-metrics-panel', EditMetricsPanel);

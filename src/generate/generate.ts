@@ -15,6 +15,7 @@ import {
   SetResourceValueOp,
 } from '../ops/resources';
 import { Plan } from '../plan/plan';
+import { reportIfError } from '../report-error/report-error';
 import { Uncertainty } from '../stats/cdf/triangular/jacobian';
 
 const people: string[] = ['Fred', 'Barney', 'Wilma', 'Betty'];
@@ -44,9 +45,7 @@ export const generateStarterPlan = (): Plan => {
     plan
   );
 
-  if (!res.ok) {
-    console.log(res.error);
-  }
+  reportIfError(res);
   return plan;
 };
 
@@ -93,9 +92,7 @@ export const generateRandomPlan = (): Plan => {
 
   const res = applyAllOpsToPlan(ops, plan);
 
-  if (!res.ok) {
-    console.log(res.error);
-  }
+  reportIfError(res);
   return plan;
 };
 

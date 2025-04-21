@@ -4,6 +4,7 @@ import { dateDisplay } from '../date-control-utils/date-control-utils';
 import { executeOp } from '../action/execute';
 import { SetPlanStartStateOp, SetPlanUnitsOp } from '../ops/plan';
 import { UNIT_TYPES, toUnit } from '../units/unit';
+import { reportIfError } from '../report-error/report-error';
 
 export class PlanConfigPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -69,9 +70,7 @@ export class PlanConfigPanel extends HTMLElement {
       true,
       this.explanMain!
     );
-    if (!ret.ok) {
-      console.log(ret.error);
-    }
+    reportIfError(ret);
     this.render();
   }
 
@@ -113,9 +112,8 @@ export class PlanConfigPanel extends HTMLElement {
       true,
       this.explanMain!
     );
-    if (!ret.ok) {
-      console.log(ret.error);
-    }
+    reportIfError(ret);
+
     this.render();
   }
 
@@ -127,9 +125,7 @@ export class PlanConfigPanel extends HTMLElement {
       true,
       this.explanMain!
     );
-    if (!ret.ok) {
-      console.log(ret.error);
-    }
+    reportIfError(ret);
     this.render();
   }
 
@@ -140,9 +136,7 @@ export class PlanConfigPanel extends HTMLElement {
       true,
       this.explanMain!
     );
-    if (!ret.ok) {
-      console.log(ret.error);
-    }
+    reportIfError(ret);
     this.render();
   }
 }

@@ -41,7 +41,7 @@ import {
   TaskNameChangeDetails,
   TaskResourceValueChangeDetails,
 } from '../selected-task-panel/selected-task-panel.ts';
-import { reportOnError } from '../report-error/report-error.ts';
+import { reportIfError } from '../report-error/report-error.ts';
 import { TaskDuration } from '../types/types.ts';
 import { SimulationPanel } from '../simulation-panel/simulation-panel.ts';
 import { applyStoredTheme } from '../style/toggler/toggler.ts';
@@ -143,9 +143,7 @@ export class ExplanMain extends HTMLElement {
         actionName = 'AddSuccessorAction';
       }
       const ret = await executeByName(actionName, this);
-      if (!ret.ok) {
-        console.log(ret.error);
-      }
+      reportIfError(ret);
     });
 
     this.dependenciesPanel!.addEventListener('delete-dependency', async (e) => {
@@ -155,9 +153,7 @@ export class ExplanMain extends HTMLElement {
       }
       const op = RemoveEdgeOp(i, j);
       const ret = await executeOp(op, 'planDefinitionChanged', true, this);
-      if (!ret.ok) {
-        console.log(ret.error);
-      }
+      reportIfError(ret);
     });
 
     this.selectedTaskPanel = this.querySelector('selected-task-panel')!;
@@ -165,7 +161,7 @@ export class ExplanMain extends HTMLElement {
       'task-name-change',
       async (e: CustomEvent<TaskNameChangeDetails>) => {
         const op = SetTaskNameOp(e.detail.taskIndex, e.detail.name);
-        reportOnError(await executeOp(op, 'planDefinitionChanged', true, this));
+        reportIfError(await executeOp(op, 'planDefinitionChanged', true, this));
       }
     );
 
@@ -174,7 +170,7 @@ export class ExplanMain extends HTMLElement {
       async (e: CustomEvent<TaskResourceValueChangeDetails>) => {
         const { name, value, taskIndex } = e.detail;
         const op = SetResourceValueOp(name, value, taskIndex);
-        reportOnError(await executeOp(op, 'planDefinitionChanged', true, this));
+        reportIfError(await executeOp(op, 'planDefinitionChanged', true, this));
       }
     );
 
@@ -183,7 +179,7 @@ export class ExplanMain extends HTMLElement {
       async (e: CustomEvent<TaskMetricValueChangeDetails>) => {
         const { name, value, taskIndex } = e.detail;
         const op = SetMetricValueOp(name, value, taskIndex);
-        reportOnError(await executeOp(op, 'planDefinitionChanged', true, this));
+        reportIfError(await executeOp(op, 'planDefinitionChanged', true, this));
       }
     );
 
@@ -264,7 +260,7 @@ export class ExplanMain extends HTMLElement {
       const blob = fileUpload.files![0];
       const bytes = await blob.arrayBuffer();
       const ret = await this.fromUint8Array(new Uint8Array(bytes));
-      reportOnError(ret);
+      reportIfError(ret);
     });
 
     this.querySelector('#simulate')!.addEventListener('click', () => {
@@ -356,7 +352,7 @@ export class ExplanMain extends HTMLElement {
     //  });
     const ret = await this.toPNG();
     if (!ret.ok) {
-      reportOnError(ret);
+      reportIfError(ret);
       return;
     }
     const downloadBlob = ret.value;
@@ -376,16 +372,12 @@ export class ExplanMain extends HTMLElement {
 
   async undo(): Promise<void> {
     const res = await executeByName('UndoAction', this);
-    if (!res.ok) {
-      console.log(res.error);
-    }
+    reportIfError(res);
   }
 
   async redo(): Promise<void> {
     const res = await executeByName('RedoAction', this);
-    if (!res.ok) {
-      console.log(res.error);
-    }
+    reportIfError(res);
   }
 
   // Call this if explanMain is embedded in another context.

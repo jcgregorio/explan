@@ -7,7 +7,7 @@ import { MetricDefinition } from '../metrics/metrics';
 import { Result } from '../result';
 import { Op } from '../ops/ops';
 import { executeOp } from '../action/execute';
-import { reportError } from '../report-error/report-error';
+import { reportErrorMsg } from '../report-error/report-error';
 import { Precision } from '../precision/precision';
 
 export class EditMetricDefinition extends HTMLElement {
@@ -215,7 +215,7 @@ export class EditMetricDefinition extends HTMLElement {
     newDef.rationalize();
     const ret = await this.executeOp(UpdateMetricOp(this.metricName, newDef));
     if (!ret.ok) {
-      reportError(ret.error);
+      reportErrorMsg(ret.error);
     }
     this.render();
   }

@@ -256,7 +256,6 @@ export class TaskSearchControl extends HTMLElement {
       default:
         break;
     }
-    console.log(this.focusIndex);
     render(template(this), this);
   }
 

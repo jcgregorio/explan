@@ -1,9 +1,10 @@
-import { TemplateResult, html, render } from "lit-html";
-import { AddResourceOp, DeleteResourceOp } from "../ops/resources";
-import { executeOp } from "../action/execute";
-import { ExplanMain } from "../explanMain/explanMain";
-import { EditResourceDefinition } from "../edit-resource-definition/edit-resource-definition";
-import { icon } from "../icons/icons";
+import { TemplateResult, html, render } from 'lit-html';
+import { AddResourceOp, DeleteResourceOp } from '../ops/resources';
+import { executeOp } from '../action/execute';
+import { ExplanMain } from '../explanMain/explanMain';
+import { EditResourceDefinition } from '../edit-resource-definition/edit-resource-definition';
+import { icon } from '../icons/icons';
+import { reportIfError } from '../report-error/report-error';
 
 // Longest representation we'll show for all the options of a Resource.
 const MAX_SHORT_STRING = 80;
@@ -23,15 +24,15 @@ export class EditResourcesPanel extends HTMLElement {
 
   connectedCallback(): void {
     document.addEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
@@ -45,16 +46,16 @@ export class EditResourcesPanel extends HTMLElement {
   }
 
   private valuesToShortString(values: string[]): string {
-    let ret = values.join(", ");
+    let ret = values.join(', ');
     if (ret.length > MAX_SHORT_STRING) {
-      ret = ret.slice(0, MAX_SHORT_STRING) + " ...";
+      ret = ret.slice(0, MAX_SHORT_STRING) + ' ...';
     }
     return ret;
   }
 
   private delButtonIfNotStatic(
     name: string,
-    isStatic: boolean,
+    isStatic: boolean
   ): TemplateResult {
     if (isStatic) {
       return html``;
@@ -64,13 +65,13 @@ export class EditResourcesPanel extends HTMLElement {
       title="Delete this resource."
       @click=${() => this.deleteResource(name)}
     >
-      ${icon("delete-icon")}
+      ${icon('delete-icon')}
     </button>`;
   }
 
   private editButtonIfNotStatic(
     name: string,
-    isStatic: boolean,
+    isStatic: boolean
   ): TemplateResult {
     if (isStatic) {
       return html``;
@@ -80,48 +81,43 @@ export class EditResourcesPanel extends HTMLElement {
       title="Edit the resource definition."
       @click=${() => this.editResource(name)}
     >
-      ${icon("edit-icon")}
+      ${icon('edit-icon')}
     </button>`;
   }
 
   private async deleteResource(name: string) {
     const ret = await executeOp(
       DeleteResourceOp(name),
-      "planDefinitionChanged",
+      'planDefinitionChanged',
       true,
-      this.explanMain!,
+      this.explanMain!
     );
-    if (!ret.ok) {
-      console.log(ret.error);
-    }
+    reportIfError(ret);
     this.render();
   }
 
   private editResource(name: string) {
     this.explanMain!.querySelector<EditResourceDefinition>(
-      "edit-resource-definition",
+      'edit-resource-definition'
     )!.showModal(
       this.explanMain!,
       name,
-      this.explanMain!.plan.resourceDefinitions[name],
+      this.explanMain!.plan.resourceDefinitions[name]
     );
   }
 
   private async newResource() {
-    const name = window.prompt("Resource name:", "");
+    const name = window.prompt('Resource name:', '');
     if (name === null) {
       return;
     }
     const ret = await executeOp(
       AddResourceOp(name),
-      "planDefinitionChanged",
+      'planDefinitionChanged',
       true,
-      this.explanMain!,
+      this.explanMain!
     );
-    if (!ret.ok) {
-      window.alert(ret.error);
-      console.log(ret.error);
-    }
+    reportIfError(ret);
     this.render();
   }
 
@@ -138,7 +134,7 @@ export class EditResourcesPanel extends HTMLElement {
           return -1;
         }
         return 1;
-      },
+      }
     );
 
     return html`
@@ -171,7 +167,7 @@ export class EditResourcesPanel extends HTMLElement {
                 this.newResource();
               }}
             >
-              ${icon("add-icon")}
+              ${icon('add-icon')}
             </button>
           </td>
         </tr>
@@ -180,4 +176,4 @@ export class EditResourcesPanel extends HTMLElement {
   }
 }
 
-customElements.define("edit-resources-panel", EditResourcesPanel);
+customElements.define('edit-resources-panel', EditResourcesPanel);

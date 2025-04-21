@@ -1,5 +1,5 @@
 import { ExplanMain } from '../explanMain/explanMain';
-import { reportOnError } from '../report-error/report-error';
+import { reportIfError } from '../report-error/report-error';
 
 // @ts-expect-error Need to add types.
 const vscode = acquireVsCodeApi();
@@ -20,7 +20,7 @@ document.addEventListener('finished-init', () => {
           return;
         } else {
           const ret = await explanMain.fromUint8Array(body.value as Uint8Array);
-          reportOnError(ret);
+          reportIfError(ret);
           return;
         }
       }

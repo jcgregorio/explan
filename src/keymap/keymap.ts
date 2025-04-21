@@ -1,6 +1,7 @@
 import { executeByName } from '../action/execute';
 import { ActionNames } from '../action/registry';
 import { ExplanMain } from '../explanMain/explanMain';
+import { reportIfError } from '../report-error/report-error';
 
 export const KeyMap: Map<string, ActionNames> = new Map([
   ['shift-ctrl-R', 'ToggleRadarAction'],
@@ -29,7 +30,7 @@ export const StartKeyboardHandling = (em: ExplanMain) => {
 
 const onKeyDown = async (e: KeyboardEvent) => {
   const keyname = `${e.shiftKey ? 'shift-' : ''}${e.ctrlKey ? 'ctrl-' : ''}${e.metaKey ? 'meta-' : ''}${e.altKey ? 'alt-' : ''}${e.key}`;
-  console.log(keyname);
+  // console.log(keyname);
   const actionName = KeyMap.get(keyname);
   if (actionName === undefined) {
     return;
@@ -37,9 +38,7 @@ const onKeyDown = async (e: KeyboardEvent) => {
   e.stopPropagation();
   e.preventDefault();
   const ret = await executeByName(actionName, explanMain);
-  if (!ret.ok) {
-    console.log(ret.error);
-  }
+  reportIfError(ret);
 };
 
 export const unmapUndoAndRedo = () => {

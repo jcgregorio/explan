@@ -739,7 +739,6 @@ function drawRangeOverlay(
     bottomRight.x - topLeft.x,
     bottomRight.y - topLeft.y
   );
-  console.log('drawRangeOverlay', topLeft, bottomRight);
 }
 
 function drawArrowBetweenTasks(
