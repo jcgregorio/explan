@@ -1,6 +1,6 @@
-import * as vscode from "vscode";
-import * as path from "path";
-import { Disposable, disposeAll } from "./dispose";
+import * as vscode from 'vscode';
+import * as path from 'path';
+import { Disposable, disposeAll } from './dispose';
 
 interface ExplanDocumentDelegate {
   getFileData(targetResource: vscode.Uri): Promise<Uint8Array>;
@@ -17,13 +17,13 @@ class ExplanDocument extends Disposable implements vscode.CustomDocument {
   ): Promise<ExplanDocument | PromiseLike<ExplanDocument>> {
     // If we have a backup, read that. Otherwise read the resource from the workspace
     const dataFile =
-      typeof backupId === "string" ? vscode.Uri.parse(backupId) : uri;
+      typeof backupId === 'string' ? vscode.Uri.parse(backupId) : uri;
     const fileData = await ExplanDocument.readFile(dataFile);
     return new ExplanDocument(uri, fileData, delegate);
   }
 
   private static async readFile(uri: vscode.Uri): Promise<Uint8Array> {
-    if (uri.scheme === "untitled") {
+    if (uri.scheme === 'untitled') {
       return new Uint8Array();
     }
     return new Uint8Array(await vscode.workspace.fs.readFile(uri));
@@ -35,16 +35,16 @@ class ExplanDocument extends Disposable implements vscode.CustomDocument {
 
   private readonly _delegate: ExplanDocumentDelegate;
 
-  public readonly contentType: string = "application/json";
+  public readonly contentType: string = 'application/json';
 
   getContentType(): string {
     switch (path.parse(this.uri.fsPath).ext) {
-      case ".svg":
-        return "image/svg+xml";
-      case ".png":
-        return "image/png";
+      case '.svg':
+        return 'image/svg+xml';
+      case '.png':
+        return 'image/png';
       default:
-        return "application/json";
+        return 'application/json';
     }
   }
 
@@ -119,7 +119,7 @@ class ExplanDocument extends Disposable implements vscode.CustomDocument {
    */
   makeEdit(undo: () => Promise<void>, redo: () => Promise<void>) {
     this._onDidChange.fire({
-      label: "Edit",
+      label: 'Edit',
       undo: async () => {
         await undo();
         this._onDidChangeDocument.fire({});
@@ -199,12 +199,12 @@ export class ExplanEditorProvider
 
   public static register(context: vscode.ExtensionContext): vscode.Disposable {
     vscode.commands.registerCommand(
-      ExplanEditorProvider.viewType + ".new",
+      ExplanEditorProvider.viewType + '.new',
       () => {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (!workspaceFolders) {
           vscode.window.showErrorMessage(
-            "Creating new Explan files requires opening a workspace"
+            'Creating new Explan files requires opening a workspace'
           );
           return;
         }
@@ -212,10 +212,10 @@ export class ExplanEditorProvider
         const uri = vscode.Uri.joinPath(
           workspaceFolders[0].uri,
           `new-${ExplanEditorProvider.newExplanFileId++}.explan.json`
-        ).with({ scheme: "untitled" });
+        ).with({ scheme: 'untitled' });
 
         vscode.commands.executeCommand(
-          "vscode.openWith",
+          'vscode.openWith',
           uri,
           ExplanEditorProvider.viewType
         );
@@ -237,7 +237,7 @@ export class ExplanEditorProvider
     );
   }
 
-  private static readonly viewType = "explan.editor";
+  private static readonly viewType = 'explan.editor';
 
   /**
    * Tracks all known webviews
@@ -246,13 +246,12 @@ export class ExplanEditorProvider
 
   constructor(private readonly _context: vscode.ExtensionContext) {}
 
-
   private getContentType(targetResource: vscode.Uri): string {
     switch (path.parse(targetResource.fsPath).ext) {
-      case ".png":
-        return "image/png";
+      case '.png':
+        return 'image/png';
       default:
-        return "application/json";
+        return 'application/json';
     }
   }
 
@@ -270,14 +269,14 @@ export class ExplanEditorProvider
             this.webviews.get(document.uri)
           );
           if (!webviewsForDocument.length) {
-            throw new Error("Could not find webview to save for");
+            throw new Error('Could not find webview to save for');
           }
           const panel = webviewsForDocument[0];
           const response = await this.postMessageWithResponse<number[]>(
             panel,
-            "getFileData",
+            'getFileData',
             {
-              "contentType": this.getContentType(targetResource)
+              contentType: this.getContentType(targetResource),
             }
           );
           const encoder = new TextEncoder();
@@ -302,7 +301,7 @@ export class ExplanEditorProvider
       document.onDidChangeContent((e) => {
         // Update all webviews when the document changes
         for (const webviewPanel of this.webviews.get(document.uri)) {
-          this.postMessage(webviewPanel, "update", {
+          this.postMessage(webviewPanel, 'update', {
             content: e.content,
           });
         }
@@ -336,9 +335,9 @@ export class ExplanEditorProvider
 
     // Wait for the webview to be properly ready before we init
     webviewPanel.webview.onDidReceiveMessage((e) => {
-      if (e.type === "ready") {
-        if (document.uri.scheme === "untitled") {
-          this.postMessage(webviewPanel, "init", {
+      if (e.type === 'ready') {
+        if (document.uri.scheme === 'untitled') {
+          this.postMessage(webviewPanel, 'init', {
             untitled: true,
             editable: true,
           });
@@ -347,7 +346,7 @@ export class ExplanEditorProvider
             document.uri.scheme
           );
 
-          this.postMessage(webviewPanel, "init", {
+          this.postMessage(webviewPanel, 'init', {
             value: document.documentData,
             editable: editable,
           });
@@ -399,9 +398,9 @@ export class ExplanEditorProvider
     const body = await vscode.workspace.fs.readFile(
       vscode.Uri.joinPath(
         this._context.extensionUri,
-        "src",
-        "media",
-        "merged.html"
+        'src',
+        'media',
+        'merged.html'
       )
     );
     return body.toString();
@@ -434,19 +433,19 @@ export class ExplanEditorProvider
   private getPanel(document: ExplanDocument): vscode.WebviewPanel {
     const webviewsForDocument = Array.from(this.webviews.get(document.uri));
     if (!webviewsForDocument.length) {
-      throw new Error("Could not find webview to save for");
+      throw new Error('Could not find webview to save for');
     }
     return webviewsForDocument[0];
   }
 
   private onMessage(document: ExplanDocument, message: any) {
     switch (message.type) {
-      case "edit":
+      case 'edit':
         const undo = async () => {
           const panel = this.getPanel(document);
           const response = await this.postMessageWithResponse<null>(
             panel,
-            "undo",
+            'undo',
             {}
           );
         };
@@ -454,7 +453,7 @@ export class ExplanEditorProvider
           const panel = this.getPanel(document);
           const response = await this.postMessageWithResponse<null>(
             panel,
-            "redo",
+            'redo',
             {}
           );
         };
@@ -462,9 +461,16 @@ export class ExplanEditorProvider
         document.makeEdit(undo, redo);
         return;
 
-      case "response": {
+      case 'response': {
         const callback = this._callbacks.get(message.requestId);
         callback?.(message.body);
+        return;
+      }
+
+      case 'error-report': {
+        const msg = message.value;
+        console.log("from extension", msg);
+        vscode.window.showErrorMessage(msg);
         return;
       }
     }

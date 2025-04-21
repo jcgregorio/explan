@@ -41,7 +41,10 @@ import {
   TaskNameChangeDetails,
   TaskResourceValueChangeDetails,
 } from '../selected-task-panel/selected-task-panel.ts';
-import { reportIfError } from '../report-error/report-error.ts';
+import {
+  reportIfError,
+  setErrorMessageReporting,
+} from '../report-error/report-error.ts';
 import { TaskDuration } from '../types/types.ts';
 import { SimulationPanel } from '../simulation-panel/simulation-panel.ts';
 import { applyStoredTheme } from '../style/toggler/toggler.ts';
@@ -385,8 +388,12 @@ export class ExplanMain extends HTMLElement {
     // Disable the key bindings for undo and redo.
     unmapUndoAndRedo();
 
+    // Hide controls that don't make sense when embedded.
     document.querySelector('#download-controls')!.classList.add('hidden');
     document.querySelector('#upload')!.classList.add('hidden');
+
+    // Pass up error messages to be reported instead of displaying locally.
+    setErrorMessageReporting('DocumentEvent');
   }
 
   toJSON(): string {

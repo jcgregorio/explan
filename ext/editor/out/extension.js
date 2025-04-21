@@ -44,12 +44,12 @@ const dispose_1 = require("./dispose");
 class ExplanDocument extends dispose_1.Disposable {
     static async create(uri, backupId, delegate) {
         // If we have a backup, read that. Otherwise read the resource from the workspace
-        const dataFile = typeof backupId === "string" ? vscode.Uri.parse(backupId) : uri;
+        const dataFile = typeof backupId === 'string' ? vscode.Uri.parse(backupId) : uri;
         const fileData = await ExplanDocument.readFile(dataFile);
         return new ExplanDocument(uri, fileData, delegate);
     }
     static async readFile(uri) {
-        if (uri.scheme === "untitled") {
+        if (uri.scheme === 'untitled') {
             return new Uint8Array();
         }
         return new Uint8Array(await vscode.workspace.fs.readFile(uri));
@@ -57,15 +57,15 @@ class ExplanDocument extends dispose_1.Disposable {
     _uri;
     _documentData;
     _delegate;
-    contentType = "application/json";
+    contentType = 'application/json';
     getContentType() {
         switch (path.parse(this.uri.fsPath).ext) {
-            case ".svg":
-                return "image/svg+xml";
-            case ".png":
-                return "image/png";
+            case '.svg':
+                return 'image/svg+xml';
+            case '.png':
+                return 'image/png';
             default:
-                return "application/json";
+                return 'application/json';
         }
     }
     constructor(uri, initialContent, delegate) {
@@ -114,7 +114,7 @@ class ExplanDocument extends dispose_1.Disposable {
      */
     makeEdit(undo, redo) {
         this._onDidChange.fire({
-            label: "Edit",
+            label: 'Edit',
             undo: async () => {
                 await undo();
                 this._onDidChangeDocument.fire({});
@@ -180,14 +180,14 @@ class ExplanEditorProvider {
     _context;
     static newExplanFileId = 1;
     static register(context) {
-        vscode.commands.registerCommand(ExplanEditorProvider.viewType + ".new", () => {
+        vscode.commands.registerCommand(ExplanEditorProvider.viewType + '.new', () => {
             const workspaceFolders = vscode.workspace.workspaceFolders;
             if (!workspaceFolders) {
-                vscode.window.showErrorMessage("Creating new Explan files requires opening a workspace");
+                vscode.window.showErrorMessage('Creating new Explan files requires opening a workspace');
                 return;
             }
-            const uri = vscode.Uri.joinPath(workspaceFolders[0].uri, `new-${ExplanEditorProvider.newExplanFileId++}.explan.json`).with({ scheme: "untitled" });
-            vscode.commands.executeCommand("vscode.openWith", uri, ExplanEditorProvider.viewType);
+            const uri = vscode.Uri.joinPath(workspaceFolders[0].uri, `new-${ExplanEditorProvider.newExplanFileId++}.explan.json`).with({ scheme: 'untitled' });
+            vscode.commands.executeCommand('vscode.openWith', uri, ExplanEditorProvider.viewType);
         });
         return vscode.window.registerCustomEditorProvider(ExplanEditorProvider.viewType, new ExplanEditorProvider(context), {
             // For this demo extension, we enable `retainContextWhenHidden` which keeps the
@@ -199,7 +199,7 @@ class ExplanEditorProvider {
             supportsMultipleEditorsPerDocument: false,
         });
     }
-    static viewType = "explan.editor";
+    static viewType = 'explan.editor';
     /**
      * Tracks all known webviews
      */
@@ -209,10 +209,10 @@ class ExplanEditorProvider {
     }
     getContentType(targetResource) {
         switch (path.parse(targetResource.fsPath).ext) {
-            case ".png":
-                return "image/png";
+            case '.png':
+                return 'image/png';
             default:
-                return "application/json";
+                return 'application/json';
         }
     }
     async openCustomDocument(uri, openContext, _token) {
@@ -220,11 +220,11 @@ class ExplanEditorProvider {
             getFileData: async (targetResource) => {
                 const webviewsForDocument = Array.from(this.webviews.get(document.uri));
                 if (!webviewsForDocument.length) {
-                    throw new Error("Could not find webview to save for");
+                    throw new Error('Could not find webview to save for');
                 }
                 const panel = webviewsForDocument[0];
-                const response = await this.postMessageWithResponse(panel, "getFileData", {
-                    "contentType": this.getContentType(targetResource)
+                const response = await this.postMessageWithResponse(panel, 'getFileData', {
+                    contentType: this.getContentType(targetResource),
                 });
                 const encoder = new TextEncoder();
                 return new Uint8Array(response);
@@ -241,7 +241,7 @@ class ExplanEditorProvider {
         listeners.push(document.onDidChangeContent((e) => {
             // Update all webviews when the document changes
             for (const webviewPanel of this.webviews.get(document.uri)) {
-                this.postMessage(webviewPanel, "update", {
+                this.postMessage(webviewPanel, 'update', {
                     content: e.content,
                 });
             }
@@ -260,16 +260,16 @@ class ExplanEditorProvider {
         webviewPanel.webview.onDidReceiveMessage((e) => this.onMessage(document, e));
         // Wait for the webview to be properly ready before we init
         webviewPanel.webview.onDidReceiveMessage((e) => {
-            if (e.type === "ready") {
-                if (document.uri.scheme === "untitled") {
-                    this.postMessage(webviewPanel, "init", {
+            if (e.type === 'ready') {
+                if (document.uri.scheme === 'untitled') {
+                    this.postMessage(webviewPanel, 'init', {
                         untitled: true,
                         editable: true,
                     });
                 }
                 else {
                     const editable = vscode.workspace.fs.isWritableFileSystem(document.uri.scheme);
-                    this.postMessage(webviewPanel, "init", {
+                    this.postMessage(webviewPanel, 'init', {
                         value: document.documentData,
                         editable: editable,
                     });
@@ -295,7 +295,7 @@ class ExplanEditorProvider {
      * Get the static html used for the editor webviews.
      */
     async getHtmlForWebview(webview) {
-        const body = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(this._context.extensionUri, "src", "media", "merged.html"));
+        const body = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(this._context.extensionUri, 'src', 'media', 'merged.html'));
         return body.toString();
     }
     _requestId = 1;
@@ -312,26 +312,32 @@ class ExplanEditorProvider {
     getPanel(document) {
         const webviewsForDocument = Array.from(this.webviews.get(document.uri));
         if (!webviewsForDocument.length) {
-            throw new Error("Could not find webview to save for");
+            throw new Error('Could not find webview to save for');
         }
         return webviewsForDocument[0];
     }
     onMessage(document, message) {
         switch (message.type) {
-            case "edit":
+            case 'edit':
                 const undo = async () => {
                     const panel = this.getPanel(document);
-                    const response = await this.postMessageWithResponse(panel, "undo", {});
+                    const response = await this.postMessageWithResponse(panel, 'undo', {});
                 };
                 const redo = async () => {
                     const panel = this.getPanel(document);
-                    const response = await this.postMessageWithResponse(panel, "redo", {});
+                    const response = await this.postMessageWithResponse(panel, 'redo', {});
                 };
                 document.makeEdit(undo, redo);
                 return;
-            case "response": {
+            case 'response': {
                 const callback = this._callbacks.get(message.requestId);
                 callback?.(message.body);
+                return;
+            }
+            case 'error-report': {
+                const msg = message.value;
+                console.log("from extension", msg);
+                vscode.window.showErrorMessage(msg);
                 return;
             }
         }

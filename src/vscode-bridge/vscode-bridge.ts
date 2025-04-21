@@ -64,3 +64,11 @@ document.addEventListener('finished-init', () => {
 document.addEventListener('edit-action', () => {
   vscode.postMessage({ type: 'edit' });
 });
+
+document.addEventListener('error-report', (e: CustomEvent<Error>) => {
+  console.log('from bridge', e.detail);
+  vscode.postMessage({
+    type: 'error-report',
+    value: e.detail.message,
+  });
+});
