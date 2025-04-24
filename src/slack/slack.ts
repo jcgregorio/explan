@@ -84,37 +84,24 @@ export function ComputeSlack(
   topologicalOrder.reverse().forEach((vertexIndex: number) => {
     const slack = slacks[vertexIndex];
     const successors = edges.bySrc.get(vertexIndex);
-    if (!successors) {
+    if (!successors || earlyStartOverride?.(vertexIndex)) {
       slack.late.finish = slack.early.finish;
       slack.late.start = slack.early.start;
+      slack.slack = 0;
     } else {
-      const overrideValue = earlyStartOverride?.(vertexIndex);
-      if (overrideValue !== undefined) {
-        // Since this task has been started, we set late
-        // start/finish to early start/finish.
-        slack.late = slack.early;
-        slack.slack = 0;
+      const lateStarts = edges.bySrc
+        .get(vertexIndex)!
+        .map((e: DirectedEdge): number => {
+          const successorSlack = slacks[e.j];
+          return successorSlack.late.start;
+        });
+      if (lateStarts.length === 0) {
+        slack.late.finish = slack.early.finish;
       } else {
-        const lateStarts = edges.bySrc
-          .get(vertexIndex)!
-          .map((e: DirectedEdge): number | null => {
-            // Need to ignore values from started tasks?
-            if (earlyStartOverride?.(e.j) !== undefined) {
-              return null;
-            }
-
-            const successorSlack = slacks[e.j];
-            return successorSlack.late.start;
-          })
-          .filter((value) => value !== null) as number[];
-        if (lateStarts.length === 0) {
-          slack.late.finish = slack.early.finish;
-        } else {
-          slack.late.finish = Math.min(...lateStarts);
-        }
-        slack.late.start = round(slack.late.finish - taskDuration(vertexIndex));
-        slack.slack = round(slack.late.finish - slack.early.finish);
+        slack.late.finish = Math.min(...lateStarts);
       }
+      slack.late.start = round(slack.late.finish - taskDuration(vertexIndex));
+      slack.slack = round(slack.late.finish - slack.early.finish);
     }
   });
 

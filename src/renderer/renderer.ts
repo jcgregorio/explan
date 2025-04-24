@@ -396,14 +396,16 @@ export function renderTasksToCanvas(
     if (emphasizedTasks.has(taskIndex)) {
       ctx.fillStyle = opts.colors.get('primary');
       ctx.strokeStyle = opts.colors.get('primary');
-      if (percentComplete === 100) {
-        ctx.fillStyle = opts.colors.get('secondary');
-        ctx.strokeStyle = opts.colors.get('secondary');
-      }
     } else {
       ctx.fillStyle = opts.colors.get('on-surface');
       ctx.strokeStyle = opts.colors.get('on-surface');
     }
+    // Being started overrides other color decisions.
+    if (percentComplete > 0) {
+      ctx.fillStyle = opts.colors.get('secondary');
+      ctx.strokeStyle = opts.colors.get('secondary');
+    }
+
     const highlightTopLeft = scale.feature(
       row,
       span.start,
