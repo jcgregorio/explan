@@ -40,7 +40,7 @@ export class Theme2 {
     this._fontSize =
       +style.getPropertyValue('font-size').split('px')[0] *
       window.devicePixelRatio *
-      1.2;
+      1.8;
     if (this._fontSize === 0) {
       this._fontSize = 24;
     }

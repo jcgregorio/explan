@@ -364,6 +364,11 @@ export function renderTasksToCanvas(
     RectWithFilteredTaskIndex
   > = new Map();
 
+  // Draw the "today" marker.
+  if (opts.today !== -1) {
+    drawTodayMarker(ctx, opts.today, opts.colors, scale);
+  }
+
   // Keep track of where we draw timeline labels, to avoid overlaps.
   const timeMarkerRanges: xRange[] = [];
 
@@ -402,8 +407,17 @@ export function renderTasksToCanvas(
     }
     // Being started overrides other color decisions.
     if (percentComplete > 0) {
-      ctx.fillStyle = opts.colors.get('secondary');
-      ctx.strokeStyle = opts.colors.get('secondary');
+      if (percentComplete === 100) {
+        ctx.fillStyle = getPatternForStartedTask(
+          ctx,
+          opts.colors.get('secondary'),
+          opts.colors.get('surface')
+        )!;
+        ctx.strokeStyle = opts.colors.get('secondary');
+      } else {
+        ctx.fillStyle = opts.colors.get('secondary');
+        ctx.strokeStyle = opts.colors.get('secondary');
+      }
     }
 
     const highlightTopLeft = scale.feature(
@@ -460,11 +474,6 @@ export function renderTasksToCanvas(
       }
     }
   });
-
-  // Draw the "today" marker.
-  if (opts.today !== -1) {
-    drawTodayMarker(ctx, opts.today, opts.colors, scale);
-  }
 
   ctx.lineWidth = 1;
   ctx.strokeStyle = opts.colors.get('on-surface-muted');
@@ -1253,4 +1262,37 @@ const drawSwimLaneLabels = (
       );
     });
   }
+};
+
+// Keep patterns around for both light mode and dark mode.
+const patterns: Map<string, CanvasPattern> = new Map();
+
+const getPatternForStartedTask = (
+  ctx: CanvasRenderingContext2D,
+  color: string,
+  background: string
+): CanvasPattern | null => {
+  const key = `${color}:${background}`;
+  let ret = patterns.get(key);
+  if (ret !== undefined) {
+    return ret;
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 4;
+  canvas.height = 4;
+
+  const pCtx = canvas.getContext('2d')!;
+
+  pCtx.fillStyle = background;
+  pCtx.fillRect(0, 0, canvas.width, canvas.height);
+  pCtx.strokeStyle = color;
+  pCtx.lineWidth = 1;
+  pCtx.moveTo(0, 0);
+  pCtx.lineTo(4, 4);
+  pCtx.stroke();
+
+  ret = ctx.createPattern(canvas, 'repeat')!;
+  patterns.set(key, ret);
+  return ret;
 };

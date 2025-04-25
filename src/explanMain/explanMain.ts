@@ -472,7 +472,7 @@ export class ExplanMain extends HTMLElement {
     };
 
     const opts: RenderOptions = {
-      fontSizePx: 15,
+      fontSizePx: 16,
       hasText: true,
       displayRange: null,
       displayRangeUsage: 'restrict',
