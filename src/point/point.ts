@@ -24,8 +24,8 @@ export const sum = (p1: Point, p2: Point): Point => {
 export const add = (p1: Point, p2: [number, number]): Point => {
   const [x2, y2] = p2;
   return {
-    x: p1.x + x2,
-    y: p1.y + y2,
+    x: Math.floor(p1.x + x2),
+    y: Math.floor(p1.y + y2),
   };
 };
 

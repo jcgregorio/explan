@@ -1,6 +1,6 @@
-import { clamp } from "../../metrics/range.ts";
-import { RenderOptions } from "../renderer.ts";
-import { Point, add, pt } from "../../point/point.ts";
+import { clamp } from '../../metrics/range.ts';
+import { RenderOptions } from '../renderer.ts';
+import { Point, add, pt } from '../../point/point.ts';
 
 export interface DayRow {
   day: number;
@@ -11,46 +11,46 @@ export interface DayRow {
  * the top left coordinate of the feature.
  */
 export const Feature = {
-  taskLineStart: "taskLineStart",
-  textStart: "textStart",
-  groupTextStart: "groupTextStart",
-  percentStart: "percentStart",
-  verticalArrowDestTop: "verticalArrowDestTop",
-  verticalArrowDestBottom: "verticalArrowDestBottom",
-  horizontalArrowDest: "horizontalArrowDest",
-  verticalArrowStart: "verticalArrowStart",
-  horizontalArrowStart: "horizontalArrowStart",
-  verticalArrowDestToMilestoneTop: "verticalArrowDestToMilestoneTop",
-  verticalArrowDestToMilestoneBottom: "verticalArrowDestToMilestoneBottom",
-  horizontalArrowDestToMilestone: "horizontalArrowDestToMilestone",
-  verticalArrowStartFromMilestoneTop: "verticalArrowStartFromMilestoneTop",
+  taskLineStart: 'taskLineStart',
+  textStart: 'textStart',
+  groupTextStart: 'groupTextStart',
+  percentStart: 'percentStart',
+  verticalArrowDestTop: 'verticalArrowDestTop',
+  verticalArrowDestBottom: 'verticalArrowDestBottom',
+  horizontalArrowDest: 'horizontalArrowDest',
+  verticalArrowStart: 'verticalArrowStart',
+  horizontalArrowStart: 'horizontalArrowStart',
+  verticalArrowDestToMilestoneTop: 'verticalArrowDestToMilestoneTop',
+  verticalArrowDestToMilestoneBottom: 'verticalArrowDestToMilestoneBottom',
+  horizontalArrowDestToMilestone: 'horizontalArrowDestToMilestone',
+  verticalArrowStartFromMilestoneTop: 'verticalArrowStartFromMilestoneTop',
   verticalArrowStartFromMilestoneBottom:
-    "verticalArrowStartFromMilestoneBottom",
-  horizontalArrowStartFromMilestone: "horizontalArrowStartFromMilestone",
-  groupEnvelopeStart: "groupEnvelopeStart",
-  taskEnvelopeTop: "taskEnvelopeTop",
-  displayRangeTop: "displayRangeTop",
-  taskRowBottom: "taskRowBottom",
-  timeMarkStart: "timeMarkStart",
-  timeMarkEnd: "timeMarkEnd",
-  timeTextStart: "timeTextStart",
-  groupTitleTextStart: "groupTitleTextStart",
-  tasksClipRectOrigin: "tasksClipRectOrigin",
-  groupByOrigin: "groupByOrigin",
+    'verticalArrowStartFromMilestoneBottom',
+  horizontalArrowStartFromMilestone: 'horizontalArrowStartFromMilestone',
+  groupEnvelopeStart: 'groupEnvelopeStart',
+  taskEnvelopeTop: 'taskEnvelopeTop',
+  displayRangeTop: 'displayRangeTop',
+  taskRowBottom: 'taskRowBottom',
+  timeMarkStart: 'timeMarkStart',
+  timeMarkEnd: 'timeMarkEnd',
+  timeTextStart: 'timeTextStart',
+  groupTitleTextStart: 'groupTitleTextStart',
+  tasksClipRectOrigin: 'tasksClipRectOrigin',
+  groupByOrigin: 'groupByOrigin',
 } as const;
 
 /** Sizes of features of a rendered chart. */
 export const Metric = {
-  taskLineHeight: "taskLineHeight",
-  percentHeight: "percentHeight",
-  arrowHeadHeight: "arrowHeadHeight",
-  arrowHeadWidth: "arrowHeadWidth",
-  milestoneDiameter: "milestoneDiameter",
-  lineDashLine: "lineDashLine",
-  lineDashGap: "lineDashGap",
-  textXOffset: "textXOffset",
-  minTaskWidthPx: "minTaskWidthPx",
-  rowHeight: "rowHeight",
+  taskLineHeight: 'taskLineHeight',
+  percentHeight: 'percentHeight',
+  arrowHeadHeight: 'arrowHeadHeight',
+  arrowHeadWidth: 'arrowHeadWidth',
+  milestoneDiameter: 'milestoneDiameter',
+  lineDashLine: 'lineDashLine',
+  lineDashGap: 'lineDashGap',
+  textXOffset: 'textXOffset',
+  minTaskWidthPx: 'minTaskWidthPx',
+  rowHeight: 'rowHeight',
 } as const;
 
 /** Makes a number odd, adds one if even. */
@@ -83,7 +83,7 @@ export class Scale {
     opts: RenderOptions,
     canvasWidthPx: number,
     totalNumberOfDays: number,
-    maxGroupNameLength: number = 0,
+    maxGroupNameLength: number = 0
   ) {
     this.totalNumberOfDays = totalNumberOfDays;
     this.groupByColumnWidthPx = maxGroupNameLength * opts.fontSizePx;
@@ -101,7 +101,7 @@ export class Scale {
     this.groupByOrigin = pt(0, milestoneRadius + this.timelineHeightPx);
 
     let beginOffset = 0;
-    if (opts.displayRange === null || opts.displayRangeUsage === "highlight") {
+    if (opts.displayRange === null || opts.displayRangeUsage === 'highlight') {
       // Do not force dayWidthPx to an integer, it could go to 0 and cause all
       // tasks to be rendered at 0 width.
       this.dayWidthPx =
@@ -116,19 +116,19 @@ export class Scale {
         (canvasWidthPx - this.groupByColumnWidthPx - 2 * this.marginSizePx) /
         opts.displayRange.rangeInDays;
       beginOffset = Math.floor(
-        this.dayWidthPx * opts.displayRange.begin + this.marginSizePx,
+        this.dayWidthPx * opts.displayRange.begin + this.marginSizePx
       );
       this.origin = pt(-beginOffset + this.marginSizePx, 0);
     }
 
     this.tasksOrigin = pt(
       this.groupByColumnWidthPx - beginOffset + milestoneRadius,
-      this.timelineHeightPx + milestoneRadius,
+      this.timelineHeightPx + milestoneRadius
     );
 
     this.tasksClipRectOrigin = pt(
       this.groupByColumnWidthPx,
-      this.timelineHeightPx,
+      this.timelineHeightPx
     );
 
     if (opts.hasText) {
@@ -154,17 +154,17 @@ export class Scale {
             this.origin.x -
             this.marginSizePx -
             this.groupByColumnWidthPx) /
-            this.dayWidthPx,
+            this.dayWidthPx
         ),
         0,
-        this.totalNumberOfDays,
+        this.totalNumberOfDays
       ),
       row: Math.floor(
         (window.devicePixelRatio * point.y -
           this.origin.y -
           this.marginSizePx -
           this.timelineHeightPx) /
-          this.rowHeightPx,
+          this.rowHeightPx
       ),
     };
   }
@@ -173,10 +173,10 @@ export class Scale {
   private taskRowEnvelopeStart(row: number, day: number): Point {
     return add(this.origin, [
       Math.floor(
-        day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx,
+        day * this.dayWidthPx + this.marginSizePx + this.groupByColumnWidthPx
       ),
       Math.floor(
-        row * this.rowHeightPx + this.marginSizePx + this.timelineHeightPx,
+        row * this.rowHeightPx + this.marginSizePx + this.timelineHeightPx
       ),
     ]);
   }

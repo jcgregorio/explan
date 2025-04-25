@@ -398,26 +398,30 @@ export function renderTasksToCanvas(
       );
     }
 
+    ctx.lineWidth = 1;
     if (emphasizedTasks.has(taskIndex)) {
-      ctx.fillStyle = opts.colors.get('primary');
-      ctx.strokeStyle = opts.colors.get('primary');
-    } else {
-      ctx.fillStyle = opts.colors.get('on-surface');
-      ctx.strokeStyle = opts.colors.get('on-surface');
-    }
-    // Being started overrides other color decisions.
-    if (percentComplete > 0) {
-      if (percentComplete === 100) {
-        ctx.fillStyle = getPatternForStartedTask(
+      if (plan._status.stage === 'started' && percentComplete > 0) {
+        ctx.fillStyle = getPattern(
           ctx,
           opts.colors.get('secondary'),
           opts.colors.get('surface')
         )!;
         ctx.strokeStyle = opts.colors.get('secondary');
       } else {
-        ctx.fillStyle = opts.colors.get('secondary');
-        ctx.strokeStyle = opts.colors.get('secondary');
+        ctx.fillStyle = getPattern(
+          ctx,
+          opts.colors.get('primary'),
+          opts.colors.get('surface')
+        )!;
+        ctx.strokeStyle = opts.colors.get('primary');
       }
+    } else {
+      ctx.fillStyle = getPattern(
+        ctx,
+        opts.colors.get('on-surface'),
+        opts.colors.get('surface')
+      )!;
+      ctx.strokeStyle = opts.colors.get('on-surface');
     }
 
     const highlightTopLeft = scale.feature(
@@ -449,6 +453,7 @@ export function renderTasksToCanvas(
       } else {
         drawTaskBar(
           ctx,
+          opts,
           taskStart,
           taskEnd,
           taskLineHeight,
@@ -951,21 +956,38 @@ function drawTaskText(
 
 function drawTaskBar(
   ctx: CanvasRenderingContext2D,
+  opts: RenderOptions,
   taskStart: Point,
   taskEnd: Point,
   taskLineHeight: number,
   percentComplete: number,
   planStarted: boolean
 ) {
-  if (planStarted) {
-    ctx.strokeRect(
-      taskStart.x,
-      taskStart.y,
-      taskEnd.x - taskStart.x,
-      taskLineHeight
-    );
+  ctx.fillRect(
+    taskStart.x,
+    taskStart.y,
+    taskEnd.x - taskStart.x,
+    taskLineHeight
+  );
+  console.log(taskEnd.x, taskEnd.y);
+  console.log(ctx.lineWidth);
+  ctx.strokeRect(
+    taskStart.x,
+    taskStart.y,
+    taskEnd.x - taskStart.x,
+    taskLineHeight
+  );
 
+  if (planStarted) {
     if (percentComplete !== 0) {
+      if (percentComplete === 100) {
+        ctx.fillStyle = opts.colors.get('on-surface');
+        ctx.strokeStyle = opts.colors.get('on-surface');
+      } else {
+        ctx.fillStyle = opts.colors.get('secondary');
+        ctx.strokeStyle = opts.colors.get('secondary');
+      }
+
       ctx.fillRect(
         taskStart.x,
         taskStart.y,
@@ -973,13 +995,6 @@ function drawTaskBar(
         taskLineHeight
       );
     }
-  } else {
-    ctx.fillRect(
-      taskStart.x,
-      taskStart.y,
-      taskEnd.x - taskStart.x,
-      taskLineHeight
-    );
   }
 }
 
@@ -1267,7 +1282,7 @@ const drawSwimLaneLabels = (
 // Keep patterns around for both light mode and dark mode.
 const patterns: Map<string, CanvasPattern> = new Map();
 
-const getPatternForStartedTask = (
+const getPattern = (
   ctx: CanvasRenderingContext2D,
   color: string,
   background: string
@@ -1288,8 +1303,8 @@ const getPatternForStartedTask = (
   pCtx.fillRect(0, 0, canvas.width, canvas.height);
   pCtx.strokeStyle = color;
   pCtx.lineWidth = 1;
-  pCtx.moveTo(0, 0);
-  pCtx.lineTo(4, 4);
+  pCtx.moveTo(0, 4);
+  pCtx.lineTo(4, 0);
   pCtx.stroke();
 
   ret = ctx.createPattern(canvas, 'repeat')!;
