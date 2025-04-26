@@ -21,7 +21,7 @@ import { Uncertainty } from '../stats/cdf/triangular/jacobian';
 const people: string[] = ['Fred', 'Barney', 'Wilma', 'Betty'];
 const uncertainties: Uncertainty[] = ['low', 'moderate', 'high'];
 
-const DURATION = 10;
+const DURATION = 50;
 
 const rndInt = (n: number): number => {
   return Math.floor(Math.random() * n);
