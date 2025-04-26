@@ -88,7 +88,11 @@ export class TaskCompletionPanel extends HTMLElement {
           ></date-picker>
 
           <label>
-            Percent Complete
+            <input type="checkbox" @change=${() => this.finish()} />
+            Finished
+          </label>
+
+          <label>
             <input
               type="number"
               min="1"
@@ -97,11 +101,7 @@ export class TaskCompletionPanel extends HTMLElement {
               .value=${live(this.taskCompletion.percentComplete)}
               @change=${(e: InputEvent) => this.percentChange(e)}
             />
-          </label>
-
-          <label>
-            <input type="checkbox" @change=${() => this.finish()} />
-            Finished
+            % Complete
           </label>
         </div>`;
         break;
@@ -112,6 +112,7 @@ export class TaskCompletionPanel extends HTMLElement {
             <input type="checkbox" checked @change=${() => this.unstart()} />
             Started
           </label>
+
           <date-picker
             .value=${{
               unit: this.explanMain!.plan!.durationUnits,
@@ -125,6 +126,7 @@ export class TaskCompletionPanel extends HTMLElement {
             <input type="checkbox" checked @change=${() => this.unfinish()} />
             Finished
           </label>
+
           <date-picker
             .value=${{
               unit: this.explanMain!.plan!.durationUnits,
