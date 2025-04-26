@@ -33,7 +33,7 @@ describe('Scale', () => {
     optsForTest.fontSizePx = 12;
     const s = new Scale(optsForTest, 256, 20);
     assert.equal(s.metric(Metric.percentHeight), 1);
-    assert.equal(s.metric(Metric.taskLineHeight), 3);
+    assert.equal(s.metric(Metric.taskLineHeight), 4);
 
     assert.equal(s['dayWidthPx'], 12.5);
     assert.equal(s['blockSizePx'], 4);
@@ -50,7 +50,7 @@ describe('Scale', () => {
     optsForTest.fontSizePx = 24;
     const s = new Scale(optsForTest, 256, 20);
     assert.equal(s.metric(Metric.percentHeight), 3);
-    assert.equal(s.metric(Metric.taskLineHeight), 7);
+    assert.equal(s.metric(Metric.taskLineHeight), 8);
 
     assert.equal(s['dayWidthPx'], 12.1);
     assert.equal(s['blockSizePx'], 8);
@@ -69,7 +69,7 @@ describe('Scale', () => {
     optsCopy.fontSizePx = 12;
     const s = new Scale(optsCopy, 256, 20);
     assert.equal(s.metric(Metric.percentHeight), 1);
-    assert.equal(s.metric(Metric.taskLineHeight), 3);
+    assert.equal(s.metric(Metric.taskLineHeight), 4);
 
     assert.equal(s['dayWidthPx'], 25);
     assert.equal(s['blockSizePx'], 4);
