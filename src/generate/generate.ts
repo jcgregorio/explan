@@ -3,6 +3,7 @@ import { MetricRange } from '../metrics/range';
 import {
   DupTaskOp,
   InsertNewEmptyMilestoneAfterOp,
+  InsertNewEmptyTaskAfterOp,
   SetTaskNameOp,
   SplitTaskOp,
 } from '../ops/chart';
@@ -37,11 +38,7 @@ const rndUncertainty = (): Uncertainty =>
 export const generateStarterPlan = (): Plan => {
   const plan = new Plan();
   const res = applyAllOpsToPlan(
-    [
-      InsertNewEmptyMilestoneAfterOp(0),
-      SetMetricValueOp('Duration', 10, 1),
-      SetResourceValueOp('Uncertainty', 'low', 1),
-    ],
+    [InsertNewEmptyTaskAfterOp(0), SetResourceValueOp('Uncertainty', 'low', 1)],
     plan
   );
 

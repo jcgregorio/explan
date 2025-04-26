@@ -5,6 +5,8 @@ import { Chart, Task } from '../chart/chart.ts';
 import { Op, SubOp, SubOpResult } from './ops.ts';
 import { SetMetricValueSubOp } from './metrics.ts';
 
+const DEFAULT_TASK_DURATION = 100;
+
 /** A value of -1 for j means the Finish Milestone. */
 export function DirectedEdgeForPlan(
   i: number,
@@ -567,7 +569,7 @@ export function InsertNewEmptyTaskAfterOp(taskIndex: number): Op {
   return new Op([
     new RationalizeEdgesSubOp(),
     new AddTaskAfterSubOp(taskIndex),
-    new SetMetricValueSubOp('Duration', 10, taskIndex + 1),
+    new SetMetricValueSubOp('Duration', DEFAULT_TASK_DURATION, taskIndex + 1),
     new AddEdgeSubOp(0, taskIndex + 1),
     new AddEdgeSubOp(taskIndex + 1, -1),
     new RationalizeEdgesSubOp(),
