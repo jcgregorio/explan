@@ -5,7 +5,12 @@ import { Chart, Task } from '../chart/chart.ts';
 import { Op, SubOp, SubOpResult } from './ops.ts';
 import { SetMetricValueSubOp } from './metrics.ts';
 
-const DEFAULT_TASK_DURATION = 100;
+export const DEFAULT_TASK_DURATION = 100;
+
+export const splitDuration = (total: number): [number, number] => {
+  const half = total / 2;
+  return [Math.ceil(half), Math.floor(half)];
+};
 
 /** A value of -1 for j means the Finish Milestone. */
 export function DirectedEdgeForPlan(
@@ -185,7 +190,9 @@ export class DupTaskSubOp implements SubOp {
       return ret;
     }
 
-    const copy = plan.chart.Vertices[this.index].dup();
+    const original = plan.chart.Vertices[this.index];
+    const copy = original.dup();
+
     // Insert the duplicate immediately after the Task it is copied from.
     plan.chart.Vertices.splice(this.index, 0, copy);
 
@@ -204,6 +211,72 @@ export class DupTaskSubOp implements SubOp {
 
   inverse(): SubOp {
     return new DeleteTaskSubOp(this.index + 1);
+  }
+}
+
+// Distributes the duration of the source Task equally between the source and
+// target Tasks.
+export class SplitDurationSubOp implements SubOp {
+  sourceIndex: number;
+  targetIndex: number;
+
+  constructor(sourceIndex: number, targetIndex: number) {
+    this.sourceIndex = sourceIndex;
+    this.targetIndex = targetIndex;
+  }
+
+  applyTo(plan: Plan): Result<SubOpResult> {
+    const chart = plan.chart;
+    let ret = indexInRangeForVerticesExclusive(this.sourceIndex, chart);
+    if (!ret.ok) {
+      return ret;
+    }
+    ret = indexInRangeForVerticesExclusive(this.targetIndex, chart);
+    if (!ret.ok) {
+      return ret;
+    }
+
+    const source = plan.chart.Vertices[this.sourceIndex];
+    const target = plan.chart.Vertices[this.targetIndex];
+    const [sourceDuration, targetDuration] = splitDuration(source.duration);
+    source.duration = sourceDuration;
+    target.duration = targetDuration;
+    return ok({
+      plan: plan,
+      inverse: new MergeDurationSubOp(this.sourceIndex, this.targetIndex),
+    });
+  }
+}
+
+// Distributes the duration of the source Task equally between the source and
+// target Tasks.
+export class MergeDurationSubOp implements SubOp {
+  sourceIndex: number;
+  targetIndex: number;
+
+  constructor(sourceIndex: number, targetIndex: number) {
+    this.sourceIndex = sourceIndex;
+    this.targetIndex = targetIndex;
+  }
+
+  applyTo(plan: Plan): Result<SubOpResult> {
+    const chart = plan.chart;
+    let ret = indexInRangeForVerticesExclusive(this.sourceIndex, chart);
+    if (!ret.ok) {
+      return ret;
+    }
+    ret = indexInRangeForVerticesExclusive(this.targetIndex, chart);
+    if (!ret.ok) {
+      return ret;
+    }
+
+    const source = plan.chart.Vertices[this.sourceIndex];
+    const target = plan.chart.Vertices[this.targetIndex];
+    source.duration = source.duration + target.duration;
+    return ok({
+      plan: plan,
+      inverse: new SplitDurationSubOp(this.sourceIndex, this.targetIndex),
+    });
   }
 }
 
@@ -505,27 +578,31 @@ export class SetTaskNameSubOp implements SubOp {
 }
 
 export function InsertNewEmptyMilestoneAfterOp(taskIndex: number): Op {
-  return new Op([
-    new RationalizeEdgesSubOp(),
-    new AddTaskAfterSubOp(taskIndex),
-    new AddEdgeSubOp(0, taskIndex + 1),
-    new AddEdgeSubOp(taskIndex + 1, -1),
-    new RationalizeEdgesSubOp(),
-  ]);
+  return new Op(
+    [
+      new RationalizeEdgesSubOp(),
+      new AddTaskAfterSubOp(taskIndex),
+      new AddEdgeSubOp(0, taskIndex + 1),
+      new AddEdgeSubOp(taskIndex + 1, -1),
+      new RationalizeEdgesSubOp(),
+    ],
+    'InsertNewEmptyMilestoneAfterOp'
+  );
 }
 
 export function SetTaskNameOp(taskIndex: number, name: string): Op {
-  return new Op([new SetTaskNameSubOp(taskIndex, name)]);
+  return new Op([new SetTaskNameSubOp(taskIndex, name)], 'SetTaskNameOp');
 }
 
 export function SplitTaskOp(taskIndex: number): Op {
   const subOps: SubOp[] = [
     new DupTaskSubOp(taskIndex),
-    new AddEdgeSubOp(taskIndex, taskIndex + 1),
+    new SplitDurationSubOp(taskIndex, taskIndex + 1),
     new MoveAllOutgoingEdgesFromToSubOp(taskIndex, taskIndex + 1),
+    new AddEdgeSubOp(taskIndex, taskIndex + 1),
   ];
 
-  return new Op(subOps);
+  return new Op(subOps, 'SplitTaskOp');
 }
 
 export function DupTaskOp(taskIndex: number): Op {
@@ -534,44 +611,56 @@ export function DupTaskOp(taskIndex: number): Op {
     new CopyAllEdgesFromToSubOp(taskIndex, taskIndex + 1),
   ];
 
-  return new Op(subOps);
+  return new Op(subOps, 'DupTaskOp');
 }
 
 export function DeleteTaskOp(taskIndex: number): Op {
-  return new Op([
-    new RationalizeEdgesSubOp(),
-    new DeleteTaskSubOp(taskIndex),
-    new RationalizeEdgesSubOp(),
-  ]);
+  return new Op(
+    [
+      new RationalizeEdgesSubOp(),
+      new DeleteTaskSubOp(taskIndex),
+      new RationalizeEdgesSubOp(),
+    ],
+    'DeleteTaskOp'
+  );
 }
 
 export function AddEdgeOp(fromTaskIndex: number, toTaskIndex: number): Op {
-  return new Op([
-    new RationalizeEdgesSubOp(),
-    new AddEdgeSubOp(fromTaskIndex, toTaskIndex),
-    new RationalizeEdgesSubOp(),
-  ]);
+  return new Op(
+    [
+      new RationalizeEdgesSubOp(),
+      new AddEdgeSubOp(fromTaskIndex, toTaskIndex),
+      new RationalizeEdgesSubOp(),
+    ],
+    'AddEdgeOp'
+  );
 }
 
 export function RationalizeEdgesOp(): Op {
-  return new Op([new RationalizeEdgesSubOp()]);
+  return new Op([new RationalizeEdgesSubOp()], 'RationalizeEdgesOp');
 }
 
 export function RemoveEdgeOp(i: number, j: number): Op {
-  return new Op([
-    new RationalizeEdgesSubOp(),
-    new RemoveEdgeSupOp(i, j),
-    new RationalizeEdgesSubOp(),
-  ]);
+  return new Op(
+    [
+      new RationalizeEdgesSubOp(),
+      new RemoveEdgeSupOp(i, j),
+      new RationalizeEdgesSubOp(),
+    ],
+    'RemoveEdgeOp'
+  );
 }
 
 export function InsertNewEmptyTaskAfterOp(taskIndex: number): Op {
-  return new Op([
-    new RationalizeEdgesSubOp(),
-    new AddTaskAfterSubOp(taskIndex),
-    new SetMetricValueSubOp('Duration', DEFAULT_TASK_DURATION, taskIndex + 1),
-    new AddEdgeSubOp(0, taskIndex + 1),
-    new AddEdgeSubOp(taskIndex + 1, -1),
-    new RationalizeEdgesSubOp(),
-  ]);
+  return new Op(
+    [
+      new RationalizeEdgesSubOp(),
+      new AddTaskAfterSubOp(taskIndex),
+      new SetMetricValueSubOp('Duration', DEFAULT_TASK_DURATION, taskIndex + 1),
+      new AddEdgeSubOp(0, taskIndex + 1),
+      new AddEdgeSubOp(taskIndex + 1, -1),
+      new RationalizeEdgesSubOp(),
+    ],
+    'InsertNewEmptyTaskAfterOp'
+  );
 }

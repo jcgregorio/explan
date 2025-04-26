@@ -15,6 +15,10 @@ type typeOfAction = 'normal' | 'undo' | 'redo';
 const undoStack: Action[] = [];
 const redoStack: Action[] = [];
 
+export const getStacks = (): [Action[], Action[]] => {
+  return [undoStack, redoStack];
+};
+
 export const undo = async (explanMain: ExplanMain): Promise<Result<null>> => {
   const action = undoStack.pop()!;
   if (!action) {

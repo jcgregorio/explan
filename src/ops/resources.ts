@@ -405,19 +405,25 @@ export class SetResourceValueSubOp implements SubOp {
 }
 
 export function AddResourceOp(name: string): Op {
-  return new Op([new AddResourceSubOp(name)]);
+  return new Op([new AddResourceSubOp(name)], 'AddResourceOp');
 }
 
 export function DeleteResourceOp(name: string): Op {
-  return new Op([new DeleteResourceSupOp(name)]);
+  return new Op([new DeleteResourceSupOp(name)], 'DeleteResourceOp');
 }
 
 export function AddResourceOptionOp(key: string, value: string): Op {
-  return new Op([new AddResourceOptionSubOp(key, value)]);
+  return new Op(
+    [new AddResourceOptionSubOp(key, value)],
+    'AddResourceOptionOp'
+  );
 }
 
 export function DeleteResourceOptionOp(key: string, value: string): Op {
-  return new Op([new DeleteResourceOptionSubOp(key, value)]);
+  return new Op(
+    [new DeleteResourceOptionSubOp(key, value)],
+    'DeleteResourceOptionOp'
+  );
 }
 
 export function RenameResourceOptionOp(
@@ -425,11 +431,17 @@ export function RenameResourceOptionOp(
   oldValue: string,
   newValue: string
 ): Op {
-  return new Op([new RenameResourceOptionSubOp(key, oldValue, newValue)]);
+  return new Op(
+    [new RenameResourceOptionSubOp(key, oldValue, newValue)],
+    'RenameResourceOptionOp'
+  );
 }
 
 export function RenameResourceOp(oldValue: string, newValue: string): Op {
-  return new Op([new RenameResourceSubOp(oldValue, newValue)]);
+  return new Op(
+    [new RenameResourceSubOp(oldValue, newValue)],
+    'RenameResourceOp'
+  );
 }
 
 export function MoveResourceOptionOp(
@@ -437,7 +449,10 @@ export function MoveResourceOptionOp(
   oldIndex: number,
   newIndex: number
 ): Op {
-  return new Op([new MoveResourceOptionSubOp(key, oldIndex, newIndex)]);
+  return new Op(
+    [new MoveResourceOptionSubOp(key, oldIndex, newIndex)],
+    'MoveResourceOptionOp'
+  );
 }
 
 export function SetResourceValueOp(
@@ -445,5 +460,8 @@ export function SetResourceValueOp(
   value: string,
   taskIndex: number
 ): Op {
-  return new Op([new SetResourceValueSubOp(key, value, taskIndex)]);
+  return new Op(
+    [new SetResourceValueSubOp(key, value, taskIndex)],
+    'SetResourceValueOp'
+  );
 }

@@ -35,6 +35,7 @@ export class ActionFromOp {
     this.postActionWork = postActionWork;
     this.undo = undo;
     this.op = op;
+    this.description = `ActionFromOp: ${this.op.name}`;
   }
 
   async do(explanMain: ExplanMain): Promise<Result<Action>> {

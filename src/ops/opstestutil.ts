@@ -1,14 +1,14 @@
 // These are ops that are useful for testing.
-import { assert } from "@esm-bundle/chai";
-import { Plan } from "../plan/plan.ts";
-import { Result, ok } from "../result.ts";
+import { assert } from '@esm-bundle/chai';
+import { Plan } from '../plan/plan.ts';
+import { Result, ok } from '../result.ts';
 import {
   Op,
   SubOp,
   SubOpResult,
   applyAllOpsToPlan,
   applyAllOpsToPlanAndThenInverse,
-} from "./ops";
+} from './ops';
 
 export class NoOpSubOp implements SubOp {
   constructor() {}
@@ -75,7 +75,7 @@ export class Testing2SubOp implements SubOp {
  * applied.
  */
 export function TOp(f: inspect): Op {
-  return new Op([new TestingSubOp(f)]);
+  return new Op([new TestingSubOp(f)], 'TOp');
 }
 
 /** Op for testing that calls the given callback in both the forward and
@@ -84,7 +84,7 @@ export function TOp(f: inspect): Op {
  * TestOpsForwardAndBack.
  */
 export function T2Op(f: inspectBothWays): Op {
-  return new Op([new Testing2SubOp(f)]);
+  return new Op([new Testing2SubOp(f)], 'T2Op');
 }
 
 export function TestOpsForwardAndBack(ops: Op[]): void {

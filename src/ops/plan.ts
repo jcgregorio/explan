@@ -156,17 +156,20 @@ export function SetTaskCompletionOp(
   taskIndex: number,
   value: TaskCompletion
 ): Op {
-  return new Op([new SetTaskCompletionSubOp(taskIndex, value)]);
+  return new Op(
+    [new SetTaskCompletionSubOp(taskIndex, value)],
+    'SetTaskCompletionOp'
+  );
 }
 
 export function SetPlanUnitsOp(unit: UnitTypes): Op {
-  return new Op([new SetPlanUnitsSubOp(unit)]);
+  return new Op([new SetPlanUnitsSubOp(unit)], 'SetPlanUnitsOp');
 }
 
 export function SetPlanStartStateOp(value: PlanStatus): Op {
-  return new Op([new SetPlanStartStateSubOp(value)]);
+  return new Op([new SetPlanStartStateSubOp(value)], 'SetPlanStartStateOp');
 }
 
 export function UpdatePlanStartDateOp(start: number): Op {
-  return new Op([new UpdatePlanStartDateSubOp(start)]);
+  return new Op([new UpdatePlanStartDateSubOp(start)], 'UpdatePlanStartDateOp');
 }
