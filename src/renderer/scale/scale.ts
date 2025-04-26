@@ -89,7 +89,7 @@ export class Scale {
     this.groupByColumnWidthPx = maxGroupNameLength * opts.fontSizePx;
 
     this.blockSizePx = Math.floor(opts.fontSizePx / 3);
-    this.taskHeightPx = makeOdd(Math.floor((this.blockSizePx * 3) / 4));
+    this.taskHeightPx = this.blockSizePx;
     this.lineWidthPx = makeOdd(Math.floor(this.taskHeightPx / 3));
     const milestoneRadius = Math.ceil(this.taskHeightPx / 2) + this.lineWidthPx;
     this.marginSizePx = milestoneRadius;
