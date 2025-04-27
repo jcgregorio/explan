@@ -609,7 +609,8 @@ export class RestoreTaskCompletionsSubOp implements SubOp {
   }
 }
 
-// Needs inverse of restore TaskCompletions.
+// CatchupSubOp, aka "Boss Button", that brings the stage and percent complete
+// of each task to correlate to being exactly on time today.
 export class CatchupSubOp implements SubOp {
   today: number;
   spans: Span[];
