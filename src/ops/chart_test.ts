@@ -8,10 +8,13 @@ import {
   DupTaskOp,
   splitDuration,
   DEFAULT_TASK_DURATION,
+  CatchupOp,
 } from './chart.ts';
 import { Plan } from '../plan/plan.ts';
 import { DEFAULT_TASK_NAME } from '../chart/chart.ts';
 import { DirectedEdge } from '../dag/dag.ts';
+import { Span } from '../slack/slack.ts';
+import { SetMetricValueOp } from './metrics.ts';
 
 const arrowSummary = (plan: Plan): string[] =>
   plan.chart.Edges.map(
@@ -280,5 +283,68 @@ describe('splitDuration', () => {
 
   it('can divide even numbers', () => {
     assert.deepEqual(splitDuration(16), [8, 8]);
+  });
+});
+
+describe('CatchupOp', () => {
+  it('Marks tasks stage correctly.', () => {
+    TestOpsForwardAndBack([
+      T2Op((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan), ['Start->Finish']);
+        assert.equal(plan.chart.Vertices.length, 2);
+      }),
+
+      // Set three tasks A -> B -> C.
+      // Also set their duration to 10.
+      InsertNewEmptyTaskAfterOp(0),
+      SetTaskNameOp(1, 'A'),
+      SetMetricValueOp('Duration', 10, 1),
+
+      InsertNewEmptyTaskAfterOp(0),
+      SetTaskNameOp(1, 'B'),
+      SetMetricValueOp('Duration', 10, 1),
+
+      InsertNewEmptyTaskAfterOp(0),
+      SetTaskNameOp(1, 'C'),
+      SetMetricValueOp('Duration', 10, 1),
+
+      AddEdgeOp(3, 2),
+      AddEdgeOp(2, 1),
+      T2Op((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan).sort(), [
+          'A->B',
+          'B->C',
+          'C->Finish',
+          'Start->A',
+        ]);
+      }),
+
+      // Now call Catchup to 15, which is in the middle of B.
+      CatchupOp(15, [
+        new Span(0, 0),
+        new Span(0, 10),
+        new Span(10, 20),
+        new Span(20, 30),
+        new Span(30, 30),
+      ]),
+
+      // The three tasks should be Finished (A) -> Started (B) -> Unstarted (C)
+      TOp((plan: Plan) => {
+        let comp = plan.getTaskCompletion(1);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'finished');
+
+        comp = plan.getTaskCompletion(2);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'started');
+        if (comp.value.stage === 'started') {
+          assert.equal(comp.value.percentComplete, 50);
+        }
+
+        comp = plan.getTaskCompletion(3);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'unstarted');
+      }),
+    ]);
   });
 });
