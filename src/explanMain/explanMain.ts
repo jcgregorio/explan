@@ -32,7 +32,7 @@ import { Theme2 } from '../style/theme/theme.ts';
 import { generateStarterPlan } from '../generate/generate.ts';
 import { executeByName, executeOp } from '../action/execute.ts';
 import { unmapUndoAndRedo, StartKeyboardHandling } from '../keymap/keymap.ts';
-import { RemoveEdgeOp, SetTaskNameOp } from '../ops/chart.ts';
+import { CatchupOp, RemoveEdgeOp, SetTaskNameOp } from '../ops/chart.ts';
 import { DependenciesPanel } from '../dependencies/dependencies-panel.ts';
 import { ActionNames } from '../action/registry.ts';
 import {
@@ -128,16 +128,17 @@ export class ExplanMain extends HTMLElement {
       this.querySelector<HTMLAnchorElement>('#download-link')!;
     this.querySelector('#download-button')!.addEventListener(
       'click',
-      async () => {
-        await this.prepareDownload();
-      }
+      async () => await this.prepareDownload()
     );
     this.querySelector('#download-json')!.addEventListener(
       'click',
-      async () => {
-        await this.prepareJSONDownload();
-      }
+      async () => await this.prepareJSONDownload()
     );
+    this.querySelector('#catchup')!.addEventListener(
+      'click',
+      async () => await this.catchUp()
+    );
+
     this.dependenciesPanel = this.querySelector('dependencies-panel')!;
 
     this.dependenciesPanel!.addEventListener('add-dependency', async (e) => {
@@ -362,6 +363,22 @@ export class ExplanMain extends HTMLElement {
     this.downloadLink!.href = URL.createObjectURL(downloadBlob);
     this.downloadLink!.download = 'plan.png';
     this.downloadLink!.click();
+  }
+
+  async catchUp() {
+    const dayRet = this.getToday();
+    if (!dayRet.ok) {
+      reportIfError(dayRet);
+      return;
+    }
+
+    const ret = await executeOp(
+      CatchupOp(dayRet.value, this.spans),
+      'planDefinitionChanged',
+      true,
+      this
+    );
+    reportIfError(ret);
   }
 
   async prepareJSONDownload() {
@@ -694,6 +711,16 @@ export class ExplanMain extends HTMLElement {
     this.focusOnTask = true;
   }
 
+  getToday(): Result<number> {
+    if (this.plan.status.stage !== 'started') {
+      return error(new Error('Plan is not started.'));
+    }
+    if (this.plan.durationUnits.kind() == 'Unitless') {
+      return error(new Error('Unitless plans have not start date.'));
+    }
+    return this.plan.durationUnits.parse(new Date().toISOString().slice(0, 10));
+  }
+
   paintChart(scrollToSelected: boolean = false) {
     console.time('paintChart');
 
@@ -755,16 +782,9 @@ export class ExplanMain extends HTMLElement {
     };
 
     let today: number = -1;
-    if (
-      this.plan.status.stage === 'started' &&
-      this.plan.durationUnits.kind() !== 'Unitless'
-    ) {
-      const ret = this.plan.durationUnits.parse(
-        new Date().toISOString().slice(0, 10)
-      );
-      if (ret.ok) {
-        today = ret.value;
-      }
+    const dayRet = this.getToday();
+    if (dayRet.ok) {
+      today = dayRet.value;
     }
 
     const radarOpts: RenderOptions = {

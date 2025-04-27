@@ -4,6 +4,9 @@ import { Plan } from '../plan/plan.ts';
 import { Chart, Task } from '../chart/chart.ts';
 import { Op, SubOp, SubOpResult } from './ops.ts';
 import { SetMetricValueSubOp } from './metrics.ts';
+import { Span } from '../slack/slack.ts';
+import { clamp } from '../metrics/range.ts';
+import { TaskCompletion } from '../task_completion/task_completion.ts';
 
 export const DEFAULT_TASK_DURATION = 100;
 
@@ -577,6 +580,92 @@ export class SetTaskNameSubOp implements SubOp {
   }
 }
 
+// RestoreTaskCompletionsSubOp is the inverse of the CatchupSubOp, restoring the
+// TaskCompletion's that were changed.
+export class RestoreTaskCompletionsSubOp implements SubOp {
+  taskCompletions: TaskCompletion[];
+  today: number;
+  spans: Span[];
+
+  constructor(
+    taskCompletions: TaskCompletion[],
+    today: number = -1,
+    spans: Span[] = []
+  ) {
+    this.taskCompletions = taskCompletions;
+    this.today = today;
+    this.spans = spans;
+  }
+
+  applyTo(plan: Plan): Result<SubOpResult> {
+    plan.chart.Vertices.forEach((_task: Task, index: number) => {
+      plan.setTaskCompletion(index, this.taskCompletions[index]);
+    });
+
+    return ok({
+      plan: plan,
+      inverse: new CatchupSubOp(this.today, this.spans),
+    });
+  }
+}
+
+// Needs inverse of restore TaskCompletions.
+export class CatchupSubOp implements SubOp {
+  today: number;
+  spans: Span[];
+
+  constructor(today: number, spans: Span[]) {
+    this.today = today;
+    this.spans = spans;
+  }
+
+  applyTo(plan: Plan): Result<SubOpResult> {
+    // Make a backup of all the current TaskCompletionSteps.
+    const originalTaskCompletions: TaskCompletion[] = plan.chart.Vertices.map(
+      (_task: Task, index: number) => {
+        const ret = plan.getTaskCompletion(index);
+        if (!ret.ok) {
+          return { stage: 'unstarted' };
+        }
+        return ret.value;
+      }
+    );
+
+    // Now update the TaskCompletions based on `today`.
+    plan.chart.Vertices.forEach((task: Task, index: number) => {
+      const start = this.spans[index].start;
+      const finish = this.spans[index].finish;
+      if (this.today <= start) {
+        return;
+      } else if (this.today >= finish) {
+        plan.setTaskCompletion(index, {
+          stage: 'finished',
+          span: this.spans[index],
+        });
+      } else {
+        plan.setTaskCompletion(index, {
+          stage: 'started',
+          start: start,
+          percentComplete: clamp(
+            Math.floor((100 * (this.today - start)) / task.duration),
+            1,
+            99
+          ),
+        });
+      }
+    });
+
+    return ok({
+      plan: plan,
+      inverse: new RestoreTaskCompletionsSubOp(
+        originalTaskCompletions,
+        this.today,
+        this.spans
+      ),
+    });
+  }
+}
+
 export function InsertNewEmptyMilestoneAfterOp(taskIndex: number): Op {
   return new Op(
     [
@@ -663,4 +752,8 @@ export function InsertNewEmptyTaskAfterOp(taskIndex: number): Op {
     ],
     'InsertNewEmptyTaskAfterOp'
   );
+}
+
+export function CatchupOp(today: number, spans: Span[]) {
+  return new Op([new CatchupSubOp(today, spans)]);
 }
