@@ -317,6 +317,17 @@ describe('CatchupOp', () => {
           'C->Finish',
           'Start->A',
         ]);
+        let comp = plan.getTaskCompletion(1);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'unstarted');
+
+        comp = plan.getTaskCompletion(2);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'unstarted');
+
+        comp = plan.getTaskCompletion(2);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'unstarted');
       }),
 
       // Now call Catchup to 15, which is in the middle of B.

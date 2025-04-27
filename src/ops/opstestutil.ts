@@ -80,7 +80,7 @@ export function TOp(f: inspect): Op {
 
 /** Op for testing that calls the given callback in both the forward and
  * backward direction. I.e. while the Op's are being applied, and then when
- * their inverses are being applied. Only makes sense to use this insde
+ * their inverses are being applied. Only makes sense to use this inside
  * TestOpsForwardAndBack.
  */
 export function T2Op(f: inspectBothWays): Op {
