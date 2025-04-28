@@ -152,6 +152,7 @@ export const applyAllOpsToPlanAndThenInverse = (
 ): Result<AllOpsResult> => {
   const res = applyAllOpsToPlan(ops, plan);
   if (!res.ok) {
+    console.log(res);
     return res;
   }
   return applyAllOpsToPlan(res.value.ops, res.value.plan);

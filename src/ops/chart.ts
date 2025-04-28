@@ -667,6 +667,64 @@ export class CatchupSubOp implements SubOp {
   }
 }
 
+// RecalculateDurationSubOp, which is only applied to started tasks,
+// recalculates the duration of a task by presuming the percent complete is
+// accurate for the given value of 'today'.
+//
+// For example, if a 10 day task is reported as 50% on day 2, then the total
+// duration of the task should be updated to be only 4 days.
+//
+// A second example, fi the 10 day task is only 10% complete on day 2 then the
+// total task duration should be updated to be 20 days.
+export class RecalculateDurationSubOp implements SubOp {
+  today: number;
+  taskIndex: number;
+
+  constructor(today: number, taskIndex: number) {
+    this.today = today;
+    this.taskIndex = taskIndex;
+  }
+
+  applyTo(plan: Plan): Result<SubOpResult> {
+    const task = plan.chart.Vertices[this.taskIndex];
+    const ret = plan.getTaskCompletion(this.taskIndex);
+    if (!ret.ok) {
+      return ret;
+    }
+
+    const taskStatus = ret.value;
+    if (taskStatus.stage !== 'started') {
+      return error(
+        new Error(
+          'Recalculating duration can only be applied to started tasks.'
+        )
+      );
+    }
+
+    // Record the current Task duration.
+    const originalDuration: number =
+      plan.chart.Vertices[this.taskIndex].duration;
+
+    const percentComplete = taskStatus.percentComplete;
+    const start = taskStatus.start;
+
+    const newDuration = (this.today - start) / (percentComplete / 100);
+
+    task.duration = plan
+      .getStaticMetricDefinition('Duration')
+      .clampAndRound(newDuration);
+
+    return ok({
+      plan: plan,
+      inverse: new SetMetricValueSubOp(
+        'Duration',
+        originalDuration,
+        this.taskIndex
+      ),
+    });
+  }
+}
+
 export function InsertNewEmptyMilestoneAfterOp(taskIndex: number): Op {
   return new Op(
     [
@@ -756,5 +814,12 @@ export function InsertNewEmptyTaskAfterOp(taskIndex: number): Op {
 }
 
 export function CatchupOp(today: number, spans: Span[]) {
-  return new Op([new CatchupSubOp(today, spans)]);
+  return new Op([new CatchupSubOp(today, spans)], 'CatchupOp');
+}
+
+export function RecalculateDurationOp(today: number, taskIndex: number) {
+  return new Op(
+    [new RecalculateDurationSubOp(today, taskIndex)],
+    'RecalculateDurationOp'
+  );
 }

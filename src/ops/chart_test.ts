@@ -9,7 +9,9 @@ import {
   splitDuration,
   DEFAULT_TASK_DURATION,
   CatchupOp,
+  RecalculateDurationOp,
 } from './chart.ts';
+import { SetPlanStartStateOp, SetTaskCompletionOp } from './plan.ts';
 import { Plan } from '../plan/plan.ts';
 import { DEFAULT_TASK_NAME } from '../chart/chart.ts';
 import { DirectedEdge } from '../dag/dag.ts';
@@ -355,6 +357,83 @@ describe('CatchupOp', () => {
         comp = plan.getTaskCompletion(3);
         assert.isTrue(comp.ok);
         assert.equal(comp.value.stage, 'unstarted');
+      }),
+    ]);
+  });
+});
+
+describe('RecalculateDurationSubOp', () => {
+  it('Changes duration correctly.', () => {
+    TestOpsForwardAndBack([
+      T2Op((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan), ['Start->Finish']);
+        assert.equal(plan.chart.Vertices.length, 2);
+      }),
+
+      SetPlanStartStateOp({ stage: 'started', start: Date.now() }),
+
+      // Set three tasks A, B, C.
+      // Also set their duration to 10.
+
+      InsertNewEmptyTaskAfterOp(0),
+      SetTaskNameOp(1, 'C'),
+      SetMetricValueOp('Duration', 10, 1),
+      SetTaskCompletionOp(1, {
+        stage: 'started',
+        percentComplete: 80,
+        start: 0,
+      }),
+
+      InsertNewEmptyTaskAfterOp(0),
+      SetTaskNameOp(1, 'B'),
+      SetMetricValueOp('Duration', 10, 1),
+      SetTaskCompletionOp(1, {
+        stage: 'started',
+        percentComplete: 50,
+        start: 0,
+      }),
+
+      InsertNewEmptyTaskAfterOp(0),
+      SetTaskNameOp(1, 'A'),
+      SetMetricValueOp('Duration', 10, 1),
+      SetTaskCompletionOp(1, {
+        stage: 'started',
+        percentComplete: 10,
+        start: 0,
+      }),
+
+      T2Op((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan).sort(), [
+          'A->Finish',
+          'B->Finish',
+          'C->Finish',
+          'Start->A',
+          'Start->B',
+          'Start->C',
+        ]);
+        let comp = plan.getTaskCompletion(1);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'started');
+
+        comp = plan.getTaskCompletion(2);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'started');
+
+        comp = plan.getTaskCompletion(3);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'started');
+      }),
+
+      // Now call Catchup to 15, which is in the middle of B.
+      RecalculateDurationOp(5, 1),
+      RecalculateDurationOp(5, 2),
+      RecalculateDurationOp(5, 3),
+
+      // The three tasks should be Finished (A) -> Started (B) -> Unstarted (C)
+      TOp((plan: Plan) => {
+        assert.equal(plan.chart.Vertices[1].duration, 50);
+        assert.equal(plan.chart.Vertices[2].duration, 10);
+        assert.equal(plan.chart.Vertices[3].duration, 6);
       }),
     ]);
   });
