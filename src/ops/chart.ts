@@ -708,6 +708,8 @@ export class RecalculateDurationSubOp implements SubOp {
     const percentComplete = taskStatus.percentComplete;
     const start = taskStatus.start;
 
+    // We don't worry about divide by zero because started percentComplete's are
+    // clamped to [1, 99].
     const newDuration = (this.today - start) / (percentComplete / 100);
 
     task.duration = plan
