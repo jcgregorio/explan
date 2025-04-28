@@ -1,9 +1,10 @@
-import { TemplateResult, html, render } from "lit-html";
-import { Plan } from "../plan/plan";
-import { live } from "lit-html/directives/live.js";
-import { icon } from "../icons/icons";
-import { executeByName } from "../action/execute";
-import { ExplanMain } from "../explanMain/explanMain";
+import { TemplateResult, html, render } from 'lit-html';
+import { Plan } from '../plan/plan';
+import { live } from 'lit-html/directives/live.js';
+import { icon } from '../icons/icons';
+import { executeByName, executeOp } from '../action/execute';
+import { ExplanMain } from '../explanMain/explanMain';
+import { RecalculateDurationOp } from '../ops/chart';
 
 export interface TaskNameChangeDetails {
   name: string;
@@ -24,9 +25,9 @@ export interface TaskMetricValueChangeDetails {
 
 declare global {
   interface GlobalEventHandlersEventMap {
-    "task-name-change": CustomEvent<TaskNameChangeDetails>;
-    "task-resource-value-change": CustomEvent<TaskResourceValueChangeDetails>;
-    "task-metric-value-change": CustomEvent<TaskMetricValueChangeDetails>;
+    'task-name-change': CustomEvent<TaskNameChangeDetails>;
+    'task-resource-value-change': CustomEvent<TaskResourceValueChangeDetails>;
+    'task-metric-value-change': CustomEvent<TaskMetricValueChangeDetails>;
   }
 }
 
@@ -46,15 +47,15 @@ export class SelectedTaskPanel extends HTMLElement {
   connectedCallback(): void {
     this.render();
     document.addEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
@@ -85,10 +86,10 @@ export class SelectedTaskPanel extends HTMLElement {
         <button
           class="icon-button"
           @click=${async () =>
-            await executeByName("NewTaskAction", this.explanMain!)}
+            await executeByName('NewTaskAction', this.explanMain!)}
           title="Add Task"
         >
-          ${icon("add-icon")}
+          ${icon('add-icon')}
         </button>
         <div>No task selected.</div>
       `;
@@ -101,34 +102,37 @@ export class SelectedTaskPanel extends HTMLElement {
       <button
         class="icon-button"
         @click=${async () =>
-          await executeByName("NewTaskAction", this.explanMain!)}
+          await executeByName('NewTaskAction', this.explanMain!)}
         title="Add Task"
       >
-        ${icon("add-icon")}
+        ${icon('add-icon')}
       </button>
       <button
         class="icon-button"
         @click=${async () =>
-          await executeByName("DupTaskAction", this.explanMain!)}
+          await executeByName('DupTaskAction', this.explanMain!)}
         title="Duplicate Task"
       >
-        ${icon("dup")}
+        ${icon('dup')}
       </button>
       <button
         class="icon-button"
         @click=${async () =>
-          await executeByName("SplitTaskAction", this.explanMain!)}
+          await executeByName('SplitTaskAction', this.explanMain!)}
         title="Split Task"
       >
-        ${icon("split")}
+        ${icon('split')}
       </button>
+
+      ${this.optionalCalculateButton(taskIndex)}
+
       <button
         class="icon-button"
         @click=${async () =>
-          executeByName("DeleteTaskAction", this.explanMain!)}
+          executeByName('DeleteTaskAction', this.explanMain!)}
         title="Delete Task"
       >
-        ${icon("delete-icon")}
+        ${icon('delete-icon')}
       </button>
       <table>
         <tr>
@@ -141,13 +145,13 @@ export class SelectedTaskPanel extends HTMLElement {
               .value="${live(task.name)}"
               @change=${(e: Event) =>
                 this.dispatchEvent(
-                  new CustomEvent<TaskNameChangeDetails>("task-name-change", {
+                  new CustomEvent<TaskNameChangeDetails>('task-name-change', {
                     bubbles: true,
                     detail: {
                       taskIndex: taskIndex,
                       name: (e.target as HTMLInputElement).value,
                     },
-                  }),
+                  })
                 )}
             />
           </td>
@@ -163,14 +167,14 @@ export class SelectedTaskPanel extends HTMLElement {
                   id="${resourceKey}"
                   @change=${async (e: Event) =>
                     this.dispatchEvent(
-                      new CustomEvent("task-resource-value-change", {
+                      new CustomEvent('task-resource-value-change', {
                         bubbles: true,
                         detail: {
                           taskIndex: taskIndex,
                           value: (e.target as HTMLInputElement).value,
                           name: resourceKey,
                         },
-                      }),
+                      })
                     )}
                 >
                   ${defn.values.map(
@@ -181,11 +185,11 @@ export class SelectedTaskPanel extends HTMLElement {
                         resourceValue}
                       >
                         ${resourceValue}
-                      </option>`,
+                      </option>`
                   )}
                 </select>
               </td>
-            </tr>`,
+            </tr>`
         )}
         ${Object.keys(this.plan.metricDefinitions).map(
           (key: string) =>
@@ -198,22 +202,56 @@ export class SelectedTaskPanel extends HTMLElement {
                   type="number"
                   @change=${async (e: Event) =>
                     this.dispatchEvent(
-                      new CustomEvent("task-metric-value-change", {
+                      new CustomEvent('task-metric-value-change', {
                         bubbles: true,
                         detail: {
                           taskIndex: taskIndex,
                           value: +(e.target as HTMLInputElement).value,
                           name: key,
                         },
-                      }),
+                      })
                     )}
                 />
               </td>
-            </tr>`,
+            </tr>`
         )}
       </table>
     `;
   }
+
+  optionalCalculateButton(taskIndex: number): TemplateResult {
+    if (this.plan.status.stage !== 'started') {
+      return html``;
+    }
+    const ret = this.plan.getTaskCompletion(taskIndex);
+    if (!ret.ok) {
+      return html``;
+    }
+    if (ret.value.stage !== 'started') {
+      return html``;
+    }
+    return html`
+      <button
+        class="icon-button"
+        @click=${async () => {
+          const ret = this.explanMain!.getToday();
+          if (!ret.ok) {
+            return;
+          }
+
+          await executeOp(
+            RecalculateDurationOp(ret.value, taskIndex),
+            'planDefinitionChanged',
+            true,
+            this.explanMain!
+          );
+        }}
+        title="Recalculate Duration"
+      >
+        ${icon('calculate')}
+      </button>
+    `;
+  }
 }
 
-customElements.define("selected-task-panel", SelectedTaskPanel);
+customElements.define('selected-task-panel', SelectedTaskPanel);
