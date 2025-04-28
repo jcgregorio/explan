@@ -414,14 +414,17 @@ describe('RecalculateDurationSubOp', () => {
         let comp = plan.getTaskCompletion(1);
         assert.isTrue(comp.ok);
         assert.equal(comp.value.stage, 'started');
+        assert.equal(plan.chart.Vertices[1].duration, 10);
 
         comp = plan.getTaskCompletion(2);
         assert.isTrue(comp.ok);
         assert.equal(comp.value.stage, 'started');
+        assert.equal(plan.chart.Vertices[2].duration, 10);
 
         comp = plan.getTaskCompletion(3);
         assert.isTrue(comp.ok);
         assert.equal(comp.value.stage, 'started');
+        assert.equal(plan.chart.Vertices[3].duration, 10);
       }),
 
       // Now call Catchup to 15, which is in the middle of B.
