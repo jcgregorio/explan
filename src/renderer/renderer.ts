@@ -394,7 +394,8 @@ export function renderTasksToCanvas(
         opts,
         scale,
         daysWithTimeMarkers,
-        timeMarkerRanges
+        timeMarkerRanges,
+        totalNumberOfDays
       );
     }
 
@@ -1071,11 +1072,18 @@ const drawTimeMarkerAtDayToTask = (
   opts: RenderOptions,
   scale: Scale,
   daysWithTimeMarkers: Set<number>,
-  timeMarkerRanges: xRange[]
+  timeMarkerRanges: xRange[],
+  totalNumberOfDays: number
 ) => {
   if (daysWithTimeMarkers.has(day)) {
     return;
   }
+
+  // Draw time values before the vertical time marker if we are on the left hand
+  // side of the canvas, and after the time marker if we are on the right hand
+  // side of the canvas.
+  const drawTimeAfterLine = day < totalNumberOfDays / 2;
+
   daysWithTimeMarkers.add(day);
   const timeMarkStart = scale.feature(row, day, Feature.timeMarkStart);
 
@@ -1104,10 +1112,18 @@ const drawTimeMarkerAtDayToTask = (
 
   ctx.fillStyle = opts.colors.get('on-surface');
   ctx.textBaseline = 'top';
-  const textStart = scale.feature(row, day, Feature.timeTextStart);
   const label = opts.durationDisplay(day);
   const meas = ctx.measureText(label);
-  const textBegin = timeMarkStart.x;
+
+  let textStart = scale.feature(row, day, Feature.timeTextStart);
+  let rightExtent = textStart.x;
+  if (!drawTimeAfterLine) {
+    textStart = scale.feature(row, day, Feature.timeTextStartBefore);
+    textStart.x = textStart.x - meas.width;
+  } else {
+    rightExtent += meas.width;
+  }
+  const textBegin = textStart.x;
   const textEnd = textStart.x + meas.width;
   if (
     opts.hasText &&
@@ -1121,7 +1137,7 @@ const drawTimeMarkerAtDayToTask = (
     }) === -1
   ) {
     ctx.fillText(`${label}`, textStart.x, textStart.y);
-    timeMarkerRanges.push([textBegin, textEnd]);
+    timeMarkerRanges.push([textBegin, rightExtent]);
   }
 };
 

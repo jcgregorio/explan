@@ -34,6 +34,7 @@ export const Feature = {
   timeMarkStart: 'timeMarkStart',
   timeMarkEnd: 'timeMarkEnd',
   timeTextStart: 'timeTextStart',
+  timeTextStartBefore: 'timeTextStartBefore',
   groupTitleTextStart: 'groupTitleTextStart',
   tasksClipRectOrigin: 'tasksClipRectOrigin',
   groupByOrigin: 'groupByOrigin',
@@ -278,6 +279,8 @@ export class Scale {
         ]);
       case Feature.timeTextStart:
         return add(this.timeEnvelopeStart(day), [this.blockSizePx, 0]);
+      case Feature.timeTextStartBefore:
+        return add(this.timeEnvelopeStart(day), [-this.blockSizePx, 0]);
       case Feature.groupTitleTextStart:
         return add(this.groupHeaderStart(), [this.blockSizePx, 0]);
       case Feature.displayRangeTop:
