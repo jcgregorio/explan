@@ -372,6 +372,19 @@ export function renderTasksToCanvas(
   // Keep track of where we draw timeline labels, to avoid overlaps.
   const timeMarkerRanges: xRange[] = [];
 
+  // Reserve space to draw the timestamp for the Finish task,
+  // which will be the only text that's drawn before the time
+  // marker instead of after it.
+  const finishTextStart = scale.feature(
+    0,
+    totalNumberOfDays,
+    Feature.timeTextStartBefore
+  );
+  const label = opts.durationDisplay(totalNumberOfDays);
+  const meas = ctx.measureText(label);
+  finishTextStart.x = finishTextStart.x - meas.width;
+  timeMarkerRanges.push([finishTextStart.x, clipOrigin.x + clipWidth]);
+
   // Draw tasks in their rows.
   chartLike.Vertices.forEach((task: Task, taskIndex: number) => {
     const row = taskIndexToRow.get(taskIndex)!;
@@ -1079,16 +1092,14 @@ const drawTimeMarkerAtDayToTask = (
     return;
   }
 
-  // Draw time values before the vertical time marker if we are on the left hand
-  // side of the canvas, and after the time marker if we are on the right hand
-  // side of the canvas.
-  const drawTimeAfterLine = day < totalNumberOfDays / 2;
-
   daysWithTimeMarkers.add(day);
   const timeMarkStart = scale.feature(row, day, Feature.timeMarkStart);
 
   // Don't bother drawing the line if it's under an existing time label.
+  // Since timeMarkerRanges is pre-populate with a reserved space
+  // for the final time text, we can skip this check when day === totalNumberOfDays.
   if (
+    day !== totalNumberOfDays &&
     timeMarkerRanges.findIndex(
       ([begin, end]) => timeMarkStart.x >= begin && timeMarkStart.x <= end
     ) !== -1
@@ -1102,7 +1113,7 @@ const drawTimeMarkerAtDayToTask = (
     verticalArrowDestFeatureFromTaskDuration(task, 'down')
   );
   ctx.lineWidth = 0.5;
-  ctx.strokeStyle = opts.colors.get('transparent-overlay');
+  ctx.strokeStyle = opts.colors.get('on-surface-muted');
 
   ctx.moveTo(timeMarkStart.x + 0.5, timeMarkStart.y);
   ctx.lineTo(timeMarkStart.x + 0.5, timeMarkEnd.y);
@@ -1117,7 +1128,7 @@ const drawTimeMarkerAtDayToTask = (
 
   let textStart = scale.feature(row, day, Feature.timeTextStart);
   let rightExtent = textStart.x;
-  if (!drawTimeAfterLine) {
+  if (day === totalNumberOfDays) {
     textStart = scale.feature(row, day, Feature.timeTextStartBefore);
     textStart.x = textStart.x - meas.width;
   } else {
@@ -1128,13 +1139,16 @@ const drawTimeMarkerAtDayToTask = (
   if (
     opts.hasText &&
     opts.hasTimeline &&
-    // Don't draw the label if it overlaps any existing labelss.
-    timeMarkerRanges.findIndex(([begin, end]) => {
-      return (
-        (textBegin <= begin && textEnd >= begin) ||
-        (textBegin <= end && textEnd >= end)
-      );
-    }) === -1
+    // Don't draw the label if it overlaps any existing labels, but don't bother
+    // checking for overlap if this is the Finish task which always gets time
+    // label and has space preserved for it.
+    (day === totalNumberOfDays ||
+      timeMarkerRanges.findIndex(([begin, end]) => {
+        return (
+          (textBegin <= begin && textEnd >= begin) ||
+          (textBegin <= end && textEnd >= end)
+        );
+      }) === -1)
   ) {
     ctx.fillText(`${label}`, textStart.x, textStart.y);
     timeMarkerRanges.push([textBegin, rightExtent]);
