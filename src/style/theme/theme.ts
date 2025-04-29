@@ -10,6 +10,7 @@ const cssVariableNames = [
   'primary-variant',
   'on-primary-variant',
   'secondary',
+  'secondary-variant',
   'on-secondary',
   'background',
   'on-background',

@@ -414,13 +414,25 @@ export function renderTasksToCanvas(
 
     ctx.lineWidth = 1;
     if (emphasizedTasks.has(taskIndex)) {
-      if (plan._status.stage === 'started' && percentComplete > 0) {
-        ctx.fillStyle = getPattern(
-          ctx,
-          opts.colors.get('secondary'),
-          opts.colors.get('surface')
-        )!;
-        ctx.strokeStyle = opts.colors.get('secondary');
+      if (plan._status.stage === 'started') {
+        if (percentComplete === 100) {
+          ctx.fillStyle = opts.colors.get('secondary-variant');
+          ctx.strokeStyle = opts.colors.get('secondary-variant');
+        } else if (percentComplete > 0) {
+          ctx.fillStyle = getPattern(
+            ctx,
+            opts.colors.get('secondary'),
+            opts.colors.get('surface')
+          )!;
+          ctx.strokeStyle = opts.colors.get('secondary');
+        } else {
+          ctx.fillStyle = getPattern(
+            ctx,
+            opts.colors.get('primary'),
+            opts.colors.get('surface')
+          )!;
+          ctx.strokeStyle = opts.colors.get('primary');
+        }
       } else {
         ctx.fillStyle = getPattern(
           ctx,
@@ -430,12 +442,32 @@ export function renderTasksToCanvas(
         ctx.strokeStyle = opts.colors.get('primary');
       }
     } else {
-      ctx.fillStyle = getPattern(
-        ctx,
-        opts.colors.get('on-surface'),
-        opts.colors.get('surface')
-      )!;
-      ctx.strokeStyle = opts.colors.get('on-surface');
+      if (plan._status.stage === 'started') {
+        if (percentComplete === 100) {
+          ctx.fillStyle = opts.colors.get('secondary-variant');
+          ctx.strokeStyle = opts.colors.get('secondary-variant');
+        } else if (percentComplete > 0) {
+          ctx.fillStyle = getPattern(
+            ctx,
+            opts.colors.get('secondary'),
+            opts.colors.get('surface')
+          )!;
+          ctx.strokeStyle = opts.colors.get('secondary');
+        } else {
+          ctx.fillStyle = getPattern(
+            ctx,
+            opts.colors.get('on-surface'),
+            opts.colors.get('surface')
+          )!;
+        }
+      } else {
+        ctx.fillStyle = getPattern(
+          ctx,
+          opts.colors.get('on-surface'),
+          opts.colors.get('surface')
+        )!;
+        ctx.strokeStyle = opts.colors.get('on-surface');
+      }
     }
 
     const highlightTopLeft = scale.feature(
@@ -983,6 +1015,7 @@ function drawTaskBar(
     taskEnd.x - taskStart.x,
     taskLineHeight
   );
+
   ctx.strokeRect(
     taskStart.x,
     taskStart.y,
@@ -990,23 +1023,16 @@ function drawTaskBar(
     taskLineHeight
   );
 
-  if (planStarted) {
-    if (percentComplete !== 0) {
-      if (percentComplete === 100) {
-        ctx.fillStyle = opts.colors.get('on-surface');
-        ctx.strokeStyle = opts.colors.get('on-surface');
-      } else {
-        ctx.fillStyle = opts.colors.get('secondary');
-        ctx.strokeStyle = opts.colors.get('secondary');
-      }
+  if (planStarted && percentComplete !== 100) {
+    ctx.fillStyle = opts.colors.get('secondary');
+    ctx.strokeStyle = opts.colors.get('secondary');
 
-      ctx.fillRect(
-        taskStart.x,
-        taskStart.y,
-        ((taskEnd.x - taskStart.x) * percentComplete) / 100,
-        taskLineHeight
-      );
-    }
+    ctx.fillRect(
+      taskStart.x,
+      taskStart.y,
+      ((taskEnd.x - taskStart.x) * percentComplete) / 100,
+      taskLineHeight
+    );
   }
 }
 
