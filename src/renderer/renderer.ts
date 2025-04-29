@@ -983,8 +983,6 @@ function drawTaskBar(
     taskEnd.x - taskStart.x,
     taskLineHeight
   );
-  console.log(taskEnd.x, taskEnd.y);
-  console.log(ctx.lineWidth);
   ctx.strokeRect(
     taskStart.x,
     taskStart.y,

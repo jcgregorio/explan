@@ -722,7 +722,7 @@ export class ExplanMain extends HTMLElement {
   }
 
   paintChart(scrollToSelected: boolean = false) {
-    console.time('paintChart');
+    // console.time('paintChart');
 
     const theme2 = new Theme2();
     theme2.loadFromElement(document.body);
@@ -877,7 +877,7 @@ export class ExplanMain extends HTMLElement {
       }
     }
 
-    console.timeEnd('paintChart');
+    // console.timeEnd('paintChart');
   }
 
   prepareCanvas(
