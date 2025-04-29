@@ -1,9 +1,9 @@
-import { TemplateResult, html, render } from "lit-html";
-import { ExplanMain } from "../explanMain/explanMain";
+import { TemplateResult, html, render } from 'lit-html';
+import { ExplanMain } from '../explanMain/explanMain';
 
 declare global {
   interface GlobalEventHandlersEventMap {
-    "group-by-resource-changed": CustomEvent<string>;
+    'group-by-resource-changed': CustomEvent<string>;
   }
 }
 
@@ -13,7 +13,7 @@ export class GroupByControl extends HTMLElement {
   /** All of the types of resources in the plan. */
   groupByOptions: string[] = [];
 
-  selectedGroupBy: string = "";
+  selectedGroupBy: string = '';
 
   planDefinitionChangedCallback: () => void;
 
@@ -32,23 +32,23 @@ export class GroupByControl extends HTMLElement {
     if (plan === undefined) {
       return;
     }
-    this.groupByOptions = ["", ...Object.keys(plan.resourceDefinitions)];
+    this.groupByOptions = ['', ...Object.keys(plan.resourceDefinitions)];
     if (!this.groupByOptions.includes(this.selectedGroupBy)) {
-      this.selectedGroupBy = "";
+      this.selectedGroupBy = '';
     }
   }
 
   connectedCallback(): void {
     document.addEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
   disconnectedCallback(): void {
     document.removeEventListener(
-      "plan-definition-changed",
-      this.planDefinitionChangedCallback,
+      'plan-definition-changed',
+      this.planDefinitionChangedCallback
     );
   }
 
@@ -69,10 +69,10 @@ export class GroupByControl extends HTMLElement {
   groupByChanged(e: InputEvent) {
     this.selectedGroupBy = (e.target as HTMLSelectElement).value;
     this.dispatchEvent(
-      new CustomEvent("group-by-resource-changed", {
+      new CustomEvent('group-by-resource-changed', {
         bubbles: true,
         detail: this.selectedGroupBy,
-      }),
+      })
     );
   }
 
@@ -80,8 +80,11 @@ export class GroupByControl extends HTMLElement {
     return html`
       <select @input=${(e: InputEvent) => this.groupByChanged(e)}>
         ${this.groupByOptions.map((groupBy: string) => {
-          const label = groupBy ? groupBy : "(none)";
-          return html`<option ?selected=${groupBy === this.selectedGroupBy}>
+          const label = groupBy ? groupBy : '(none)';
+          return html`<option
+            ?selected=${groupBy === this.selectedGroupBy}
+            value="${groupBy}"
+          >
             ${label}
           </option>`;
         })}
@@ -90,4 +93,4 @@ export class GroupByControl extends HTMLElement {
   }
 }
 
-customElements.define("groupby-control", GroupByControl);
+customElements.define('groupby-control', GroupByControl);
