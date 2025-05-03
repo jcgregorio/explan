@@ -1,5 +1,5 @@
 import { assert } from '@esm-bundle/chai';
-import { durationToHuman, parseHumanDuration } from './parse.ts';
+import { changeUnits, durationToHuman, parseHumanDuration } from './parse.ts';
 import { Result } from '../result.ts';
 
 const isOK = <T>(r: Result<T>): T => {
@@ -74,7 +74,18 @@ describe('durationToHuman', () => {
 
     assert.equal(isOK(durationToHuman(365, 0)), '365');
     assert.equal(isOK(durationToHuman(365, 5)), '1y4m3w2d');
-    assert.equal(isOK(durationToHuman(5 * 52, 5)), '1y');
+    assert.equal(isOK(durationToHuman(260, 5)), '1y'); // 5 * 52 weeks in a year
     assert.equal(isOK(durationToHuman(365, 7)), '1y1d');
+  });
+});
+
+describe('changeUnits', () => {
+  it('converts units w/o error', () => {
+    assert.equal(isOK(changeUnits(365, 7, 5)), 261); // 5 * 52 weeks in a year, +1 day
+    assert.equal(isOK(changeUnits(365, 5, 7)), 501);
+    assert.equal(isOK(changeUnits(365, 0, 7)), 365);
+    assert.equal(isOK(changeUnits(365, 7, 0)), 365);
+    assert.equal(isOK(changeUnits(365, 0, 5)), 365);
+    assert.equal(isOK(changeUnits(365, 5, 0)), 365);
   });
 });

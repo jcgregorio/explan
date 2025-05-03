@@ -3,6 +3,17 @@ import { Result, error, ok } from '../result';
 const decimalRegex = /^[\d\.]+$/;
 
 /**
+ * The values of daysInWeek mean:
+ *
+ *   7 - 7 days in a week (weekends aren't special).
+ *
+ *   5 - 5 days a week (don't count weekends).
+ *
+ *   0 - This is a unitless duration, not days, values are just numbers,
+ */
+export type DurationUnitType = 0 | 5 | 7;
+
+/**
  * Parses a human duration, such as "1w3d" to a number of days.
  *
  * The actualy number of days returned depends on the units of what a day means,
@@ -19,7 +30,7 @@ const decimalRegex = /^[\d\.]+$/;
  */
 export const parseHumanDuration = (
   s: string,
-  daysInWeek: 0 | 5 | 7
+  daysInWeek: DurationUnitType
 ): Result<number> => {
   s = s.trim();
 
@@ -77,7 +88,7 @@ export const parseHumanDuration = (
  */
 export const durationToHuman = (
   days: number,
-  daysInWeek: 0 | 5 | 7
+  daysInWeek: DurationUnitType
 ): Result<string> => {
   if (days < 0) {
     return error(new Error(`Can't convert negative days: ${days}`));
@@ -111,4 +122,28 @@ export const durationToHuman = (
     parts.push(`${days}d`);
   }
   return ok(parts.join(''));
+};
+
+/**
+ * Converts a human duration
+ * @param duration
+ * @param fromDaysInWeek
+ * @param toDaysInWeek
+ * @returns
+ */
+export const changeUnits = (
+  duration: number,
+  fromDaysInWeek: DurationUnitType,
+  toDaysInWeek: DurationUnitType
+): Result<number> => {
+  if (toDaysInWeek === 0) {
+    return ok(duration);
+  }
+
+  const ret = durationToHuman(duration, fromDaysInWeek);
+  if (!ret.ok) {
+    return ret;
+  }
+
+  return parseHumanDuration(ret.value, toDaysInWeek);
 };

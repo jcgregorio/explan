@@ -1,4 +1,4 @@
-import { Result, ok, error } from "../result.ts";
+import { Result, ok, error } from '../result.ts';
 import {
   VertexIndices,
   Edges,
@@ -7,13 +7,13 @@ import {
   edgesByDstToMap,
   DirectedEdge,
   DirectedEdgeSerialized,
-} from "../dag/dag";
+} from '../dag/dag';
 
-import { topologicalSort } from "../dag/algorithms/toposort.ts";
-import { MetricValues } from "../metrics/metrics.ts";
-import { TaskDuration } from "../types/types.ts";
+import { topologicalSort } from '../dag/algorithms/toposort.ts';
+import { MetricValues } from '../metrics/metrics.ts';
+import { TaskDuration } from '../types/types.ts';
 
-export const DEFAULT_TASK_NAME = "Task Name";
+export const DEFAULT_TASK_NAME = 'Task Name';
 
 export interface TaskSerialized {
   resources: { [key: string]: string };
@@ -38,7 +38,7 @@ export class Task {
   name: string;
   id: string;
 
-  constructor(name: string = "") {
+  constructor(name: string = '') {
     this.name = name || DEFAULT_TASK_NAME;
     this.metrics = {};
     this.resources = {};
@@ -64,11 +64,11 @@ export class Task {
   }
 
   public get duration(): number {
-    return this.getMetric("Duration")!;
+    return this.getMetric('Duration')!;
   }
 
   public set duration(value: number) {
-    this.setMetric("Duration", value);
+    this.setMetric('Duration', value);
   }
 
   public getMetric(key: string): number | undefined {
@@ -117,10 +117,10 @@ export class Chart {
   Edges: Edges;
 
   constructor() {
-    const start = new Task("Start");
-    start.setMetric("Duration", 0);
-    const finish = new Task("Finish");
-    finish.setMetric("Duration", 0);
+    const start = new Task('Start');
+    start.setMetric('Duration', 0);
+    const finish = new Task('Finish');
+    finish.setMetric('Duration', 0);
     this.Vertices = [start, finish];
     this.Edges = [new DirectedEdge(0, 1)];
   }
@@ -135,11 +135,11 @@ export class Chart {
   static fromJSON(chartSerialized: ChartSerialized): Chart {
     const ret = new Chart();
     ret.Vertices = chartSerialized.vertices.map((ts: TaskSerialized) =>
-      Task.fromJSON(ts),
+      Task.fromJSON(ts)
     );
     ret.Edges = chartSerialized.edges.map(
       (directedEdgeSerialized: DirectedEdgeSerialized) =>
-        DirectedEdge.fromJSON(directedEdgeSerialized),
+        DirectedEdge.fromJSON(directedEdgeSerialized)
     );
     return ret;
   }
@@ -153,7 +153,7 @@ export type ValidateResult = Result<TopologicalOrder>;
 export function validateDirectedGraph(g: DirectedGraph): ValidateResult {
   if (g.Vertices.length < 2) {
     return error(
-      "Chart must contain at least two node, the start and finish tasks.",
+      'Chart must contain at least two node, the start and finish tasks.'
     );
   }
 
@@ -162,14 +162,14 @@ export function validateDirectedGraph(g: DirectedGraph): ValidateResult {
 
   // The first Vertex, T_0 aka the Start Milestone, must have 0 incoming edges.
   if (edgesByDst.get(0) !== undefined) {
-    return error("The start node (0) has an incoming edge.");
+    return error('The start node (0) has an incoming edge.');
   }
 
   // And only T_0 should have 0 incoming edges.
   for (let i = 1; i < g.Vertices.length; i++) {
     if (edgesByDst.get(i) === undefined) {
       return error(
-        `Found node that isn't (0) that has no incoming edges: ${i}`,
+        `Found node that isn't (0) that has no incoming edges: ${i}`
       );
     }
   }
@@ -177,7 +177,7 @@ export function validateDirectedGraph(g: DirectedGraph): ValidateResult {
   // The last Vertex, T_finish, the Finish Milestone, must have 0 outgoing edges.
   if (edgesBySrc.get(g.Vertices.length - 1) !== undefined) {
     return error(
-      "The last node, which should be the Finish Milestone, has an outgoing edge.",
+      'The last node, which should be the Finish Milestone, has an outgoing edge.'
     );
   }
 
@@ -185,7 +185,7 @@ export function validateDirectedGraph(g: DirectedGraph): ValidateResult {
   for (let i = 0; i < g.Vertices.length - 1; i++) {
     if (edgesBySrc.get(i) === undefined) {
       return error(
-        `Found node that isn't T_finish that has no outgoing edges: ${i}`,
+        `Found node that isn't T_finish that has no outgoing edges: ${i}`
       );
     }
   }
@@ -209,7 +209,7 @@ export function validateDirectedGraph(g: DirectedGraph): ValidateResult {
   // https://en.wikipedia.org/wiki/Topological_sorting#Depth-first_search
   const tsRet = topologicalSort(g);
   if (tsRet.hasCycles) {
-    return error(`Chart has cycle: ${[...tsRet.cycle].join(", ")}`);
+    return error(`Chart has cycle: ${[...tsRet.cycle].join(', ')}`);
   }
 
   return ok(tsRet.order);
@@ -217,7 +217,7 @@ export function validateDirectedGraph(g: DirectedGraph): ValidateResult {
 
 export function ChartValidate(
   c: Chart,
-  taskDuration: TaskDuration | null = null,
+  taskDuration: TaskDuration | null = null
 ): ValidateResult {
   if (taskDuration === null) {
     taskDuration = (taskIndex: number) => c.Vertices[taskIndex].duration;
@@ -228,14 +228,14 @@ export function ChartValidate(
   }
   if (taskDuration(0) !== 0) {
     return error(
-      `Start Milestone must have duration of 0, instead got ${taskDuration(0)}`,
+      `Start Milestone must have duration of 0, instead got ${taskDuration(0)}`
     );
   }
   if (taskDuration(c.Vertices.length - 1) !== 0) {
     return error(
       `Finish Milestone must have duration of 0, instead got ${taskDuration(
-        c.Vertices.length - 1,
-      )}`,
+        c.Vertices.length - 1
+      )}`
     );
   }
   const allIDs = new Set();
