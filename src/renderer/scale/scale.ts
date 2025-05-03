@@ -93,7 +93,7 @@ export class Scale {
     this.taskHeightPx = this.blockSizePx;
     this.lineWidthPx = makeOdd(Math.floor(this.taskHeightPx / 3));
     const milestoneRadius = Math.ceil(this.taskHeightPx / 2) + this.lineWidthPx;
-    this.marginSizePx = milestoneRadius;
+    this.marginSizePx = 2 * milestoneRadius;
     this.timelineHeightPx = opts.hasTimeline
       ? Math.ceil((opts.fontSizePx * 4) / 3)
       : 0;
