@@ -42,6 +42,7 @@ describe('parseDuration', () => {
     assert.isFalse(parseHumanDuration('f', 7).ok);
     assert.isFalse(parseHumanDuration('123z', 7).ok);
     assert.isFalse(parseHumanDuration('-12', 7).ok);
+    assert.isFalse(parseHumanDuration('0.5y', 7).ok);
 
     assert.isFalse(parseHumanDuration('w', 0).ok);
     assert.isFalse(parseHumanDuration('2m', 0).ok);
