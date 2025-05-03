@@ -19,7 +19,10 @@ export const parseDuration = (s: string, daysInWeek: 5 | 7): Result<number> => {
       ret += num * daysInWeek;
       num = 0;
     } else if (c === 'm') {
-      ret += num * daysInWeek * 4;
+      ret += num * daysInWeek * 4 + 2; // 4 weeks + 2 days, i.e. 30 days in either 5 or 7 daysInWeek.
+      num = 0;
+    } else if (c === 'y') {
+      ret += num * daysInWeek * 52;
       num = 0;
     } else if ('0123456789'.includes(c)) {
       num = num * 10 + +c;
