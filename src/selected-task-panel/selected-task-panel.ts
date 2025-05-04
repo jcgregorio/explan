@@ -178,7 +178,7 @@ export class SelectedTaskPanel extends HTMLElement {
           </td>
         </tr>
         <tr>
-          <td class="underline-first-char">Duration</td>
+          <td>D<span style="text-decoration:underline">u</span>ration</td>
           <td>
             <input
               type="text"
