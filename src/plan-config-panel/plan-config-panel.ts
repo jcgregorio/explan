@@ -54,7 +54,13 @@ export class PlanConfigPanel extends HTMLElement {
             @input=${(e: InputEvent) => this.unitChanged(e)}
           >
             ${UNIT_TYPES.map((unitType) => {
-              return html`<option value=${unitType}>${unitType}</option>`;
+              return html`<option
+                ?selected=${this.explanMain!.plan.durationUnits.kind() ===
+                unitType}
+                value=${unitType}
+              >
+                ${unitType}
+              </option>`;
             })}
           </select>
         </label>
