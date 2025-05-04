@@ -88,7 +88,7 @@ export class Plan {
 
   public set status(value: PlanStatus) {
     this._status = value;
-    this._durationUnits = new Days(
+    this._durationUnits = UnitBuilders[this._durationUnits.kind()](
       new Date(statusToDate(this.status)),
       this.getStaticMetricDefinition('Duration')
     );

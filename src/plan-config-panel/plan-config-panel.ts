@@ -93,11 +93,17 @@ export class PlanConfigPanel extends HTMLElement {
           <input type="checkbox" checked @input=${() => this.unstart()} />
           Started
         </label>
-        <input
-          type="date"
-          .value=${dateDisplay(new Date(this.explanMain!.plan.status.start))}
-          @input=${(e: InputEvent) => this.dateChanged(e)}
-        />
+        ${this.explanMain!.plan.durationUnits.kind() === 'Unitless'
+          ? html``
+          : html`
+              <input
+                type="date"
+                .value=${dateDisplay(
+                  new Date(this.explanMain!.plan.status.start)
+                )}
+                @input=${(e: InputEvent) => this.dateChanged(e)}
+              />
+            `}
       `;
     } else {
       return html``;
