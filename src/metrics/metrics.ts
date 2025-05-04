@@ -14,17 +14,20 @@ export class MetricDefinition {
   default: number;
   isStatic: boolean;
   precision: Precision;
+  hideEditor: boolean;
 
   constructor(
     defaultValue: number,
     range: MetricRange = new MetricRange(),
     isStatic: boolean = false,
-    precision: Precision = new Precision(1)
+    precision: Precision = new Precision(1),
+    hideEditor: boolean = false
   ) {
     this.precision = precision;
     this.range = range;
     this.default = defaultValue;
     this.isStatic = isStatic;
+    this.hideEditor = hideEditor;
     this.rationalize();
   }
 

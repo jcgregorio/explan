@@ -77,15 +77,28 @@ describe('durationToHuman', () => {
     assert.equal(isOK(durationToHuman(260, 5)), '1y'); // 5 * 52 weeks in a year
     assert.equal(isOK(durationToHuman(365, 7)), '1y1d');
   });
+
+  it('roundtrips correctly', () => {
+    assert.equal(8, isOK(parseHumanDuration(isOK(durationToHuman(8, 5)), 5)));
+    assert.equal(
+      500,
+      isOK(parseHumanDuration(isOK(durationToHuman(500, 5)), 5))
+    );
+  });
 });
 
 describe('changeUnits', () => {
   it('converts units w/o error', () => {
     assert.equal(isOK(changeUnits(365, 7, 5)), 261); // 5 * 52 weeks in a year, +1 day
-    assert.equal(isOK(changeUnits(365, 5, 7)), 501);
+    assert.equal(isOK(changeUnits(261, 5, 7)), 365);
     assert.equal(isOK(changeUnits(365, 0, 7)), 365);
     assert.equal(isOK(changeUnits(365, 7, 0)), 365);
     assert.equal(isOK(changeUnits(365, 0, 5)), 365);
     assert.equal(isOK(changeUnits(365, 5, 0)), 365);
+  });
+
+  it('values round-trip through units change correctly', () => {
+    assert.equal(365, isOK(changeUnits(isOK(changeUnits(365, 5, 7)), 7, 5)));
+    assert.equal(500, isOK(changeUnits(isOK(changeUnits(500, 5, 7)), 7, 5)));
   });
 });

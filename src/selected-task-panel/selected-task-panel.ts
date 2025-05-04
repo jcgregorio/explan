@@ -5,6 +5,8 @@ import { icon } from '../icons/icons';
 import { executeByName, executeOp } from '../action/execute';
 import { ExplanMain } from '../explanMain/explanMain';
 import { RecalculateDurationOp } from '../ops/chart';
+import { reportErrorMsg } from '../report-error/report-error';
+import { Task } from '../chart/chart';
 
 export interface TaskNameChangeDetails {
   name: string;
@@ -79,6 +81,15 @@ export class SelectedTaskPanel extends HTMLElement {
     render(this.template(), this);
   }
 
+  humanDurationValue(task: Task): string {
+    const ret = this.plan.durationUnits.durationToHuman(task.duration);
+    if (!ret.ok) {
+      reportErrorMsg(ret.error);
+      return '';
+    }
+    return ret.value;
+  }
+
   template(): TemplateResult {
     const taskIndex = this.taskIndex;
     if (taskIndex === -1) {
@@ -97,6 +108,16 @@ export class SelectedTaskPanel extends HTMLElement {
     if (this.explanMain === null) {
       return html``;
     }
+
+    // Filter down to the sorted metric key names that are visible when editing a Task.
+    const metricKeys = Object.keys(this.plan.metricDefinitions)
+      .filter(
+        (key: string) => this.plan.metricDefinitions[key].hideEditor === false
+      )
+      .sort();
+
+    const resourceKeys = Object.keys(this.plan.resourceDefinitions).sort();
+
     const task = this.plan.chart.Vertices[taskIndex];
     return html`
       <button
@@ -156,8 +177,44 @@ export class SelectedTaskPanel extends HTMLElement {
             />
           </td>
         </tr>
-        ${Object.entries(this.plan.resourceDefinitions).map(
-          ([resourceKey, defn]) =>
+        <tr>
+          <td class="underline-first-char">Duration</td>
+          <td>
+            <input
+              type="text"
+              spellcheck="false"
+              id="human-duration"
+              accesskey="u"
+              .value="${live(this.humanDurationValue(task))}"
+              @change="${(e: Event) => {
+                const humanDuration = (e.target as HTMLInputElement).value;
+                const ret =
+                  this.plan.durationUnits.parseHumanDuration(humanDuration);
+                debugger;
+                if (!ret.ok) {
+                  reportErrorMsg(ret.error);
+                  e.stopPropagation();
+                  e.preventDefault();
+                  return;
+                }
+
+                this.dispatchEvent(
+                  new CustomEvent('task-metric-value-change', {
+                    bubbles: true,
+                    detail: {
+                      taskIndex: taskIndex,
+                      value: ret.value,
+                      name: 'Duration',
+                    },
+                  })
+                );
+              }}"
+            />
+          </td>
+        </tr>
+
+        ${resourceKeys.map(
+          (resourceKey) =>
             html` <tr>
               <td>
                 <label for="${resourceKey}">${resourceKey}</label>
@@ -177,7 +234,7 @@ export class SelectedTaskPanel extends HTMLElement {
                       })
                     )}
                 >
-                  ${defn.values.map(
+                  ${this.plan.resourceDefinitions[resourceKey].values.map(
                     (resourceValue: string) =>
                       html`<option
                         name=${resourceValue}
@@ -191,7 +248,7 @@ export class SelectedTaskPanel extends HTMLElement {
               </td>
             </tr>`
         )}
-        ${Object.keys(this.plan.metricDefinitions).map(
+        ${metricKeys.map(
           (key: string) =>
             html` <tr>
               <td><label for="${key}">${key}</label></td>

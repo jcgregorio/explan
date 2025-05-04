@@ -42,8 +42,14 @@ export const StaticMetricDefinitions: Record<
   StaticMetricKeys,
   MetricDefinition
 > = {
-  // How long a task will take, in days.
-  Duration: new MetricDefinition(0, new MetricRange(0), true, new Precision(0)),
+  // How long a task will take.
+  Duration: new MetricDefinition(
+    0,
+    new MetricRange(0),
+    true,
+    new Precision(0),
+    true
+  ),
 };
 
 export type StaticResourceKeys = 'Uncertainty';
