@@ -145,8 +145,6 @@ export class SelectedTaskPanel extends HTMLElement {
         ${icon('split')}
       </button>
 
-      ${this.optionalCalculateButton(taskIndex)}
-
       <button
         class="icon-button"
         @click=${async () =>
@@ -178,8 +176,8 @@ export class SelectedTaskPanel extends HTMLElement {
           </td>
         </tr>
         <tr>
-          <td>D<span style="text-decoration:underline">u</span>ration</td>
-          <td>
+          <td>D<u>u</u>ration</td>
+          <td class="aligned-td">
             <input
               type="text"
               spellcheck="false"
@@ -210,6 +208,7 @@ export class SelectedTaskPanel extends HTMLElement {
                 );
               }}"
             />
+            ${this.optionalCalculateButton(taskIndex)}
           </td>
         </tr>
 
