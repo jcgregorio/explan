@@ -52,7 +52,9 @@ export class DatePicker extends HTMLElement {
   }
 
   private inputChanged(e: InputEvent) {
-    const ret = this._value!.unit.parse((e.target as HTMLInputElement).value);
+    const ret = this._value!.unit.dateStringToDuration(
+      (e.target as HTMLInputElement).value
+    );
     if (!ret.ok) {
       this.render();
       reportErrorMsg(ret.error);

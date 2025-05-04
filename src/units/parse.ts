@@ -40,7 +40,11 @@ export const parseHumanDuration = (
   }
 
   if (s.match(decimalRegex)) {
-    return ok(+s);
+    const parsed = +s;
+    if (Number.isNaN(parsed)) {
+      return error(new Error(`Invalid number value: ${s}`));
+    }
+    return ok(parsed);
   }
 
   if (daysInWeek === 0) {

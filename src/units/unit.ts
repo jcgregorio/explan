@@ -4,6 +4,7 @@ import {
 } from '../date-control-utils/date-control-utils';
 import { MetricDefinition } from '../metrics/metrics';
 import { Result, error, ok } from '../result';
+import { parseHumanDuration } from './parse';
 import { Weekdays } from './weekdays';
 
 // Unit describes how the duration values are to be interpreted.
@@ -13,7 +14,10 @@ abstract class Unit {
 
   // Parse a duration, either as a raw number, or in a shorthand duration, such
   // as 1d, 2d, 5y.
-  abstract parse(s: string): Result<number>;
+  // TBD.
+
+  // parse a date string.
+  abstract dateStringToDuration(s: string): Result<number>;
 
   // TODO - Needs a method to go from Date() to duration.
 }
@@ -48,7 +52,7 @@ export class UnitBase implements Unit {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  parse(_s: string): Result<number> {
+  dateStringToDuration(_s: string): Result<number> {
     throw new Error('Method implemented in subclasses.');
   }
 
@@ -119,12 +123,12 @@ export class Unitless extends UnitBase implements Unit {
     return this.start;
   }
 
-  parse(s: string): Result<number> {
-    const parsed = +s;
-    if (Number.isNaN(parsed)) {
-      return error(new Error(`Invalid number value: ${s}`));
+  dateStringToDuration(s: string): Result<number> {
+    const ret = parseHumanDuration(s, 0);
+    if (!ret.ok) {
+      return ret;
     }
-    return ok(this.metricDefn.clampAndRound(parsed));
+    return ok(this.metricDefn.clampAndRound(ret.value));
   }
 }
 
@@ -144,7 +148,7 @@ export class Days extends UnitBase implements Unit {
     return d;
   }
 
-  parse(s: string): Result<number> {
+  dateStringToDuration(s: string): Result<number> {
     const ret = parseDateString(s);
     if (!ret.ok) {
       return ret;
@@ -180,7 +184,7 @@ export class WeekDays extends UnitBase implements Unit {
     return d;
   }
 
-  parse(s: string): Result<number> {
+  dateStringToDuration(s: string): Result<number> {
     return this.weekdays.dateToWeekday(s);
   }
 }

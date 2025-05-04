@@ -718,7 +718,9 @@ export class ExplanMain extends HTMLElement {
     if (this.plan.durationUnits.kind() == 'Unitless') {
       return error(new Error('Unitless plans have no start date.'));
     }
-    return this.plan.durationUnits.parse(new Date().toISOString().slice(0, 10));
+    return this.plan.durationUnits.dateStringToDuration(
+      new Date().toISOString().slice(0, 10)
+    );
   }
 
   paintChart(scrollToSelected: boolean = false) {
