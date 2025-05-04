@@ -119,6 +119,18 @@ export const durationToHuman = (
   days = Math.floor(days);
   const daysInYear = 52 * daysInWeek;
   const daysInMonth = 4 * daysInWeek + 2;
+
+  // First check if days is evenly divided by weeks, months, or years.
+  if (days % daysInYear === 0) {
+    return ok(`${days / daysInYear}y`);
+  }
+  if (days % daysInMonth === 0) {
+    return ok(`${days / daysInMonth}m`);
+  }
+  if (days % daysInWeek === 0 && days < 52 * daysInWeek) {
+    return ok(`${days / daysInWeek}w`);
+  }
+
   const parts: string[] = [];
   if (days >= daysInYear) {
     const years = Math.floor(days / daysInYear);

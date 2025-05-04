@@ -68,7 +68,7 @@ describe('durationToHuman', () => {
     assert.equal(isOK(durationToHuman(8, 7)), '1w1d');
 
     assert.equal(isOK(durationToHuman(30, 0)), '30');
-    assert.equal(isOK(durationToHuman(30, 5)), '1m1w3d');
+    assert.equal(isOK(durationToHuman(30, 5)), '6w');
     assert.equal(isOK(durationToHuman(4 * 5 + 2, 5)), '1m');
     assert.equal(isOK(durationToHuman(30, 7)), '1m');
 
