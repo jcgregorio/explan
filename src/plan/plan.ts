@@ -35,6 +35,7 @@ import {
   UnitTypes,
 } from '../units/unit.ts';
 import { Precision } from '../precision/precision.ts';
+import { changeUnits, UnitTypeToDurationUnitType } from '../units/parse.ts';
 
 export type StaticMetricKeys = 'Duration';
 
@@ -130,10 +131,21 @@ export class Plan {
   }
 
   setDurationUnits(unitType: UnitTypes) {
+    const oldUnitType = UnitTypeToDurationUnitType(this._durationUnits.kind());
+    const newUnitType = UnitTypeToDurationUnitType(unitType);
+
     this._durationUnits = UnitBuilders[unitType](
       new Date(statusToDate(this.status)),
       this.getStaticMetricDefinition('Duration')
     );
+    this.chart.Vertices.forEach((task: Task) => {
+      const ret = changeUnits(task.duration, oldUnitType, newUnitType);
+      if (!ret.ok) {
+        reportError(ret.error);
+        return;
+      }
+      task.duration = ret.value;
+    });
   }
 
   getStaticMetricDefinition(name: StaticMetricKeys): MetricDefinition {
