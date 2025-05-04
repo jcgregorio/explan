@@ -1,4 +1,5 @@
 import { Result, error, ok } from '../result';
+import { UnitTypes } from './unit';
 
 const decimalRegex = /^[\d\.]+$/;
 
@@ -12,6 +13,18 @@ const decimalRegex = /^[\d\.]+$/;
  *   0 - This is a unitless duration, not days, values are just numbers,
  */
 export type DurationUnitType = 0 | 5 | 7;
+
+// Converts from Unit.UnitTypes to DurationUnitType.
+export const UnitTypeToDurationUnitType = (u: UnitTypes): DurationUnitType => {
+  switch (u) {
+    case 'Days':
+      return 7;
+    case 'Weekdays':
+      return 5;
+    default:
+      return 0;
+  }
+};
 
 /**
  * Parses a human duration, such as "1w3d" to a number of days.
@@ -129,11 +142,7 @@ export const durationToHuman = (
 };
 
 /**
- * Converts a human duration
- * @param duration
- * @param fromDaysInWeek
- * @param toDaysInWeek
- * @returns
+ * Converts a human duration in one unit to another unit.
  */
 export const changeUnits = (
   duration: number,

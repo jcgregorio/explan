@@ -4,7 +4,11 @@ import {
 } from '../date-control-utils/date-control-utils';
 import { MetricDefinition } from '../metrics/metrics';
 import { Result, error, ok } from '../result';
-import { parseHumanDuration } from './parse';
+import {
+  durationToHuman,
+  parseHumanDuration,
+  UnitTypeToDurationUnitType,
+} from './parse';
 import { Weekdays } from './weekdays';
 
 // Unit describes how the duration values are to be interpreted.
@@ -14,7 +18,10 @@ abstract class Unit {
 
   // Parse a duration, either as a raw number, or in a shorthand duration, such
   // as 1d, 2d, 5y.
-  // TBD.
+  abstract parseHumanDuration(s: string): Result<number>;
+
+  // Coverts a duration to a human friendly representaiton.
+  abstract durationToHuman(days: number): Result<string>;
 
   // parse a date string.
   abstract dateStringToDuration(s: string): Result<number>;
@@ -49,6 +56,14 @@ export class UnitBase implements Unit {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   asDate(_t: number): Date {
     throw new Error('Method implemented in subclasses.');
+  }
+
+  parseHumanDuration(s: string): Result<number> {
+    return parseHumanDuration(s, UnitTypeToDurationUnitType(this.unitType));
+  }
+
+  durationToHuman(days: number): Result<string> {
+    return durationToHuman(days, UnitTypeToDurationUnitType(this.unitType));
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
