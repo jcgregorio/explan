@@ -13,6 +13,7 @@ import {
 import { Op } from '../ops/ops';
 import { Result } from '../result';
 import { live } from 'lit-html/directives/live.js';
+import { reportIfError } from '../report-error/report-error';
 
 export class EditResourceDefinition extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -69,19 +70,13 @@ export class EditResourceDefinition extends HTMLElement {
       true,
       this.explanMain!
     );
-    if (!ret.ok) {
-      window.alert(ret.error);
-    }
+    reportIfError(ret);
     return ret;
   }
 
   private async changeResourceName(e: Event, newName: string, oldName: string) {
     const ret = await this.executeOp(RenameResourceOp(oldName, newName));
-    if (!ret.ok) {
-      window.alert(ret.error);
-      this.name = oldName;
-      this.render();
-    }
+    reportIfError(ret);
     this.name = newName;
   }
 
@@ -93,11 +88,7 @@ export class EditResourceDefinition extends HTMLElement {
     const ret = await this.executeOp(
       RenameResourceOptionOp(this.name, oldValue, newValue)
     );
-    if (!ret.ok) {
-      window.alert(ret.error);
-      (e.target as HTMLInputElement).value = oldValue;
-      this.render();
-    }
+    reportIfError(ret);
   }
 
   private getProposedResourceName(): string {

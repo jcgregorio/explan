@@ -9,7 +9,8 @@ import { SetTaskCompletionOp } from '../ops/plan.ts';
 import { executeOp } from '../action/execute.ts';
 import { ExplanMain } from '../explanMain/explanMain.ts';
 import { live } from 'lit-html/directives/live.js';
-import { reportErrorMsg } from '../report-error/report-error.ts';
+import { reportErrorMsg, reportIfError } from '../report-error/report-error.ts';
+import { CatchupTaskOp } from '../ops/chart.ts';
 
 export class TaskCompletionPanel extends HTMLElement {
   explanMain: ExplanMain | null = null;
@@ -106,6 +107,26 @@ export class TaskCompletionPanel extends HTMLElement {
                 @change=${(e: InputEvent) => this.percentChange(e)}
               />
               % Complete
+              <button
+                title="Set the completion of the task to match today."
+                @click=${async () => {
+                  const ret = await this.explanMain!.getToday();
+                  if (!ret.ok) {
+                    reportErrorMsg(ret.error);
+                    return;
+                  }
+                  const today = ret.value;
+                  const res = await executeOp(
+                    CatchupTaskOp(today, this.taskIndex, this.span!),
+                    'planDefinitionChanged',
+                    true,
+                    this.explanMain!
+                  );
+                  reportIfError(res);
+                }}
+              >
+                Catchup
+              </button>
             </label>
           </div>`;
         break;

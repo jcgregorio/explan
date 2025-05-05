@@ -7,7 +7,7 @@ import { MetricDefinition } from '../metrics/metrics';
 import { Result } from '../result';
 import { Op } from '../ops/ops';
 import { executeOp } from '../action/execute';
-import { reportErrorMsg } from '../report-error/report-error';
+import { reportErrorMsg, reportIfError } from '../report-error/report-error';
 import { Precision } from '../precision/precision';
 
 export class EditMetricDefinition extends HTMLElement {
@@ -139,9 +139,7 @@ export class EditMetricDefinition extends HTMLElement {
       true,
       this.explanMain!
     );
-    if (!ret.ok) {
-      window.alert(ret.error);
-    }
+    reportIfError(ret);
     return ret;
   }
 
