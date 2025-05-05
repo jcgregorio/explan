@@ -364,11 +364,6 @@ export function renderTasksToCanvas(
     RectWithFilteredTaskIndex
   > = new Map();
 
-  // Draw the "today" marker.
-  if (opts.today !== -1) {
-    drawTodayMarker(ctx, opts.today, opts.colors, scale);
-  }
-
   // Keep track of where we draw timeline labels, to avoid overlaps.
   const timeMarkerRanges: xRange[] = [];
 
@@ -601,6 +596,11 @@ export function renderTasksToCanvas(
         totalNumberOfRows
       );
     }
+  }
+
+  // Draw the "today" marker.
+  if (opts.today !== -1) {
+    drawTodayMarker(ctx, opts.today, opts.colors, totalNumberOfRows, scale);
   }
 
   let updateHighlightFromMousePos: UpdateHighlightFromMousePos | null = null;
@@ -1088,16 +1088,22 @@ const drawTodayMarker = (
   ctx: CanvasRenderingContext2D,
   today: number,
   colors: Theme2,
+  totalNumberOfRows: number,
   scale: Scale
 ) => {
   const timeMarkStart = scale.feature(0, today, Feature.timeMarkStart);
-  const rowHeight = scale.metric(Metric.rowHeight);
+  const timeMarkEnd = scale.feature(
+    totalNumberOfRows + 1,
+    today,
+    Feature.taskEnvelopeTop
+  );
 
   ctx.beginPath();
-  ctx.lineWidth = scale.metric('percentHeight') * 4;
+  ctx.lineWidth = scale.metric('percentHeight');
   ctx.strokeStyle = colors.get('error');
+  ctx.setLineDash([ctx.lineWidth * 2, ctx.lineWidth * 2]);
   ctx.moveTo(timeMarkStart.x, timeMarkStart.y);
-  ctx.lineTo(timeMarkStart.x, timeMarkStart.y + rowHeight);
+  ctx.lineTo(timeMarkEnd.x, timeMarkEnd.y);
   ctx.stroke();
 };
 
