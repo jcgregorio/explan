@@ -10,6 +10,7 @@ import {
   DEFAULT_TASK_DURATION,
   CatchupOp,
   RecalculateDurationOp,
+  CatchupTaskOp,
 } from './chart.ts';
 import { SetPlanStartStateOp, SetTaskCompletionOp } from './plan.ts';
 import { Plan } from '../plan/plan.ts';
@@ -437,6 +438,74 @@ describe('RecalculateDurationSubOp', () => {
         assert.equal(plan.chart.Vertices[1].duration, 50);
         assert.equal(plan.chart.Vertices[2].duration, 10);
         assert.equal(plan.chart.Vertices[3].duration, 6);
+      }),
+    ]);
+  });
+});
+
+describe('CatchupTaskOp', () => {
+  it('Marks task stage correctly.', () => {
+    TestOpsForwardAndBack([
+      T2Op((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan), ['Start->Finish']);
+        assert.equal(plan.chart.Vertices.length, 2);
+      }),
+
+      // Set three tasks A -> B -> C.
+      // Also set their duration to 10.
+      InsertNewEmptyTaskAfterOp(0),
+      SetTaskNameOp(1, 'A'),
+      SetMetricValueOp('Duration', 10, 1),
+
+      InsertNewEmptyTaskAfterOp(0),
+      SetTaskNameOp(1, 'B'),
+      SetMetricValueOp('Duration', 10, 1),
+
+      InsertNewEmptyTaskAfterOp(0),
+      SetTaskNameOp(1, 'C'),
+      SetMetricValueOp('Duration', 10, 1),
+
+      AddEdgeOp(3, 2),
+      AddEdgeOp(2, 1),
+      T2Op((plan: Plan) => {
+        assert.deepEqual(arrowSummary(plan).sort(), [
+          'A->B',
+          'B->C',
+          'C->Finish',
+          'Start->A',
+        ]);
+        let comp = plan.getTaskCompletion(1);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'unstarted');
+
+        comp = plan.getTaskCompletion(2);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'unstarted');
+
+        comp = plan.getTaskCompletion(2);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'unstarted');
+      }),
+
+      // Now call Catchup to 15, which is in the middle of B.
+      CatchupTaskOp(15, 2, new Span(10, 20)),
+
+      // The three tasks should be Finished (A) -> Started (B) -> Unstarted (C)
+      TOp((plan: Plan) => {
+        let comp = plan.getTaskCompletion(1);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'unstarted');
+
+        comp = plan.getTaskCompletion(2);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'started');
+        if (comp.value.stage === 'started') {
+          assert.equal(comp.value.percentComplete, 50);
+        }
+
+        comp = plan.getTaskCompletion(3);
+        assert.isTrue(comp.ok);
+        assert.equal(comp.value.stage, 'unstarted');
       }),
     ]);
   });

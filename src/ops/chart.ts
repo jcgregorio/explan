@@ -7,6 +7,7 @@ import { SetMetricValueSubOp } from './metrics.ts';
 import { Span } from '../slack/slack.ts';
 import { clamp } from '../metrics/range.ts';
 import { TaskCompletion } from '../task_completion/task_completion.ts';
+import { SetTaskCompletionSubOp } from './plan.ts';
 
 export const DEFAULT_TASK_DURATION = 100;
 
@@ -609,6 +610,58 @@ export class RestoreTaskCompletionsSubOp implements SubOp {
   }
 }
 
+export class CatchupTaskSubOp implements SubOp {
+  today: number;
+  taskIndex: number;
+  span: Span;
+
+  constructor(today: number, taskIndex: number, span: Span) {
+    this.today = today;
+    this.taskIndex = taskIndex;
+    this.span = span;
+  }
+
+  applyTo(plan: Plan): Result<SubOpResult> {
+    // Make a backup of the current TaskCompletionSteps.
+    const ret = plan.getTaskCompletion(this.taskIndex);
+    if (!ret.ok) {
+      return ret;
+    }
+    const originalTaskCompletion = ret.value;
+
+    // Now update the TaskCompletions based on `today`.
+    const task = plan.chart.Vertices[this.taskIndex];
+
+    const start = this.span.start;
+    const finish = this.span.finish;
+    if (this.today <= start) {
+      // Do nothing.
+    } else if (this.today >= finish) {
+      plan.setTaskCompletion(this.taskIndex, {
+        stage: 'finished',
+        span: this.span,
+      });
+    } else {
+      plan.setTaskCompletion(this.taskIndex, {
+        stage: 'started',
+        start: start,
+        percentComplete: clamp(
+          Math.floor((100 * (this.today - start)) / task.duration),
+          1,
+          99
+        ),
+      });
+    }
+    return ok({
+      plan: plan,
+      inverse: new SetTaskCompletionSubOp(
+        this.taskIndex,
+        originalTaskCompletion
+      ),
+    });
+  }
+}
+
 // CatchupSubOp, aka "Boss Button", that brings the stage and percent complete
 // of each task to correlate to being exactly on time today.
 export class CatchupSubOp implements SubOp {
@@ -824,4 +877,12 @@ export function RecalculateDurationOp(today: number, taskIndex: number) {
     [new RecalculateDurationSubOp(today, taskIndex)],
     'RecalculateDurationOp'
   );
+}
+
+export function CatchupTaskOp(
+  today: number,
+  taskIndex: number,
+  span: Span
+): Op {
+  return new Op([new CatchupTaskSubOp(today, taskIndex, span)]);
 }
