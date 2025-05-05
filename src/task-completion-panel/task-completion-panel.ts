@@ -76,37 +76,38 @@ export class TaskCompletionPanel extends HTMLElement {
 
       case 'started':
         return html`<div>
-          <label>
-            <input type="checkbox" checked @change=${() => this.unstart()} />
-            Started
-          </label>
+            <label>
+              <input type="checkbox" checked @change=${() => this.unstart()} />
+              Started
+            </label>
 
-          <date-picker
-            .value=${{
-              unit: this.explanMain!.plan!.durationUnits,
-              dateOffset: this.taskCompletion.start,
-            }}
-            @date-picker-input=${(e: CustomEvent<number>) =>
-              this.startDateChanged(e)}
-          ></date-picker>
+            <date-picker
+              .value=${{
+                unit: this.explanMain!.plan!.durationUnits,
+                dateOffset: this.taskCompletion.start,
+              }}
+              @date-picker-input=${(e: CustomEvent<number>) =>
+                this.startDateChanged(e)}
+            ></date-picker>
 
-          <label>
-            <input type="checkbox" @change=${() => this.finish()} />
-            Finished
-          </label>
-
-          <label>
-            <input
-              type="number"
-              min="1"
-              max="99"
-              step="1"
-              .value=${live(this.taskCompletion.percentComplete)}
-              @change=${(e: InputEvent) => this.percentChange(e)}
-            />
-            % Complete
-          </label>
-        </div>`;
+            <label>
+              <input type="checkbox" @change=${() => this.finish()} />
+              Finished
+            </label>
+          </div>
+          <div>
+            <label>
+              <input
+                type="number"
+                min="1"
+                max="99"
+                step="1"
+                .value=${live(this.taskCompletion.percentComplete)}
+                @change=${(e: InputEvent) => this.percentChange(e)}
+              />
+              % Complete
+            </label>
+          </div>`;
         break;
 
       case 'finished':
