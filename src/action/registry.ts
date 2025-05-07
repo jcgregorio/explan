@@ -1,39 +1,59 @@
-import { Action } from "./action.ts";
-import { AddPredecessorAction } from "./actions/addPredecessor.ts";
-import { AddSuccessorAction } from "./actions/addSuccessor.ts";
-import { DeveloperPanelAction } from "./actions/developer.ts";
+import { Action } from './action.ts';
+import { AddPredecessorAction } from './actions/addPredecessor.ts';
+import { AddSuccessorAction } from './actions/addSuccessor.ts';
+import { DeveloperPanelAction } from './actions/developer.ts';
 import {
   GoToFullSearchAction,
   GoToSearchAction,
-} from "./actions/gotoSearch.ts";
-import { HelpAction } from "./actions/help.ts";
-import { ResetZoomAction } from "./actions/resetZoom.ts";
+} from './actions/gotoSearch.ts';
+import { HelpAction } from './actions/help.ts';
+import { ResetZoomAction } from './actions/resetZoom.ts';
 import {
   DeleteTaskAction,
   DupTaskAction,
+  MoveFocusToPredecessor0,
+  MoveFocusToPredecessor1,
+  MoveFocusToPredecessor2,
+  MoveFocusToPredecessor3,
+  MoveFocusToPredecessor4,
+  MoveFocusToPredecessor5,
+  MoveFocusToPredecessor6,
+  MoveFocusToPredecessor7,
+  MoveFocusToPredecessor8,
+  MoveFocusToPredecessor9,
   NewTaskAction,
   SplitTaskAction,
-} from "./actions/tasks.ts";
-import { ToggleDarkModeAction } from "./actions/toggleDarkMode.ts";
-import { ToggleRadarAction } from "./actions/toggleRadar.ts";
-import { RedoAction, UndoAction } from "./actions/undo.ts";
+} from './actions/tasks.ts';
+import { ToggleDarkModeAction } from './actions/toggleDarkMode.ts';
+import { ToggleRadarAction } from './actions/toggleRadar.ts';
+import { RedoAction, UndoAction } from './actions/undo.ts';
 
 export type ActionNames =
-  | "ToggleDarkModeAction"
-  | "ToggleRadarAction"
-  | "ResetZoomAction"
-  | "UndoAction"
-  | "RedoAction"
-  | "HelpAction"
-  | "SplitTaskAction"
-  | "DupTaskAction"
-  | "NewTaskAction"
-  | "DeleteTaskAction"
-  | "GoToSearchAction"
-  | "GoToFullSearchAction"
-  | "AddPredecessorAction"
-  | "AddSuccessorAction"
-  | "DeveloperPanelAction";
+  | 'ToggleDarkModeAction'
+  | 'ToggleRadarAction'
+  | 'ResetZoomAction'
+  | 'UndoAction'
+  | 'RedoAction'
+  | 'HelpAction'
+  | 'SplitTaskAction'
+  | 'DupTaskAction'
+  | 'NewTaskAction'
+  | 'DeleteTaskAction'
+  | 'GoToSearchAction'
+  | 'GoToFullSearchAction'
+  | 'AddPredecessorAction'
+  | 'AddSuccessorAction'
+  | 'DeveloperPanelAction'
+  | 'MoveFocusToPredecessor1'
+  | 'MoveFocusToPredecessor2'
+  | 'MoveFocusToPredecessor3'
+  | 'MoveFocusToPredecessor4'
+  | 'MoveFocusToPredecessor5'
+  | 'MoveFocusToPredecessor6'
+  | 'MoveFocusToPredecessor7'
+  | 'MoveFocusToPredecessor8'
+  | 'MoveFocusToPredecessor9'
+  | 'MoveFocusToPredecessor0';
 
 export const ActionRegistry: Record<ActionNames, Action> = {
   ToggleDarkModeAction: new ToggleDarkModeAction(),
@@ -51,4 +71,14 @@ export const ActionRegistry: Record<ActionNames, Action> = {
   AddPredecessorAction: new AddPredecessorAction(),
   AddSuccessorAction: new AddSuccessorAction(),
   DeveloperPanelAction: new DeveloperPanelAction(),
+  MoveFocusToPredecessor1: new MoveFocusToPredecessor1(),
+  MoveFocusToPredecessor2: new MoveFocusToPredecessor2(),
+  MoveFocusToPredecessor3: new MoveFocusToPredecessor3(),
+  MoveFocusToPredecessor4: new MoveFocusToPredecessor4(),
+  MoveFocusToPredecessor5: new MoveFocusToPredecessor5(),
+  MoveFocusToPredecessor6: new MoveFocusToPredecessor6(),
+  MoveFocusToPredecessor7: new MoveFocusToPredecessor7(),
+  MoveFocusToPredecessor8: new MoveFocusToPredecessor8(),
+  MoveFocusToPredecessor9: new MoveFocusToPredecessor9(),
+  MoveFocusToPredecessor0: new MoveFocusToPredecessor0(),
 };
