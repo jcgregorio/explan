@@ -11,7 +11,6 @@ import { ResetZoomAction } from './actions/resetZoom.ts';
 import {
   DeleteTaskAction,
   DupTaskAction,
-  MoveFocusToPredecessor0,
   MoveFocusToPredecessor1,
   MoveFocusToPredecessor2,
   MoveFocusToPredecessor3,
@@ -21,7 +20,6 @@ import {
   MoveFocusToPredecessor7,
   MoveFocusToPredecessor8,
   MoveFocusToPredecessor9,
-  MoveFocusToSuccessor0,
   MoveFocusToSuccessor1,
   MoveFocusToSuccessor2,
   MoveFocusToSuccessor3,
@@ -63,8 +61,6 @@ export type ActionNames =
   | 'MoveFocusToPredecessor7'
   | 'MoveFocusToPredecessor8'
   | 'MoveFocusToPredecessor9'
-  | 'MoveFocusToPredecessor0'
-  | 'MoveFocusToSuccessor0'
   | 'MoveFocusToSuccessor1'
   | 'MoveFocusToSuccessor2'
   | 'MoveFocusToSuccessor3'
@@ -73,8 +69,7 @@ export type ActionNames =
   | 'MoveFocusToSuccessor6'
   | 'MoveFocusToSuccessor7'
   | 'MoveFocusToSuccessor8'
-  | 'MoveFocusToSuccessor9'
-  | 'MoveFocusToSuccessor0';
+  | 'MoveFocusToSuccessor9';
 
 export const ActionRegistry: Record<ActionNames, Action> = {
   ToggleDarkModeAction: new ToggleDarkModeAction(),
@@ -101,7 +96,6 @@ export const ActionRegistry: Record<ActionNames, Action> = {
   MoveFocusToPredecessor7: new MoveFocusToPredecessor7(),
   MoveFocusToPredecessor8: new MoveFocusToPredecessor8(),
   MoveFocusToPredecessor9: new MoveFocusToPredecessor9(),
-  MoveFocusToPredecessor0: new MoveFocusToPredecessor0(),
   MoveFocusToSuccessor1: new MoveFocusToSuccessor1(),
   MoveFocusToSuccessor2: new MoveFocusToSuccessor2(),
   MoveFocusToSuccessor3: new MoveFocusToSuccessor3(),
@@ -111,5 +105,4 @@ export const ActionRegistry: Record<ActionNames, Action> = {
   MoveFocusToSuccessor7: new MoveFocusToSuccessor7(),
   MoveFocusToSuccessor8: new MoveFocusToSuccessor8(),
   MoveFocusToSuccessor9: new MoveFocusToSuccessor9(),
-  MoveFocusToSuccessor0: new MoveFocusToSuccessor0(),
 };

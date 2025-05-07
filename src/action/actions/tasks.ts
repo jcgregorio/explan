@@ -84,7 +84,7 @@ export class DeleteTaskAction implements Action {
 }
 
 export class MoveFocusToPredecessor1 implements Action {
-  description: string = 'Moves focus to a predecessor task.';
+  description: string = 'Moves focus to the first predecessor task.';
   postActionWork: PostActonWork = 'planDefinitionChanged';
   undo: boolean = false;
   predIndex: number = 0;
@@ -116,6 +116,7 @@ export class MoveFocusToPredecessor2 extends MoveFocusToPredecessor1 {
   constructor() {
     super();
     this.predIndex = 1;
+    this.description = 'Moves focus to the second predecessor task.';
   }
 }
 
@@ -123,6 +124,7 @@ export class MoveFocusToPredecessor3 extends MoveFocusToPredecessor1 {
   constructor() {
     super();
     this.predIndex = 2;
+    this.description = 'Moves focus to the third predecessor task.';
   }
 }
 
@@ -130,6 +132,7 @@ export class MoveFocusToPredecessor4 extends MoveFocusToPredecessor1 {
   constructor() {
     super();
     this.predIndex = 3;
+    this.description = 'Moves focus to the fourth predecessor task.';
   }
 }
 
@@ -137,6 +140,7 @@ export class MoveFocusToPredecessor5 extends MoveFocusToPredecessor1 {
   constructor() {
     super();
     this.predIndex = 4;
+    this.description = 'Moves focus to the fifth predecessor task.';
   }
 }
 
@@ -144,6 +148,7 @@ export class MoveFocusToPredecessor6 extends MoveFocusToPredecessor1 {
   constructor() {
     super();
     this.predIndex = 5;
+    this.description = 'Moves focus to the sixth predecessor task.';
   }
 }
 
@@ -151,6 +156,7 @@ export class MoveFocusToPredecessor7 extends MoveFocusToPredecessor1 {
   constructor() {
     super();
     this.predIndex = 6;
+    this.description = 'Moves focus to the seventh predecessor task.';
   }
 }
 
@@ -158,6 +164,7 @@ export class MoveFocusToPredecessor8 extends MoveFocusToPredecessor1 {
   constructor() {
     super();
     this.predIndex = 7;
+    this.description = 'Moves focus to the eigth predecessor task.';
   }
 }
 
@@ -165,18 +172,12 @@ export class MoveFocusToPredecessor9 extends MoveFocusToPredecessor1 {
   constructor() {
     super();
     this.predIndex = 8;
-  }
-}
-
-export class MoveFocusToPredecessor0 extends MoveFocusToPredecessor1 {
-  constructor() {
-    super();
-    this.predIndex = 9;
+    this.description = 'Moves focus to the ninth predecessor task.';
   }
 }
 
 export class MoveFocusToSuccessor1 implements Action {
-  description: string = 'Moves focus to a successor task.';
+  description: string = 'Moves focus to the first successor task.';
   postActionWork: PostActonWork = 'planDefinitionChanged';
   undo: boolean = false;
   succIndex: number = 0;
@@ -211,6 +212,7 @@ export class MoveFocusToSuccessor2 extends MoveFocusToSuccessor1 {
   constructor() {
     super();
     this.succIndex = 1;
+    this.description = 'Moves focus to the second successor task.';
   }
 }
 
@@ -218,6 +220,7 @@ export class MoveFocusToSuccessor3 extends MoveFocusToSuccessor1 {
   constructor() {
     super();
     this.succIndex = 2;
+    this.description = 'Moves focus to the third successor task.';
   }
 }
 
@@ -225,6 +228,7 @@ export class MoveFocusToSuccessor4 extends MoveFocusToSuccessor1 {
   constructor() {
     super();
     this.succIndex = 3;
+    this.description = 'Moves focus to the fourth successor task.';
   }
 }
 
@@ -232,6 +236,7 @@ export class MoveFocusToSuccessor5 extends MoveFocusToSuccessor1 {
   constructor() {
     super();
     this.succIndex = 4;
+    this.description = 'Moves focus to the fifth successor task.';
   }
 }
 
@@ -239,6 +244,7 @@ export class MoveFocusToSuccessor6 extends MoveFocusToSuccessor1 {
   constructor() {
     super();
     this.succIndex = 5;
+    this.description = 'Moves focus to the sixth successor task.';
   }
 }
 
@@ -246,6 +252,7 @@ export class MoveFocusToSuccessor7 extends MoveFocusToSuccessor1 {
   constructor() {
     super();
     this.succIndex = 6;
+    this.description = 'Moves focus to the seventh successor task.';
   }
 }
 
@@ -253,6 +260,7 @@ export class MoveFocusToSuccessor8 extends MoveFocusToSuccessor1 {
   constructor() {
     super();
     this.succIndex = 7;
+    this.description = 'Moves focus to the eigth successor task.';
   }
 }
 
@@ -260,12 +268,6 @@ export class MoveFocusToSuccessor9 extends MoveFocusToSuccessor1 {
   constructor() {
     super();
     this.succIndex = 8;
-  }
-}
-
-export class MoveFocusToSuccessor0 extends MoveFocusToSuccessor1 {
-  constructor() {
-    super();
-    this.succIndex = 9;
+    this.description = 'Moves focus to the ninth successor task.';
   }
 }
