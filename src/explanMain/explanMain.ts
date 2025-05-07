@@ -557,8 +557,10 @@ export class ExplanMain extends HTMLElement {
     const edges = edgesBySrcAndDstToMap(this.plan.chart.Edges);
     this.dependenciesPanel!.setTasksAndIndices(
       this.plan.chart.Vertices,
-      (edges.byDst.get(taskIndex) || []).map((e: DirectedEdge) => e.i),
-      (edges.bySrc.get(taskIndex) || []).map((e: DirectedEdge) => e.j)
+      (edges.byDst.get(taskIndex) || [])
+        .map((e: DirectedEdge) => e.i)
+        .reverse(),
+      (edges.bySrc.get(taskIndex) || []).map((e: DirectedEdge) => e.j).reverse()
     );
     this.dependenciesPanel!.classList.toggle(
       'hidden',

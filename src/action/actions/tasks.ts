@@ -84,7 +84,7 @@ export class DeleteTaskAction implements Action {
 }
 
 export class MoveFocusToPredecessor1 implements Action {
-  description: string = 'Deletes a task.';
+  description: string = 'Moves focus to a predecessor task.';
   postActionWork: PostActonWork = 'planDefinitionChanged';
   undo: boolean = false;
   predIndex: number = 0;
@@ -99,6 +99,7 @@ export class MoveFocusToPredecessor1 implements Action {
     const predecessors = (edges.byDst.get(explanMain.selectedTask) || []).map(
       (e: DirectedEdge) => e.i
     );
+    predecessors.reverse();
     const selected =
       predecessors.length > this.predIndex && predecessors[this.predIndex];
     if (selected === false || selected === 0) {
@@ -171,5 +172,100 @@ export class MoveFocusToPredecessor0 extends MoveFocusToPredecessor1 {
   constructor() {
     super();
     this.predIndex = 9;
+  }
+}
+
+export class MoveFocusToSuccessor1 implements Action {
+  description: string = 'Moves focus to a successor task.';
+  postActionWork: PostActonWork = 'planDefinitionChanged';
+  undo: boolean = false;
+  succIndex: number = 0;
+
+  async do(explanMain: ExplanMain): Promise<Result<Action>> {
+    if (explanMain.selectedTask === -1) {
+      return error(new Error('A task must be selected first.'));
+    }
+
+    // Find all the successors. Then move the focus to it.
+    const edges = edgesBySrcAndDstToMap(explanMain.plan.chart.Edges);
+    const successors = (edges.bySrc.get(explanMain.selectedTask) || []).map(
+      (e: DirectedEdge) => e.j
+    );
+    successors.reverse();
+    const selected =
+      successors.length > this.succIndex && successors[this.succIndex];
+    if (
+      selected === false ||
+      selected === explanMain.plan.chart.Vertices.length - 1
+    ) {
+      return error(new Error("Can't edit that task."));
+    }
+
+    explanMain.selectedTask = selected;
+
+    return ok(new NOOPAction());
+  }
+}
+
+export class MoveFocusToSuccessor2 extends MoveFocusToSuccessor1 {
+  constructor() {
+    super();
+    this.succIndex = 1;
+  }
+}
+
+export class MoveFocusToSuccessor3 extends MoveFocusToSuccessor1 {
+  constructor() {
+    super();
+    this.succIndex = 2;
+  }
+}
+
+export class MoveFocusToSuccessor4 extends MoveFocusToSuccessor1 {
+  constructor() {
+    super();
+    this.succIndex = 3;
+  }
+}
+
+export class MoveFocusToSuccessor5 extends MoveFocusToSuccessor1 {
+  constructor() {
+    super();
+    this.succIndex = 4;
+  }
+}
+
+export class MoveFocusToSuccessor6 extends MoveFocusToSuccessor1 {
+  constructor() {
+    super();
+    this.succIndex = 5;
+  }
+}
+
+export class MoveFocusToSuccessor7 extends MoveFocusToSuccessor1 {
+  constructor() {
+    super();
+    this.succIndex = 6;
+  }
+}
+
+export class MoveFocusToSuccessor8 extends MoveFocusToSuccessor1 {
+  constructor() {
+    super();
+    this.succIndex = 7;
+  }
+}
+
+export class MoveFocusToSuccessor9 extends MoveFocusToSuccessor1 {
+  constructor() {
+    super();
+    this.succIndex = 8;
+  }
+}
+
+export class MoveFocusToSuccessor0 extends MoveFocusToSuccessor1 {
+  constructor() {
+    super();
+    this.succIndex = 9;
   }
 }

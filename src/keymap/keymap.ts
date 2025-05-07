@@ -29,6 +29,16 @@ export const KeyMap: Map<string, ActionNames> = new Map([
   ['ctrl-meta-8', 'MoveFocusToPredecessor8'],
   ['ctrl-meta-9', 'MoveFocusToPredecessor9'],
   ['ctrl-meta-0', 'MoveFocusToPredecessor0'],
+  ['ctrl-1', 'MoveFocusToSuccessor1'],
+  ['ctrl-2', 'MoveFocusToSuccessor2'],
+  ['ctrl-3', 'MoveFocusToSuccessor3'],
+  ['ctrl-4', 'MoveFocusToSuccessor4'],
+  ['ctrl-5', 'MoveFocusToSuccessor5'],
+  ['ctrl-6', 'MoveFocusToSuccessor6'],
+  ['ctrl-7', 'MoveFocusToSuccessor7'],
+  ['ctrl-8', 'MoveFocusToSuccessor8'],
+  ['ctrl-9', 'MoveFocusToSuccessor9'],
+  ['ctrl-0', 'MoveFocusToSuccessor0'],
 ]);
 
 let explanMain: ExplanMain;

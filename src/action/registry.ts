@@ -21,6 +21,16 @@ import {
   MoveFocusToPredecessor7,
   MoveFocusToPredecessor8,
   MoveFocusToPredecessor9,
+  MoveFocusToSuccessor0,
+  MoveFocusToSuccessor1,
+  MoveFocusToSuccessor2,
+  MoveFocusToSuccessor3,
+  MoveFocusToSuccessor4,
+  MoveFocusToSuccessor5,
+  MoveFocusToSuccessor6,
+  MoveFocusToSuccessor7,
+  MoveFocusToSuccessor8,
+  MoveFocusToSuccessor9,
   NewTaskAction,
   SplitTaskAction,
 } from './actions/tasks.ts';
@@ -53,7 +63,18 @@ export type ActionNames =
   | 'MoveFocusToPredecessor7'
   | 'MoveFocusToPredecessor8'
   | 'MoveFocusToPredecessor9'
-  | 'MoveFocusToPredecessor0';
+  | 'MoveFocusToPredecessor0'
+  | 'MoveFocusToSuccessor0'
+  | 'MoveFocusToSuccessor1'
+  | 'MoveFocusToSuccessor2'
+  | 'MoveFocusToSuccessor3'
+  | 'MoveFocusToSuccessor4'
+  | 'MoveFocusToSuccessor5'
+  | 'MoveFocusToSuccessor6'
+  | 'MoveFocusToSuccessor7'
+  | 'MoveFocusToSuccessor8'
+  | 'MoveFocusToSuccessor9'
+  | 'MoveFocusToSuccessor0';
 
 export const ActionRegistry: Record<ActionNames, Action> = {
   ToggleDarkModeAction: new ToggleDarkModeAction(),
@@ -81,4 +102,14 @@ export const ActionRegistry: Record<ActionNames, Action> = {
   MoveFocusToPredecessor8: new MoveFocusToPredecessor8(),
   MoveFocusToPredecessor9: new MoveFocusToPredecessor9(),
   MoveFocusToPredecessor0: new MoveFocusToPredecessor0(),
+  MoveFocusToSuccessor1: new MoveFocusToSuccessor1(),
+  MoveFocusToSuccessor2: new MoveFocusToSuccessor2(),
+  MoveFocusToSuccessor3: new MoveFocusToSuccessor3(),
+  MoveFocusToSuccessor4: new MoveFocusToSuccessor4(),
+  MoveFocusToSuccessor5: new MoveFocusToSuccessor5(),
+  MoveFocusToSuccessor6: new MoveFocusToSuccessor6(),
+  MoveFocusToSuccessor7: new MoveFocusToSuccessor7(),
+  MoveFocusToSuccessor8: new MoveFocusToSuccessor8(),
+  MoveFocusToSuccessor9: new MoveFocusToSuccessor9(),
+  MoveFocusToSuccessor0: new MoveFocusToSuccessor0(),
 };
