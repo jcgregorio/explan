@@ -19,6 +19,7 @@ export interface TaskSerialized {
   resources: { [key: string]: string };
   metrics: MetricValues;
   name: string;
+  description: string;
   id: string;
 }
 
@@ -36,6 +37,7 @@ export class Task {
   resources: { [key: string]: string };
   metrics: MetricValues;
   name: string;
+  description: string;
   id: string;
 
   constructor(name: string = '') {
@@ -43,6 +45,7 @@ export class Task {
     this.metrics = {};
     this.resources = {};
     this.id = crypto.randomUUID();
+    this.description = '';
   }
 
   toJSON(): TaskSerialized {
@@ -50,6 +53,7 @@ export class Task {
       resources: this.resources,
       metrics: this.metrics,
       name: this.name,
+      description: this.description,
       id: this.id,
     };
   }

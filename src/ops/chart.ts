@@ -581,6 +581,29 @@ export class SetTaskNameSubOp implements SubOp {
   }
 }
 
+export class SetTaskDescriptionSubOp implements SubOp {
+  taskIndex: number;
+  description: string;
+
+  constructor(taskIndex: number, description: string) {
+    this.taskIndex = taskIndex;
+    this.description = description;
+  }
+
+  applyTo(plan: Plan): Result<SubOpResult> {
+    const ret = indexInRangeForVertices(this.taskIndex, plan.chart);
+    if (!ret.ok) {
+      return ret;
+    }
+    const oldDescription = plan.chart.Vertices[this.taskIndex].description;
+    plan.chart.Vertices[this.taskIndex].description = this.description;
+    return ok({
+      plan: plan,
+      inverse: new SetTaskDescriptionSubOp(this.taskIndex, oldDescription),
+    });
+  }
+}
+
 // RestoreTaskCompletionsSubOp is the inverse of the CatchupSubOp, restoring the
 // TaskCompletion's that were changed.
 export class RestoreTaskCompletionsSubOp implements SubOp {
@@ -885,4 +908,8 @@ export function CatchupTaskOp(
   span: Span
 ): Op {
   return new Op([new CatchupTaskSubOp(today, taskIndex, span)]);
+}
+
+export function SetTaskDescriptionOp(taskIndex: number, description: string) {
+  return new Op([new SetTaskDescriptionSubOp(taskIndex, description)]);
 }

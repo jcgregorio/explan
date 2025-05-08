@@ -11,6 +11,7 @@ import {
   CatchupOp,
   RecalculateDurationOp,
   CatchupTaskOp,
+  SetTaskDescriptionOp,
 } from './chart.ts';
 import { SetPlanStartStateOp, SetTaskCompletionOp } from './plan.ts';
 import { Plan } from '../plan/plan.ts';
@@ -508,5 +509,33 @@ describe('CatchupTaskOp', () => {
         assert.equal(comp.value.stage, 'unstarted');
       }),
     ]);
+  });
+});
+
+describe('SetTaskDescription', () => {
+  const newTaskDescription = 'An updated description';
+  it('Sets a tasks name.', () => {
+    TestOpsForwardAndBack([
+      InsertNewEmptyTaskAfterOp(0),
+      T2Op((plan: Plan) => {
+        assert.equal(plan.chart.Vertices[1].description, '');
+      }),
+      SetTaskDescriptionOp(1, newTaskDescription),
+      TOp((plan: Plan) => {
+        assert.equal(plan.chart.Vertices[1].description, newTaskDescription);
+      }),
+    ]);
+  });
+
+  it('Fails if the taskIndex is out of range', () => {
+    const res = SetTaskDescriptionOp(-1, 'foo').applyTo(new Plan());
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes('is not in range'));
+  });
+
+  it('Fails if the taskIndex is out of range', () => {
+    const res = SetTaskDescriptionOp(2, 'bar').applyTo(new Plan());
+    assert.isFalse(res.ok);
+    assert.isTrue(res.error.message.includes('is not in range'));
   });
 });
