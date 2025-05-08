@@ -1,3 +1,8 @@
+/**
+ * Pop-up dialog that prompts for a single text input.
+ *
+ * HTML structure is found in index.html.
+ */
 export class PromptDialog extends HTMLElement {
   dialog: HTMLDialogElement | null = null;
   heading: HTMLHeadingElement | null = null;

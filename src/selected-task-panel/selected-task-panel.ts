@@ -4,9 +4,12 @@ import { live } from 'lit-html/directives/live.js';
 import { icon } from '../icons/icons';
 import { executeByName, executeOp } from '../action/execute';
 import { ExplanMain } from '../explanMain/explanMain';
-import { RecalculateDurationOp } from '../ops/chart';
+import { RecalculateDurationOp, SetTaskDescriptionOp } from '../ops/chart';
 import { reportErrorMsg } from '../report-error/report-error';
 import { Task } from '../chart/chart';
+import linkifyStr from 'linkify-string';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html.js';
+import { EditDescriptionDialog } from '../edit-description-dialog/edit-description-dialog';
 
 export interface TaskNameChangeDetails {
   name: string;
@@ -176,6 +179,35 @@ export class SelectedTaskPanel extends HTMLElement {
           </td>
         </tr>
         <tr>
+          <!-- 
+          
+          Should be a div with an edit button. Contents processed through linkify.
+
+          Assure the linkify links open in another tab/window.
+
+          Add an edit button to open a dialog for editing the description.
+          
+          -->
+          <td>De<u>s</u>cription</td>
+          <td class="task-description">
+            <p>
+              ${unsafeHTML(
+                linkifyStr(task.description, {
+                  target: '_blank',
+                })
+              )}
+            </p>
+            <button
+              accesskey="s"
+              class="icon-button"
+              title="Edit description"
+              @click=${() => this.editDescription()}
+            >
+              ${icon('edit-icon')}
+            </button>
+          </td>
+        </tr>
+        <tr>
           <td>D<u>u</u>ration</td>
           <td class="aligned-td">
             <input
@@ -188,7 +220,6 @@ export class SelectedTaskPanel extends HTMLElement {
                 const humanDuration = (e.target as HTMLInputElement).value;
                 const ret =
                   this.plan.durationUnits.parseHumanDuration(humanDuration);
-                debugger;
                 if (!ret.ok) {
                   reportErrorMsg(ret.error);
                   e.stopPropagation();
@@ -307,6 +338,22 @@ export class SelectedTaskPanel extends HTMLElement {
         ${icon('calculate')}
       </button>
     `;
+  }
+
+  async editDescription() {
+    const task = this.plan.chart.Vertices[this.taskIndex];
+    const description = await document
+      .querySelector<EditDescriptionDialog>('edit-description-dialog')
+      ?.prompt(task.description);
+    if (description === null || description === undefined) {
+      return;
+    }
+    await executeOp(
+      SetTaskDescriptionOp(this.taskIndex, description),
+      'planDefinitionChanged',
+      true,
+      this.explanMain!
+    );
   }
 }
 

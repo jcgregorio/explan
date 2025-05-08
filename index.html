@@ -269,6 +269,14 @@
         }
       }
 
+      selected-task-panel td.task-description {
+        display: flex;
+
+        p a {
+          color: var(--on-surface-muted);
+        }
+      }
+
       image-export-panel {
         input:invalid {
           background-color: var(--error);
@@ -669,6 +677,16 @@
           </div>
         </dialog>
       </prompt-dialog>
+      <edit-description-dialog>
+        <dialog>
+          <h3>Description</h3>
+          <textarea rows="5" cols="80"> </textarea>
+          <div class="dialog-footer">
+            <button id="description-cancel">Cancel</button>
+            <button id="description-ok">OK</button>
+          </div>
+        </dialog>
+      </edit-description-dialog>
     </explan-main>
     <script type="module" src="./dst/page.js"></script>
     <div id="extensions"></div>
