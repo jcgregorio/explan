@@ -907,9 +907,15 @@ export function CatchupTaskOp(
   taskIndex: number,
   span: Span
 ): Op {
-  return new Op([new CatchupTaskSubOp(today, taskIndex, span)]);
+  return new Op(
+    [new CatchupTaskSubOp(today, taskIndex, span)],
+    'CatchupTaskOp'
+  );
 }
 
 export function SetTaskDescriptionOp(taskIndex: number, description: string) {
-  return new Op([new SetTaskDescriptionSubOp(taskIndex, description)]);
+  return new Op(
+    [new SetTaskDescriptionSubOp(taskIndex, description)],
+    'SetTaskDescriptionOp'
+  );
 }
