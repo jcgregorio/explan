@@ -15,6 +15,7 @@
     "test:cont": "npx web-test-runner \"./src/**/*_test.ts\" --puppeteer --watch",
     "jest": "npx jest",
     "jest:cont": "npx jest --watchAll",
+    "docs:serve": "cd docs && npx @11ty/eleventy --serve",
     "test": "npx web-test-runner \"./src/**/*_test.ts\" --puppeteer",
     "watch": "git ls-files | entr bash -c \"npm run build && npm run build:ext\""
   },
@@ -26,6 +27,7 @@
   "author": "joe@bitworking.org",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@11ty/eleventy": "^3.0.0",
     "@eslint/js": "9.5.0",
     "@esm-bundle/chai": "4.3.4-fix.0",
     "@tsconfig/recommended": "1.0.6",
@@ -43,8 +45,8 @@
     "jest": "^29.7.0",
     "prettier": "^3.3.3",
     "ts-jest": "^29.3.2",
-    "typescript-eslint": "^8.29.0",
     "typescript": "5.8.2",
+    "typescript-eslint": "^8.29.0",
     "vscode": "^1.1.37"
   },
   "dependencies": {

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title }}</title>
+    <style type="text/css" media="screen">
+      body {
+        --font: Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
+        --mono-font: 'Courier New', Courier, monospace;
+
+        --primary: hsl(214, 70%, 47%);
+        --on-primary: #ffffff;
+        --primary-variant: rgba(59, 114, 177, 0.2);
+        --on-primary-variant: #000000;
+        --secondary: hsl(136, 54%, 40%);
+        --secondary-variant: hsl(137, 7%, 79%);
+        --on-secondary: #000000;
+        --background: #fafafa;
+        --on-background: #000000;
+        --surface: #ffffff;
+        --on-surface: #000000;
+        --on-surface-muted: hsl(0, 0%, 24%);
+        --surface-1dp: #eee;
+        --surface-2dp: #bdbdbd;
+        --disabled: #f5f5f5;
+        --on-disabled: #616161;
+        --error: #b71c1c;
+        --on-error: #ffffff;
+        --transparent-overlay: rgba(0, 0, 0, 0.25);
+        --group-color: rgba(90, 206, 6, 0.15);
+
+        --added: rgba(24, 132, 47);
+        --removed: rgba(175, 15, 29);
+
+        margin: 0;
+        padding: 0;
+        font-family: var(--font);
+      }
+
+      h1 {
+        background-color: var(--primary);
+        color: white;
+        padding: 8px;
+        margin: 0;
+      }
+
+      a {
+        color: var(--primary);
+      }
+
+      nav ul {
+        display: flex;
+        justify-content: space-around;
+        li {
+          padding-right: 16px;
+          list-style: none;
+        }
+      }
+
+      main {
+        padding: 16px;
+
+        p {
+          margin: 0 8px 8px 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li>
+            <a href="/overview">Overview</a>
+          </li>
+          <li>
+            <a href="/docs">Documentation</a>
+          </li>
+          <li>
+            <a href="/docs">Play</a>
+          </li>
+        </ul>
+      </nav>
+      <h1>Explan</h1>
+    </header>
+    <main>
+      {{ content | safe }}
+    </main>
+  </body>
+</html>
