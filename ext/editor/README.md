@@ -30,7 +30,6 @@ Supports both dark mode and light mode:
 
 ![Darkmode](images/darkmode.gif)
 
-
 ## Requirements
 
 None.
