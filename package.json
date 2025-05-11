@@ -17,6 +17,7 @@
     "jest": "npx jest",
     "jest:cont": "npx jest --watchAll",
     "docs:serve": "cd docs && npx @11ty/eleventy --serve",
+    "docs:deploy": "npx firebase deploy",
     "test": "npx web-test-runner \"./src/**/*_test.ts\" --puppeteer",
     "watch": "git ls-files | entr bash -c \"npm run build:all && node ./build/merge.ts\""
   },
@@ -41,6 +42,7 @@
     "@web/test-runner-puppeteer": "0.16.0",
     "esbuild": "0.21.5",
     "eslint": "^9.11.1",
+    "firebase-tools": "^14.3.1",
     "globals": "15.4.0",
     "http-server": "14.1.1",
     "jest": "^29.7.0",
