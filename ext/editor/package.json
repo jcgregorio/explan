@@ -1,8 +1,8 @@
 {
   "name": "explan",
-  "displayName": "Explan",
-  "description": "Editor for Explan files.",
-  "version": "0.0.1",
+  "displayName": "Explan - Gantt Chart Editor",
+  "description": "Create and edit gantt charts for project planning.",
+  "version": "0.0.2",
   "publisher": "Explan-org",
   "repository": {
     "type": "git",
