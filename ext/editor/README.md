@@ -1,81 +1,42 @@
-# editor README
+# Explan
 
-Explan extension. Create and edit Gantt chart project plans in VS Code.
+Create and edit Gantt charts directly in VS Code.
+
+![Screenshot](images/Screenshot.png)
+
+To start create an empty file with an extension of `.explan`, `.explan.json`, or
+`.explan.png` and open it in Visual Studio Code.
+
+Or run the `Explan: Create new Explan Document` action.
+
+Press `Shift-Ctrl-H` to display all the keyboard shortcuts.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your
-extension in action. Image paths are relative to this README file.
+* Plans can be stored in either JSON format (`*.explan` or `*.explan.json`) or as PNG files (`*.explan.png`).
+* Regardless of the format the charts can always be reopened and edited.
+* Add your own resource and metric definitions.
+* Durations are entered in human-centric notation, e.g. `2w3d` is two weeks and 3 days.
+* Easily split or duplicate tasks.
+* Fast Fuzzy search to jumpt to task `Ctrl-F` or `Shift-Ctrl-F`.
+* Radar allows quick zooming into parts of the chart.
+* Double-click on a task in the chart to zoom into that task, showing only its predecessors and successors.
+* Simulate possible project timelines based on the Uncertainty set for each task, allowing the discovery of hidden critical paths.
+* Group tasks by resource, for example to show what each person is working on.
 
-For example if there is an image subfolder under your extension project
-workspace:
+### Darkmode
 
-\!\[feature X\]\(images/feature-x.png\)
+Supports both dark mode and light mode:
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to
-> show off your extension! We recommend short, focused animations that are easy
-> to follow.
+![Darkmode](images/darkmode.gif)
+
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and
-how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the
-`contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-- `myExtension.enable`: Enable/disable this extension.
-- `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against
-your extension.
+None.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best
-practices for creating your extension.
-
-- [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor
-keyboard shortcuts:
-
-- Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-- Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and
-  Linux).
-- Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-- [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-- [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Initial release.

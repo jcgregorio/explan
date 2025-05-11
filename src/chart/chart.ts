@@ -60,7 +60,7 @@ export class Task {
 
   static fromJSON(taskSerialized: TaskSerialized): Task {
     const ret = new Task(taskSerialized.name);
-    ret.description = taskSerialized.description;
+    ret.description = taskSerialized.description || '';
     ret.id = taskSerialized.id;
     ret.resources = taskSerialized.resources;
     ret.metrics = taskSerialized.metrics;
