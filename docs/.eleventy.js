@@ -1,5 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default async function (eleventyConfig) {
+  eleventyConfig.addPassthroughCopy({
+    '../dst/prod/standalone/index.html': 'play/index.html',
+  });
   return {
     dir: {
       input: 'src',
