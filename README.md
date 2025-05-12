@@ -1,29 +1,47 @@
-# explan
+# Explan
 
-Project planning software.
+A VS Code extension for creating and editing Gantt charts.
 
-## npm incantations
+![Screenshot](images/Screenshot.png)
 
-This was the incantation that I found that works to install esbuild and eslint with TypeScript linting.
+## Installation
 
-    npm install --save-exact --save-dev @eslint/js @tsconfig/recommended eslint globals typescript typescript-eslint esbuild @web/test-runner @esm-bundle/chai @web/dev-server-esbuild @web/test-runner-puppeteer @types/mocha http-server
+See the VS Code Marketplace entry for Explan:
 
-Tests are working, at least for:
+https://marketplace.visualstudio.com/items?itemName=Explan-org.explan
 
-    npx web-test-runner ./src/stats/cdf/triangular/triangular_test.ts --puppeteer --verbose
+## Getting started
 
-Add `--watch` to have it run continuously.
+To start create an empty file with an extension of `.explan`, `.explan.json`, or
+`.explan.png` and open it in Visual Studio Code.
 
-## Puppeteer notes
+Or run the `Explan: Create new Explan Document` action.
 
-If you are running under WSL you might get 
+Press `Shift-Ctrl-H` to display all the keyboard shortcuts.
 
-```
-error while loading shared libraries: libgobject-2.0.so.0: cannot open shared object file: No such file or directory
-```
+## Features
 
-In which case you can run the following to install the missing dependencies:    
+- Plans can be stored in either JSON format (`*.explan` or `*.explan.json`) or
+  as PNG files (`*.explan.png`).
+- Regardless of the format the charts can always be reopened and edited.
+- Add your own resource and metric definitions.
+- Durations are entered in human-centric notation, e.g. `2w3d` is two weeks and
+  3 days.
+- Easily split or duplicate tasks.
+- Fast Fuzzy search to jumpt to task `Ctrl-F` or `Shift-Ctrl-F`.
+- Radar allows quick zooming into parts of the chart.
+- Double-click on a task in the chart to zoom into that task, showing only its
+  predecessors and successors.
+- Simulate possible project timelines based on the Uncertainty set for each
+  task, allowing the discovery of hidden critical paths.
+- Group tasks by resource, for example to show what each person is working on.
 
-```
-sudo apt install libgtk-3-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2
-```
+### Darkmode
+
+Supports both dark mode and light mode:
+
+![Darkmode](images/darkmode.gif)
+
+## Requirements
+
+None.
