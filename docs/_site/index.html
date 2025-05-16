@@ -5,12 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content="Eleventy v3.0.0" />
-    <title>Explan Documentation</title>
+    <title>Explan Overview</title>
     <style type="text/css" media="screen">
       body {
+        font-size: 14px;
+
         --font: Arial, 'Bitstream Vera Sans', Helvetica, sans-serif;
         --mono-font: 'Courier New', Courier, monospace;
-        font-size: 12px;
 
         --primary: hsl(214, 70%, 47%);
         --on-primary: #ffffff;
@@ -41,28 +42,72 @@
         font-family: var(--font);
       }
 
-      h1 {
-        background-color: var(--primary);
-        color: white;
-        padding: 8px;
-        margin: 0;
+      body {
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr;
+        grid-template-rows: auto;
+        grid-template-areas:
+          '.      header .'
+          '.      main   .'
+          'footer footer footer';
       }
 
       a {
         color: var(--primary);
       }
 
-      nav ul {
-        display: flex;
-        justify-content: space-around;
-        li {
-          padding-right: 16px;
-          list-style: none;
+      header {
+        grid-area: header;
+
+        nav {
+          a span {
+            display: inline-block;
+            margin: 4px;
+            display: flex;
+            align-items: center;
+            color: var(--primary);
+            margin-right: 6px;
+
+            img {
+              width: 20px;
+              height: 20px;
+              margin-right: 8px;
+            }
+          }
+
+          ul {
+            display: flex;
+
+            font-weight: 500;
+            line-height: 48px;
+            align-items: center;
+            margin: 4px 4px 24px 4px;
+            padding: 0;
+            justify-content: left;
+
+            li {
+              padding-right: 16px;
+              list-style: none;
+            }
+
+            border-bottom: 1px var(--on-disabled) solid;
+          }
         }
       }
 
       main {
+        grid-area: main;
         padding: 16px;
+
+        img {
+          max-width: 500px;
+          border: solid var(--primary) 32px;
+          border-radius: 16px;
+        }
+
+        code {
+          color: var(--secondary);
+        }
 
         p {
           margin: 0 8px 8px 8px;
@@ -75,7 +120,9 @@
       <nav>
         <ul>
           <li>
-            <a href="/overview">Overview</a>
+            <a href="/"
+              ><span><img src="/images/logo2-128x128.png" /> Explan</span></a
+            >
           </li>
           <li>
             <a href="/docs">Documentation</a>
@@ -85,7 +132,6 @@
           </li>
         </ul>
       </nav>
-      <h1>Explan</h1>
     </header>
     <main>
       
@@ -101,7 +147,8 @@
 <p>
     See the VS Code Marketplace entry for Explan:
 
-    https://marketplace.visualstudio.com/items?itemName=Explan-org.explan
+    <a href="https://marketplace.visualstudio.com/items?itemName=Explan-org.explan">
+    https://marketplace.visualstudio.com/items?itemName=Explan-org.explan</a>
 
 </p>
 
@@ -115,7 +162,7 @@
     Or run the <code>Explan: Create new Explan Document</code> action.
 </p>
 <p>
-    Press `Shift-Ctrl-H` to display all the keyboard shortcuts.
+    Press <code>Shift-Ctrl-H</code> to display all the keyboard shortcuts.
 </p>
 <p>
 <h2>Features</h2>   
