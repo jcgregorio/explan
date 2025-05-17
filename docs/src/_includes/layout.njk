@@ -5,7 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content="{{ eleventy.generator }}" />
-    <title>{{ title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
     <style type="text/css" media="screen">
       body {
         font-size: 16px;
@@ -39,12 +44,67 @@
 
         margin: 0;
         padding: 0;
-        font-family: var(--font);
+        font-family: 'Roboto', sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+      }
+
+      body.darkmode {
+        --primary: hsl(210, 72%, 45%);
+        --on-primary: #000000;
+        --primary-variant: rgba(59, 114, 177, 0.2);
+        --on-primary-variant: #ffffff;
+        --secondary: hsl(146, 75%, 33%);
+        --secondary-variant: hsl(150, 2%, 22%);
+        --on-secondary: #000000;
+        --background: #000000;
+        --on-background: #ffffff;
+        --surface: #0f0f0f;
+        --surface-1dp: #424242;
+        --surface-2dp: #616161;
+        --disabled: #757575;
+        --on-disabled: #e0e0e0;
+        --on-surface: #ffffff;
+        --on-surface-muted: hsl(0, 0%, 74%);
+        --error: #ec407a;
+        --on-error: #000000;
+        --transparent-overlay: rgba(255, 255, 255, 0.1);
+        --group-color: rgba(89, 206, 6, 0.1);
+
+        --added: rgb(36, 180, 67);
+        --removed: rgb(227, 22, 39);
+      }
+
+      body {
+        background: var(--surface);
+        color: var(--on-surface);
+      }
+
+      code {
+        color: var(--secondary);
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-weight: 800;
+      }
+
+      .roboto-header * {
+        font-family: 'Roboto', sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 300;
+        font-size: 20px;
+        font-style: normal;
+        font-variation-settings: 'width' 100;
+        text-decoration: none;
       }
 
       body {
         display: grid;
-        grid-template-columns: 1fr 2fr 1fr;
+        grid-template-columns: 1fr 3fr 1fr;
         grid-template-rows: auto;
         grid-template-areas:
           '.      header .'
@@ -56,32 +116,37 @@
         color: var(--primary);
       }
 
-      header {
+      header.roboto-header {
         grid-area: header;
 
         nav {
+          display: flex;
+          border-bottom: 1px var(--on-disabled) solid;
+          align-items: center;
+          padding: 0;
+          justify-content: space-between;
+
           a span {
             display: inline-block;
             margin: 4px;
             display: flex;
             align-items: center;
-            color: var(--primary);
+            color: var(--on-surface);
+            font-weight: 500;
+            font-size: 32px;
             margin-right: 6px;
 
             img {
-              width: 20px;
-              height: 20px;
+              width: 64px;
+              height: 64px;
               margin-right: 8px;
             }
           }
 
           ul {
             display: flex;
-
             font-weight: 500;
-            line-height: 48px;
             align-items: center;
-            margin: 4px 4px 24px 4px;
             padding: 0;
             justify-content: left;
 
@@ -89,8 +154,6 @@
               padding-right: 16px;
               list-style: none;
             }
-
-            border-bottom: 1px var(--on-disabled) solid;
           }
         }
       }
@@ -100,7 +163,8 @@
         padding: 16px;
 
         img {
-          max-width: 500px;
+          max-width: 100%;
+          height: auto;
           border: solid var(--primary) 32px;
           border-radius: 16px;
         }
@@ -116,14 +180,12 @@
     </style>
   </head>
   <body>
-    <header>
+    <header class="roboto-header">
       <nav>
+        <a href="/"
+          ><span><img src="/images/logo2-128x128.png" /> Explan</span></a
+        >
         <ul>
-          <li>
-            <a href="/"
-              ><span><img src="/images/logo2-128x128.png" /> Explan</span></a
-            >
-          </li>
           <li>
             <a href="/docs">Documentation</a>
           </li>
